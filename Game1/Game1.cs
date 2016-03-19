@@ -16,12 +16,12 @@ namespace Game1
 
         private Texture2D cross;
         //float skala = 0.5f;
-        float skala = 10f;
+        float skala = 1f;
         float szerokosc;
         float wysokosc;
         float odleglosc;
 
-        Matrix worldMatrix;
+        //Matrix worldMatrix;
 
         //Geometric info
         //Model model;
@@ -88,9 +88,9 @@ namespace Game1
             // Initial position for text rendering.
             fontPos = new Vector2(1.0f, 1.0f);
 
-            worldMatrix = Matrix.CreateWorld(new Vector3(), Vector3.Forward, Vector3.Up);
+            camera.worldMatrix = Matrix.CreateWorld(new Vector3(), Vector3.Forward, Vector3.Up);
 
-            szerokosc = 2 * skala;
+            szerokosc = 2 * 1;
             wysokosc = (float)Math.Sqrt(3) / 2 * szerokosc;
             odleglosc = 0.75f * szerokosc;
             //mapa = new int[size, size];

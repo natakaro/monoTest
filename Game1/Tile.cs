@@ -21,20 +21,7 @@ namespace Game1
 
         public void Draw(Camera camera)
         {
-            foreach (var mesh in model.Meshes)
-            {
-                foreach (BasicEffect effect in mesh.Effects)
-                {
-                    effect.EnableDefaultLighting();
-                    effect.PreferPerPixelLighting = true;
-
-                    effect.World = Matrix.CreateWorld(position, Vector3.Forward, Vector3.Up);
-                    effect.View = camera.ViewMatrix;
-                    effect.Projection = camera.ProjectionMatrix;
-                }
-
-                mesh.Draw();
-            }
+            model.Draw(Matrix.CreateTranslation(position) * camera.worldMatrix, camera.ViewMatrix, camera.ProjectionMatrix);
         }
 
         public Tile(Game1 game, Vector3 xyz) : base(game)

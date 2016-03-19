@@ -33,6 +33,8 @@ namespace Game1
         public const float DEFAULT_ZNEAR = 0.1f;
         public const float DEFAULT_ZFAR = 1000.0f;
 
+        public Matrix worldMatrix;
+
         private static Vector3 WORLD_X_AXIS = new Vector3(1.0f, 0.0f, 0.0f);
         private static Vector3 WORLD_Y_AXIS = new Vector3(0.0f, 1.0f, 0.0f);
         private static Vector3 WORLD_Z_AXIS = new Vector3(0.0f, 0.0f, 1.0f);
@@ -69,6 +71,7 @@ namespace Game1
         private Vector3 velocityWalking;
         private Vector3 velocityRunning;
         private Quaternion orientation;
+        
         private Matrix viewMatrix;
         private Matrix projMatrix;
 
