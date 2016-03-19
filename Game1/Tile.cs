@@ -13,10 +13,11 @@ namespace Game1
     {
         Model model;
         Vector3 position;
+        int id;
 
         public void Initialize(ContentManager contentManager)
         {
-            model = contentManager.Load<Model>("1");
+            model = contentManager.Load<Model>(id.ToString());
         }
 
         public void Draw(Camera camera)
@@ -24,9 +25,10 @@ namespace Game1
             model.Draw(Matrix.CreateTranslation(position) * camera.worldMatrix, camera.ViewMatrix, camera.ProjectionMatrix);
         }
 
-        public Tile(Game1 game, Vector3 xyz) : base(game)
+        public Tile(Game1 game, Vector3 xyz, int id) : base(game)
         {
             position = xyz;
+            this.id = id;
         }
     }
 }

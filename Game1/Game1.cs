@@ -16,10 +16,7 @@ namespace Game1
 
         private Texture2D cross;
         //float skala = 0.5f;
-        float skala = 1f;
-        float szerokosc;
-        float wysokosc;
-        float odleglosc;
+        
 
         //Matrix worldMatrix;
 
@@ -29,9 +26,9 @@ namespace Game1
         //Model model3;
 
         //Mapa
-        int size = 30;
+        //int size = 30;
         //int[,] mapa;
-        GameComponentCollection tilemap;
+        Map mapa;
 
         private const float CAMERA_FOVX = 85.0f;
         private const float CAMERA_ZNEAR = 0.01f;
@@ -89,10 +86,8 @@ namespace Game1
             fontPos = new Vector2(1.0f, 1.0f);
 
             camera.worldMatrix = Matrix.CreateWorld(new Vector3(), Vector3.Forward, Vector3.Up);
-
-            szerokosc = 2 * 1;
-            wysokosc = (float)Math.Sqrt(3) / 2 * szerokosc;
-            odleglosc = 0.75f * szerokosc;
+            
+            
             //mapa = new int[size, size];
             //Random a = new Random();
             //for (int i = 0; i < size; i++)
@@ -105,7 +100,7 @@ namespace Game1
 
             //tworzenie mapy
 
-            tilemap = new GameComponentCollection();
+            /*tilemap = new GameComponentCollection();
 
             for (int i = 0; i < size; i++)
             {
@@ -118,7 +113,7 @@ namespace Game1
             foreach(Tile tile in tilemap)
             {
                 tile.Initialize(Content);   //mozna inicjalizowac jakos automatycznie?
-            }
+            }*/
             
 
             //Setup the camera.
@@ -141,6 +136,9 @@ namespace Game1
                 CAMERA_ZNEAR, CAMERA_ZFAR);
 
             currentKeyboardState = Keyboard.GetState();
+
+            mapa = new Map(this, 30);
+            mapa.Initialize(Content);
         }
 
         protected override void LoadContent()
@@ -343,10 +341,12 @@ namespace Game1
 
             //}
 
-            foreach (Tile tile in tilemap)
+            /*foreach (Tile tile in tilemap)
             {
                 tile.Draw(camera);
-            }
+            }*/
+
+            mapa.Draw(camera);
 
             spriteBatch.Begin();
             spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);

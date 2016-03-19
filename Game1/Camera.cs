@@ -72,8 +72,8 @@ namespace Game1
         private Vector3 velocityRunning;
         private Quaternion orientation;
         
-        private Matrix viewMatrix;
-        private Matrix projMatrix;
+        public Matrix viewMatrix;
+        public Matrix projMatrix;
 
         private bool forwardsPressed;
         private bool backwardsPressed;
