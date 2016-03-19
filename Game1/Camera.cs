@@ -345,18 +345,18 @@ namespace Game1
         /// <param name="yOffset">How far to position the weapon up or down.</param>
         /// <param name="zOffset">How far to position the weapon in front or behind.</param>
         /// <returns>The weapon world transformation matrix.</returns>
-        public Matrix WeaponWorldMatrix(float xOffset, float yOffset, float zOffset)
-        {
-            Vector3 weaponPos = eye;
+        //public Matrix WeaponWorldMatrix(float xOffset, float yOffset, float zOffset)
+        //{
+        //    Vector3 weaponPos = eye;
 
-            weaponPos += viewDir * zOffset;
-            weaponPos += yAxis * yOffset;
-            weaponPos += xAxis * xOffset;
+        //    weaponPos += viewDir * zOffset;
+        //    weaponPos += yAxis * yOffset;
+        //    weaponPos += xAxis * xOffset;
 
-            return Matrix.CreateRotationX(MathHelper.ToRadians(PitchDegrees))
-                    * Matrix.CreateRotationY(MathHelper.ToRadians(HeadingDegrees))
-                    * Matrix.CreateTranslation(weaponPos);
-        }
+        //    return Matrix.CreateRotationX(MathHelper.ToRadians(PitchDegrees))
+        //            * Matrix.CreateRotationY(MathHelper.ToRadians(HeadingDegrees))
+        //            * Matrix.CreateTranslation(weaponPos);
+        //}
 
         /// <summary>
         /// Calculates the world transformation matrix for the weapon attached
@@ -369,19 +369,19 @@ namespace Game1
         /// <param name="zOffset">How far to position the weapon in front or behind.</param>
         /// <param name="scale">How much to scale the weapon.</param>
         /// <returns>The weapon world transformation matrix.</returns>
-        public Matrix WeaponWorldMatrix(float xOffset, float yOffset, float zOffset, float scale)
-        {
-            Vector3 weaponPos = eye;
+        //public Matrix WeaponWorldMatrix(float xOffset, float yOffset, float zOffset, float scale)
+        //{
+        //    Vector3 weaponPos = eye;
 
-            weaponPos += viewDir * zOffset;
-            weaponPos += yAxis * yOffset;
-            weaponPos += xAxis * xOffset;
+        //    weaponPos += viewDir * zOffset;
+        //    weaponPos += yAxis * yOffset;
+        //    weaponPos += xAxis * xOffset;
 
-            return Matrix.CreateScale(scale)
-                * Matrix.CreateRotationX(MathHelper.ToRadians(PitchDegrees))
-                * Matrix.CreateRotationY(MathHelper.ToRadians(HeadingDegrees))
-                * Matrix.CreateTranslation(weaponPos);
-        }
+        //    return Matrix.CreateScale(scale)
+        //        * Matrix.CreateRotationX(MathHelper.ToRadians(PitchDegrees))
+        //        * Matrix.CreateRotationY(MathHelper.ToRadians(HeadingDegrees))
+        //        * Matrix.CreateTranslation(weaponPos);
+        //}
 
         #endregion
 

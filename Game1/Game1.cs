@@ -21,24 +21,17 @@ namespace Game1
         float wysokosc;
         float odleglosc;
 
-        //Camera
-        float x;
-        float y;
-        float z;
-        Matrix projectionMatrix;
-        Matrix viewMatrix;
         Matrix worldMatrix;
-        Vector4 kolor = new Vector4(0, 0, 1, 1);
+
         //Geometric info
-        Model model;
-        Model model2;
-        Model model3;
+        //Model model;
+        //Model model2;
+        //Model model3;
 
         //Mapa
         int size = 30;
-        int[,] mapa;
-        //Orbit
-        bool orbit = false;
+        //int[,] mapa;
+        GameComponentCollection tilemap;
 
         private const float CAMERA_FOVX = 85.0f;
         private const float CAMERA_ZNEAR = 0.01f;
@@ -72,7 +65,9 @@ namespace Game1
             Content.RootDirectory = "Content";
 
             camera = new Camera(this);
-            Components.Add(camera); //?
+            Components.Add(camera);
+
+            IsFixedTimeStep = false; //to ustawione na false albo vsync na true potrzebne
         }
 
         protected override void Initialize()
@@ -84,7 +79,7 @@ namespace Game1
             windowHeight = GraphicsDevice.DisplayMode.Height / 2;
 
             // Setup frame buffer.
-            graphics.SynchronizeWithVerticalRetrace = false;
+            graphics.SynchronizeWithVerticalRetrace = false; //vsync
             graphics.PreferredBackBufferWidth = windowWidth;
             graphics.PreferredBackBufferHeight = windowHeight;
             graphics.PreferMultiSampling = true;
@@ -93,41 +88,38 @@ namespace Game1
             // Initial position for text rendering.
             fontPos = new Vector2(1.0f, 1.0f);
 
-            //Setup Camera
-            //camera.cameraTarget = new Vector3(0f, 0f, 0f);
-            //camera.cameraPosition = new Vector3(0f, 0f, -10);
-            //camera.cameraUp = new Vector3(0f, 1f, 0f);
-            //camera.cameraDirection = camera.cameraTarget - camera.cameraPosition;
-            //camera.cameraDirection.Normalize();
-            //camera.CreateLookAt();
+            worldMatrix = Matrix.CreateWorld(new Vector3(), Vector3.Forward, Vector3.Up);
 
-            //camera.projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, (float)Window.ClientBounds.Width / (float)Window.ClientBounds.Height, 1, 100);
-            //projectionMatrix = Matrix.CreatePerspectiveFieldOfView(
-            //                   MathHelper.ToRadians(45f), graphics.
-            //                   GraphicsDevice.Viewport.AspectRatio,
-            //    1f, 1000f);
-            //viewMatrix = Matrix.CreateLookAt(camPosition, camTarget,
-            //             new Vector3(0f, 1f, 0f));// Y up
-            worldMatrix = Matrix.CreateWorld(new Vector3(0, 100, 0), Vector3.Forward, Vector3.Up);
-
-
-
-            model = Content.Load<Model>("1");
-            model2 = Content.Load<Model>("2");
-            model3 = Content.Load<Model>("3");
-            cross = Content.Load<Texture2D>("cross_cross");
             szerokosc = 2 * skala;
             wysokosc = (float)Math.Sqrt(3) / 2 * szerokosc;
             odleglosc = 0.75f * szerokosc;
-            mapa = new int[size, size];
-            Random a = new Random();
+            //mapa = new int[size, size];
+            //Random a = new Random();
+            //for (int i = 0; i < size; i++)
+            //{
+            //    for (int j = 0; j < size; j++)
+            //    {
+            //        mapa[i, j] = a.Next(1, 4);
+            //    }
+            //}
+
+            //tworzenie mapy
+
+            tilemap = new GameComponentCollection();
+
             for (int i = 0; i < size; i++)
             {
                 for (int j = 0; j < size; j++)
                 {
-                    mapa[i, j] = a.Next(1, 4);
+                    tilemap.Add(new Tile(this, new Vector3(i * odleglosc, 0, (j * wysokosc) + (i % 2) * wysokosc / 2))); //zle wartosci
                 }
             }
+
+            foreach(Tile tile in tilemap)
+            {
+                tile.Initialize(Content);   //mozna inicjalizowac jakos automatycznie?
+            }
+            
 
             //Setup the camera.
             camera.EyeHeightStanding = CAMERA_PLAYER_EYE_HEIGHT;
@@ -153,6 +145,10 @@ namespace Game1
 
         protected override void LoadContent()
         {
+            //model = Content.Load<Model>("1");
+            //model2 = Content.Load<Model>("2");
+            //model3 = Content.Load<Model>("3");
+            cross = Content.Load<Texture2D>("cross_cross");
             spriteBatch = new SpriteBatch(GraphicsDevice);
             spriteFont = Content.Load<SpriteFont>(@"fonts\DemoFont");
         }
@@ -242,118 +238,6 @@ namespace Game1
             if (!this.IsActive)
                 return;
 
-            //if (GamePad.GetState(PlayerIndex.One).Buttons.Back ==
-            //    ButtonState.Pressed || Keyboard.GetState().IsKeyDown(
-            //    Keys.Escape))
-            //{
-            //    Exit();
-            //}
-
-
-            //if (Keyboard.GetState().IsKeyDown(Keys.V))
-            //{
-
-            //}
-            //if (Keyboard.GetState().IsKeyDown(Keys.A))
-            //{
-            //    camPosition.X += 0.1f;
-            //    camTarget.X += 0.1f;
-            //}
-            //if (Keyboard.GetState().IsKeyDown(Keys.D))
-            //{
-            //    camPosition.X -= 0.1f;
-            //    camTarget.X -= 0.1f;
-            //}
-            //if (Keyboard.GetState().IsKeyDown(Keys.S))
-            //{
-            //    camPosition.Z -= 0.1f;
-            //    camTarget.Z -= 0.1f;
-            //}
-            //if (Keyboard.GetState().IsKeyDown(Keys.W))
-            //{
-            //    camPosition.Z += 0.1f;
-            //    camTarget.Z += 0.1f;
-            //}
-            //if (Keyboard.GetState().IsKeyDown(Keys.Left))
-            //{
-            //    camPosition.X -= 0.1f;
-            //    camTarget.X -= 0.1f;
-            //}
-            //if (Keyboard.GetState().IsKeyDown(Keys.Right))
-            //{
-            //    camPosition.X += 0.1f;
-            //    camTarget.X += 0.1f;
-            //}
-            //if (Keyboard.GetState().IsKeyDown(Keys.Up))
-            //{
-            //    camPosition.Y += 0.1f;
-            //    camTarget.Y += 0.1f;
-            //}
-            //if (Keyboard.GetState().IsKeyDown(Keys.Down))
-            //{
-            //    camPosition.Y -= 0.1f;
-            //    camTarget.Y -= 0.1f;
-            //}
-            //if (Keyboard.GetState().IsKeyDown(Keys.OemPlus))
-            //{
-            //    camPosition.Z += 0.1f;
-            //}
-            //if (Keyboard.GetState().IsKeyDown(Keys.OemMinus))
-            //{
-            //    camPosition.Z -= 0.1f;
-            //}
-            //if (Keyboard.GetState().IsKeyDown(Keys.Space))
-            //{
-            //    orbit = !orbit;
-            //}
-            //if (Keyboard.GetState().IsKeyDown(Keys.D1))
-            //{
-            //    graphics.ToggleFullScreen();
-            //}
-            //if (Keyboard.GetState().IsKeyDown(Keys.D7))
-            //{
-            //    kolor = new Vector4(1, 0, 0, 1);
-            //}
-
-            /*if (Mouse.GetState().X > mm) 
-            {
-                Matrix rotationMatrix = Matrix.CreateRotationY(
-                                        MathHelper.ToRadians(1f));
-                camPosition = Vector3.Transform(camPosition,
-                              rotationMatrix);
-
-                viewMatrix = Matrix.CreateLookAt(camPosition, camTarget,
-                         Vector3.Up);
-                base.Update(gameTime);
-            }
-            if (Mouse.GetState().X < mm)
-            {
-                Matrix rotationMatrix = Matrix.CreateRotationY(
-                                        MathHelper.ToRadians(-1f));
-                camPosition = Vector3.Transform(camPosition,
-                              rotationMatrix);
-
-                viewMatrix = Matrix.CreateLookAt(camPosition, camTarget,
-                         Vector3.Up);
-                base.Update(gameTime);
-            }*/
-            //if (orbit)
-            //{
-            //    Matrix rotationMatrix = Matrix.CreateRotationY(
-            //                            MathHelper.ToRadians(1f));
-            //    camPosition = Vector3.Transform(camPosition,
-            //                  rotationMatrix);
-            //}
-            /*if (Mouse.GetState().X <= 0 || Mouse.GetState().Y <= 0 || Mouse.GetState().X >= graphics.PreferredBackBufferWidth || Mouse.GetState().Y >= graphics.PreferredBackBufferHeight)
-            {
-                Mouse.SetPosition(100, 100);
-            }*/
-            //viewMatrix = Matrix.CreateLookAt(camPosition, camTarget,
-            //             Vector3.Up);
-
-            //mm = Mouse.GetState().Position.X;
-            //Debug.WriteLine(Mouse.GetState().X);
-
             base.Update(gameTime);
 
             ProcessKeyboard();
@@ -434,47 +318,34 @@ namespace Game1
             GraphicsDevice.BlendState = BlendState.Opaque;
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
-            GraphicsDevice.SamplerStates[1] = SamplerState.LinearWrap;
-            GraphicsDevice.SamplerStates[2] = SamplerState.LinearWrap;
+            //GraphicsDevice.SamplerStates[1] = SamplerState.LinearWrap;
+            //GraphicsDevice.SamplerStates[2] = SamplerState.LinearWrap;
 
-            /*foreach (ModelMesh mesh in model.Meshes)
+            //for (int i = 0; i < size; i++)
+            //{
+            //    for (int j = 0; j < size; j++)
+            //    {
+            //        Model temp = Content.Load<Model>(mapa[i, j].ToString());
+            //        temp.Draw(Matrix.CreateScale(skala) * Matrix.CreateTranslation(i * odleglosc, 0, (j * wysokosc) + (i % 2) * wysokosc / 2) * worldMatrix, camera.ViewMatrix, camera.ProjectionMatrix);
+            //        /*switch (mapa[i, j])
+            //        {
+            //            case 2:
+            //                model2.Draw(Matrix.CreateScale(skala) * Matrix.CreateTranslation(i * odleglosc, 0, (j * wysokosc) + (i % 2) * wysokosc / 2) * worldMatrix, viewMatrix, projectionMatrix);
+            //                break;
+            //            case 3:
+            //                model3.Draw(Matrix.CreateScale(skala) * Matrix.CreateTranslation(i * odleglosc, 0, (j * wysokosc) + (i % 2) * wysokosc / 2) * worldMatrix, viewMatrix, projectionMatrix);
+            //                break;
+            //            default:
+            //                model.Draw(Matrix.CreateScale(skala) * Matrix.CreateTranslation(i * odleglosc, 0, (j * wysokosc) + (i % 2) * wysokosc / 2) * worldMatrix, viewMatrix, projectionMatrix);
+            //                break;
+            //        }*/
+            //    }
+
+            //}
+
+            foreach (Tile tile in tilemap)
             {
-                foreach (BasicEffect effect in mesh.Effects)
-                {
-                    //effect.EnableDefaultLighting();
-                    effect.AmbientLightColor = new Vector3(1f, 1f, 1f);
-                    effect.View = viewMatrix;
-                    //effect.World = worldMatrix * Matrix.CreateScale(scalee) * Matrix.CreateTranslation(camtarget) * Matrix.CreateRotationX(MathHelper.PiOver2);
-                    effect.World = worldMatrix * Matrix.CreateScale(scalee);// * Matrix.CreateRotationX(MathHelper.ToRadians(-90.0f));
-                    effect.Projection = projectionMatrix;
-                    //effect.DiffuseColor = Color.Red.ToVector3();
-                    //effect.SpecularPower = 70;
-                    effect.TextureEnabled = true;
-                    
-                }
-                mesh.Draw();
-            }*/
-
-            for (int i = 0; i < size; i++)
-            {
-                for (int j = 0; j < size; j++)
-                {
-                    Model temp = Content.Load<Model>(mapa[i, j].ToString());
-                    temp.Draw(Matrix.CreateScale(skala) * Matrix.CreateTranslation(i * odleglosc, 0, (j * wysokosc) + (i % 2) * wysokosc / 2) * worldMatrix, camera.ViewMatrix, camera.ProjectionMatrix);
-                    /*switch (mapa[i, j])
-                    {
-                        case 2:
-                            model2.Draw(Matrix.CreateScale(skala) * Matrix.CreateTranslation(i * odleglosc, 0, (j * wysokosc) + (i % 2) * wysokosc / 2) * worldMatrix, viewMatrix, projectionMatrix);
-                            break;
-                        case 3:
-                            model3.Draw(Matrix.CreateScale(skala) * Matrix.CreateTranslation(i * odleglosc, 0, (j * wysokosc) + (i % 2) * wysokosc / 2) * worldMatrix, viewMatrix, projectionMatrix);
-                            break;
-                        default:
-                            model.Draw(Matrix.CreateScale(skala) * Matrix.CreateTranslation(i * odleglosc, 0, (j * wysokosc) + (i % 2) * wysokosc / 2) * worldMatrix, viewMatrix, projectionMatrix);
-                            break;
-                    }*/
-                }
-
+                tile.Draw(camera);
             }
 
             spriteBatch.Begin();
