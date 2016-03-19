@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <SourceFile>C:/Users/Meds/documents/visual studio 2015/Projects/Game1/Game1/Content/cross_cross.png</SourceFile>
+  <SourceFile>c:/users/meds/documents/visual studio 2015/Projects/Game1/Game1/Content/cross_cross.png</SourceFile>
   <SourceTime>2016-03-17T17:20:42.0430545+01:00</SourceTime>
-  <DestFile>C:/Users/Meds/documents/visual studio 2015/Projects/Game1/Game1/Content/bin/Windows/cross_cross.xnb</DestFile>
-  <DestTime>2016-03-17T17:47:39.4380508+01:00</DestTime>
+  <DestFile>c:/users/meds/documents/visual studio 2015/Projects/Game1/Game1/Content/bin/Windows/cross_cross.xnb</DestFile>
+  <DestTime>2016-03-19T14:55:55.8735279+01:00</DestTime>
   <Importer>TextureImporter</Importer>
-  <ImporterTime>2015-04-29T19:14:44+02:00</ImporterTime>
+  <ImporterTime>2016-03-16T03:18:04+01:00</ImporterTime>
   <Processor>TextureProcessor</Processor>
-  <ProcessorTime>2015-04-29T19:14:44+02:00</ProcessorTime>
+  <ProcessorTime>2016-03-16T03:18:04+01:00</ProcessorTime>
   <Parameters>
     <Key>ColorKeyColor</Key>
     <Value>255,0,255,255</Value>
@@ -26,6 +26,10 @@
   </Parameters>
   <Parameters>
     <Key>ResizeToPowerOfTwo</Key>
+    <Value>False</Value>
+  </Parameters>
+  <Parameters>
+    <Key>MakeSquare</Key>
     <Value>False</Value>
   </Parameters>
   <Parameters>

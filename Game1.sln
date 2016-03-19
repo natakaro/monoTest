@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game1", "Game1\Game1.csproj", "{A9ABD664-E41E-4E34-9851-8CBAF7FC1474}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game1", "Game1\Game1.csproj", "{3D107F52-E5BA-48B1-B6F8-FD418E764D21}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +11,10 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A9ABD664-E41E-4E34-9851-8CBAF7FC1474}.Debug|x86.ActiveCfg = Debug|x86
-		{A9ABD664-E41E-4E34-9851-8CBAF7FC1474}.Debug|x86.Build.0 = Debug|x86
-		{A9ABD664-E41E-4E34-9851-8CBAF7FC1474}.Release|x86.ActiveCfg = Release|x86
-		{A9ABD664-E41E-4E34-9851-8CBAF7FC1474}.Release|x86.Build.0 = Release|x86
+		{3D107F52-E5BA-48B1-B6F8-FD418E764D21}.Debug|x86.ActiveCfg = Debug|x86
+		{3D107F52-E5BA-48B1-B6F8-FD418E764D21}.Debug|x86.Build.0 = Debug|x86
+		{3D107F52-E5BA-48B1-B6F8-FD418E764D21}.Release|x86.ActiveCfg = Release|x86
+		{3D107F52-E5BA-48B1-B6F8-FD418E764D21}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <SourceFile>C:/Users/Meds/documents/visual studio 2015/Projects/Game1/Game1/Content/3.DAE</SourceFile>
+  <SourceFile>c:/users/meds/documents/visual studio 2015/Projects/Game1/Game1/Content/3.DAE</SourceFile>
   <SourceTime>2016-03-19T14:23:42.547976+01:00</SourceTime>
-  <DestFile>C:/Users/Meds/documents/visual studio 2015/Projects/Game1/Game1/Content/bin/Windows/3.xnb</DestFile>
-  <DestTime>2016-03-19T14:24:54.1454781+01:00</DestTime>
+  <DestFile>c:/users/meds/documents/visual studio 2015/Projects/Game1/Game1/Content/bin/Windows/3.xnb</DestFile>
+  <DestTime>2016-03-19T14:55:53.7583908+01:00</DestTime>
   <Importer>OpenAssetImporter</Importer>
-  <ImporterTime>2015-04-29T19:14:44+02:00</ImporterTime>
+  <ImporterTime>2016-03-16T03:18:04+01:00</ImporterTime>
   <Processor>ModelProcessor</Processor>
-  <ProcessorTime>2015-04-29T19:14:44+02:00</ProcessorTime>
+  <ProcessorTime>2016-03-16T03:18:04+01:00</ProcessorTime>
   <Parameters>
     <Key>ColorKeyColor</Key>
     <Value>0,0,0,0</Value>
@@ -66,9 +66,9 @@
   </Parameters>
   <Dependencies />
   <BuildAsset>
-    <string>C:/Users/Meds/documents/visual studio 2015/Projects/Game1/Game1/Content/bin/Windows/2t_1.xnb</string>
-    <string>C:/Users/Meds/documents/visual studio 2015/Projects/Game1/Game1/Content/bin/Windows/2t2_1.xnb</string>
-    <string>C:/Users/Meds/documents/visual studio 2015/Projects/Game1/Game1/Content/bin/Windows/2t1_1.xnb</string>
+    <string>c:/users/meds/documents/visual studio 2015/Projects/Game1/Game1/Content/bin/Windows/2t_0.xnb</string>
+    <string>c:/users/meds/documents/visual studio 2015/Projects/Game1/Game1/Content/bin/Windows/2t2_0.xnb</string>
+    <string>c:/users/meds/documents/visual studio 2015/Projects/Game1/Game1/Content/bin/Windows/2t1_0.xnb</string>
   </BuildAsset>
   <BuildOutput />
 </PipelineBuildEvent>

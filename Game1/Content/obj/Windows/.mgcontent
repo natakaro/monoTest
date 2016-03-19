@@ -4,18 +4,20 @@
   <Platform>Windows</Platform>
   <Config />
   <SourceFiles>
-    <File>C:/Users/Meds/documents/visual studio 2015/Projects/Game1/Game1/Content/MonoCube.dae</File>
-    <File>C:/Users/Meds/documents/visual studio 2015/Projects/Game1/Game1/Content/MonoCubeTexture.png</File>
-    <File>C:/Users/Meds/documents/visual studio 2015/Projects/Game1/Game1/Content/bla.dae</File>
-    <File>C:/Users/Meds/documents/visual studio 2015/Projects/Game1/Game1/Content/textures/brown_eye.png</File>
-    <File>C:/Users/Meds/documents/visual studio 2015/Projects/Game1/Game1/Content/sds.FBX</File>
-    <File>C:/Users/Meds/documents/visual studio 2015/Projects/Game1/Game1/Content/1.DAE</File>
-    <File>C:/Users/Meds/documents/visual studio 2015/Projects/Game1/Game1/Content/cross_cross.png</File>
-    <File>C:/Users/Meds/documents/visual studio 2015/Projects/Game1/Game1/Content/1t.png</File>
-    <File>C:/Users/Meds/documents/visual studio 2015/Projects/Game1/Game1/Content/2.DAE</File>
-    <File>C:/Users/Meds/documents/visual studio 2015/Projects/Game1/Game1/Content/2t.jpg</File>
-    <File>C:/Users/Meds/documents/visual studio 2015/Projects/Game1/Game1/Content/2t1.jpg</File>
-    <File>C:/Users/Meds/documents/visual studio 2015/Projects/Game1/Game1/Content/2t2.jpg</File>
-    <File>C:/Users/Meds/documents/visual studio 2015/Projects/Game1/Game1/Content/3.DAE</File>
+    <File>c:/users/meds/documents/visual studio 2015/Projects/Game1/Game1/Content/1.DAE</File>
+    <File>c:/users/meds/documents/visual studio 2015/Projects/Game1/Game1/Content/1t.png</File>
+    <File>c:/users/meds/documents/visual studio 2015/Projects/Game1/Game1/Content/2.DAE</File>
+    <File>c:/users/meds/documents/visual studio 2015/Projects/Game1/Game1/Content/2t.jpg</File>
+    <File>c:/users/meds/documents/visual studio 2015/Projects/Game1/Game1/Content/2t1.jpg</File>
+    <File>c:/users/meds/documents/visual studio 2015/Projects/Game1/Game1/Content/2t2 — kopia.jpg</File>
+    <File>c:/users/meds/documents/visual studio 2015/Projects/Game1/Game1/Content/2t2.jpg</File>
+    <File>c:/users/meds/documents/visual studio 2015/Projects/Game1/Game1/Content/3.DAE</File>
+    <File>c:/users/meds/documents/visual studio 2015/Projects/Game1/Game1/Content/bla.dae</File>
+    <File>c:/users/meds/documents/visual studio 2015/Projects/Game1/Game1/Content/cross_cross.png</File>
+    <File>c:/users/meds/documents/visual studio 2015/Projects/Game1/Game1/Content/MonoCube.dae</File>
+    <File>c:/users/meds/documents/visual studio 2015/Projects/Game1/Game1/Content/MonoCubeTexture.png</File>
+    <File>c:/users/meds/documents/visual studio 2015/Projects/Game1/Game1/Content/sds.FBX</File>
+    <File>c:/users/meds/documents/visual studio 2015/Projects/Game1/Game1/Content/textures/brown_eye.png</File>
+    <File>c:/users/meds/documents/visual studio 2015/Projects/Game1/Game1/Content/textures/studio.FBX</File>
   </SourceFiles>
 </SourceFileCollection>
