@@ -242,3 +242,9 @@
 /processorParam:TextureFormat=DxtCompressed
 /build:textures/studio.FBX
 
+#begin fonts/DemoFont.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:TextureFormat=Compressed
+/build:fonts/DemoFont.spritefont
+

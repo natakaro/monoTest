@@ -43,3 +43,49 @@ c:\users\meds\documents\visual studio 2015\Projects\Game1\Game1\bin\Windows\x86\
 c:\users\meds\documents\visual studio 2015\Projects\Game1\Game1\obj\x86\Debug\Game1.csprojResolveAssemblyReference.cache
 c:\users\meds\documents\visual studio 2015\Projects\Game1\Game1\obj\x86\Debug\Game1.exe
 c:\users\meds\documents\visual studio 2015\Projects\Game1\Game1\obj\x86\Debug\Game1.pdb
+D:\Documents\monoTest\Game1\obj\x86\Debug\Game1.exe
+D:\Documents\monoTest\Game1\obj\x86\Debug\Game1.pdb
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\Content\1.xnb
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\Content\1t.xnb
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\Content\2.xnb
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\Content\2t.xnb
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\Content\2t1.xnb
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\Content\2t1_0.xnb
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\Content\2t2 — kopia.xnb
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\Content\2t2.xnb
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\Content\2t2_0.xnb
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\Content\2t_0.xnb
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\Content\3.xnb
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\Content\bla.xnb
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\Content\cross_cross.xnb
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\Content\MonoCube.xnb
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\Content\MonoCubeTexture.xnb
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\Content\MonoCubeTexture_0.xnb
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\Content\sds.xnb
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\Content\textures\brown_eye.xnb
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\Content\textures\brown_eye_0.xnb
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\Content\textures\studio.xnb
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\Game1.exe
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\Game1.pdb
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\MonoGame.Framework.dll
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\SharpDX.MediaFoundation.dll
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\SharpDX.dll
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\SharpDX.XAudio2.dll
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\SharpDX.DXGI.dll
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\SharpDX.Direct3D11.dll
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\SharpDX.Direct2D1.dll
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\SharpDX.XInput.dll
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\SharpDX.RawInput.dll
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\SharpDX.Direct3D9.dll
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\MonoGame.Framework.xml
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\SharpDX.MediaFoundation.xml
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\SharpDX.xml
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\SharpDX.XAudio2.xml
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\SharpDX.DXGI.xml
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\SharpDX.Direct3D11.xml
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\SharpDX.Direct2D1.xml
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\SharpDX.XInput.xml
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\SharpDX.RawInput.xml
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\SharpDX.Direct3D9.xml
+D:\Documents\monoTest\Game1\obj\x86\Debug\Game1.csprojResolveAssemblyReference.cache
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\Content\fonts\DemoFont.xnb
