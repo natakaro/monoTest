@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">
-  <asset><contributor><author></author><authoring_tool>FBX COLLADA exporter</authoring_tool><comments></comments></contributor><created>2016-03-19T11:19:51Z</created><keywords></keywords><modified>2016-03-19T11:19:51Z</modified><revision></revision><subject></subject><title></title><unit meter="0.025400" name="centimeter"></unit><up_axis>Y_UP</up_axis></asset>
+  <asset><contributor><author></author><authoring_tool>FBX COLLADA exporter</authoring_tool><comments></comments></contributor><created>2016-03-19T13:27:05Z</created><keywords></keywords><modified>2016-03-19T13:27:05Z</modified><revision></revision><subject></subject><title></title><unit meter="0.025400" name="centimeter"></unit><up_axis>Y_UP</up_axis></asset>
   <library_images>
-    <image id="Map #3-image" name="Map #3"><init_from>file://C:\Users\Meds\Documents\Visual Studio 2015\Projects\Game1\Game1\Content\2t.jpg</init_from></image>
+    <image id="Map #3-image" name="Map #3"><init_from>file://2t.jpg</init_from></image>
   </library_images>
   <library_materials>
     <material id="_01 - Default" name="_01 - Default">
