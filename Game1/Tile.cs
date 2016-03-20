@@ -22,7 +22,7 @@ namespace Game1
 
         public void Draw(Camera camera)
         {
-            model.Draw(Matrix.CreateTranslation(position) * camera.worldMatrix, camera.ViewMatrix, camera.ProjectionMatrix);
+            model.Draw(Matrix.CreateScale(Map.skala) * Matrix.CreateTranslation(position) * camera.worldMatrix, camera.ViewMatrix, camera.ProjectionMatrix);
         }
 
         public Tile(Game1 game, Vector3 xyz, int id) : base(game)

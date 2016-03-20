@@ -13,7 +13,7 @@ namespace Game1
     class Map : GameComponent
     {
         public Tile[,] mapa;
-        //float skala = 1f;
+        public static float skala = 25f;
         float szerokosc;
         float wysokosc;
         float odleglosc;
@@ -27,7 +27,7 @@ namespace Game1
         }
         public Map(Game1 game, int size) : base(game)
         {
-            szerokosc = 2;   // * skala;
+            szerokosc = 2 * skala;
             wysokosc = (float)Math.Sqrt(3) / 2 * szerokosc;
             odleglosc = 0.75f * szerokosc;
             mapa = new Tile[size, size];
