@@ -36,7 +36,7 @@ namespace Game1
             {
                 for (int j = 0; j < size; j++)
                 {
-                    mapa[i, j] = new Tile(game, new Vector3(i * odleglosc, 0, (j * wysokosc) + (i % 2) * wysokosc / 2) , a.Next(1, 4));
+                    mapa[i, j] = new Tile(game, new Vector3(i * odleglosc, a.Next(5), (j * wysokosc) + (i % 2) * wysokosc / 2) , a.Next(1, 2));
                 }
             }
 

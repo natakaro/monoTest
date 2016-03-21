@@ -90,3 +90,8 @@ D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\SharpDX.Direct3D9.xml
 D:\Documents\monoTest\Game1\obj\x86\Debug\Game1.csprojResolveAssemblyReference.cache
 D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\Content\fonts\DemoFont.xnb
 C:\Users\Meds\Documents\Visual Studio 2015\Projects\Game1\Game1\bin\Windows\x86\Debug\Content\fonts\DemoFont.xnb
+C:\Users\Meds\documents\visual studio 2015\Projects\Game1\Game1\bin\Windows\x86\Debug\Content\text1_0.xnb
+C:\Users\Meds\documents\visual studio 2015\Projects\Game1\Game1\bin\Windows\x86\Debug\Content\text.xnb
+C:\Users\Meds\documents\visual studio 2015\Projects\Game1\Game1\bin\Windows\x86\Debug\Content\text_0.xnb
+C:\Users\Meds\documents\visual studio 2015\Projects\Game1\Game1\bin\Windows\x86\Debug\Content\textchampfer.xnb
+C:\Users\Meds\documents\visual studio 2015\Projects\Game1\Game1\bin\Windows\x86\Debug\Content\textchampfer_0.xnb

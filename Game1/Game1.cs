@@ -33,7 +33,7 @@ namespace Game1
         private const float CAMERA_FOVX = 85.0f;
         private const float CAMERA_ZNEAR = 0.01f;
         private const float CAMERA_ZFAR = 1000.0f;
-        private const float CAMERA_PLAYER_EYE_HEIGHT = 13.0f;
+        private const float CAMERA_PLAYER_EYE_HEIGHT = 30.0f;
         private const float CAMERA_ACCELERATION_X = 800.0f;
         private const float CAMERA_ACCELERATION_Y = 800.0f;
         private const float CAMERA_ACCELERATION_Z = 800.0f;
@@ -235,6 +235,8 @@ namespace Game1
         {
             if (!this.IsActive)
                 return;
+
+            
 
             base.Update(gameTime);
 
