@@ -29,6 +29,7 @@ namespace Game1
         //int size = 30;
         //int[,] mapa;
         Map mapa;
+        float? przecina=1.0f;
 
         private const float CAMERA_FOVX = 85.0f;
         private const float CAMERA_ZNEAR = 0.01f;
@@ -236,11 +237,8 @@ namespace Game1
             if (!this.IsActive)
                 return;
 
-            /*foreach (Tile tile in mapa.mapa)
-            {
-                tile.model
-            }*/
-
+            //CollisionTileRay();
+            przecina = camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Intersects(mapa.mapa[0, 0].model.Meshes[0].BoundingSphere);
             base.Update(gameTime);
 
             ProcessKeyboard();
@@ -263,6 +261,22 @@ namespace Game1
 
                     if (sphere1.Intersects(sphere2))
                         return true;
+                }
+            }
+            return false;
+        }
+
+        bool CollisionTileRay()
+        {
+            foreach (Tile tile in mapa.mapa)
+            {
+                foreach (ModelMesh mesh in tile.model.Meshes)
+                {
+                    if(camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Intersects(mesh.BoundingSphere) != 0)
+                    {
+                       // przecina = true;
+                    }
+                   
                 }
             }
             return false;
@@ -336,6 +350,8 @@ namespace Game1
                     camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.X.ToString("f2"),
                     camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.Y.ToString("f2"),
                     camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.Z.ToString("f2"));
+                buffer.AppendFormat(przecina.ToString());
+                
 
                 buffer.Append("\nPress H to display help");
             }

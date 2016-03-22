@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <SourceFile>C:/Users/ershi/Documents/monoTest/Game1/Content/bla.dae</SourceFile>
-  <SourceTime>2016-03-22T19:10:12.9941742+01:00</SourceTime>
-  <DestFile>C:/Users/ershi/Documents/monoTest/Game1/Content/bin/Windows/bla.xnb</DestFile>
-  <DestTime>2016-03-22T19:40:24.7841686+01:00</DestTime>
+  <SourceFile>C:/Users/Meds/documents/visual studio 2015/Projects/Game1/Game1/Content/bla.dae</SourceFile>
+  <SourceTime>2016-03-10T15:55:19.0503296+01:00</SourceTime>
+  <DestFile>C:/Users/Meds/documents/visual studio 2015/Projects/Game1/Game1/Content/bin/Windows/bla.xnb</DestFile>
+  <DestTime>2016-03-22T22:22:24.1132705+01:00</DestTime>
   <Importer>OpenAssetImporter</Importer>
   <ImporterTime>2016-03-16T03:18:04+01:00</ImporterTime>
   <Processor>ModelProcessor</Processor>
@@ -66,7 +66,7 @@
   </Parameters>
   <Dependencies />
   <BuildAsset>
-    <string>C:/Users/ershi/Documents/monoTest/Game1/Content/bin/Windows/textures/brown_eye_0.xnb</string>
+    <string>C:/Users/Meds/documents/visual studio 2015/Projects/Game1/Game1/Content/bin/Windows/textures/brown_eye_0.xnb</string>
   </BuildAsset>
   <BuildOutput />
 </PipelineBuildEvent>
