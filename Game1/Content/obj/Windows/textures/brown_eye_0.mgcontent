@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <SourceFile>C:/Users/Meds/documents/visual studio 2015/Projects/Game1/Game1/Content/textures/brown_eye.png</SourceFile>
-  <SourceTime>2016-03-10T15:55:29.5851377+01:00</SourceTime>
-  <DestFile>C:/Users/Meds/documents/visual studio 2015/Projects/Game1/Game1/Content/bin/Windows/textures/brown_eye_0.xnb</DestFile>
-  <DestTime>2016-03-20T14:05:07.9999444+01:00</DestTime>
+  <SourceFile>C:/Users/ershi/Documents/monoTest/Game1/Content/textures/brown_eye.png</SourceFile>
+  <SourceTime>2016-03-22T19:10:13.1138175+01:00</SourceTime>
+  <DestFile>C:/Users/ershi/Documents/monoTest/Game1/Content/bin/Windows/textures/brown_eye_0.xnb</DestFile>
+  <DestTime>2016-03-22T19:40:24.6089696+01:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2016-03-16T03:18:04+01:00</ImporterTime>
   <Processor>TextureProcessor</Processor>

@@ -327,6 +327,16 @@ namespace Game1
                     camera.CurrentVelocity.Z.ToString("f2"));
                 buffer.AppendFormat("  Rotation speed: {0}\n",
                     camera.RotationSpeed.ToString("f2"));
+
+                buffer.AppendFormat("  Ray Position: x:{0} y:{1} z:{2}\n",
+                    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Position.X.ToString("f2"),
+                    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Position.Y.ToString("f2"),
+                    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Position.Z.ToString("f2"));
+                buffer.AppendFormat("  Ray Direction: x:{0} y:{1} z:{2}\n",
+                    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.X.ToString("f2"),
+                    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.Y.ToString("f2"),
+                    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.Z.ToString("f2"));
+
                 buffer.Append("\nPress H to display help");
             }
 

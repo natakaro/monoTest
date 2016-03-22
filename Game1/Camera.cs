@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
@@ -384,6 +385,22 @@ namespace Game1
         //        * Matrix.CreateRotationY(MathHelper.ToRadians(HeadingDegrees))
         //        * Matrix.CreateTranslation(weaponPos);
         //}
+
+        //new
+        public Ray GetMouseRay(Viewport viewport)
+        {
+            Vector2 mousePosition = Mouse.GetState().Position.ToVector2();
+            Vector3 nearPoint = new Vector3(mousePosition, 0);
+            Vector3 farPoint = new Vector3(mousePosition, 1);
+
+            nearPoint = viewport.Unproject(nearPoint, projMatrix, viewMatrix, Matrix.Identity);
+            farPoint = viewport.Unproject(farPoint, projMatrix, viewMatrix, Matrix.Identity);
+
+            Vector3 direction = farPoint - nearPoint;
+            direction.Normalize();
+
+            return new Ray(nearPoint, direction);
+        }
 
         #endregion
 

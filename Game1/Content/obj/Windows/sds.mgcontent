@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <SourceFile>C:/Users/Meds/documents/visual studio 2015/Projects/Game1/Game1/Content/sds.FBX</SourceFile>
-  <SourceTime>2016-03-11T13:38:49.0619312+01:00</SourceTime>
-  <DestFile>C:/Users/Meds/documents/visual studio 2015/Projects/Game1/Game1/Content/bin/Windows/sds.xnb</DestFile>
-  <DestTime>2016-03-20T14:04:53.1261169+01:00</DestTime>
+  <SourceFile>C:/Users/ershi/Documents/monoTest/Game1/Content/sds.FBX</SourceFile>
+  <SourceTime>2016-03-22T19:10:13.0927985+01:00</SourceTime>
+  <DestFile>C:/Users/ershi/Documents/monoTest/Game1/Content/bin/Windows/sds.xnb</DestFile>
+  <DestTime>2016-03-22T19:40:26.0878684+01:00</DestTime>
   <Importer>FbxImporter</Importer>
   <ImporterTime>2016-03-16T03:18:04+01:00</ImporterTime>
   <Processor>ModelProcessor</Processor>
