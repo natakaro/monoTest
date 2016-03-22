@@ -56,8 +56,8 @@ namespace Game1
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
-            graphics.PreferredBackBufferWidth = 1280;
-            graphics.PreferredBackBufferHeight = 720;
+            graphics.PreferredBackBufferWidth = 1920;
+            graphics.PreferredBackBufferHeight = 1080;
 
             Content.RootDirectory = "Content";
 
@@ -236,12 +236,36 @@ namespace Game1
             if (!this.IsActive)
                 return;
 
-            
+            /*foreach (Tile tile in mapa.mapa)
+            {
+                tile.model
+            }*/
 
             base.Update(gameTime);
 
             ProcessKeyboard();
             UpdateFrameRate(gameTime);
+        }
+
+        bool CollisionTileCamera(Tile tile, Model model2, Matrix world2)
+        {
+            Model model1 = tile.model;
+            Matrix world1 = tile.temp;
+            for (int meshIndex1 = 0; meshIndex1 < model1.Meshes.Count; meshIndex1++)
+            {
+                BoundingSphere sphere1 = model1.Meshes[meshIndex1].BoundingSphere;
+                sphere1 = sphere1.Transform(world1);
+
+                for (int meshIndex2 = 0; meshIndex2 < model2.Meshes.Count; meshIndex2++)
+                {
+                    BoundingSphere sphere2 = model2.Meshes[meshIndex2].BoundingSphere;
+                    sphere2 = sphere2.Transform(world2);
+
+                    if (sphere1.Intersects(sphere2))
+                        return true;
+                }
+            }
+            return false;
         }
 
         private void UpdateFrameRate(GameTime gameTime)

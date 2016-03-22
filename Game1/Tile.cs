@@ -11,9 +11,10 @@ namespace Game1
 {
     class Tile : GameComponent
     {
-        Model model;
-        Vector3 position;
+        public Model model;
+        public Vector3 position;
         int id;
+        public Matrix temp;
 
         public void Initialize(ContentManager contentManager)
         {
@@ -22,6 +23,7 @@ namespace Game1
 
         public void Draw(Camera camera)
         {
+            temp = Matrix.CreateScale(Map.skala) * Matrix.CreateTranslation(position) * camera.worldMatrix;
             model.Draw(Matrix.CreateScale(Map.skala) * Matrix.CreateTranslation(position) * camera.worldMatrix, camera.ViewMatrix, camera.ProjectionMatrix);
         }
 
