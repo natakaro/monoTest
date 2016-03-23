@@ -29,7 +29,7 @@ namespace Game1
         //int size = 30;
         //int[,] mapa;
         Map mapa;
-        float? przecina=1.0f;
+        float? przecina;
 
         private const float CAMERA_FOVX = 85.0f;
         private const float CAMERA_ZNEAR = 0.01f;
@@ -237,10 +237,12 @@ namespace Game1
             if (!this.IsActive)
                 return;
 
+            
             //CollisionTileRay();
-            przecina = camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Intersects(mapa.mapa[0, 0].model.Meshes[0].BoundingSphere);
+            przecina = camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Intersects(mapa.mapa[0, 0].mini);
             base.Update(gameTime);
-
+            
+            
             ProcessKeyboard();
             UpdateFrameRate(gameTime);
         }
@@ -350,8 +352,9 @@ namespace Game1
                     camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.X.ToString("f2"),
                     camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.Y.ToString("f2"),
                     camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.Z.ToString("f2"));
+                //buffer.AppendFormat(mapa.mapa[0, 0].model.Meshes[0].BoundingSphere.Radius.ToString());
                 buffer.AppendFormat(przecina.ToString());
-                
+
 
                 buffer.Append("\nPress H to display help");
             }
@@ -399,6 +402,13 @@ namespace Game1
             }*/
 
             mapa.Draw(camera);
+
+            if (przecina != null)
+            {
+                //mapa.mapa[0, 0].position.Y = mapa.mapa[0, 0].position.Y + 0.01f;
+                Content.Load<Model>("3").Draw(Matrix.CreateScale(Map.skala) * Matrix.CreateTranslation(mapa.mapa[0, 0].position) * camera.worldMatrix, camera.ViewMatrix, camera.ProjectionMatrix);
+
+            }
 
             spriteBatch.Begin();
             spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);

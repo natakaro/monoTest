@@ -15,6 +15,7 @@ namespace Game1
         public Vector3 position;
         int id;
         public Matrix temp;
+        public BoundingSphere mini;
 
         public void Initialize(ContentManager contentManager)
         {
@@ -31,6 +32,7 @@ namespace Game1
         {
             position = xyz;
             this.id = id;
+            mini = new BoundingSphere(position, Map.skala * 0.75f);
         }
     }
 }
