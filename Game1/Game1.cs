@@ -203,6 +203,11 @@ namespace Game1
             if (KeyJustPressed(Keys.M))
                 camera.EnableMouseSmoothing = !camera.EnableMouseSmoothing;
 
+            if (KeyJustPressed(Keys.D1))
+            {
+                mapa.reload();
+                Map.efekt = !Map.efekt;
+            }
             //if (KeyJustPressed(Keys.P))
             //    enableParallax = !enableParallax;
 

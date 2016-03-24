@@ -144,3 +144,6 @@ C:\Users\ershi\Documents\monoTest\Game1\bin\Windows\x86\Debug\SharpDX.XInput.xml
 C:\Users\ershi\Documents\monoTest\Game1\bin\Windows\x86\Debug\SharpDX.RawInput.xml
 C:\Users\ershi\Documents\monoTest\Game1\bin\Windows\x86\Debug\SharpDX.Direct3D9.xml
 C:\Users\ershi\Documents\monoTest\Game1\obj\x86\Debug\Game1.csprojResolveAssemblyReference.cache
+C:\Users\Meds\documents\visual studio 2015\Projects\Game1\Game1\bin\Windows\x86\Debug\Content\Effects\Toon.xnb
+C:\Users\Meds\documents\visual studio 2015\Projects\Game1\Game1\bin\Windows\x86\Debug\Content\Effects\Reflection.xnb
+C:\Users\Meds\documents\visual studio 2015\Projects\Game1\Game1\bin\Windows\x86\Debug\Content\Effects\Ambient.xnb

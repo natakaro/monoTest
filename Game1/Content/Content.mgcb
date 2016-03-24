@@ -272,3 +272,15 @@
 /processorParam:TextureFormat=Color
 /build:textchampfer.jpg
 
+#begin Effects/Toon.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/Toon.fx
+
+#begin Effects/Ambient.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/Ambient.fx
+

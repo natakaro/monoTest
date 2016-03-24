@@ -17,6 +17,7 @@ namespace Game1
         float szerokosc;
         float wysokosc;
         float odleglosc;
+        public static bool efekt = false;
 
         public void Initialize(ContentManager contentManager)
         {
@@ -39,15 +40,31 @@ namespace Game1
                     mapa[i, j] = new Tile(game, new Vector3(i * odleglosc, a.Next(5), (j * wysokosc) + (i % 2) * wysokosc / 2) , a.Next(1, 2));
                 }
             }
+        }
 
-            
+        public void reload()
+        {
+            foreach (Tile tile in mapa)
+            {
+                tile.reload();
+            }
         }
 
         public void Draw(Camera camera)
         {
-            foreach (Tile tile in mapa)
+            if (efekt)
             {
-                tile.Draw(camera);
+                foreach (Tile tile in mapa)
+                {
+                    tile.DrawEffect(camera);
+                }
+            }
+            else
+            {
+                foreach (Tile tile in mapa)
+                {
+                    tile.Draw(camera);
+                }
             }
         }
     }
