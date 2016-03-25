@@ -284,3 +284,9 @@
 /processorParam:DebugMode=Auto
 /build:Effects/Ambient.fx
 
+#begin Effects/InstancedModel.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/InstancedModel.fx
+

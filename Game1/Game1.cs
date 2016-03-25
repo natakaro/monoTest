@@ -9,13 +9,13 @@ namespace Game1
 
     public class Game1 : Game
     {
-        private GraphicsDeviceManager graphics;
+        public static GraphicsDeviceManager graphics; //Ustawione na razie na static, żeby nie trzeba było dogrzebywać się do tego z każdej klasy
         private SpriteBatch spriteBatch;
         private Camera camera;
         private SpriteFont spriteFont;
 
         private Octree octree;
-
+        InstancingDraw temp;
         private Texture2D cross;
         //float skala = 0.5f;
         
@@ -65,7 +65,7 @@ namespace Game1
             graphics.PreferredBackBufferHeight = 1080;
 
             Content.RootDirectory = "Content";
-
+            
             camera = new Camera(this);
             Components.Add(camera);
 
@@ -142,7 +142,7 @@ namespace Game1
 
             currentKeyboardState = Keyboard.GetState();
 
-            mapa = new Map(this, 30, camera.worldMatrix);
+            mapa = new Map(this, 100, camera.worldMatrix);
             mapa.Initialize(Content);
 
             //octree
@@ -157,6 +157,7 @@ namespace Game1
             cross = Content.Load<Texture2D>("cross_cross");
             spriteBatch = new SpriteBatch(GraphicsDevice);
             spriteFont = Content.Load<SpriteFont>(@"fonts\DemoFont");
+            temp = new InstancingDraw(this, camera, Content);
         }
 
         protected override void UnloadContent()
@@ -422,14 +423,20 @@ namespace Game1
 
             //Renders all visible objects by iterating through the oct tree recursively and testing for intersection 
             //with the current camera view frustum
+
+            /*
             foreach (IntersectionRecord ir in octree.AllIntersections(camera.Frustum))
             {
                 // ir.DrawableObjectObject.SetDirectionalLight(m_globalLight[0].Direction, m_globalLight[0].Color);
                 // ir.DrawableObjectObject.UpdateLOD(camera);
                 ir.DrawableObjectObject.Draw(camera);
                 modelsDrawn++;
-            }
+            }*/
 
+
+            
+            temp.DrawModelHardwareInstancing(octree.AllIntersections(camera.Frustum));
+            modelsDrawn = octree.AllIntersections(camera.Frustum).Count;
             //if (przecina != null)
             //{
             //    mapa.mapa[0, 0].position.Y = mapa.mapa[0, 0].position.Y + 0.01f;

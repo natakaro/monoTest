@@ -40,6 +40,7 @@
   <ItemGroup>
     <Compile Include="Camera.cs" />
     <Compile Include="DrawableObject.cs" />
+    <Compile Include="InstancingDraw.cs" />
     <Compile Include="IntersectionRecord.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="Game1.cs" />
