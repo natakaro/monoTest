@@ -12,11 +12,15 @@ namespace Game1
 {
     class Map : GameComponent
     {
-        public Tile[,] mapa;
-        public static float skala = 25f;
-        float szerokosc;
-        float wysokosc;
-        float odleglosc;
+        private Matrix worldMatrix;
+        private Tile[,] mapa;
+        private List<DrawableObject> tileList;
+
+        public static float scale = 25f;
+        float height;
+        float width;
+        float vert;
+        float horiz;
         public static bool efekt = false;
 
         public void Initialize(ContentManager contentManager)
@@ -26,18 +30,27 @@ namespace Game1
                 tile.Initialize(contentManager);
             }
         }
-        public Map(Game1 game, int size) : base(game)
+        public Map(Game1 game, int size, Matrix inWorldMatrix) : base(game)
         {
-            szerokosc = 2 * skala;
-            wysokosc = (float)Math.Sqrt(3) / 2 * szerokosc;
-            odleglosc = 0.75f * szerokosc;
+            worldMatrix = inWorldMatrix;
+            height = 2 * scale;
+            vert = 0.75f * height;
+            width = (float)Math.Sqrt(3) / 2 * height;
+            horiz = width;
+
             mapa = new Tile[size, size];
+            tileList = new List<DrawableObject>();
+
             Random a = new Random();
+
             for (int i = 0; i < size; i++)
             {
                 for (int j = 0; j < size; j++)
                 {
-                    mapa[i, j] = new Tile(game, new Vector3(i * odleglosc, a.Next(5), (j * wysokosc) + (i % 2) * wysokosc / 2) , a.Next(1, 2));
+                    Vector3 position = new Vector3(i * vert, a.Next(5), (j * horiz) + (i % 2) * horiz / 2);
+                    //mapa[i, j] = new Tile(game, new Vector3(i * vert, a.Next(5), (j * width) + (i % 2) * width / 2) , a.Next(1, 2));
+                    mapa[i, j] = new Tile(game, Matrix.CreateScale(scale) * Matrix.CreateTranslation(position) * worldMatrix, a.Next(1, 2));
+                    tileList.Add(mapa[i, j]);
                 }
             }
         }
@@ -67,5 +80,16 @@ namespace Game1
                 }
             }
         }
+
+        #region Properties
+        public Tile[,] Mapa
+        {
+            get { return mapa; }
+        }
+        public List<DrawableObject> TileList
+        {
+            get { return tileList; }
+        }
+        #endregion
     }
 }

@@ -14,6 +14,8 @@ namespace Game1
         private Camera camera;
         private SpriteFont spriteFont;
 
+        private Octree octree;
+
         private Texture2D cross;
         //float skala = 0.5f;
         
@@ -53,6 +55,8 @@ namespace Game1
         private int framesPerSecond;
         private TimeSpan elapsedTime = TimeSpan.Zero;
         private bool displayHelp;
+
+        private int modelsDrawn;
 
         public Game1()
         {
@@ -138,8 +142,11 @@ namespace Game1
 
             currentKeyboardState = Keyboard.GetState();
 
-            mapa = new Map(this, 30);
+            mapa = new Map(this, 30, camera.worldMatrix);
             mapa.Initialize(Content);
+
+            //octree
+            octree = new Octree(mapa.TileList);
         }
 
         protected override void LoadContent()
@@ -242,52 +249,54 @@ namespace Game1
             if (!this.IsActive)
                 return;
 
-            
+            octree.Update(gameTime);
             //CollisionTileRay();
-            przecina = camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Intersects(mapa.mapa[0, 0].mini);
+            //przecina = camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Intersects(mapa.mapa[0, 0].mini);
             base.Update(gameTime);
+
+            
             
             
             ProcessKeyboard();
             UpdateFrameRate(gameTime);
         }
 
-        bool CollisionTileCamera(Tile tile, Model model2, Matrix world2)
-        {
-            Model model1 = tile.model;
-            Matrix world1 = tile.temp;
-            for (int meshIndex1 = 0; meshIndex1 < model1.Meshes.Count; meshIndex1++)
-            {
-                BoundingSphere sphere1 = model1.Meshes[meshIndex1].BoundingSphere;
-                sphere1 = sphere1.Transform(world1);
+        //bool CollisionTileCamera(Tile tile, Model model2, Matrix world2)
+        //{
+        //    Model model1 = tile.model;
+        //    Matrix world1 = tile.temp;
+        //    for (int meshIndex1 = 0; meshIndex1 < model1.Meshes.Count; meshIndex1++)
+        //    {
+        //        BoundingSphere sphere1 = model1.Meshes[meshIndex1].BoundingSphere;
+        //        sphere1 = sphere1.Transform(world1);
 
-                for (int meshIndex2 = 0; meshIndex2 < model2.Meshes.Count; meshIndex2++)
-                {
-                    BoundingSphere sphere2 = model2.Meshes[meshIndex2].BoundingSphere;
-                    sphere2 = sphere2.Transform(world2);
+        //        for (int meshIndex2 = 0; meshIndex2 < model2.Meshes.Count; meshIndex2++)
+        //        {
+        //            BoundingSphere sphere2 = model2.Meshes[meshIndex2].BoundingSphere;
+        //            sphere2 = sphere2.Transform(world2);
 
-                    if (sphere1.Intersects(sphere2))
-                        return true;
-                }
-            }
-            return false;
-        }
+        //            if (sphere1.Intersects(sphere2))
+        //                return true;
+        //        }
+        //    }
+        //    return false;
+        //}
 
-        bool CollisionTileRay()
-        {
-            foreach (Tile tile in mapa.mapa)
-            {
-                foreach (ModelMesh mesh in tile.model.Meshes)
-                {
-                    if(camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Intersects(mesh.BoundingSphere) != 0)
-                    {
-                       // przecina = true;
-                    }
+        //bool CollisionTileRay()
+        //{
+        //    foreach (Tile tile in mapa.mapa)
+        //    {
+        //        foreach (ModelMesh mesh in tile.model.Meshes)
+        //        {
+        //            if(camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Intersects(mesh.BoundingSphere) != 0)
+        //            {
+        //               // przecina = true;
+        //            }
                    
-                }
-            }
-            return false;
-        }
+        //        }
+        //    }
+        //    return false;
+        //}
 
         private void UpdateFrameRate(GameTime gameTime)
         {
@@ -358,7 +367,8 @@ namespace Game1
                     camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.Y.ToString("f2"),
                     camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.Z.ToString("f2"));
                 //buffer.AppendFormat(mapa.mapa[0, 0].model.Meshes[0].BoundingSphere.Radius.ToString());
-                buffer.AppendFormat(przecina.ToString());
+                buffer.AppendFormat(" Models drawn: {0}",
+                    modelsDrawn.ToString("f2"));
 
 
                 buffer.Append("\nPress H to display help");
@@ -406,14 +416,26 @@ namespace Game1
                 tile.Draw(camera);
             }*/
 
-            mapa.Draw(camera);
+            //mapa.Draw(camera);
 
-            if (przecina != null)
+            modelsDrawn = 0;
+
+            //Renders all visible objects by iterating through the oct tree recursively and testing for intersection 
+            //with the current camera view frustum
+            foreach (IntersectionRecord ir in octree.AllIntersections(camera.Frustum))
             {
-                //mapa.mapa[0, 0].position.Y = mapa.mapa[0, 0].position.Y + 0.01f;
-                Content.Load<Model>("3").Draw(Matrix.CreateScale(Map.skala) * Matrix.CreateTranslation(mapa.mapa[0, 0].position) * camera.worldMatrix, camera.ViewMatrix, camera.ProjectionMatrix);
-
+                // ir.DrawableObjectObject.SetDirectionalLight(m_globalLight[0].Direction, m_globalLight[0].Color);
+                // ir.DrawableObjectObject.UpdateLOD(camera);
+                ir.DrawableObjectObject.Draw(camera);
+                modelsDrawn++;
             }
+
+            //if (przecina != null)
+            //{
+            //    mapa.mapa[0, 0].position.Y = mapa.mapa[0, 0].position.Y + 0.01f;
+            //    Content.Load<Model>("3").Draw(Matrix.CreateScale(Map.skala) * Matrix.CreateTranslation(mapa.mapa[0, 0].position) * camera.worldMatrix, camera.ViewMatrix, camera.ProjectionMatrix);
+
+            //}
 
             spriteBatch.Begin();
             spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);
