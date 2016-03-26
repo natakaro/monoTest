@@ -67,13 +67,10 @@ namespace Game1
         //    mini = new BoundingSphere(position, Map.skala * 0.75f);
         //}
 
-        public override IntersectionRecord Intersects(Ray intersectionRay)
-        {
-            return null;
-        }
         public Tile(Game game, Matrix inWorldMatrix, int inModelID) : base(game, inWorldMatrix, inModelID)
         {
             boundingSphere = new BoundingSphere(position, Map.scale * 0.75f);
+            boundingBox = new BoundingBox(position - new Vector3 (25, 10, 25), position + new Vector3(25,10,25)); // na oko wartosci, koniecznie wprowadzic poprawne!!
             type = ObjectType.Terrain;
         }
     }

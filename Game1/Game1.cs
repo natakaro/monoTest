@@ -31,11 +31,10 @@ namespace Game1
         //int size = 30;
         //int[,] mapa;
         Map mapa;
-        float? przecina;
 
         private const float CAMERA_FOVX = 85.0f;
         private const float CAMERA_ZNEAR = 0.01f;
-        private const float CAMERA_ZFAR = 1000.0f;
+        private const float CAMERA_ZFAR = 2000.0f;
         private const float CAMERA_PLAYER_EYE_HEIGHT = 30.0f;
         private const float CAMERA_ACCELERATION_X = 800.0f;
         private const float CAMERA_ACCELERATION_Y = 800.0f;
@@ -57,6 +56,9 @@ namespace Game1
         private bool displayHelp;
 
         private int modelsDrawn;
+
+        private float distance;
+        private DrawableObject tileStandingOn;
 
         public Game1()
         {
@@ -90,36 +92,7 @@ namespace Game1
             // Initial position for text rendering.
             fontPos = new Vector2(1.0f, 1.0f);
 
-            camera.worldMatrix = Matrix.CreateWorld(new Vector3(), Vector3.Forward, Vector3.Up);
-            
-            
-            //mapa = new int[size, size];
-            //Random a = new Random();
-            //for (int i = 0; i < size; i++)
-            //{
-            //    for (int j = 0; j < size; j++)
-            //    {
-            //        mapa[i, j] = a.Next(1, 4);
-            //    }
-            //}
-
-            //tworzenie mapy
-
-            /*tilemap = new GameComponentCollection();
-
-            for (int i = 0; i < size; i++)
-            {
-                for (int j = 0; j < size; j++)
-                {
-                    tilemap.Add(new Tile(this, new Vector3(i * odleglosc, 0, (j * wysokosc) + (i % 2) * wysokosc / 2))); //zle wartosci
-                }
-            }
-
-            foreach(Tile tile in tilemap)
-            {
-                tile.Initialize(Content);   //mozna inicjalizowac jakos automatycznie?
-            }*/
-            
+            camera.worldMatrix = Matrix.CreateWorld(new Vector3(), Vector3.Forward, Vector3.Up);           
 
             //Setup the camera.
             camera.EyeHeightStanding = CAMERA_PLAYER_EYE_HEIGHT;
@@ -142,7 +115,7 @@ namespace Game1
 
             currentKeyboardState = Keyboard.GetState();
 
-            mapa = new Map(this, 100, camera.worldMatrix);
+            mapa = new Map(this, 30, camera.worldMatrix);
             mapa.Initialize(Content);
 
             //octree
@@ -151,9 +124,6 @@ namespace Game1
 
         protected override void LoadContent()
         {
-            //model = Content.Load<Model>("1");
-            //model2 = Content.Load<Model>("2");
-            //model3 = Content.Load<Model>("3");
             cross = Content.Load<Texture2D>("cross_cross");
             spriteBatch = new SpriteBatch(GraphicsDevice);
             spriteFont = Content.Load<SpriteFont>(@"fonts\DemoFont");
@@ -251,53 +221,27 @@ namespace Game1
                 return;
 
             octree.Update(gameTime);
-            //CollisionTileRay();
-            //przecina = camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Intersects(mapa.mapa[0, 0].mini);
             base.Update(gameTime);
-
-            
-            
             
             ProcessKeyboard();
+
+            //poruszanie po y w zaleznosci od pozycji tila - czy powinno to byc w update a nie gdzies indziej?
+            if (camera.CurrentVelocity != Vector3.Zero)
+            {
+                Ray yRay = camera.GetDownwardRay();
+                IntersectionRecord ir = octree.NearestIntersection(yRay);
+                if (ir != null && ir.DrawableObjectObject != null)
+                {
+                    tileStandingOn = ir.DrawableObjectObject; //dla debugu, wywalic potem
+                    //distance = (float)yRay.Intersects(ir.DrawableObjectObject.BoundingBox); //paskudne
+                    //camera.Move(0, (distance-20)*-1, 0);
+                    distance = ir.DrawableObjectObject.Position.Y; //prosciej
+                    camera.Move(0, (camera.Position.Y - distance-20) * -1, 0); //move jest natychmiastowy a nie plynny jak cala reszta kamery wiec wyglada niefajnie, plus do tego psuje kucanie - uzyc czegos z velocity w kamerze?
+                }
+            }
+
             UpdateFrameRate(gameTime);
         }
-
-        //bool CollisionTileCamera(Tile tile, Model model2, Matrix world2)
-        //{
-        //    Model model1 = tile.model;
-        //    Matrix world1 = tile.temp;
-        //    for (int meshIndex1 = 0; meshIndex1 < model1.Meshes.Count; meshIndex1++)
-        //    {
-        //        BoundingSphere sphere1 = model1.Meshes[meshIndex1].BoundingSphere;
-        //        sphere1 = sphere1.Transform(world1);
-
-        //        for (int meshIndex2 = 0; meshIndex2 < model2.Meshes.Count; meshIndex2++)
-        //        {
-        //            BoundingSphere sphere2 = model2.Meshes[meshIndex2].BoundingSphere;
-        //            sphere2 = sphere2.Transform(world2);
-
-        //            if (sphere1.Intersects(sphere2))
-        //                return true;
-        //        }
-        //    }
-        //    return false;
-        //}
-
-        //bool CollisionTileRay()
-        //{
-        //    foreach (Tile tile in mapa.mapa)
-        //    {
-        //        foreach (ModelMesh mesh in tile.model.Meshes)
-        //        {
-        //            if(camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Intersects(mesh.BoundingSphere) != 0)
-        //            {
-        //               // przecina = true;
-        //            }
-                   
-        //        }
-        //    }
-        //    return false;
-        //}
 
         private void UpdateFrameRate(GameTime gameTime)
         {
@@ -337,6 +281,55 @@ namespace Game1
                 buffer.AppendLine();
                 buffer.AppendLine("Press H to hide help");
             }
+            else if (tileStandingOn != null) //chwilowe obejscie, wywalic potem caly elseif
+            {
+                buffer.AppendFormat("FPS: {0}\n", framesPerSecond);
+                //buffer.AppendFormat("Technique: {0}\n",
+                //    (enableParallax ? "Parallax normal mapping" : "Normal mapping"));
+                buffer.AppendFormat("Mouse smoothing: {0}\n\n",
+                    (camera.EnableMouseSmoothing ? "on" : "off"));
+                buffer.Append("Camera:\n");
+                buffer.AppendFormat("  Position: x:{0} y:{1} z:{2}\n",
+                    camera.Position.X.ToString("f2"),
+                    camera.Position.Y.ToString("f2"),
+                    camera.Position.Z.ToString("f2"));
+                buffer.AppendFormat("  Orientation: heading:{0} pitch:{1}\n",
+                    camera.HeadingDegrees.ToString("f2"),
+                    camera.PitchDegrees.ToString("f2"));
+                buffer.AppendFormat("  Velocity: x:{0} y:{1} z:{2}\n",
+                    camera.CurrentVelocity.X.ToString("f2"),
+                    camera.CurrentVelocity.Y.ToString("f2"),
+                    camera.CurrentVelocity.Z.ToString("f2"));
+                buffer.AppendFormat("  Rotation speed: {0}\n",
+                    camera.RotationSpeed.ToString("f2"));
+
+                //buffer.AppendFormat("  Ray Position: x:{0} y:{1} z:{2}\n",
+                //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Position.X.ToString("f2"),
+                //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Position.Y.ToString("f2"),
+                //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Position.Z.ToString("f2"));
+                //buffer.AppendFormat("  Ray Direction: x:{0} y:{1} z:{2}\n",
+                //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.X.ToString("f2"),
+                //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.Y.ToString("f2"),
+                //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.Z.ToString("f2"));
+                //buffer.AppendFormat(mapa.mapa[0, 0].model.Meshes[0].BoundingSphere.Radius.ToString());
+                buffer.AppendFormat(" Models drawn: {0}",
+                    modelsDrawn.ToString("f2"));
+                buffer.AppendFormat("  Ray Position: x:{0} y:{1} z:{2}\n",
+                    camera.GetDownwardRay().Position.X.ToString("f2"),
+                    camera.GetDownwardRay().Position.Y.ToString("f2"),
+                    camera.GetDownwardRay().Position.Z.ToString("f2"));
+                buffer.AppendFormat("  Ray Direction: x:{0} y:{1} z:{2}\n",
+                    camera.GetDownwardRay().Direction.X.ToString("f2"),
+                    camera.GetDownwardRay().Direction.Y.ToString("f2"),
+                    camera.GetDownwardRay().Direction.Z.ToString("f2"));
+
+                buffer.AppendFormat(" Distance: {0}\n",
+                    distance.ToString("f2"));
+                buffer.AppendFormat(" TileStandingOn Y: {0}\n",
+                    tileStandingOn.Position.Y.ToString("f2"));
+
+                buffer.Append("\nPress H to display help");
+            }
             else
             {
                 buffer.AppendFormat("FPS: {0}\n", framesPerSecond);
@@ -359,18 +352,25 @@ namespace Game1
                 buffer.AppendFormat("  Rotation speed: {0}\n",
                     camera.RotationSpeed.ToString("f2"));
 
-                buffer.AppendFormat("  Ray Position: x:{0} y:{1} z:{2}\n",
-                    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Position.X.ToString("f2"),
-                    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Position.Y.ToString("f2"),
-                    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Position.Z.ToString("f2"));
-                buffer.AppendFormat("  Ray Direction: x:{0} y:{1} z:{2}\n",
-                    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.X.ToString("f2"),
-                    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.Y.ToString("f2"),
-                    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.Z.ToString("f2"));
+                //buffer.AppendFormat("  Ray Position: x:{0} y:{1} z:{2}\n",
+                //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Position.X.ToString("f2"),
+                //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Position.Y.ToString("f2"),
+                //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Position.Z.ToString("f2"));
+                //buffer.AppendFormat("  Ray Direction: x:{0} y:{1} z:{2}\n",
+                //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.X.ToString("f2"),
+                //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.Y.ToString("f2"),
+                //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.Z.ToString("f2"));
                 //buffer.AppendFormat(mapa.mapa[0, 0].model.Meshes[0].BoundingSphere.Radius.ToString());
                 buffer.AppendFormat(" Models drawn: {0}",
                     modelsDrawn.ToString("f2"));
-
+                buffer.AppendFormat("  Ray Position: x:{0} y:{1} z:{2}\n",
+                    camera.GetDownwardRay().Position.X.ToString("f2"),
+                    camera.GetDownwardRay().Position.Y.ToString("f2"),
+                    camera.GetDownwardRay().Position.Z.ToString("f2"));
+                buffer.AppendFormat("  Ray Direction: x:{0} y:{1} z:{2}\n",
+                    camera.GetDownwardRay().Direction.X.ToString("f2"),
+                    camera.GetDownwardRay().Direction.Y.ToString("f2"),
+                    camera.GetDownwardRay().Direction.Z.ToString("f2"));
 
                 buffer.Append("\nPress H to display help");
             }
@@ -390,35 +390,6 @@ namespace Game1
             //GraphicsDevice.SamplerStates[1] = SamplerState.LinearWrap;
             //GraphicsDevice.SamplerStates[2] = SamplerState.LinearWrap;
 
-            //for (int i = 0; i < size; i++)
-            //{
-            //    for (int j = 0; j < size; j++)
-            //    {
-            //        Model temp = Content.Load<Model>(mapa[i, j].ToString());
-            //        temp.Draw(Matrix.CreateScale(skala) * Matrix.CreateTranslation(i * odleglosc, 0, (j * wysokosc) + (i % 2) * wysokosc / 2) * worldMatrix, camera.ViewMatrix, camera.ProjectionMatrix);
-            //        /*switch (mapa[i, j])
-            //        {
-            //            case 2:
-            //                model2.Draw(Matrix.CreateScale(skala) * Matrix.CreateTranslation(i * odleglosc, 0, (j * wysokosc) + (i % 2) * wysokosc / 2) * worldMatrix, viewMatrix, projectionMatrix);
-            //                break;
-            //            case 3:
-            //                model3.Draw(Matrix.CreateScale(skala) * Matrix.CreateTranslation(i * odleglosc, 0, (j * wysokosc) + (i % 2) * wysokosc / 2) * worldMatrix, viewMatrix, projectionMatrix);
-            //                break;
-            //            default:
-            //                model.Draw(Matrix.CreateScale(skala) * Matrix.CreateTranslation(i * odleglosc, 0, (j * wysokosc) + (i % 2) * wysokosc / 2) * worldMatrix, viewMatrix, projectionMatrix);
-            //                break;
-            //        }*/
-            //    }
-
-            //}
-
-            /*foreach (Tile tile in tilemap)
-            {
-                tile.Draw(camera);
-            }*/
-
-            //mapa.Draw(camera);
-
             modelsDrawn = 0;
 
             //Renders all visible objects by iterating through the oct tree recursively and testing for intersection 
@@ -433,16 +404,8 @@ namespace Game1
                 modelsDrawn++;
             }*/
 
-
-            
             temp.DrawModelHardwareInstancing(octree.AllIntersections(camera.Frustum));
             modelsDrawn = octree.AllIntersections(camera.Frustum).Count;
-            //if (przecina != null)
-            //{
-            //    mapa.mapa[0, 0].position.Y = mapa.mapa[0, 0].position.Y + 0.01f;
-            //    Content.Load<Model>("3").Draw(Matrix.CreateScale(Map.skala) * Matrix.CreateTranslation(mapa.mapa[0, 0].position) * camera.worldMatrix, camera.ViewMatrix, camera.ProjectionMatrix);
-
-            //}
 
             spriteBatch.Begin();
             spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);

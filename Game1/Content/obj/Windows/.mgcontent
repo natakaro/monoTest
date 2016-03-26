@@ -4,26 +4,26 @@
   <Platform>Windows</Platform>
   <Config />
   <SourceFiles>
-    <File>C:/Users/Meds/Documents/Visual Studio 2015/Projects/Game1 — kopia/monoTest/Game1/Content/1.DAE</File>
-    <File>C:/Users/Meds/Documents/Visual Studio 2015/Projects/Game1 — kopia/monoTest/Game1/Content/1t.png</File>
-    <File>C:/Users/Meds/Documents/Visual Studio 2015/Projects/Game1 — kopia/monoTest/Game1/Content/2.DAE</File>
-    <File>C:/Users/Meds/Documents/Visual Studio 2015/Projects/Game1 — kopia/monoTest/Game1/Content/2t.jpg</File>
-    <File>C:/Users/Meds/Documents/Visual Studio 2015/Projects/Game1 — kopia/monoTest/Game1/Content/2t1.jpg</File>
-    <File>C:/Users/Meds/Documents/Visual Studio 2015/Projects/Game1 — kopia/monoTest/Game1/Content/2t2 — kopia.jpg</File>
-    <File>C:/Users/Meds/Documents/Visual Studio 2015/Projects/Game1 — kopia/monoTest/Game1/Content/2t2.jpg</File>
-    <File>C:/Users/Meds/Documents/Visual Studio 2015/Projects/Game1 — kopia/monoTest/Game1/Content/3.DAE</File>
-    <File>C:/Users/Meds/Documents/Visual Studio 2015/Projects/Game1 — kopia/monoTest/Game1/Content/bla.dae</File>
-    <File>C:/Users/Meds/Documents/Visual Studio 2015/Projects/Game1 — kopia/monoTest/Game1/Content/cross_cross.png</File>
-    <File>C:/Users/Meds/Documents/Visual Studio 2015/Projects/Game1 — kopia/monoTest/Game1/Content/MonoCube.dae</File>
-    <File>C:/Users/Meds/Documents/Visual Studio 2015/Projects/Game1 — kopia/monoTest/Game1/Content/MonoCubeTexture.png</File>
-    <File>C:/Users/Meds/Documents/Visual Studio 2015/Projects/Game1 — kopia/monoTest/Game1/Content/sds.FBX</File>
-    <File>C:/Users/Meds/Documents/Visual Studio 2015/Projects/Game1 — kopia/monoTest/Game1/Content/textures/brown_eye.png</File>
-    <File>C:/Users/Meds/Documents/Visual Studio 2015/Projects/Game1 — kopia/monoTest/Game1/Content/textures/studio.FBX</File>
-    <File>C:/Users/Meds/Documents/Visual Studio 2015/Projects/Game1 — kopia/monoTest/Game1/Content/fonts/DemoFont.spritefont</File>
-    <File>C:/Users/Meds/Documents/Visual Studio 2015/Projects/Game1 — kopia/monoTest/Game1/Content/text.jpg</File>
-    <File>C:/Users/Meds/Documents/Visual Studio 2015/Projects/Game1 — kopia/monoTest/Game1/Content/textchampfer.jpg</File>
-    <File>C:/Users/Meds/Documents/Visual Studio 2015/Projects/Game1 — kopia/monoTest/Game1/Content/Effects/Toon.fx</File>
-    <File>C:/Users/Meds/Documents/Visual Studio 2015/Projects/Game1 — kopia/monoTest/Game1/Content/Effects/Ambient.fx</File>
-    <File>C:/Users/Meds/Documents/Visual Studio 2015/Projects/Game1 — kopia/monoTest/Game1/Content/Effects/InstancedModel.fx</File>
+    <File>D:/Documents/monoTest/Game1/Content/1.DAE</File>
+    <File>D:/Documents/monoTest/Game1/Content/1t.png</File>
+    <File>D:/Documents/monoTest/Game1/Content/2.DAE</File>
+    <File>D:/Documents/monoTest/Game1/Content/2t.jpg</File>
+    <File>D:/Documents/monoTest/Game1/Content/2t1.jpg</File>
+    <File>D:/Documents/monoTest/Game1/Content/2t2 — kopia.jpg</File>
+    <File>D:/Documents/monoTest/Game1/Content/2t2.jpg</File>
+    <File>D:/Documents/monoTest/Game1/Content/3.DAE</File>
+    <File>D:/Documents/monoTest/Game1/Content/bla.dae</File>
+    <File>D:/Documents/monoTest/Game1/Content/cross_cross.png</File>
+    <File>D:/Documents/monoTest/Game1/Content/MonoCube.dae</File>
+    <File>D:/Documents/monoTest/Game1/Content/MonoCubeTexture.png</File>
+    <File>D:/Documents/monoTest/Game1/Content/sds.FBX</File>
+    <File>D:/Documents/monoTest/Game1/Content/textures/brown_eye.png</File>
+    <File>D:/Documents/monoTest/Game1/Content/textures/studio.FBX</File>
+    <File>D:/Documents/monoTest/Game1/Content/fonts/DemoFont.spritefont</File>
+    <File>D:/Documents/monoTest/Game1/Content/text.jpg</File>
+    <File>D:/Documents/monoTest/Game1/Content/textchampfer.jpg</File>
+    <File>D:/Documents/monoTest/Game1/Content/Effects/Toon.fx</File>
+    <File>D:/Documents/monoTest/Game1/Content/Effects/Ambient.fx</File>
+    <File>D:/Documents/monoTest/Game1/Content/Effects/InstancedModel.fx</File>
   </SourceFiles>
 </SourceFileCollection>

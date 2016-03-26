@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <SourceFile>C:/Users/Meds/Documents/Visual Studio 2015/Projects/Game1 — kopia/monoTest/Game1/Content/cross_cross.png</SourceFile>
-  <SourceTime>2016-03-25T11:29:26.7041797+01:00</SourceTime>
-  <DestFile>C:/Users/Meds/Documents/Visual Studio 2015/Projects/Game1 — kopia/monoTest/Game1/Content/bin/Windows/cross_cross.xnb</DestFile>
-  <DestTime>2016-03-25T11:30:50.5462885+01:00</DestTime>
+  <SourceFile>D:/Documents/monoTest/Game1/Content/cross_cross.png</SourceFile>
+  <SourceTime>2016-03-24T15:17:37.1728897+01:00</SourceTime>
+  <DestFile>D:/Documents/monoTest/Game1/Content/bin/Windows/cross_cross.xnb</DestFile>
+  <DestTime>2016-03-26T01:32:44.7960626+01:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2016-03-16T03:18:04+01:00</ImporterTime>
   <Processor>TextureProcessor</Processor>

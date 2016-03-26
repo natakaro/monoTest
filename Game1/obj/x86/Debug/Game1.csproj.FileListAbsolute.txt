@@ -199,3 +199,9 @@ C:\Users\Meds\Documents\Visual Studio 2015\Projects\Game1 — kopia\monoTest\Gam
 C:\Users\Meds\Documents\Visual Studio 2015\Projects\Game1 — kopia\monoTest\Game1\bin\Windows\x86\Debug\SharpDX.Direct3D9.xml
 C:\Users\Meds\Documents\Visual Studio 2015\Projects\Game1 — kopia\monoTest\Game1\obj\x86\Debug\Game1.csprojResolveAssemblyReference.cache
 C:\Users\Meds\Documents\Visual Studio 2015\Projects\Game1 — kopia\monoTest\Game1\bin\Windows\x86\Debug\Content\Effects\InstancedModel.xnb
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\Content\text.xnb
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\Content\textchampfer.xnb
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\Content\textchampfer_0.xnb
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\Content\Effects\Ambient.xnb
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\Content\Effects\Toon.xnb
+D:\Documents\monoTest\Game1\bin\Windows\x86\Debug\Content\Effects\InstancedModel.xnb

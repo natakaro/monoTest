@@ -389,7 +389,9 @@ namespace Game1
         //        * Matrix.CreateTranslation(weaponPos);
         //}
 
-        //new
+        /// <summary>
+        /// Returns a ray starting right from the center of the screen.
+        /// </summary>
         public Ray GetMouseRay(Viewport viewport)
         {
             Vector2 mousePosition = Mouse.GetState().Position.ToVector2();
@@ -403,6 +405,14 @@ namespace Game1
             direction.Normalize();
 
             return new Ray(nearPoint, direction);
+        }
+
+        /// <summary>
+        /// Returns a ray pointing straight down from the camera position.
+        /// </summary>
+        public Ray GetDownwardRay()
+        {
+            return new Ray(Position, Vector3.Down);
         }
 
         #endregion

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Game1
 {
-    class Octree
+    public class Octree
     {
         BoundingBox m_region;
 
