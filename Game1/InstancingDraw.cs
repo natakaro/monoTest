@@ -78,7 +78,7 @@ namespace Game1
             //DrawModelHardwareInstancing(instancedModel, instancedModelBones, instanceTransforms);
         }
 
-        public void DrawModelHardwareInstancing(List<IntersectionRecord> insta)
+        public void DrawModelHardwareInstancing(List<DrawableModel> insta)
         {
             
             Matrix temp = Matrix.CreateScale(Map.scale); //tylko do Tile
@@ -87,7 +87,7 @@ namespace Game1
 
             for (int i = 0; i < insta.Count; i++)
             {
-                instances[i] = temp * Matrix.CreateTranslation(insta[i].DrawableObjectObject.Position);
+                instances[i] = temp * Matrix.CreateTranslation(insta[i].Position);
             }
 
             if (instances.Length == 0)

@@ -17,7 +17,7 @@ namespace Game1
 
         public void Initialize(ContentManager contentManager)
         {
-            model = contentManager.Load<Model>(modelID.ToString());
+            model = contentManager.Load<Model>("1");
             effect = contentManager.Load<Effect>("Effects/Toon");
             texture = contentManager.Load<Texture2D>("textchampfer");
             old = model.Meshes[0].Effects[0];

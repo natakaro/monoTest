@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <SourceFile>C:/Users/Meds/Documents/Visual Studio 2015/Projects/Game1 — kopia/monoTest/Game1/Content/2.DAE</SourceFile>
-  <SourceTime>2016-03-26T09:36:48.8943049+01:00</SourceTime>
-  <DestFile>C:/Users/Meds/Documents/Visual Studio 2015/Projects/Game1 — kopia/monoTest/Game1/Content/bin/Windows/2.xnb</DestFile>
-  <DestTime>2016-03-26T09:45:10.9705215+01:00</DestTime>
+  <SourceFile>D:/Documents/monoTest/Game1/Content/2.DAE</SourceFile>
+  <SourceTime>2016-03-24T15:17:35.8759237+01:00</SourceTime>
+  <DestFile>D:/Documents/monoTest/Game1/Content/bin/Windows/2.xnb</DestFile>
+  <DestTime>2016-03-26T18:02:55.4222664+01:00</DestTime>
   <Importer>OpenAssetImporter</Importer>
   <ImporterTime>2016-03-16T03:18:04+01:00</ImporterTime>
   <Processor>ModelProcessor</Processor>
@@ -66,9 +66,9 @@
   </Parameters>
   <Dependencies />
   <BuildAsset>
-    <string>C:/Users/Meds/Documents/Visual Studio 2015/Projects/Game1 — kopia/monoTest/Game1/Content/bin/Windows/2t_0.xnb</string>
-    <string>C:/Users/Meds/Documents/Visual Studio 2015/Projects/Game1 — kopia/monoTest/Game1/Content/bin/Windows/2t2_0.xnb</string>
-    <string>C:/Users/Meds/Documents/Visual Studio 2015/Projects/Game1 — kopia/monoTest/Game1/Content/bin/Windows/2t1_0.xnb</string>
+    <string>D:/Documents/monoTest/Game1/Content/bin/Windows/2t_0.xnb</string>
+    <string>D:/Documents/monoTest/Game1/Content/bin/Windows/2t2_0.xnb</string>
+    <string>D:/Documents/monoTest/Game1/Content/bin/Windows/2t1_0.xnb</string>
   </BuildAsset>
   <BuildOutput />
 </PipelineBuildEvent>

@@ -94,6 +94,7 @@ namespace Game1
         private Dictionary<Actions, Keys> actionKeys;
 
         private BoundingFrustum frustum;
+        private BoundingSphere boundingSphere;
 
         #region Public Methods
 

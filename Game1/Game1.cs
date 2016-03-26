@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace Game1
@@ -14,11 +15,14 @@ namespace Game1
         private Camera camera;
         private SpriteFont spriteFont;
 
-        private Octree octree;
+        //private Octree octree;
+
+        OctreeNode octreeRoot;
+
         InstancingDraw temp;
         private Texture2D cross;
         //float skala = 0.5f;
-        
+
 
         //Matrix worldMatrix;
 
@@ -30,7 +34,7 @@ namespace Game1
         //Mapa
         //int size = 30;
         //int[,] mapa;
-        Map mapa;
+        Model tileModel;
 
         private const float CAMERA_FOVX = 85.0f;
         private const float CAMERA_ZNEAR = 0.01f;
@@ -55,7 +59,7 @@ namespace Game1
         private TimeSpan elapsedTime = TimeSpan.Zero;
         private bool displayHelp;
 
-        private int modelsDrawn;
+        //private int modelsDrawn;
 
         private float distance;
         private DrawableObject tileStandingOn;
@@ -77,6 +81,8 @@ namespace Game1
         protected override void Initialize()
         {
             base.Initialize();
+
+            octreeRoot = new OctreeNode(new Vector3(0, 0, 0), 2000);
 
             // Setup the window to be a quarter the size of the desktop.
             windowWidth = GraphicsDevice.DisplayMode.Width / 2;
@@ -115,15 +121,15 @@ namespace Game1
 
             currentKeyboardState = Keyboard.GetState();
 
-            mapa = new Map(this, 30, camera.worldMatrix);
-            mapa.Initialize(Content);
+            Map.CreateMap(tileModel, 30, camera.worldMatrix, octreeRoot);
 
             //octree
-            octree = new Octree(mapa.TileList);
+            //octree = new Octree(mapa.TileList);
         }
 
         protected override void LoadContent()
         {
+            tileModel = Content.Load<Model>("1");
             cross = Content.Load<Texture2D>("cross_cross");
             spriteBatch = new SpriteBatch(GraphicsDevice);
             spriteFont = Content.Load<SpriteFont>(@"fonts\DemoFont");
@@ -181,11 +187,11 @@ namespace Game1
             if (KeyJustPressed(Keys.M))
                 camera.EnableMouseSmoothing = !camera.EnableMouseSmoothing;
 
-            if (KeyJustPressed(Keys.D1))
-            {
-                mapa.reload();
-                Map.efekt = !Map.efekt;
-            }
+            //if (KeyJustPressed(Keys.D1))
+            //{
+            //    mapa.reload();
+            //    Map.efekt = !Map.efekt;
+            //}
             //if (KeyJustPressed(Keys.P))
             //    enableParallax = !enableParallax;
 
@@ -220,28 +226,33 @@ namespace Game1
             if (!this.IsActive)
                 return;
 
-            octree.Update(gameTime);
             base.Update(gameTime);
             
             ProcessKeyboard();
 
             //poruszanie po y w zaleznosci od pozycji tila - czy powinno to byc w update a nie gdzies indziej?
-            if (camera.CurrentVelocity != Vector3.Zero)
-            {
-                Ray yRay = camera.GetDownwardRay();
-                IntersectionRecord ir = octree.NearestIntersection(yRay);
-                if (ir != null && ir.DrawableObjectObject != null && tileStandingOn != ir.DrawableObjectObject)//..ujowy if ale działa
-                {
-                     //dla debugu, wywalic potem
-                    //distance = (float)yRay.Intersects(ir.DrawableObjectObject.BoundingBox); //paskudne
-                    //camera.Move(0, (distance-20)*-1, 0);
-                    distance = ir.DrawableObjectObject.Position.Y; //prosciej
-                    //camera.Move(0, (camera.Position.Y - distance-20) * -1, 0); //move jest natychmiastowy a nie plynny jak cala reszta kamery wiec wyglada niefajnie, plus do tego psuje kucanie - uzyc czegos z velocity w kamerze?
-                    camera.EyeHeightStanding = CAMERA_PLAYER_EYE_HEIGHT + distance;
-                    //camera.CurrentY = distance*10;
-                    tileStandingOn = ir.DrawableObjectObject;
-                }
-            }
+            //if (camera.CurrentVelocity != Vector3.Zero)
+            //{
+            //    Ray yRay = camera.GetDownwardRay();
+            //    IntersectionRecord ir = octree.NearestIntersection(yRay);
+            //    if (ir != null && ir.DrawableObjectObject != null && tileStandingOn != ir.DrawableObjectObject)//..ujowy if ale działa
+            //    {
+            //         //dla debugu, wywalic potem
+            //        //distance = (float)yRay.Intersects(ir.DrawableObjectObject.BoundingBox); //paskudne
+            //        //camera.Move(0, (distance-20)*-1, 0);
+            //        distance = ir.DrawableObjectObject.Position.Y; //prosciej
+            //        //camera.Move(0, (camera.Position.Y - distance-20) * -1, 0); //move jest natychmiastowy a nie plynny jak cala reszta kamery wiec wyglada niefajnie, plus do tego psuje kucanie - uzyc czegos z velocity w kamerze?
+            //        camera.EyeHeightStanding = CAMERA_PLAYER_EYE_HEIGHT + distance;
+            //        //camera.CurrentY = distance*10;
+            //        tileStandingOn = ir.DrawableObjectObject;
+            //    }
+            //}
+
+            //if (camera.CurrentVelocity != Vector3.Zero)
+            //{
+            //    BoundingSphere cameraSphere = new BoundingSphere(camera.Position, 32);
+            //    if
+            //}
 
             UpdateFrameRate(gameTime);
         }
@@ -316,7 +327,7 @@ namespace Game1
                 //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.Z.ToString("f2"));
                 //buffer.AppendFormat(mapa.mapa[0, 0].model.Meshes[0].BoundingSphere.Radius.ToString());
                 buffer.AppendFormat(" Models drawn: {0}",
-                    modelsDrawn.ToString("f2"));
+                    octreeRoot.ModelsDrawn.ToString("f2"));
                 buffer.AppendFormat("  Ray Position: x:{0} y:{1} z:{2}\n",
                     camera.GetDownwardRay().Position.X.ToString("f2"),
                     camera.GetDownwardRay().Position.Y.ToString("f2"),
@@ -365,7 +376,7 @@ namespace Game1
                 //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.Z.ToString("f2"));
                 //buffer.AppendFormat(mapa.mapa[0, 0].model.Meshes[0].BoundingSphere.Radius.ToString());
                 buffer.AppendFormat(" Models drawn: {0}",
-                    modelsDrawn.ToString("f2"));
+                    octreeRoot.ModelsDrawn.ToString("f2"));
                 buffer.AppendFormat("  Ray Position: x:{0} y:{1} z:{2}\n",
                     camera.GetDownwardRay().Position.X.ToString("f2"),
                     camera.GetDownwardRay().Position.Y.ToString("f2"),
@@ -393,7 +404,7 @@ namespace Game1
             //GraphicsDevice.SamplerStates[1] = SamplerState.LinearWrap;
             //GraphicsDevice.SamplerStates[2] = SamplerState.LinearWrap;
 
-            modelsDrawn = 0;
+            //modelsDrawn = 0;
 
             //Renders all visible objects by iterating through the oct tree recursively and testing for intersection 
             //with the current camera view frustum
@@ -407,8 +418,17 @@ namespace Game1
                 modelsDrawn++;
             }*/
 
-            temp.DrawModelHardwareInstancing(octree.AllIntersections(camera.Frustum));
-            modelsDrawn = octree.AllIntersections(camera.Frustum).Count;
+            octreeRoot.ModelsDrawn = 0;
+            List<DrawableModel> insta = new List<DrawableModel>();
+            
+            octreeRoot.DrawInstancing(insta, camera.Frustum);
+            temp.DrawModelHardwareInstancing(insta);
+            //modelsDrawn = octree.AllIntersections(camera.Frustum).Count;
+
+            
+
+            
+            //octreeRoot.Draw(camera.ViewMatrix, camera.ProjectionMatrix, camera.Frustum);
 
             spriteBatch.Begin();
             spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);

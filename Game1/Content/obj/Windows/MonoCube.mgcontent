@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <SourceFile>C:/Users/Meds/Documents/Visual Studio 2015/Projects/Game1 — kopia/monoTest/Game1/Content/MonoCube.dae</SourceFile>
-  <SourceTime>2016-03-26T09:36:48.9373267+01:00</SourceTime>
-  <DestFile>C:/Users/Meds/Documents/Visual Studio 2015/Projects/Game1 — kopia/monoTest/Game1/Content/bin/Windows/MonoCube.xnb</DestFile>
-  <DestTime>2016-03-26T09:45:20.3763714+01:00</DestTime>
+  <SourceFile>D:/Documents/monoTest/Game1/Content/MonoCube.dae</SourceFile>
+  <SourceTime>2016-03-24T15:17:35.9650876+01:00</SourceTime>
+  <DestFile>D:/Documents/monoTest/Game1/Content/bin/Windows/MonoCube.xnb</DestFile>
+  <DestTime>2016-03-26T18:03:04.5339909+01:00</DestTime>
   <Importer>OpenAssetImporter</Importer>
   <ImporterTime>2016-03-16T03:18:04+01:00</ImporterTime>
   <Processor>ModelProcessor</Processor>
@@ -66,7 +66,7 @@
   </Parameters>
   <Dependencies />
   <BuildAsset>
-    <string>C:/Users/Meds/Documents/Visual Studio 2015/Projects/Game1 — kopia/monoTest/Game1/Content/bin/Windows/MonoCubeTexture_0.xnb</string>
+    <string>D:/Documents/monoTest/Game1/Content/bin/Windows/MonoCubeTexture_0.xnb</string>
   </BuildAsset>
   <BuildOutput />
 </PipelineBuildEvent>
