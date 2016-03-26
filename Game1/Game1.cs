@@ -230,13 +230,16 @@ namespace Game1
             {
                 Ray yRay = camera.GetDownwardRay();
                 IntersectionRecord ir = octree.NearestIntersection(yRay);
-                if (ir != null && ir.DrawableObjectObject != null)
+                if (ir != null && ir.DrawableObjectObject != null && tileStandingOn != ir.DrawableObjectObject)//..ujowy if ale działa
                 {
-                    tileStandingOn = ir.DrawableObjectObject; //dla debugu, wywalic potem
+                     //dla debugu, wywalic potem
                     //distance = (float)yRay.Intersects(ir.DrawableObjectObject.BoundingBox); //paskudne
                     //camera.Move(0, (distance-20)*-1, 0);
                     distance = ir.DrawableObjectObject.Position.Y; //prosciej
-                    camera.Move(0, (camera.Position.Y - distance-20) * -1, 0); //move jest natychmiastowy a nie plynny jak cala reszta kamery wiec wyglada niefajnie, plus do tego psuje kucanie - uzyc czegos z velocity w kamerze?
+                    //camera.Move(0, (camera.Position.Y - distance-20) * -1, 0); //move jest natychmiastowy a nie plynny jak cala reszta kamery wiec wyglada niefajnie, plus do tego psuje kucanie - uzyc czegos z velocity w kamerze?
+                    camera.EyeHeightStanding = CAMERA_PLAYER_EYE_HEIGHT + distance;
+                    //camera.CurrentY = distance*10;
+                    tileStandingOn = ir.DrawableObjectObject;
                 }
             }
 

@@ -903,6 +903,12 @@ namespace Game1
             get { return currentVelocity; }
         }
 
+        public float CurrentY //w razie czego do wyjebania
+        {
+            get { return currentVelocity.Y; }
+            set { currentVelocity.Y = currentVelocity.Y + value; }
+        }
+
         public bool EnableMouseSmoothing
         {
             get { return enableMouseSmoothing; }
@@ -917,7 +923,15 @@ namespace Game1
             {
                 eyeHeightStanding = value;
                 eyeHeightCrouching = value * HEIGHT_MULTIPLIER_CROUCHING;
-                eye.Y = eyeHeightStanding;
+                if(posture == Posture.Standing)//dodane
+                {
+                    eye.Y = eyeHeightStanding; //tylko to było normalnie, if'y itd. dodane
+                }
+                else if(posture == Posture.Crouching && CurrentVelocity.Y > velocity.Y)
+                {
+                    eye.Y = eyeHeightCrouching;//dodane
+                }
+
                 UpdateViewMatrix();
             }
         }
