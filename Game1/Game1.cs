@@ -21,19 +21,12 @@ namespace Game1
 
         InstancingDraw temp;
         private Texture2D cross;
-        //float skala = 0.5f;
 
+        BoundingSphere cameraSphere;
 
-        //Matrix worldMatrix;
+        private bool instancing = true;
+        private bool debugShapes = false;
 
-        //Geometric info
-        //Model model;
-        //Model model2;
-        //Model model3;
-
-        //Mapa
-        //int size = 30;
-        //int[,] mapa;
         Model tileModel;
 
         private const float CAMERA_FOVX = 85.0f;
@@ -59,10 +52,8 @@ namespace Game1
         private TimeSpan elapsedTime = TimeSpan.Zero;
         private bool displayHelp;
 
-        //private int modelsDrawn;
-
         private float distance;
-        private DrawableObject tileStandingOn;
+        private DrawableModel tileStandingOn;
 
         public Game1()
         {
@@ -82,7 +73,8 @@ namespace Game1
         {
             base.Initialize();
 
-            octreeRoot = new OctreeNode(new Vector3(0, 0, 0), 2000);
+            DebugShapeRenderer.Initialize(graphics.GraphicsDevice);
+            octreeRoot = new OctreeNode(new Vector3(0, 0, 0), 10000);
 
             // Setup the window to be a quarter the size of the desktop.
             windowWidth = GraphicsDevice.DisplayMode.Width / 2;
@@ -118,6 +110,8 @@ namespace Game1
                 CAMERA_FOVX,
                 (float)windowWidth / (float)windowHeight,
                 CAMERA_ZNEAR, CAMERA_ZFAR);
+
+            cameraSphere = new BoundingSphere(camera.Position - new Vector3(0, 30, 0), 10);
 
             currentKeyboardState = Keyboard.GetState();
 
@@ -187,11 +181,26 @@ namespace Game1
             if (KeyJustPressed(Keys.M))
                 camera.EnableMouseSmoothing = !camera.EnableMouseSmoothing;
 
-            //if (KeyJustPressed(Keys.D1))
-            //{
-            //    mapa.reload();
-            //    Map.efekt = !Map.efekt;
-            //}
+            if (KeyJustPressed(Keys.D1))
+            {
+                instancing = !instancing;
+                foreach (ModelMesh mesh in tileModel.Meshes)
+                {
+                    foreach (ModelMeshPart meshPart in mesh.MeshParts)
+                    {
+                        BasicEffect effect = new BasicEffect(graphics.GraphicsDevice);
+                        effect.EnableDefaultLighting();
+                        meshPart.Effect = effect;
+                    }
+                    mesh.Draw();
+                }
+            }
+
+            if (KeyJustPressed(Keys.D2))
+            {
+                debugShapes = !debugShapes;
+            }
+
             //if (KeyJustPressed(Keys.P))
             //    enableParallax = !enableParallax;
 
@@ -248,11 +257,31 @@ namespace Game1
             //    }
             //}
 
-            //if (camera.CurrentVelocity != Vector3.Zero)
-            //{
-            //    BoundingSphere cameraSphere = new BoundingSphere(camera.Position, 32);
-            //    if
-            //}
+            if (camera.CurrentVelocity != Vector3.Zero)
+            {
+
+                cameraSphere.Center = camera.Position - new Vector3(0, 30, 0);
+                
+                List<DrawableModel> collidingList = new List<DrawableModel>();
+
+                octreeRoot.GetIntersection(cameraSphere, collidingList);
+
+                foreach (DrawableModel dModel in collidingList)
+                {
+                    distance = dModel.Position.Y;
+                    tileStandingOn = dModel;
+                }
+
+                //DrawableModel dModel = octreeRoot.GetIntersection(cameraSphere);
+                //if (dModel != null)
+                //{
+                //    distance = dModel.Position.Y;
+                //    tileStandingOn = dModel;
+                //}
+
+                camera.EyeHeightStanding = CAMERA_PLAYER_EYE_HEIGHT + distance;
+            }
+            
 
             UpdateFrameRate(gameTime);
         }
@@ -326,8 +355,10 @@ namespace Game1
                 //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.Y.ToString("f2"),
                 //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.Z.ToString("f2"));
                 //buffer.AppendFormat(mapa.mapa[0, 0].model.Meshes[0].BoundingSphere.Radius.ToString());
-                buffer.AppendFormat(" Models drawn: {0}",
+                buffer.AppendFormat(" Models drawn: {0}\n",
                     octreeRoot.ModelsDrawn.ToString("f2"));
+                buffer.AppendFormat(" Instancing: {0}\n",
+                    instancing.ToString());
                 buffer.AppendFormat("  Ray Position: x:{0} y:{1} z:{2}\n",
                     camera.GetDownwardRay().Position.X.ToString("f2"),
                     camera.GetDownwardRay().Position.Y.ToString("f2"),
@@ -375,8 +406,10 @@ namespace Game1
                 //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.Y.ToString("f2"),
                 //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.Z.ToString("f2"));
                 //buffer.AppendFormat(mapa.mapa[0, 0].model.Meshes[0].BoundingSphere.Radius.ToString());
-                buffer.AppendFormat(" Models drawn: {0}",
+                buffer.AppendFormat(" Models drawn: {0}\n",
                     octreeRoot.ModelsDrawn.ToString("f2"));
+                buffer.AppendFormat(" Instancing: {0}\n",
+                    instancing.ToString());
                 buffer.AppendFormat("  Ray Position: x:{0} y:{1} z:{2}\n",
                     camera.GetDownwardRay().Position.X.ToString("f2"),
                     camera.GetDownwardRay().Position.Y.ToString("f2"),
@@ -419,16 +452,23 @@ namespace Game1
             }*/
 
             octreeRoot.ModelsDrawn = 0;
-            List<DrawableModel> insta = new List<DrawableModel>();
-            
-            octreeRoot.DrawInstancing(insta, camera.Frustum);
-            temp.DrawModelHardwareInstancing(insta);
-            //modelsDrawn = octree.AllIntersections(camera.Frustum).Count;
 
-            
+            if (instancing)
+            {
+                List<DrawableModel> insta = new List<DrawableModel>();
 
-            
-            //octreeRoot.Draw(camera.ViewMatrix, camera.ProjectionMatrix, camera.Frustum);
+                octreeRoot.DrawInstancing(insta, camera.Frustum);
+                temp.DrawModelHardwareInstancing(insta);
+            }
+            else
+                octreeRoot.Draw(camera.ViewMatrix, camera.ProjectionMatrix, camera.Frustum);
+
+            if (debugShapes)
+            {
+                DebugShapeRenderer.AddBoundingSphere(cameraSphere, Color.Red);
+                octreeRoot.DrawBounds(camera.ViewMatrix, camera.ProjectionMatrix);
+                DebugShapeRenderer.Draw(gameTime, camera.ViewMatrix, camera.ProjectionMatrix);
+            }
 
             spriteBatch.Begin();
             spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);
@@ -439,5 +479,6 @@ namespace Game1
             base.Draw(gameTime);
             IncrementFrameCounter();
         }
+
     }
 }

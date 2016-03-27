@@ -39,6 +39,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Camera.cs" />
+    <Compile Include="DebugShapeRenderer.cs" />
     <Compile Include="DrawableModel.cs" />
     <Compile Include="DrawableObject.cs" />
     <Compile Include="InstancingDraw.cs" />

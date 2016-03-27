@@ -10,7 +10,7 @@ namespace Game1
 {
     class OctreeNode
     {
-        private const int maxObjectsInNode = 5; //max models in a node before it splits up into eight children
+        private const int maxObjectsInNode = 1; //max models in a node before it splits up into eight children
         private const float minSize = 5.0f; //min size for splitting up
 
         private Vector3 center;
@@ -67,6 +67,17 @@ namespace Game1
 
         }
 
+        public void DrawBounds(Matrix viewMatrix, Matrix projectionMatrix)
+        {
+            DebugShapeRenderer.AddBoundingBox(nodeBoundingBox, Color.Yellow);
+
+            foreach (DrawableModel dModel in modelList)
+                DebugShapeRenderer.AddBoundingBox(dModel.BoundingBox, Color.Blue);
+
+            foreach (OctreeNode childNode in childList)
+                childNode.DrawBounds(viewMatrix, projectionMatrix);
+        }
+
         public void DrawInstancing(List<DrawableModel> insta, BoundingFrustum cameraFrustum)
         {
             ContainmentType cameraNodeContainment = cameraFrustum.Contains(nodeBoundingBox);
@@ -81,6 +92,55 @@ namespace Game1
                 foreach (OctreeNode childNode in childList)
                     childNode.DrawInstancing(insta, cameraFrustum);
             }
+        }
+
+        public void UpdateModelWorldMatrix(int modelID, Matrix newWorldMatrix)
+        {
+            DrawableModel deletedModel = RemoveDrawableModel(modelID);
+            deletedModel.WorldMatrix = newWorldMatrix;
+            AddDrawableModel(deletedModel);
+        }
+
+        /// <summary>
+        /// Returns a list of models in the node that collide with the bounding sphere
+        /// </summary>
+        /// <param name="bSphere">The bounding sphere you want to check collisions on</param>
+        /// <param name="collidingList">The list of models</param>
+        /// <returns></returns>
+        public List<DrawableModel> GetIntersection(BoundingSphere bSphere, List<DrawableModel> collidingList)
+        {
+            ContainmentType sphereContainment = bSphere.Contains(nodeBoundingBox);
+            if (sphereContainment != ContainmentType.Disjoint)
+            {
+                foreach (DrawableModel dModel in modelList)
+                {
+                    if (dModel.BoundingBox.Intersects(bSphere))
+                        collidingList.Add(dModel);
+                }
+
+                foreach (OctreeNode childNode in childList)
+                    childNode.GetIntersection(bSphere, collidingList);
+
+                return collidingList;
+            }
+            return collidingList;
+        }
+
+        public DrawableModel GetIntersection(BoundingSphere bSphere)
+        {
+            ContainmentType sphereContainment = bSphere.Contains(nodeBoundingBox);
+            if (sphereContainment != ContainmentType.Disjoint)
+            {
+                foreach (DrawableModel dModel in modelList)
+                {
+                    return dModel;
+                }
+
+                foreach (OctreeNode childNode in childList)
+                    childNode.GetIntersection(bSphere);
+
+            }
+            return null;
         }
         #endregion
 
@@ -131,6 +191,28 @@ namespace Game1
             {
                 Distribute(dModel);
             }
+        }
+
+        private DrawableModel RemoveDrawableModel(int modelID)
+        {
+            DrawableModel dModel = null;
+
+            for (int i = 0; i < modelList.Count; i++)
+            {
+                if (modelList[i].ModelID == modelID)
+                {
+                    dModel = modelList[i];
+                    modelList.Remove(dModel);
+                }
+            }
+
+            int child = 0;
+            while ((dModel == null) && ( child < childList.Count))
+            {
+                dModel = childList[child++].RemoveDrawableModel(modelID);
+            }
+
+            return dModel;
         }
 
         private void Distribute(DrawableModel dModel)
