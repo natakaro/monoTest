@@ -10,12 +10,6 @@ namespace Game1
 {
     public abstract class DrawableObject : DrawableGameComponent
     {
-        protected Matrix worldMatrix;
-        protected Model model;
-        protected Vector3 position;
-        protected int modelID;
-        protected Texture2D texture;
-
         public enum ObjectType
         {
             Unknown = 1,
@@ -40,57 +34,93 @@ namespace Game1
         /// </summary>
         protected BoundingBox boundingBox;
 
+        protected Matrix worldMatrix;
+
         /// <summary>
         /// This indicates that the object doesn't actually move (such as terrain)
         /// </summary>
-        protected bool m_static = true;
-
-        protected bool hasBounds = false;
-        protected bool selected = false;
-
+        
+        protected Vector3 position;
+        protected Vector3 lastPosition;
+        protected Quaternion orientation;
+        protected Vector3 velocity;
+        protected Vector3 acceleration;
         protected ObjectType type;
         protected Effect effect;
 
-        public DrawableObject(Game game, Matrix inWorldMatrix, int inModelID) : base(game)
+        protected bool m_static = true;
+        protected bool hasBounds = false;
+        protected bool selected = false;
+        protected int m_lod = 0;
+
+        public DrawableObject(Game game, Matrix inWorldMatrix) : base(game)
         {
+            type = ObjectType.Unknown;
             worldMatrix = inWorldMatrix;
-            modelID = inModelID;
             position = new Vector3(inWorldMatrix.M41, inWorldMatrix.M42, inWorldMatrix.M43);
+            lastPosition = position;
+            orientation = Quaternion.Identity;
+            velocity = Vector3.Zero;
+            acceleration = Vector3.Zero;
+            boundingSphere = new BoundingSphere();
+            boundingBox = new BoundingBox();
         }
 
+        /// <summary>
+        /// Moves an object according to its position, velocity and accelleration and the change in game time
+        /// </summary>
+        /// <param name="gameTime">The change in game time</param>
+        /// <returns>True - the object was moved.
+        /// False - The object did not move.</returns>
         public virtual bool Update(GameTime gameTime)
         {
             if (!m_static)
             {
-                //m_lastPosition = m_position;
-                //m_velocity += m_acceleration * (float)(gameTime.ElapsedGameTime.TotalSeconds);
-                //m_position += m_velocity * (float)(gameTime.ElapsedGameTime.TotalSeconds);
-                //boundingSphere.Center = m_position;
+                lastPosition = position;
+                velocity += acceleration * (float)(gameTime.ElapsedGameTime.TotalSeconds);
+                position += velocity * (float)(gameTime.ElapsedGameTime.TotalSeconds);
+                boundingSphere.Center = position;
 
-                //return m_lastPosition != m_position;    //lets you know if the object actually moved relative to its last position
+                return lastPosition != position;    //lets you know if the object actually moved relative to its last position
             }
 
             return false;
         }
 
-        public void Draw(Camera camera)
+        public abstract void Draw(Camera camera);
+
+        public virtual void UpdateLOD(Camera camera)
         {
-            foreach (ModelMesh mesh in model.Meshes)
-            {
-                foreach (BasicEffect effect in mesh.Effects)
-                {
-                    effect.EnableDefaultLighting();
-                    effect.World = mesh.ParentBone.Transform * worldMatrix;
-                    effect.View = camera.viewMatrix;
-                    effect.Projection = camera.projMatrix;
-                }
-                mesh.Draw();
-            }
+            float dist = (camera.Position - position).LengthSquared();
+
+            if (dist <= 2500)
+                m_lod = 0;
+            else if (dist <= 10000)
+                m_lod = 1;
+            else
+                m_lod = 2;
+
         }
 
         public virtual IntersectionRecord Intersects(Ray intersectionRay)
         {
             return new IntersectionRecord(this);
+        }
+
+        public virtual Matrix Projection
+        {
+            set { effect.Parameters["xProjection"].SetValue(value); }
+        }
+        public virtual Matrix View
+        {
+            set { effect.Parameters["xView"].SetValue(value); }
+        }
+
+        public virtual void SetDirectionalLight(Vector3 direction, Color color)
+        {
+            effect.Parameters["xLightDirection0"].SetValue(direction);
+            effect.Parameters["xLightColor0"].SetValue(color.ToVector3());
+            effect.Parameters["xEnableLighting"].SetValue(true);
         }
 
         /// <summary>
@@ -194,8 +224,21 @@ namespace Game1
 
         }
 
+        #region helper functions
+        public void UndoLastMove()
+        {
+            position = lastPosition;
+        }
+
+        public void SetCollisionRadius(float radius)
+        {
+            boundingSphere.Radius = radius;
+        }
+        #endregion
+
         #region Accessors
         public ObjectType Type { get { return type; } }
+
         public Vector3 Position
         {
             get
@@ -247,6 +290,51 @@ namespace Game1
             }
         }
 
+        public Quaternion Orientation
+        {
+            get
+            {
+                return orientation;
+            }
+            set
+            {
+                orientation = value;
+            }
+        }
+
+        public Vector3 Velocity
+        {
+            get
+            {
+                return velocity;
+            }
+            set
+            {
+                velocity = value;
+            }
+        }
+
+        public Vector3 Acceleration
+        {
+            get { return acceleration; }
+            set { acceleration = value; }
+        }
+
+        public float SpeedSquared
+        {
+            get { return velocity.LengthSquared(); }
+        }
+
+        public float Speed
+        {
+            get { return velocity.Length(); }
+            set
+            {
+                velocity.Normalize();
+                velocity *= value;
+            }
+        }
+
         /// <summary>
         /// tells you if a valid bounding area encloses the object. Doesn't indicate which kind though.
         /// </summary>
@@ -264,8 +352,6 @@ namespace Game1
             set { effect = value; }
         }
 
-        public Model Model { get; }
-        public int ModelID { get; set; }
         public Matrix WorldMatrix
         {
             get

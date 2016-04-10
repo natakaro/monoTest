@@ -15,9 +15,7 @@ namespace Game1
         private Camera camera;
         private SpriteFont spriteFont;
 
-        //private Octree octree;
-
-        OctreeNode octreeRoot;
+        Octree octree;
 
         InstancingDraw temp;
         private Texture2D cross;
@@ -26,8 +24,6 @@ namespace Game1
 
         private bool instancing = true;
         private bool debugShapes = false;
-
-        Model tileModel;
 
         private const float CAMERA_FOVX = 85.0f;
         private const float CAMERA_ZNEAR = 0.01f;
@@ -52,8 +48,10 @@ namespace Game1
         private TimeSpan elapsedTime = TimeSpan.Zero;
         private bool displayHelp;
 
+        private int modelsDrawn;
+
         private float distance;
-        private DrawableModel tileStandingOn;
+        private DrawableObject tileStandingOn;
 
         public Game1()
         {
@@ -74,7 +72,6 @@ namespace Game1
             base.Initialize();
 
             DebugShapeRenderer.Initialize(graphics.GraphicsDevice);
-            octreeRoot = new OctreeNode(new Vector3(0, 0, 0), 10000);
 
             // Setup the window to be a quarter the size of the desktop.
             windowWidth = GraphicsDevice.DisplayMode.Width / 2;
@@ -115,15 +112,12 @@ namespace Game1
 
             currentKeyboardState = Keyboard.GetState();
 
-            Map.CreateMap(tileModel, 30, camera.worldMatrix, octreeRoot);
-
             //octree
-            //octree = new Octree(mapa.TileList);
+            octree = new Octree(Map.CreateMap(this, 30, camera.worldMatrix));
         }
 
         protected override void LoadContent()
         {
-            tileModel = Content.Load<Model>("1");
             cross = Content.Load<Texture2D>("cross_cross");
             spriteBatch = new SpriteBatch(GraphicsDevice);
             spriteFont = Content.Load<SpriteFont>(@"fonts\DemoFont");
@@ -184,16 +178,6 @@ namespace Game1
             if (KeyJustPressed(Keys.D1))
             {
                 instancing = !instancing;
-                foreach (ModelMesh mesh in tileModel.Meshes)
-                {
-                    foreach (ModelMeshPart meshPart in mesh.MeshParts)
-                    {
-                        BasicEffect effect = new BasicEffect(graphics.GraphicsDevice);
-                        effect.EnableDefaultLighting();
-                        meshPart.Effect = effect;
-                    }
-                    mesh.Draw();
-                }
             }
 
             if (KeyJustPressed(Keys.D2))
@@ -240,48 +224,24 @@ namespace Game1
             ProcessKeyboard();
 
             //poruszanie po y w zaleznosci od pozycji tila - czy powinno to byc w update a nie gdzies indziej?
-            //if (camera.CurrentVelocity != Vector3.Zero)
-            //{
-            //    Ray yRay = camera.GetDownwardRay();
-            //    IntersectionRecord ir = octree.NearestIntersection(yRay);
-            //    if (ir != null && ir.DrawableObjectObject != null && tileStandingOn != ir.DrawableObjectObject)//..ujowy if ale działa
-            //    {
-            //         //dla debugu, wywalic potem
-            //        //distance = (float)yRay.Intersects(ir.DrawableObjectObject.BoundingBox); //paskudne
-            //        //camera.Move(0, (distance-20)*-1, 0);
-            //        distance = ir.DrawableObjectObject.Position.Y; //prosciej
-            //        //camera.Move(0, (camera.Position.Y - distance-20) * -1, 0); //move jest natychmiastowy a nie plynny jak cala reszta kamery wiec wyglada niefajnie, plus do tego psuje kucanie - uzyc czegos z velocity w kamerze?
-            //        camera.EyeHeightStanding = CAMERA_PLAYER_EYE_HEIGHT + distance;
-            //        //camera.CurrentY = distance*10;
-            //        tileStandingOn = ir.DrawableObjectObject;
-            //    }
-            //}
-
             if (camera.CurrentVelocity != Vector3.Zero)
             {
-
                 cameraSphere.Center = camera.Position - new Vector3(0, 30, 0);
-                
-                List<DrawableModel> collidingList = new List<DrawableModel>();
-
-                octreeRoot.GetIntersection(cameraSphere, collidingList);
-
-                foreach (DrawableModel dModel in collidingList)
+                Ray yRay = camera.GetDownwardRay();
+                IntersectionRecord ir = octree.NearestIntersection(yRay);
+                if (ir != null && ir.DrawableObjectObject != null && tileStandingOn != ir.DrawableObjectObject)//..ujowy if ale działa
                 {
-                    distance = dModel.Position.Y;
-                    tileStandingOn = dModel;
+                    //dla debugu, wywalic potem
+                    //distance = (float)yRay.Intersects(ir.DrawableObjectObject.BoundingBox); //paskudne
+                    //camera.Move(0, (distance-20)*-1, 0);
+                    distance = ir.DrawableObjectObject.Position.Y; //prosciej
+                    //camera.Move(0, (camera.Position.Y - distance-20) * -1, 0); //move jest natychmiastowy a nie plynny jak cala reszta kamery wiec wyglada niefajnie, plus do tego psuje kucanie - uzyc czegos z velocity w kamerze?
+                    camera.EyeHeightStanding = CAMERA_PLAYER_EYE_HEIGHT + distance;
+                    //camera.CurrentY = distance*10;
+                    tileStandingOn = ir.DrawableObjectObject;
                 }
-
-                //DrawableModel dModel = octreeRoot.GetIntersection(cameraSphere);
-                //if (dModel != null)
-                //{
-                //    distance = dModel.Position.Y;
-                //    tileStandingOn = dModel;
-                //}
-
-                camera.EyeHeightStanding = CAMERA_PLAYER_EYE_HEIGHT + distance;
             }
-            
+
 
             UpdateFrameRate(gameTime);
         }
@@ -356,7 +316,7 @@ namespace Game1
                 //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.Z.ToString("f2"));
                 //buffer.AppendFormat(mapa.mapa[0, 0].model.Meshes[0].BoundingSphere.Radius.ToString());
                 buffer.AppendFormat(" Models drawn: {0}\n",
-                    octreeRoot.ModelsDrawn.ToString("f2"));
+                    modelsDrawn.ToString("f2"));
                 buffer.AppendFormat(" Instancing: {0}\n",
                     instancing.ToString());
                 buffer.AppendFormat("  Ray Position: x:{0} y:{1} z:{2}\n",
@@ -407,7 +367,7 @@ namespace Game1
                 //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.Z.ToString("f2"));
                 //buffer.AppendFormat(mapa.mapa[0, 0].model.Meshes[0].BoundingSphere.Radius.ToString());
                 buffer.AppendFormat(" Models drawn: {0}\n",
-                    octreeRoot.ModelsDrawn.ToString("f2"));
+                    modelsDrawn.ToString("f2"));
                 buffer.AppendFormat(" Instancing: {0}\n",
                     instancing.ToString());
                 buffer.AppendFormat("  Ray Position: x:{0} y:{1} z:{2}\n",
@@ -437,36 +397,32 @@ namespace Game1
             //GraphicsDevice.SamplerStates[1] = SamplerState.LinearWrap;
             //GraphicsDevice.SamplerStates[2] = SamplerState.LinearWrap;
 
-            //modelsDrawn = 0;
+            modelsDrawn = 0;
 
             //Renders all visible objects by iterating through the oct tree recursively and testing for intersection 
             //with the current camera view frustum
 
-            /*
-            foreach (IntersectionRecord ir in octree.AllIntersections(camera.Frustum))
-            {
-                // ir.DrawableObjectObject.SetDirectionalLight(m_globalLight[0].Direction, m_globalLight[0].Color);
-                // ir.DrawableObjectObject.UpdateLOD(camera);
-                ir.DrawableObjectObject.Draw(camera);
-                modelsDrawn++;
-            }*/
-
-            octreeRoot.ModelsDrawn = 0;
-
             if (instancing)
             {
-                List<DrawableModel> insta = new List<DrawableModel>();
-
-                octreeRoot.DrawInstancing(insta, camera.Frustum);
-                temp.DrawModelHardwareInstancing(insta);
+                List<IntersectionRecord> list = octree.AllIntersections(camera.Frustum);
+                temp.DrawModelHardwareInstancing(list);
+                modelsDrawn = list.Count;
             }
             else
-                octreeRoot.Draw(camera.ViewMatrix, camera.ProjectionMatrix, camera.Frustum);
+            {
+                foreach (IntersectionRecord ir in octree.AllIntersections(camera.Frustum))
+                {
+                    // ir.DrawableObjectObject.SetDirectionalLight(m_globalLight[0].Direction, m_globalLight[0].Color);
+                    // ir.DrawableObjectObject.UpdateLOD(camera);
+                    ir.DrawableObjectObject.Draw(camera);
+                    modelsDrawn++;
+                }
+            }
 
             if (debugShapes)
             {
                 DebugShapeRenderer.AddBoundingSphere(cameraSphere, Color.Red);
-                octreeRoot.DrawBounds(camera.ViewMatrix, camera.ProjectionMatrix);
+                octree.DrawBounds();
                 DebugShapeRenderer.Draw(gameTime, camera.ViewMatrix, camera.ProjectionMatrix);
             }
 

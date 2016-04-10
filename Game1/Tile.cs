@@ -11,27 +11,14 @@ namespace Game1
 {
     class Tile : DrawableObject
     {
-        // public BoundingSphere mini;
-        Effect old;
+        Texture2D texture;
+        Model model;
         
-
         public void Initialize(ContentManager contentManager)
         {
             model = contentManager.Load<Model>("1");
             effect = contentManager.Load<Effect>("Effects/Toon");
             texture = contentManager.Load<Texture2D>("textchampfer");
-            old = model.Meshes[0].Effects[0];
-        }
-
-        public void reload()
-        {
-            foreach (ModelMesh mesh in model.Meshes)
-            {
-                foreach (ModelMeshPart part in mesh.MeshParts)
-                {
-                    part.Effect = old;
-                }
-            }
         }
 
         //public void Draw(Camera camera)
@@ -41,7 +28,7 @@ namespace Game1
         //}
 
 
-        public void DrawEffect(Camera camera)
+        public override void Draw(Camera camera)
         {
             //worldMatrix = Matrix.CreateScale(Map.scale) * Matrix.CreateTranslation(position) * camera.worldMatrix;
             foreach (ModelMesh mesh in model.Meshes)
@@ -60,18 +47,13 @@ namespace Game1
             }
         }
 
-        //public Tile(Game1 game, Vector3 xyz, int id) : base(game)
-        //{
-        //    position = xyz;
-        //    modelID = id;
-        //    mini = new BoundingSphere(position, Map.skala * 0.75f);
-        //}
-
-        public Tile(Game game, Matrix inWorldMatrix, int inModelID) : base(game, inWorldMatrix, inModelID)
+        public Tile(Game game, Matrix inWorldMatrix) : base(game, inWorldMatrix)
         {
             boundingSphere = new BoundingSphere(position, Map.scale * 0.75f);
             boundingBox = new BoundingBox(position - new Vector3 (25, 10, 25), position + new Vector3(25,10,25)); // na oko wartosci, koniecznie wprowadzic poprawne!!
             type = ObjectType.Terrain;
+
+            Initialize(game.Content);
         }
     }
 }

@@ -98,39 +98,19 @@ namespace Game1
         /// Renders the current state of the octTree by drawing the outlines of each bounding region.
         /// </summary>
         /// <param name="pb">The primitive batch being used to draw the OctTree.</param>
-        //public void Render(PrimitiveBatch pb)
-        //{
-        //    Vector3[] verts = new Vector3[8];
-        //    verts[0] = m_region.Min;
-        //    verts[1] = new Vector3(m_region.Min.X, m_region.Min.Y, m_region.Max.Z); //Z
-        //    verts[2] = new Vector3(m_region.Min.X, m_region.Max.Y, m_region.Min.Z); //Y
-        //    verts[3] = new Vector3(m_region.Max.X, m_region.Min.Y, m_region.Min.Z); //X
+        public void DrawBounds()
+        {
+            DebugShapeRenderer.AddBoundingBox(m_region, Color.Yellow);
 
-        //    verts[7] = m_region.Max;
-        //    verts[4] = new Vector3(m_region.Max.X, m_region.Max.Y, m_region.Min.Z); //Z
-        //    verts[5] = new Vector3(m_region.Max.X, m_region.Min.Y, m_region.Max.Z); //Y
-        //    verts[6] = new Vector3(m_region.Min.X, m_region.Max.Y, m_region.Max.Z); //X
+            foreach (DrawableObject dObject in m_objects)
+                DebugShapeRenderer.AddBoundingBox(dObject.BoundingBox, Color.Blue);
 
-        //    pb.AddLine(new VertexPositionColor(verts[0], Color.Lime), new VertexPositionColor(verts[1], Color.Lime));
-        //    pb.AddLine(new VertexPositionColor(verts[0], Color.Lime), new VertexPositionColor(verts[2], Color.Lime));
-        //    pb.AddLine(new VertexPositionColor(verts[0], Color.Lime), new VertexPositionColor(verts[3], Color.Lime));
-        //    pb.AddLine(new VertexPositionColor(verts[7], Color.Lime), new VertexPositionColor(verts[4], Color.Lime));
-        //    pb.AddLine(new VertexPositionColor(verts[7], Color.Lime), new VertexPositionColor(verts[5], Color.Lime));
-        //    pb.AddLine(new VertexPositionColor(verts[7], Color.Lime), new VertexPositionColor(verts[6], Color.Lime));
-
-        //    pb.AddLine(new VertexPositionColor(verts[1], Color.Lime), new VertexPositionColor(verts[6], Color.Lime));
-        //    pb.AddLine(new VertexPositionColor(verts[1], Color.Lime), new VertexPositionColor(verts[5], Color.Lime));
-        //    pb.AddLine(new VertexPositionColor(verts[4], Color.Lime), new VertexPositionColor(verts[2], Color.Lime));
-        //    pb.AddLine(new VertexPositionColor(verts[4], Color.Lime), new VertexPositionColor(verts[3], Color.Lime));
-        //    pb.AddLine(new VertexPositionColor(verts[2], Color.Lime), new VertexPositionColor(verts[6], Color.Lime));
-        //    pb.AddLine(new VertexPositionColor(verts[3], Color.Lime), new VertexPositionColor(verts[5], Color.Lime));
-
-        //    for (int a = 0; a < 8; a++)
-        //    {
-        //        if (m_childNode[a] != null)
-        //            m_childNode[a].Render(pb);
-        //    }
-        //}
+            for (int a = 0; a < 8; a++)
+            {
+                if (m_childNode[a] != null)
+                    m_childNode[a].DrawBounds();
+            }
+        }
 
         public void Update(GameTime gameTime)
         {
@@ -879,6 +859,11 @@ namespace Game1
                     return true;
                 }
             }
+        }
+
+        public List<DrawableObject> getAllObjects
+        {
+            get { return m_objects; }
         }
         #endregion
     }
