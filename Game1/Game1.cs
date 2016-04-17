@@ -229,7 +229,7 @@ namespace Game1
             //poruszanie po y w zaleznosci od pozycji tila - czy powinno to byc w update a nie gdzies indziej?
             if (camera.CurrentVelocity != Vector3.Zero)
             {
-                cameraSphere.Center = camera.Position - new Vector3(0, 30, 0);
+                //cameraSphere.Center = camera.Position - new Vector3(0, 30, 0);
                 Ray yRay = camera.GetDownwardRay();
                 IntersectionRecord ir = octree.NearestIntersection(yRay);
                 if (ir != null && ir.DrawableObjectObject != null && tileStandingOn != ir.DrawableObjectObject)//..ujowy if ale działa
@@ -244,15 +244,17 @@ namespace Game1
                     //camera.CurrentY = distance*10;
                     tileStandingOn = ir.DrawableObjectObject;
                 }
-                if(camera.EyeHeightStanding > CAMERA_PLAYER_EYE_HEIGHT + distance)
-                {
-                    camera.EyeHeightStanding = camera.EyeHeightStanding - 0.1f;
-                }
-                else if(camera.EyeHeightStanding < CAMERA_PLAYER_EYE_HEIGHT + distance)
-                {
-                    camera.EyeHeightStanding = camera.EyeHeightStanding + 0.1f;
-                }
             }
+            if (camera.EyeHeightStanding > CAMERA_PLAYER_EYE_HEIGHT + distance)
+            {
+                camera.EyeHeightStanding -= 0.1f;
+            }
+            else if (camera.EyeHeightStanding < CAMERA_PLAYER_EYE_HEIGHT + distance)
+            {
+                camera.EyeHeightStanding += 0.1f;
+            }
+
+
 
             octree.Update(gameTime);
             UpdateFrameRate(gameTime);
