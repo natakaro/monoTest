@@ -12,7 +12,7 @@ namespace Game1
     {
         BoundingBox m_region;
 
-        List<DrawableObject> m_objects;
+        public List<DrawableObject> m_objects; //public do testowania
 
         /// <summary>
         /// These are items which we're waiting to insert into the data structure. 
@@ -103,7 +103,11 @@ namespace Game1
             DebugShapeRenderer.AddBoundingBox(m_region, Color.Yellow);
 
             foreach (DrawableObject dObject in m_objects)
+            {
                 DebugShapeRenderer.AddBoundingBox(dObject.BoundingBox, Color.Blue);
+                DebugShapeRenderer.AddBoundingSphere(dObject.BoundingSphere, Color.Red);
+            }
+                
 
             for (int a = 0; a < 8; a++)
             {

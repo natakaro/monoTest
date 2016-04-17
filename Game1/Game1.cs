@@ -21,8 +21,8 @@ namespace Game1
         private Texture2D cross;
 
         BoundingSphere cameraSphere;
-
-        private bool instancing = true;
+        TestBox testbox;
+        private bool instancing = false;
         private bool debugShapes = false;
 
         private const float CAMERA_FOVX = 85.0f;
@@ -52,6 +52,7 @@ namespace Game1
 
         private float distance;
         private DrawableObject tileStandingOn;
+        private DrawableObject lasttileStandingOn;
 
         public Game1()
         {
@@ -112,8 +113,10 @@ namespace Game1
 
             currentKeyboardState = Keyboard.GetState();
 
+            testbox = new TestBox(this, camera.worldMatrix);
             //octree
             octree = new Octree(Map.CreateMap(this, 30, camera.worldMatrix));
+            octree.m_objects.Add(testbox);
         }
 
         protected override void LoadContent()
@@ -234,15 +237,24 @@ namespace Game1
                     //dla debugu, wywalic potem
                     //distance = (float)yRay.Intersects(ir.DrawableObjectObject.BoundingBox); //paskudne
                     //camera.Move(0, (distance-20)*-1, 0);
-                    distance = ir.DrawableObjectObject.Position.Y; //prosciej
+                    //distance = ir.DrawableObjectObject.Position.Y; //prosciej
+                    distance = ir.DrawableObjectObject.BoundingBox.Max.Y;
+                    //camera.EyeHeightStanding = CAMERA_PLAYER_EYE_HEIGHT + distance;
                     //camera.Move(0, (camera.Position.Y - distance-20) * -1, 0); //move jest natychmiastowy a nie plynny jak cala reszta kamery wiec wyglada niefajnie, plus do tego psuje kucanie - uzyc czegos z velocity w kamerze?
-                    camera.EyeHeightStanding = CAMERA_PLAYER_EYE_HEIGHT + distance;
                     //camera.CurrentY = distance*10;
                     tileStandingOn = ir.DrawableObjectObject;
                 }
+                if(camera.EyeHeightStanding > CAMERA_PLAYER_EYE_HEIGHT + distance)
+                {
+                    camera.EyeHeightStanding = camera.EyeHeightStanding - 0.1f;
+                }
+                else if(camera.EyeHeightStanding < CAMERA_PLAYER_EYE_HEIGHT + distance)
+                {
+                    camera.EyeHeightStanding = camera.EyeHeightStanding + 0.1f;
+                }
             }
 
-
+            octree.Update(gameTime);
             UpdateFrameRate(gameTime);
         }
 

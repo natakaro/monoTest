@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -80,7 +81,6 @@ namespace Game1
                 velocity += acceleration * (float)(gameTime.ElapsedGameTime.TotalSeconds);
                 position += velocity * (float)(gameTime.ElapsedGameTime.TotalSeconds);
                 boundingSphere.Center = position;
-
                 return lastPosition != position;    //lets you know if the object actually moved relative to its last position
             }
 
