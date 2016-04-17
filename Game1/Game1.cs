@@ -207,7 +207,7 @@ namespace Game1
                 if (camera.RotationSpeed > 1.0f)
                     camera.RotationSpeed = 1.0f;
             }
-
+            
             if (KeyJustPressed(Keys.Subtract))
             {
                 camera.RotationSpeed -= 0.01f;
@@ -244,16 +244,43 @@ namespace Game1
                     //camera.CurrentY = distance*10;
                     tileStandingOn = ir.DrawableObjectObject;
                 }
+                if (ir.DrawableObjectObject == null)
+                {
+                    distance = 0;
+                }
             }
-            if (camera.EyeHeightStanding > CAMERA_PLAYER_EYE_HEIGHT + distance)
+            float temp = camera.EyeHeightStanding - (CAMERA_PLAYER_EYE_HEIGHT + distance);
+            
+            if(temp > 0.2)
             {
-                camera.EyeHeightStanding -= 0.1f;
+                camera.EyeHeightStanding -= 0.1f + distance/100;
             }
-            else if (camera.EyeHeightStanding < CAMERA_PLAYER_EYE_HEIGHT + distance)
+            else if(temp < -0.2)
             {
-                camera.EyeHeightStanding += 0.1f;
+                camera.EyeHeightStanding += 0.1f + distance/500;
+            }
+            else
+            {
+                camera.EyeHeightStanding = CAMERA_PLAYER_EYE_HEIGHT + distance;
             }
 
+            
+            /*if (Math.Abs(camera.EyeHeightStanding - CAMERA_PLAYER_EYE_HEIGHT + distance) <= 0.1f)
+            {
+                camera.EyeHeightStanding = CAMERA_PLAYER_EYE_HEIGHT + distance;
+            }
+            if (Math.Abs(camera.EyeHeightStanding - CAMERA_PLAYER_EYE_HEIGHT + distance) > 100)
+            {
+                temp = (distance / 1000);
+            }
+            if (camera.EyeHeightStanding > (CAMERA_PLAYER_EYE_HEIGHT + distance))
+            {
+                camera.EyeHeightStanding -= 0.1f + temp;
+            }
+            else if (camera.EyeHeightStanding < (CAMERA_PLAYER_EYE_HEIGHT + distance))
+            {
+                camera.EyeHeightStanding += 0.1f + temp;
+            }*/
 
 
             octree.Update(gameTime);
