@@ -22,12 +22,15 @@ namespace Game1
 
         BoundingSphere cameraSphere;
         TestBox testbox;
+        Wall wall;
+        Model skybox;
+
         private bool instancing = false;
         private bool debugShapes = false;
 
         private const float CAMERA_FOVX = 85.0f;
         private const float CAMERA_ZNEAR = 0.01f;
-        private const float CAMERA_ZFAR = 2000.0f;
+        private const float CAMERA_ZFAR = 15000.0f;
         private const float CAMERA_PLAYER_EYE_HEIGHT = 30.0f;
         private const float CAMERA_ACCELERATION_X = 800.0f;
         private const float CAMERA_ACCELERATION_Y = 800.0f;
@@ -52,7 +55,6 @@ namespace Game1
 
         private float distance;
         private DrawableObject tileStandingOn;
-        private DrawableObject lasttileStandingOn;
 
         public Game1()
         {
@@ -114,9 +116,11 @@ namespace Game1
             currentKeyboardState = Keyboard.GetState();
 
             testbox = new TestBox(this, camera.worldMatrix);
+            wall = new Wall(this, camera.worldMatrix);
             //octree
             octree = new Octree(Map.CreateMap(this, 30, camera.worldMatrix));
             octree.m_objects.Add(testbox);
+            octree.m_objects.Add(wall);
         }
 
         protected override void LoadContent()
@@ -125,6 +129,7 @@ namespace Game1
             spriteBatch = new SpriteBatch(GraphicsDevice);
             spriteFont = Content.Load<SpriteFont>(@"fonts\DemoFont");
             temp = new InstancingDraw(this, camera, Content);
+            skybox = Content.Load<Model>("SkySphere");
         }
 
         protected override void UnloadContent()
@@ -227,37 +232,35 @@ namespace Game1
             ProcessKeyboard();
 
             //poruszanie po y w zaleznosci od pozycji tila - czy powinno to byc w update a nie gdzies indziej?
-            if (camera.CurrentVelocity != Vector3.Zero)
-            {
                 //cameraSphere.Center = camera.Position - new Vector3(0, 30, 0);
                 Ray yRay = camera.GetDownwardRay();
-                IntersectionRecord ir = octree.NearestIntersection(yRay);
-                if (ir != null && ir.DrawableObjectObject != null && tileStandingOn != ir.DrawableObjectObject)//..ujowy if ale działa
+                IntersectionRecord ir = octree.HighestIntersection(yRay);
+                
+                if (ir != null && ir.DrawableObjectObject != null)//..ujowy if ale działa
                 {
-                    //dla debugu, wywalic potem
-                    //distance = (float)yRay.Intersects(ir.DrawableObjectObject.BoundingBox); //paskudne
-                    //camera.Move(0, (distance-20)*-1, 0);
-                    //distance = ir.DrawableObjectObject.Position.Y; //prosciej
-                    distance = ir.DrawableObjectObject.BoundingBox.Max.Y;
-                    //camera.EyeHeightStanding = CAMERA_PLAYER_EYE_HEIGHT + distance;
-                    //camera.Move(0, (camera.Position.Y - distance-20) * -1, 0); //move jest natychmiastowy a nie plynny jak cala reszta kamery wiec wyglada niefajnie, plus do tego psuje kucanie - uzyc czegos z velocity w kamerze?
-                    //camera.CurrentY = distance*10;
-                    tileStandingOn = ir.DrawableObjectObject;
+                //dla debugu, wywalic potem
+                //distance = (float)yRay.Intersects(ir.DrawableObjectObject.BoundingBox); //paskudne
+                //camera.Move(0, (distance-20)*-1, 0);
+                //distance = ir.DrawableObjectObject.Position.Y; //prosciej
+                distance = ir.DrawableObjectObject.BoundingBox.Max.Y;
+                //camera.EyeHeightStanding = CAMERA_PLAYER_EYE_HEIGHT + distance;
+                //camera.Move(0, (camera.Position.Y - distance-20) * -1, 0); //move jest natychmiastowy a nie plynny jak cala reszta kamery wiec wyglada niefajnie, plus do tego psuje kucanie - uzyc czegos z velocity w kamerze?
+                //camera.CurrentY = distance*10;
+                tileStandingOn = ir.DrawableObjectObject;
                 }
                 if (ir.DrawableObjectObject == null)
                 {
                     distance = 0;
                 }
-            }
             float temp = camera.EyeHeightStanding - (CAMERA_PLAYER_EYE_HEIGHT + distance);
             
             if(temp > 0.2)
             {
-                camera.EyeHeightStanding -= 0.1f + distance/100;
+                camera.EyeHeightStanding -= (125f) * (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
             else if(temp < -0.2)
             {
-                camera.EyeHeightStanding += 0.1f + distance/500;
+                camera.EyeHeightStanding += (100f) * (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
             else
             {
@@ -371,6 +374,7 @@ namespace Game1
 
                 buffer.AppendFormat(" Distance: {0}\n",
                     distance.ToString("f2"));
+
                 buffer.AppendFormat(" TileStandingOn Y: {0}\n",
                     tileStandingOn.Position.Y.ToString("f2"));
 
@@ -439,7 +443,7 @@ namespace Game1
             //GraphicsDevice.SamplerStates[2] = SamplerState.LinearWrap;
 
             modelsDrawn = 0;
-
+            skybox.Draw(camera.worldMatrix * Matrix.CreateScale(5000), camera.viewMatrix, camera.projMatrix);
             //Renders all visible objects by iterating through the oct tree recursively and testing for intersection 
             //with the current camera view frustum
 
@@ -466,6 +470,8 @@ namespace Game1
                 octree.DrawBounds();
                 DebugShapeRenderer.Draw(gameTime, camera.ViewMatrix, camera.ProjectionMatrix);
             }
+
+            
 
             spriteBatch.Begin();
             spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);

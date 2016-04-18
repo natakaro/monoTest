@@ -48,6 +48,8 @@
     <Compile Include="Octree.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Sky.cs" />
+    <Compile Include="Wall.cs" />
     <Compile Include="TestBox.cs" />
     <Compile Include="Tile.cs" />
   </ItemGroup>

@@ -786,6 +786,31 @@ namespace Game1
             return nearest;
         }
 
+
+        public IntersectionRecord HighestIntersection(Ray intersectionRay, DrawableObject.ObjectType type = DrawableObject.ObjectType.ALL)
+        {
+            if (!m_treeReady)
+                UpdateTree();
+
+            List<IntersectionRecord> intersections = GetIntersection(intersectionRay, type);
+
+            IntersectionRecord nearest = new IntersectionRecord();
+
+            foreach (IntersectionRecord ir in intersections)
+            {
+                if (nearest.HasHit == true)
+                {
+                    nearest = ir;
+                    continue;
+                }
+                if (ir.Distance < nearest.Distance)
+                {
+                    nearest = ir;
+                }
+            }
+            return nearest;
+        }
+
         /// <summary>
         /// This gives you a list of all intersections, filtered by a specific type of object
         /// </summary>

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Game1
 {
-    class TestBox : DrawableObject
+    class Sky : DrawableObject
     {
 
         Texture2D texture;
@@ -17,14 +17,14 @@ namespace Game1
 
         public void Initialize(ContentManager contentManager)
         {
-            model = contentManager.Load<Model>("Monocube");
+            model = contentManager.Load<Model>("SkySphere");
             texture = contentManager.Load<Texture2D>("MonoCubeTexture");
         }
 
 
         public override void Draw(Camera camera)
         {
-            model.Draw(camera.worldMatrix*Matrix.CreateScale(25)*Matrix.CreateTranslation(position), camera.viewMatrix, camera.projMatrix);
+            model.Draw(camera.worldMatrix*Matrix.CreateScale(25), camera.viewMatrix, camera.projMatrix);
             //worldMatrix = Matrix.CreateScale(Map.scale) * Matrix.CreateTranslation(position) * camera.worldMatrix;
             /*foreach (ModelMesh mesh in model.Meshes)
             {
@@ -43,30 +43,12 @@ namespace Game1
         }
 
 
-        public override bool Update(GameTime gameTime)
+        public Sky(Game game, Matrix inWorldMatrix) : base(game, inWorldMatrix)
         {
-            if (!m_static)
-            {
-                lastPosition = position;
-                velocity += acceleration * (float)(gameTime.ElapsedGameTime.TotalSeconds);
-                position += velocity * (float)(gameTime.ElapsedGameTime.TotalSeconds);
-                boundingSphere.Center = position;
-                boundingBox = new BoundingBox(position - new Vector3(35, 35, 35), position + new Vector3(35, 35, 35));
-                return lastPosition != position;    //lets you know if the object actually moved relative to its last position
-            }
-
-            return false;
-        }
-
-        public TestBox(Game game, Matrix inWorldMatrix) : base(game, inWorldMatrix)
-        {
-            position = new Vector3(-40, 0, -40);
+            position = new Vector3(0, 0, 0);
+            boundingSphere = new BoundingSphere(position, 25);
             Initialize(game.Content);
-            boundingSphere = new BoundingSphere(position, model.Meshes[0].BoundingSphere.Radius * 25);
-            boundingBox = new BoundingBox(position - new Vector3(35, 35, 35), position + new Vector3(35, 35, 35)); // na oko wartosci, koniecznie wprowadzic poprawne!!
-            type = ObjectType.Item;
-            m_static = false;
-            acceleration = new Vector3(0, 1f, 0);
+            type = ObjectType.Ethereal;
         }
     }
 }
