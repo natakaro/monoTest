@@ -391,6 +391,9 @@ namespace Game1
                     camera.MovingRay().Position.X.ToString("f2"),
                     camera.MovingRay().Position.Y.ToString("f2"),
                     camera.MovingRay().Position.Z.ToString("f2"));
+                Vector3 temp = slonce - camera.Position;
+                buffer.AppendFormat(" Sun distance Y: {0}\n",
+                    temp.Length().ToString("f2"));
 
                 buffer.Append("\nPress H to display help");
             }
@@ -494,9 +497,13 @@ namespace Game1
             {
                 foreach (ModelMeshPart part in mesh.MeshParts)
                 {
+                    Vector3 temp = slonce - camera.Position;
                     effect.Parameters["Texture"].SetValue(part.Effect.Parameters["Texture"].GetValueTexture2D());
                     part.Effect = effect;
-                    effect.Parameters["DiffuseLightDirection"].SetValue(slonce-camera.Position); 
+                    //slonce
+                    effect.Parameters["DiffuseLightDirection"].SetValue(temp);
+                    effect.Parameters["DiffuseIntensity"].SetValue(3-(temp.Length()/1000));
+                    
                     effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * Matrix.CreateScale(0.01f) * camera.WeaponWorldMatrix(0, -0.1f, 0.4f));
                     effect.Parameters["View"].SetValue(camera.ViewMatrix);
                     effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
