@@ -408,3 +408,9 @@
 /processorParam:TextureFormat=Color
 /build:handstex.jpg
 
+#begin Effects/test.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/test.fx
+

@@ -16,7 +16,7 @@ namespace Game1
         private SpriteFont spriteFont;
 
         Octree octree;
-
+        public static Vector3 slonce = new Vector3(-300, 100, -300);
         InstancingDraw temp;
         private Texture2D cross;
 
@@ -488,7 +488,7 @@ namespace Game1
             }
 
             //rączki na razie po chuju tutaj
-            Effect effect = Content.Load<Effect>("Effects/ToonNoInstancing").Clone();
+            Effect effect = Content.Load<Effect>("Effects/test").Clone();
             Model model = Content.Load<Model>("hands");
             foreach (ModelMesh mesh in model.Meshes)
             {
@@ -496,6 +496,7 @@ namespace Game1
                 {
                     effect.Parameters["Texture"].SetValue(part.Effect.Parameters["Texture"].GetValueTexture2D());
                     part.Effect = effect;
+                    effect.Parameters["DiffuseLightDirection"].SetValue(slonce-camera.Position); 
                     effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * Matrix.CreateScale(0.01f) * camera.WeaponWorldMatrix(0, -0.1f, 0.4f));
                     effect.Parameters["View"].SetValue(camera.ViewMatrix);
                     effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
@@ -504,11 +505,15 @@ namespace Game1
                 }
                 mesh.Draw();
             }
-            //rysowanie gdzie znajduje się movingray do kolizji
+            //rysowanie gdzie znajduje się movingRay do kolizji
             if (raybox)
             {
                 Content.Load<Model>("Monocube").Draw(camera.worldMatrix * Matrix.CreateTranslation(camera.MovingRay().Position), camera.viewMatrix, camera.projMatrix);
             }
+
+            //slonce
+            Content.Load<Model>("Monocube").Draw(camera.worldMatrix * Matrix.CreateTranslation(slonce), camera.viewMatrix, camera.projMatrix);
+
             spriteBatch.Begin();
             spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);
             spriteBatch.End();
