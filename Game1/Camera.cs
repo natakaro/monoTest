@@ -352,18 +352,18 @@ namespace Game1
         /// <param name="yOffset">How far to position the weapon up or down.</param>
         /// <param name="zOffset">How far to position the weapon in front or behind.</param>
         /// <returns>The weapon world transformation matrix.</returns>
-        //public Matrix WeaponWorldMatrix(float xOffset, float yOffset, float zOffset)
-        //{
-        //    Vector3 weaponPos = eye;
+        public Matrix WeaponWorldMatrix(float xOffset, float yOffset, float zOffset)
+        {
+            Vector3 weaponPos = eye;
 
-        //    weaponPos += viewDir * zOffset;
-        //    weaponPos += yAxis * yOffset;
-        //    weaponPos += xAxis * xOffset;
+            weaponPos += viewDir * zOffset;
+            weaponPos += yAxis * yOffset;
+            weaponPos += xAxis * xOffset;
 
-        //    return Matrix.CreateRotationX(MathHelper.ToRadians(PitchDegrees))
-        //            * Matrix.CreateRotationY(MathHelper.ToRadians(HeadingDegrees))
-        //            * Matrix.CreateTranslation(weaponPos);
-        //}
+            return Matrix.CreateRotationX(MathHelper.ToRadians(PitchDegrees))
+                    * Matrix.CreateRotationY(MathHelper.ToRadians(HeadingDegrees))
+                    * Matrix.CreateTranslation(weaponPos);
+        }
 
         /// <summary>
         /// Calculates the world transformation matrix for the weapon attached
@@ -415,7 +415,23 @@ namespace Game1
         {
             return new Ray(Position, Vector3.Down);
         }
+        public Ray MovingRay()
+        {
+            Vector3 weaponPos = Position;
+            Vector3 temp = currentVelocity/50;
+            temp.Z = -temp.Z;
+            temp.Y = 0;
+            weaponPos += Vector3.Transform(temp, Matrix.CreateRotationY(MathHelper.ToRadians(HeadingDegrees)));
+           
+                    //Matrix.CreateRotationY(MathHelper.ToRadians(HeadingDegrees))
+                    //* Matrix.CreateTranslation(weaponPos).;
+            return new Ray(weaponPos, Vector3.Down);
+        }
 
+        public void Block()
+        {
+            currentVelocity = Vector3.Zero;
+        }
         #endregion
 
         #region Private Methods

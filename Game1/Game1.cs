@@ -27,6 +27,7 @@ namespace Game1
 
         private bool instancing = false;
         private bool debugShapes = false;
+        private bool raybox = false;
 
         private const float CAMERA_FOVX = 85.0f;
         private const float CAMERA_ZNEAR = 0.01f;
@@ -193,6 +194,10 @@ namespace Game1
                 debugShapes = !debugShapes;
             }
 
+            if (KeyJustPressed(Keys.D3))
+            {
+                raybox = !raybox;
+            }
             //if (KeyJustPressed(Keys.P))
             //    enableParallax = !enableParallax;
 
@@ -233,7 +238,8 @@ namespace Game1
 
             //poruszanie po y w zaleznosci od pozycji tila - czy powinno to byc w update a nie gdzies indziej?
                 //cameraSphere.Center = camera.Position - new Vector3(0, 30, 0);
-                Ray yRay = camera.GetDownwardRay();
+                //Ray yRay = camera.GetDownwardRay();
+                Ray yRay = camera.MovingRay();
                 IntersectionRecord ir = octree.HighestIntersection(yRay);
                 
                 if (ir != null && ir.DrawableObjectObject != null)//..ujowy if ale działa
@@ -253,8 +259,11 @@ namespace Game1
                     distance = 0;
                 }
             float temp = camera.EyeHeightStanding - (CAMERA_PLAYER_EYE_HEIGHT + distance);
-            
-            if(temp > 0.2)
+            if (temp < -30)
+            {
+                camera.Block();
+            }
+            else if(temp > 0.2)
             {
                 camera.EyeHeightStanding -= (125f) * (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
@@ -378,6 +387,11 @@ namespace Game1
                 buffer.AppendFormat(" TileStandingOn Y: {0}\n",
                     tileStandingOn.Position.Y.ToString("f2"));
 
+                buffer.AppendFormat("  MovingRay Position: x:{0} y:{1} z:{2}\n",
+                    camera.MovingRay().Position.X.ToString("f2"),
+                    camera.MovingRay().Position.Y.ToString("f2"),
+                    camera.MovingRay().Position.Z.ToString("f2"));
+
                 buffer.Append("\nPress H to display help");
             }
             else
@@ -444,6 +458,8 @@ namespace Game1
 
             modelsDrawn = 0;
             skybox.Draw(camera.worldMatrix * Matrix.CreateScale(5000), camera.viewMatrix, camera.projMatrix);
+
+
             //Renders all visible objects by iterating through the oct tree recursively and testing for intersection 
             //with the current camera view frustum
 
@@ -471,8 +487,28 @@ namespace Game1
                 DebugShapeRenderer.Draw(gameTime, camera.ViewMatrix, camera.ProjectionMatrix);
             }
 
-            
-
+            //rączki na razie po chuju tutaj
+            Effect effect = Content.Load<Effect>("Effects/ToonNoInstancing").Clone();
+            Model model = Content.Load<Model>("hands");
+            foreach (ModelMesh mesh in model.Meshes)
+            {
+                foreach (ModelMeshPart part in mesh.MeshParts)
+                {
+                    effect.Parameters["Texture"].SetValue(part.Effect.Parameters["Texture"].GetValueTexture2D());
+                    part.Effect = effect;
+                    effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * Matrix.CreateScale(0.01f) * camera.WeaponWorldMatrix(0, -0.1f, 0.4f));
+                    effect.Parameters["View"].SetValue(camera.ViewMatrix);
+                    effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
+                    effect.Parameters["WorldInverseTranspose"].SetValue(
+                                            Matrix.Transpose(camera.worldMatrix * mesh.ParentBone.Transform));
+                }
+                mesh.Draw();
+            }
+            //rysowanie gdzie znajduje się movingray do kolizji
+            if (raybox)
+            {
+                Content.Load<Model>("Monocube").Draw(camera.worldMatrix * Matrix.CreateTranslation(camera.MovingRay().Position), camera.viewMatrix, camera.projMatrix);
+            }
             spriteBatch.Begin();
             spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);
             spriteBatch.End();

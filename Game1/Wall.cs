@@ -45,10 +45,10 @@ namespace Game1
 
         public Wall(Game game, Matrix inWorldMatrix) : base(game, inWorldMatrix)
         {
-            position = new Vector3(40, 40, 40);
+            position = new Vector3(100, 40, -200);
             Initialize(game.Content);
             boundingSphere = new BoundingSphere(position, model.Meshes[0].BoundingSphere.Radius * 25);
-            boundingBox = new BoundingBox(position - new Vector3(35, 35, 35), position + new Vector3(35, 35, 35));
+            boundingBox = new BoundingBox(position - new Vector3(50, 35, 50), position + new Vector3(50, 35, 50));
             type = ObjectType.Item;
         }
     }

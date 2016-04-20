@@ -11,6 +11,7 @@ float4x4 Projection;
 // The transpose of the inverse of the world transformation,
 // used for transforming the vertex's normal
 float4x4 WorldInverseTranspose;
+
  
 //--------------------------- DIFFUSE LIGHT PROPERTIES ------------------------------
 // The direction of the diffuse light
@@ -28,7 +29,7 @@ float4 LineColor = float4(0, 0, 0, 1);
  
 // The thickness of the lines.  This may need to change, depending on the scale of
 // the objects you are drawing.
-float LineThickness = .03;
+float LineThickness = 0.03;
  
 //--------------------------- TEXTURE PROPERTIES ------------------------------
 // The texture being used for the object
@@ -67,18 +68,18 @@ struct VertexToPixel
 // The vertex shader that does cel shading.
 // It really only does the basic transformation of the vertex location,
 // and normal, and copies the texture coordinate over.
-VertexToPixel CelVertexShader(AppToVertex input)
+VertexToPixel CelVertexShader(AppToVertex input, float4x4 instanceTransform)
 {
     VertexToPixel output;
- 
     // Transform the position
-    float4 worldPosition = mul(input.Position, World);
+    float4 worldPosition = mul(input.Position, instanceTransform);
     float4 viewPosition = mul(worldPosition, View);
     output.Position = mul(viewPosition, Projection);
  
     // Transform the normal
-    output.Normal = normalize(mul(input.Normal, WorldInverseTranspose));
- 
+	output.Normal = normalize(mul(input.Normal, instanceTransform));
+    //output.Normal = normalize(mul(input.Normal, WorldInverseTranspose));
+	//output.Normal = normalize(mul(input.Normal, instanceTransform));
     // Copy over the texture coordinate
     output.TextureCoordinate = input.TextureCoordinate;
  
@@ -94,7 +95,7 @@ float4 CelPixelShader(VertexToPixel input) : COLOR0
     float intensity = dot(normalize(DiffuseLightDirection), input.Normal);
     if(intensity < 0)
         intensity = 0;
- 
+
     // Calculate what would normally be the final color, including texturing and diffuse lighting
     float4 color = tex2D(textureSampler, input.TextureCoordinate) * DiffuseColor * DiffuseIntensity;
     color.a = 1;
@@ -113,16 +114,16 @@ float4 CelPixelShader(VertexToPixel input) : COLOR0
 }
  
 // The vertex shader that does the outlines
-VertexToPixel OutlineVertexShader(AppToVertex input)
+VertexToPixel OutlineVertexShader(AppToVertex input, float4x4 instanceTransform)
 {
     VertexToPixel output = (VertexToPixel)0;
- 
+
     // Calculate where the vertex ought to be.  This line is equivalent
     // to the transformations in the CelVertexShader.
-    float4 original = mul(mul(mul(input.Position, World), View), Projection);
+    float4 original = mul(mul(mul(input.Position, instanceTransform), View), Projection);
  
     // Calculates the normal of the vertex like it ought to be.
-    float4 normal = mul(mul(mul(input.Normal, World), View), Projection);
+    float4 normal = mul(mul(mul(input.Normal, instanceTransform), View), Projection);
  
     // Take the correct "original" location and translate the vertex a little
     // bit in the direction of the normal to draw a slightly expanded object.
@@ -140,6 +141,17 @@ float4 OutlinePixelShader(VertexToPixel input) : COLOR0
     return LineColor;
 }
  
+VertexToPixel HardwareCel(AppToVertex input, float4x4 instanceTransform : BLENDWEIGHT)
+{
+	return CelVertexShader(input, mul(World, transpose(instanceTransform)));
+}
+
+VertexToPixel HardwareOutline(AppToVertex input, float4x4 instanceTransform : BLENDWEIGHT)
+{
+	return OutlineVertexShader(input, mul(World, transpose(instanceTransform)));
+}
+
+
 // The entire technique for doing toon shading
 technique Toon
 {
@@ -148,7 +160,7 @@ technique Toon
     // model will get drawn normally, and draw over the top most of this, leaving only an outline.
     pass Pass1
     {
-        VertexShader = compile vs_5_0 OutlineVertexShader();
+        VertexShader = compile vs_5_0 HardwareOutline();
         PixelShader = compile ps_5_0 OutlinePixelShader();
         CullMode = CW;
     }
@@ -157,8 +169,9 @@ technique Toon
     // color the model with certain colors, giving us the cel/toon effect that we are looking for.
     pass Pass2
     {
-        VertexShader = compile vs_5_0 CelVertexShader();
-        PixelShader = compile ps_5_0 CelPixelShader();
+        VertexShader = compile vs_5_0 HardwareCel();
+        //PixelShader = compile ps_5_0 HighColorBased();
+		PixelShader = compile ps_5_0 CelPixelShader();
         CullMode = CCW;
     }
 }

@@ -63,7 +63,7 @@ namespace Game1
             position = new Vector3(-40, 0, -40);
             Initialize(game.Content);
             boundingSphere = new BoundingSphere(position, model.Meshes[0].BoundingSphere.Radius * 25);
-            boundingBox = new BoundingBox(position - new Vector3(35, 35, 35), position + new Vector3(35, 35, 35)); // na oko wartosci, koniecznie wprowadzic poprawne!!
+            boundingBox = new BoundingBox(position - new Vector3(45, 45, 45), position + new Vector3(45, 45, 45)); // na oko wartosci, koniecznie wprowadzic poprawne!!
             type = ObjectType.Item;
             m_static = false;
             acceleration = new Vector3(0, 1f, 0);
