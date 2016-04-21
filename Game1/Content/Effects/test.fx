@@ -101,9 +101,10 @@ float4 color = tex2D(textureSampler, input.TextureCoordinate) * DiffuseColor * D
 color.a = 1;
 
 //intensity bezpoœrednie przechodzenie
-//color = float4(intensity, intensity, intensity, intensity) * color; //dynamiczne przechodzenie
+color = float4(intensity, intensity, intensity, intensity) * color; //dynamiczne przechodzenie
 
 // Discretize the intensity, based on a few cutoff points
+/*
 if (intensity > 0.95)
 color = float4(1.0, 1, 1, 1.0) * color;
 else if (intensity > 0.5)
@@ -112,7 +113,7 @@ else if (intensity > 0.05)
 color = float4(0.35, 0.35, 0.35, 1.0) * color;
 else
 color = float4(0.1, 0.1, 0.1, 1.0) * color;
-
+*/
 return color;
 }
 

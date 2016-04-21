@@ -16,7 +16,7 @@ namespace Game1
         private SpriteFont spriteFont;
 
         Octree octree;
-        public static Vector3 slonce = new Vector3(-300, 100, -300);
+        public static Vector3 slonce = new Vector3(300, 300, -500);
         InstancingDraw temp;
         private Texture2D cross;
 
@@ -276,7 +276,7 @@ namespace Game1
                 camera.EyeHeightStanding = CAMERA_PLAYER_EYE_HEIGHT + distance;
             }
 
-            
+
             /*if (Math.Abs(camera.EyeHeightStanding - CAMERA_PLAYER_EYE_HEIGHT + distance) <= 0.1f)
             {
                 camera.EyeHeightStanding = CAMERA_PLAYER_EYE_HEIGHT + distance;
@@ -293,6 +293,9 @@ namespace Game1
             {
                 camera.EyeHeightStanding += 0.1f + temp;
             }*/
+
+            //obrót słońca wokół punktu 0,0
+            slonce = Vector3.Transform(slonce, Matrix.CreateRotationY((float)(gameTime.ElapsedGameTime.TotalSeconds)));
 
 
             octree.Update(gameTime);

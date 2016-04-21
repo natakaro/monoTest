@@ -17,7 +17,7 @@ namespace Game1
         public void Initialize(ContentManager contentManager)
         {
             model = contentManager.Load<Model>("1");
-            effect = contentManager.Load<Effect>("Effects/ToonNoInstancing");
+            effect = contentManager.Load<Effect>("Effects/test");
             texture = contentManager.Load<Texture2D>("textchampfer");
         }
 
@@ -28,6 +28,11 @@ namespace Game1
             {
                 foreach (ModelMeshPart part in mesh.MeshParts)
                 {
+                    Vector3 temp = Game1.slonce - position;
+                    //slonce
+                    effect.Parameters["DiffuseLightDirection"].SetValue(temp);
+                    effect.Parameters["DiffuseIntensity"].SetValue(5 - (temp.Length() / 1000));
+
                     part.Effect = effect;
                     effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * worldMatrix);
                     effect.Parameters["View"].SetValue(camera.ViewMatrix);
