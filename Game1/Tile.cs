@@ -31,8 +31,10 @@ namespace Game1
                     Vector3 temp = Game1.slonce - position;
                     //slonce
                     effect.Parameters["DiffuseLightDirection"].SetValue(temp);
-                    effect.Parameters["DiffuseIntensity"].SetValue(5 - (temp.Length() / 1000));
-
+                    if (selected == true)
+                        effect.Parameters["DiffuseIntensity"].SetValue(10 - (temp.Length() / 1000));
+                    else
+                        effect.Parameters["DiffuseIntensity"].SetValue(5 - (temp.Length() / 1000));
                     part.Effect = effect;
                     effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * worldMatrix);
                     effect.Parameters["View"].SetValue(camera.ViewMatrix);
@@ -48,7 +50,7 @@ namespace Game1
         public Tile(Game game, Matrix inWorldMatrix) : base(game, inWorldMatrix)
         {
             boundingSphere = new BoundingSphere(position, Map.scale * 0.75f);
-            boundingBox = new BoundingBox(position - new Vector3 (25, 10, 25), position + new Vector3(25,10,25)); // na oko wartosci, koniecznie wprowadzic poprawne!!
+            boundingBox = new BoundingBox(position - new Vector3 (25, 4, 25), position + new Vector3(25, 4, 25)); // na oko wartosci, koniecznie wprowadzic poprawne!!
             type = ObjectType.Terrain;
 
             Initialize(game.Content);

@@ -56,6 +56,7 @@ namespace Game1
 
         private float distance;
         private DrawableObject tileStandingOn;
+        private DrawableObject selected_obj = null;
 
         public Game1()
         {
@@ -233,17 +234,17 @@ namespace Game1
                 return;
 
             base.Update(gameTime);
-            
+
             ProcessKeyboard();
 
             //poruszanie po y w zaleznosci od pozycji tila - czy powinno to byc w update a nie gdzies indziej?
-                //cameraSphere.Center = camera.Position - new Vector3(0, 30, 0);
-                //Ray yRay = camera.GetDownwardRay();
-                Ray yRay = camera.MovingRay();
-                IntersectionRecord ir = octree.HighestIntersection(yRay);
-                
-                if (ir != null && ir.DrawableObjectObject != null)//..ujowy if ale działa
-                {
+            //cameraSphere.Center = camera.Position - new Vector3(0, 30, 0);
+            //Ray yRay = camera.GetDownwardRay();
+            Ray yRay = camera.MovingRay();
+            IntersectionRecord ir = octree.HighestIntersection(yRay);
+
+            if (ir != null && ir.DrawableObjectObject != null)//..ujowy if ale działa
+            {
                 //dla debugu, wywalic potem
                 //distance = (float)yRay.Intersects(ir.DrawableObjectObject.BoundingBox); //paskudne
                 //camera.Move(0, (distance-20)*-1, 0);
@@ -253,21 +254,21 @@ namespace Game1
                 //camera.Move(0, (camera.Position.Y - distance-20) * -1, 0); //move jest natychmiastowy a nie plynny jak cala reszta kamery wiec wyglada niefajnie, plus do tego psuje kucanie - uzyc czegos z velocity w kamerze?
                 //camera.CurrentY = distance*10;
                 tileStandingOn = ir.DrawableObjectObject;
-                }
-                if (ir.DrawableObjectObject == null)
-                {
-                    distance = 0;
-                }
+            }
+            if (ir.DrawableObjectObject == null)
+            {
+                distance = 0;
+            }
             float temp = camera.EyeHeightStanding - (CAMERA_PLAYER_EYE_HEIGHT + distance);
             if (temp < -30)
             {
                 camera.Block();
             }
-            else if(temp > 0.2)
+            else if (temp > 0.2)
             {
                 camera.EyeHeightStanding -= (125f) * (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
-            else if(temp < -0.2)
+            else if (temp < -0.2)
             {
                 camera.EyeHeightStanding += (100f) * (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
@@ -297,6 +298,30 @@ namespace Game1
             //obrót słońca wokół punktu 0,0
             slonce = Vector3.Transform(slonce, Matrix.CreateRotationY((float)(gameTime.ElapsedGameTime.TotalSeconds)));
 
+            //wykrywanie obiektu na ktory celujesz
+            Ray mouseRay = camera.GetMouseRay(graphics.GraphicsDevice.Viewport);
+            IntersectionRecord mouse_ir = octree.NearestIntersection(mouseRay);
+
+            if (selected_obj == null)
+            {
+                if (mouse_ir.DrawableObjectObject != null)
+                    selected_obj = mouse_ir.DrawableObjectObject;
+            }
+            else
+            {
+                if (mouse_ir.DrawableObjectObject == null)
+                {
+                    selected_obj.Selected = false;
+                    selected_obj = null;
+                }
+                else if (mouse_ir.DrawableObjectObject != selected_obj)
+                {
+                    selected_obj.Selected = false;
+                    selected_obj = mouse_ir.DrawableObjectObject;
+                    selected_obj.Selected = true;
+                }
+            }
+            //
 
             octree.Update(gameTime);
             UpdateFrameRate(gameTime);
