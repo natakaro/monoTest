@@ -159,17 +159,17 @@ namespace Game1
                 //prune any dead objects from the tree.
 
                 //TODO ALIVE
-                //int listSize = m_objects.Count;
-                //for (int a = 0; a < listSize; a++)
-                //{
-                //    if (!m_objects[a].Alive)
-                //    {
-                //        if (movedObjects.Contains(m_objects[a]))
-                //            movedObjects.Remove(m_objects[a]);
-                //        m_objects.RemoveAt(a--);
-                //        listSize--;
-                //    }
-                //}
+                int listSize = m_objects.Count;
+                for (int a = 0; a < listSize; a++)
+                {
+                    if (!m_objects[a].Alive)
+                    {
+                        if (movedObjects.Contains(m_objects[a]))
+                            movedObjects.Remove(m_objects[a]);
+                        m_objects.RemoveAt(a--);
+                        listSize--;
+                    }
+                }
 
                 //recursively update any child nodes.
                 for (int flags = m_activeNodes, index = 0; flags > 0; flags >>= 1, index++)

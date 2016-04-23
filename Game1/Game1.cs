@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Game1.Spells;
 
 namespace Game1
 {
@@ -29,7 +30,7 @@ namespace Game1
         private bool debugShapes = false;
         private bool raybox = false;
 
-        private const float CAMERA_FOVX = 85.0f;
+        private const float CAMERA_FOVX = 90.0f;
         private const float CAMERA_ZNEAR = 0.01f;
         private const float CAMERA_ZFAR = 15000.0f;
         private const float CAMERA_PLAYER_EYE_HEIGHT = 30.0f;
@@ -44,6 +45,10 @@ namespace Game1
 
         private KeyboardState currentKeyboardState;
         private KeyboardState prevKeyboardState;
+        private MouseState currentMouseState;
+        private MouseState prevMouseState;
+        private bool leftButton;
+        private bool rightButton;
         private Vector2 fontPos;
         private int windowWidth;
         private int windowHeight;
@@ -53,10 +58,22 @@ namespace Game1
         private bool displayHelp;
 
         private int modelsDrawn;
+        private int modelsDrawnInstanced;
 
         private float distance;
         private DrawableObject tileStandingOn;
-        private DrawableObject selected_obj = null;
+
+        public DrawableObject selected_obj = null;
+        public enum SpellType
+        {
+            MoveTerrain = 1,
+            Fireball = 2
+        };
+
+        private SpellMoveTerrain spellMoveTerrain = new SpellMoveTerrain();
+        private SpellFireball spellFireball = new SpellFireball();
+
+        public SpellType selectedSpell = SpellType.MoveTerrain;
 
         public Game1()
         {
@@ -171,10 +188,13 @@ namespace Game1
             return currentKeyboardState.IsKeyDown(key) && prevKeyboardState.IsKeyUp(key);
         }
 
-        private void ProcessKeyboard()
+        private void ProcessKeyboard(GameTime gameTime)
         {
             prevKeyboardState = currentKeyboardState;
             currentKeyboardState = Keyboard.GetState();
+
+            prevMouseState = currentMouseState;
+            currentMouseState = Mouse.GetState();
 
             if (KeyJustPressed(Keys.Escape))
                 this.Exit();
@@ -226,6 +246,46 @@ namespace Game1
                 if (camera.RotationSpeed <= 0.0f)
                     camera.RotationSpeed = 0.01f;
             }
+
+            if (currentMouseState.ScrollWheelValue < prevMouseState.ScrollWheelValue && currentMouseState.LeftButton == ButtonState.Released && currentMouseState.RightButton == ButtonState.Released)
+            {
+                if(selectedSpell != SpellType.Fireball)
+                {
+                    selectedSpell++;
+                }
+            }
+
+            if (currentMouseState.ScrollWheelValue > prevMouseState.ScrollWheelValue && currentMouseState.LeftButton == ButtonState.Released && currentMouseState.RightButton == ButtonState.Released)
+            {
+                if (selectedSpell != SpellType.MoveTerrain)
+                {
+                    selectedSpell--;
+                }
+            }
+
+            if (currentMouseState.LeftButton == ButtonState.Pressed)
+                leftButton = true;
+            if (currentMouseState.RightButton == ButtonState.Pressed)
+                rightButton = true;
+            if (currentMouseState.LeftButton == ButtonState.Released)
+                leftButton = false;
+            if (currentMouseState.RightButton == ButtonState.Released)
+                rightButton = false;
+
+            CastSpell(leftButton, rightButton, gameTime);
+        }
+
+        private void CastSpell(bool leftButton, bool rightButton, GameTime gameTime)
+        {
+            switch (selectedSpell)
+            {
+                case SpellType.MoveTerrain:
+                    spellMoveTerrain.Cast(leftButton, rightButton, selected_obj);
+                    break;
+                case SpellType.Fireball:
+                    spellFireball.Cast(leftButton, rightButton, this, gameTime, camera, octree);
+                    break;
+            }
         }
 
         protected override void Update(GameTime gameTime)
@@ -235,7 +295,7 @@ namespace Game1
 
             base.Update(gameTime);
 
-            ProcessKeyboard();
+            ProcessKeyboard(gameTime);
 
             //poruszanie po y w zaleznosci od pozycji tila - czy powinno to byc w update a nie gdzies indziej?
             //cameraSphere.Center = camera.Position - new Vector3(0, 30, 0);
@@ -321,7 +381,7 @@ namespace Game1
                     selected_obj.Selected = true;
                 }
             }
-            //
+
 
             octree.Update(gameTime);
             UpdateFrameRate(gameTime);
@@ -396,10 +456,12 @@ namespace Game1
                 //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.Y.ToString("f2"),
                 //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.Z.ToString("f2"));
                 //buffer.AppendFormat(mapa.mapa[0, 0].model.Meshes[0].BoundingSphere.Radius.ToString());
+                buffer.AppendFormat("Instancing: {0}\n",
+                    instancing.ToString());
                 buffer.AppendFormat(" Models drawn: {0}\n",
                     modelsDrawn.ToString("f2"));
-                buffer.AppendFormat(" Instancing: {0}\n",
-                    instancing.ToString());
+                buffer.AppendFormat(" Models drawn instanced: {0}\n",
+                    modelsDrawnInstanced.ToString("f2"));
                 buffer.AppendFormat("  Ray Position: x:{0} y:{1} z:{2}\n",
                     camera.GetDownwardRay().Position.X.ToString("f2"),
                     camera.GetDownwardRay().Position.Y.ToString("f2"),
@@ -422,6 +484,12 @@ namespace Game1
                 Vector3 temp = slonce - camera.Position;
                 buffer.AppendFormat(" Sun distance Y: {0}\n",
                     temp.Length().ToString("f2"));
+
+                buffer.AppendFormat(" MouseWheel: {0}\n",
+                    currentMouseState.ScrollWheelValue.ToString("f2"));
+
+                buffer.AppendFormat("  Selected Spell: {0}\n",
+                    selectedSpell.ToString());
 
                 buffer.Append("\nPress H to display help");
             }
@@ -456,10 +524,12 @@ namespace Game1
                 //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.Y.ToString("f2"),
                 //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.Z.ToString("f2"));
                 //buffer.AppendFormat(mapa.mapa[0, 0].model.Meshes[0].BoundingSphere.Radius.ToString());
+                buffer.AppendFormat("Instancing: {0}\n",
+                    instancing.ToString());
                 buffer.AppendFormat(" Models drawn: {0}\n",
                     modelsDrawn.ToString("f2"));
-                buffer.AppendFormat(" Instancing: {0}\n",
-                    instancing.ToString());
+                buffer.AppendFormat(" Models drawn instanced: {0}\n",
+                    modelsDrawnInstanced.ToString("f2"));
                 buffer.AppendFormat("  Ray Position: x:{0} y:{1} z:{2}\n",
                     camera.GetDownwardRay().Position.X.ToString("f2"),
                     camera.GetDownwardRay().Position.Y.ToString("f2"),
@@ -488,17 +558,44 @@ namespace Game1
             //GraphicsDevice.SamplerStates[2] = SamplerState.LinearWrap;
 
             modelsDrawn = 0;
+            modelsDrawnInstanced = 0;
             skybox.Draw(camera.worldMatrix * Matrix.CreateScale(5000), camera.viewMatrix, camera.projMatrix);
 
 
             //Renders all visible objects by iterating through the oct tree recursively and testing for intersection 
             //with the current camera view frustum
 
+            //if (instancing)
+            //{
+            //    List<IntersectionRecord> list = octree.AllIntersections(camera.Frustum);
+            //    temp.DrawModelHardwareInstancing(list);
+            //    modelsDrawn = list.Count;
+            //}
+            //else
+            //{
+            //    foreach (IntersectionRecord ir in octree.AllIntersections(camera.Frustum))
+            //    {
+            //        // ir.DrawableObjectObject.SetDirectionalLight(m_globalLight[0].Direction, m_globalLight[0].Color);
+            //        // ir.DrawableObjectObject.UpdateLOD(camera);
+            //        ir.DrawableObjectObject.Draw(camera);
+            //        modelsDrawn++;
+            //    }
+            //}
+
             if (instancing)
             {
                 List<IntersectionRecord> list = octree.AllIntersections(camera.Frustum);
-                temp.DrawModelHardwareInstancing(list);
-                modelsDrawn = list.Count;
+                List<IntersectionRecord> instanceList = list.FindAll(ir => ir.DrawableObjectObject.IsInstanced == true);
+                list.RemoveAll(ir => ir.DrawableObjectObject.IsInstanced == true);
+                temp.DrawModelHardwareInstancing(instanceList);
+                modelsDrawnInstanced = instanceList.Count;
+                foreach (IntersectionRecord ir in list)
+                {
+                    // ir.DrawableObjectObject.SetDirectionalLight(m_globalLight[0].Direction, m_globalLight[0].Color);
+                    // ir.DrawableObjectObject.UpdateLOD(camera);
+                    ir.DrawableObjectObject.Draw(camera);
+                    modelsDrawn++;
+                }
             }
             else
             {

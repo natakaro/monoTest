@@ -52,7 +52,10 @@ namespace Game1
         protected bool m_static = true;
         protected bool hasBounds = false;
         protected bool selected = false;
+        protected bool alive = true;
         protected int m_lod = 0;
+
+        protected bool m_instanced = false;
 
         public DrawableObject(Game game, Matrix inWorldMatrix) : base(game)
         {
@@ -81,6 +84,8 @@ namespace Game1
                 velocity += acceleration * (float)(gameTime.ElapsedGameTime.TotalSeconds);
                 position += velocity * (float)(gameTime.ElapsedGameTime.TotalSeconds);
                 boundingSphere.Center = position;
+                boundingBox.Min += velocity * (float)(gameTime.ElapsedGameTime.TotalSeconds);
+                boundingBox.Max += velocity * (float)(gameTime.ElapsedGameTime.TotalSeconds);
                 return lastPosition != position;    //lets you know if the object actually moved relative to its last position
             }
 
@@ -261,10 +266,21 @@ namespace Game1
             set { selected = value; }
         }
 
+        public bool Alive
+        {
+            get { return alive; }
+            set { alive = value; }
+        }
+
         public bool IsStatic
         {
             get { return m_static; }
             set { m_static = value; }
+        }
+        public bool IsInstanced
+        {
+            get { return m_instanced; }
+            set { m_instanced = value; }
         }
         public BoundingBox BoundingBox
         {
