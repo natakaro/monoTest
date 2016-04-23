@@ -445,3 +445,9 @@
 /processorParam:TextureFormat=Color
 /build:firedot.jpg
 
+#begin Effects/fxaa.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/fxaa.fx
+

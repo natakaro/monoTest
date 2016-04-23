@@ -21,12 +21,16 @@ namespace Game1
         InstancingDraw temp;
         private Texture2D cross;
 
+        private Effect fxaaEffect;
+        private RenderTarget2D renderTarget;
+
         BoundingSphere cameraSphere;
         TestBox testbox;
         Wall wall;
         Model skybox;
 
         private bool instancing = false;
+        private bool useFXAA = true;
         private bool debugShapes = false;
         private bool raybox = false;
 
@@ -42,6 +46,14 @@ namespace Game1
         private const float CAMERA_VELOCITY_Z = 200.0f;
         private const float CAMERA_RUNNING_MULTIPLIER = 2.0f;
         private const float CAMERA_RUNNING_JUMP_MULTIPLIER = 1.5f;
+
+        #region FXAA SETTINGS
+
+        private float fxaaQualitySubpix = 0.5f;
+        private float fxaaQualityEdgeThreshold = 0.166f;
+        private float fxaaQualityEdgeThresholdMin = 0.0625f;
+
+        #endregion
 
         private KeyboardState currentKeyboardState;
         private KeyboardState prevKeyboardState;
@@ -78,8 +90,6 @@ namespace Game1
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
-            graphics.PreferredBackBufferWidth = 1920;
-            graphics.PreferredBackBufferHeight = 1080;
 
             Content.RootDirectory = "Content";
             
@@ -91,13 +101,14 @@ namespace Game1
 
         protected override void Initialize()
         {
+            
             base.Initialize();
 
             DebugShapeRenderer.Initialize(graphics.GraphicsDevice);
 
             // Setup the window to be a quarter the size of the desktop.
-            windowWidth = GraphicsDevice.DisplayMode.Width / 2;
-            windowHeight = GraphicsDevice.DisplayMode.Height / 2;
+            windowWidth = GraphicsDevice.DisplayMode.Width;
+            windowHeight = GraphicsDevice.DisplayMode.Height;
 
             // Setup frame buffer.
             graphics.SynchronizeWithVerticalRetrace = false; //vsync
@@ -105,6 +116,10 @@ namespace Game1
             graphics.PreferredBackBufferHeight = windowHeight;
             graphics.PreferMultiSampling = true;
             graphics.ApplyChanges();
+
+            Window.Position = new Point(0, 0);
+
+            graphics.ToggleFullScreen();
 
             // Initial position for text rendering.
             fontPos = new Vector2(1.0f, 1.0f);
@@ -132,6 +147,9 @@ namespace Game1
 
             cameraSphere = new BoundingSphere(camera.Position - new Vector3(0, 30, 0), 10);
 
+            PresentationParameters pp = graphics.GraphicsDevice.PresentationParameters;
+            renderTarget = new RenderTarget2D(GraphicsDevice, pp.BackBufferWidth, pp.BackBufferHeight, false, pp.BackBufferFormat, pp.DepthStencilFormat, pp.MultiSampleCount, RenderTargetUsage.DiscardContents);
+
             currentKeyboardState = Keyboard.GetState();
 
             testbox = new TestBox(this, camera.worldMatrix);
@@ -149,40 +167,15 @@ namespace Game1
             spriteFont = Content.Load<SpriteFont>(@"fonts\DemoFont");
             temp = new InstancingDraw(this, camera, Content);
             skybox = Content.Load<Model>("SkySphere");
+
+            fxaaEffect = Content.Load<Effect>("Effects/fxaa");
         }
 
         protected override void UnloadContent()
         {
+            renderTarget.Dispose();
         }
 
-        private void ToggleFullScreen()
-        {
-            int newWidth = 0;
-            int newHeight = 0;
-
-            graphics.IsFullScreen = !graphics.IsFullScreen;
-
-            if (graphics.IsFullScreen)
-            {
-                newWidth = GraphicsDevice.DisplayMode.Width;
-                newHeight = GraphicsDevice.DisplayMode.Height;
-            }
-            else
-            {
-                newWidth = windowWidth;
-                newHeight = windowHeight;
-            }
-
-            graphics.PreferredBackBufferWidth = newWidth;
-            graphics.PreferredBackBufferHeight = newHeight;
-            graphics.PreferMultiSampling = true;
-            graphics.ApplyChanges();
-
-            float aspectRatio = (float)newWidth / (float)newHeight;
-
-            camera.Perspective(CAMERA_FOVX, aspectRatio, CAMERA_ZNEAR, CAMERA_ZFAR);
-        }
-    
         private bool KeyJustPressed(Keys key)
         {
             return currentKeyboardState.IsKeyDown(key) && prevKeyboardState.IsKeyUp(key);
@@ -228,8 +221,11 @@ namespace Game1
             if (currentKeyboardState.IsKeyDown(Keys.LeftAlt) || currentKeyboardState.IsKeyDown(Keys.RightAlt))
             {
                 if (KeyJustPressed(Keys.Enter))
-                    ToggleFullScreen();
+                    graphics.ToggleFullScreen();
             }
+
+            //if (KeyJustPressed(Keys.Enter))
+            //    graphics.ToggleFullScreen();
 
             if (KeyJustPressed(Keys.Add))
             {
@@ -245,6 +241,11 @@ namespace Game1
 
                 if (camera.RotationSpeed <= 0.0f)
                     camera.RotationSpeed = 0.01f;
+            }
+
+            if (KeyJustPressed(Keys.F))
+            {
+                useFXAA = !useFXAA;
             }
 
             if (currentMouseState.ScrollWheelValue < prevMouseState.ScrollWheelValue && currentMouseState.LeftButton == ButtonState.Released && currentMouseState.RightButton == ButtonState.Released)
@@ -541,14 +542,13 @@ namespace Game1
 
                 buffer.Append("\nPress H to display help");
             }
-
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
             spriteBatch.DrawString(spriteFont, buffer.ToString(), fontPos, Color.Yellow);
-            spriteBatch.End();
         }
 
         protected override void Draw(GameTime gameTime)
         {
+            GraphicsDevice.SetRenderTarget(renderTarget);
+
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             GraphicsDevice.BlendState = BlendState.Opaque;
@@ -646,12 +646,40 @@ namespace Game1
             //slonce
             Content.Load<Model>("Monocube").Draw(camera.worldMatrix * Matrix.CreateTranslation(slonce), camera.viewMatrix, camera.projMatrix);
 
-            spriteBatch.Begin();
+            GraphicsDevice.SetRenderTarget(null);
+
+            if (useFXAA)
+            {
+                float w = renderTarget.Width;
+                float h = renderTarget.Height;
+                fxaaEffect.CurrentTechnique = fxaaEffect.Techniques["ppfxaa_PC"];
+                fxaaEffect.Parameters["fxaaQualitySubpix"].SetValue(fxaaQualitySubpix);
+                fxaaEffect.Parameters["fxaaQualityEdgeThreshold"].SetValue(fxaaQualityEdgeThreshold);
+                fxaaEffect.Parameters["fxaaQualityEdgeThresholdMin"].SetValue(fxaaQualityEdgeThresholdMin);
+                fxaaEffect.Parameters["invViewportWidth"].SetValue(1f / w);
+                fxaaEffect.Parameters["invViewportHeight"].SetValue(1f / h);
+                fxaaEffect.Parameters["texScreen"].SetValue((Texture2D)renderTarget);
+
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone, fxaaEffect);
+                spriteBatch.Draw((Texture2D)renderTarget, new Rectangle(0, 0, renderTarget.Width, renderTarget.Height), Color.White);
+                //spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);
+                //DrawText();
+                spriteBatch.End();
+            }
+            else
+            {
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+                spriteBatch.Draw((Texture2D)renderTarget, Vector2.Zero, Color.White);
+                spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);
+                DrawText();
+                spriteBatch.End();
+            }
+
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
             spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);
+            DrawText();
             spriteBatch.End();
 
-            DrawText();
-            
             base.Draw(gameTime);
             IncrementFrameCounter();
         }
