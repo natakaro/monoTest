@@ -54,10 +54,12 @@ namespace Game1
         {
             m_instanced = true;
             boundingSphere = new BoundingSphere(position, Map.scale * 0.75f);
-            boundingBox = new BoundingBox(position - new Vector3 (25, 4, 25), position + new Vector3(25, 4, 25)); // na oko wartosci, koniecznie wprowadzic poprawne!!
+            //boundingBox = new BoundingBox(position - new Vector3 (25, 4, 25), position + new Vector3(25, 4, 25)); // na oko wartosci, koniecznie wprowadzic poprawne!!
+            
             type = ObjectType.Terrain;
 
             Initialize(game.Content);
+            boundingBox = CollisionBox.CreateBoundingBox(model, position, Map.scale);
         }
     }
 }
