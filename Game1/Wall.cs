@@ -48,7 +48,8 @@ namespace Game1
             position = new Vector3(100, 40, -200);
             Initialize(game.Content);
             boundingSphere = new BoundingSphere(position, model.Meshes[0].BoundingSphere.Radius * 25);
-            boundingBox = new BoundingBox(position - new Vector3(50, 35, 50), position + new Vector3(50, 35, 50));
+            //boundingBox = new BoundingBox(position - new Vector3(50, 35, 50), position + new Vector3(50, 35, 50));
+            boundingBox = CollisionBox.CreateBoundingBox(model, position, Map.scale);
             type = ObjectType.Item;
         }
     }
