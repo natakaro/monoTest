@@ -29,6 +29,9 @@ namespace Game1
         Wall wall;
         Model skybox;
 
+        float acceleration = 100.0f; // przyspieszenie przy wspinaniu i opadaniu
+
+
         private bool instancing = false;
         private bool useFXAA = true;
         private bool debugShapes = false;
@@ -361,21 +364,25 @@ namespace Game1
                 distance = 0;
             }
             float temp = camera.EyeHeightStanding - (CAMERA_PLAYER_EYE_HEIGHT + distance);
-            if (temp < -30)
+            if (-temp > 30)
             {
                 camera.Block();
             }
-            else if (temp > 0.2)
+            else if (temp > 30)
             {
-                camera.EyeHeightStanding -= (125f) * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                camera.EyeHeightStanding += -Math.Sign(temp) * acceleration * 2 * (float)(gameTime.ElapsedGameTime.TotalSeconds);
             }
-            else if (temp < -0.2)
+            else if (Math.Truncate(temp) == 0)
             {
-                camera.EyeHeightStanding += (100f) * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                camera.EyeHeightStanding = CAMERA_PLAYER_EYE_HEIGHT + distance;
+            }
+            else if (Math.Abs(temp) < 5)
+            {
+                camera.EyeHeightStanding += -Math.Sign(temp) * acceleration / 2 * (float)(gameTime.ElapsedGameTime.TotalSeconds);
             }
             else
             {
-                camera.EyeHeightStanding = CAMERA_PLAYER_EYE_HEIGHT + distance;
+                camera.EyeHeightStanding += -Math.Sign(temp) * acceleration * (float)(gameTime.ElapsedGameTime.TotalSeconds);
             }
 
 
