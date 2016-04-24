@@ -43,7 +43,7 @@ namespace Game1
             // Initialize the list of instances.
             graphicsDevice = game.GraphicsDevice;
             model = contentManager.Load<Model>("1");
-            effect = contentManager.Load<Effect>("Effects/InstancedModel");
+            effect = contentManager.Load<Effect>("Effects/testinsta");
             tex = contentManager.Load<Texture2D>("textchampfer");
             this.camera = camera;
             //instances = insta;
@@ -122,8 +122,9 @@ namespace Game1
                     // Set up the instance rendering effect.
                     meshPart.Effect = effect;
 
-                    effect.CurrentTechnique = effect.Techniques["HardwareInstancing"];
-
+                    //effect.CurrentTechnique = effect.Techniques["HardwareInstancing"];
+                    
+                    effect.Parameters["sunposition"].SetValue(Game1.slonce);
                     effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index]);
                     effect.Parameters["View"].SetValue(camera.ViewMatrix);
                     effect.Parameters["Projection"].SetValue(camera.projMatrix);

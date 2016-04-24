@@ -539,6 +539,11 @@ namespace Game1
                 buffer.AppendFormat("  Selected Spell: {0}\n",
                     selectedSpell.ToString());
 
+                buffer.AppendFormat("  Selected Spell: {0}\n",
+                    camera.GetMouseRay(this.GraphicsDevice.Viewport).Direction.ToString());
+
+                
+
                 buffer.Append("\nPress H to display help");
             }
             else

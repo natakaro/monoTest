@@ -45,7 +45,8 @@ namespace Game1.Spells
                     octree.m_objects.Add(fireball);
                     stopwatch.Restart();
                 }
-            }     
+            }
+            
         }
 
         public void Stop(bool leftButton, bool rightButton)
