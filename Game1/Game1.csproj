@@ -39,9 +39,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Camera.cs" />
-    <Compile Include="CollisionBox.cs" />
-    <Compile Include="DebugShapeRenderer.cs" />
+    <Compile Include="Helpers\CollisionBox.cs" />
+    <Compile Include="Helpers\DebugShapeRenderer.cs" />
     <Compile Include="DrawableObject.cs" />
+    <Compile Include="Helpers\QuadRenderer.cs" />
     <Compile Include="InstancingDraw.cs" />
     <Compile Include="IntersectionRecord.cs" />
     <Compile Include="Map.cs" />

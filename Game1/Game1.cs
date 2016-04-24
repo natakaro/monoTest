@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Game1.Spells;
+using Game1.Helpers;
 
 namespace Game1
 {
@@ -14,6 +15,7 @@ namespace Game1
         public static GraphicsDeviceManager graphics; //Ustawione na razie na static, żeby nie trzeba było dogrzebywać się do tego z każdej klasy
         private SpriteBatch spriteBatch;
         private Camera camera;
+        private QuadRenderComponent quadRenderer;
         private SpriteFont spriteFont;
 
         Octree octree;
@@ -24,10 +26,30 @@ namespace Game1
         private Effect fxaaEffect;
         private RenderTarget2D renderTarget;
 
-        BoundingSphere cameraSphere;
+        Effect effect1Scene;
+        Effect effect2Lights;
+        Effect effect3Final;
+
+        private RenderTarget2D colorTarget;
+        private RenderTarget2D normalTarget;
+        private RenderTarget2D depthTarget;
+        private RenderTarget2D lightTarget;
+
+        private Effect clearBufferEffect;
+        private Effect gbufferEffect;
+        private Effect directionalLightEffect;
+        private Effect pointLightEffect;
+        private Effect finalCombineEffect;
+
+        private Vector2 halfPixel;
+
+        private Model sphereModel;
+
         TestBox testbox;
         Wall wall;
         Model skybox;
+        Model hands;
+        Texture2D handstex;
 
         float acceleration = 100.0f; // przyspieszenie przy wspinaniu i opadaniu
 
@@ -98,18 +120,20 @@ namespace Game1
 
             Content.RootDirectory = "Content";
             
-            camera = new Camera(this);
-            Components.Add(camera);
+            
 
             IsFixedTimeStep = false; //to ustawione na false albo vsync na true potrzebne
         }
 
         protected override void Initialize()
         {
-            
-            base.Initialize();
-
             DebugShapeRenderer.Initialize(graphics.GraphicsDevice);
+
+            camera = new Camera(this);
+            Components.Add(camera);
+
+            quadRenderer = new QuadRenderComponent(this);
+            Components.Add(quadRenderer);
 
             // Setup the window to be a quarter the size of the desktop.
             windowWidth = GraphicsDevice.DisplayMode.Width;
@@ -150,8 +174,6 @@ namespace Game1
                 (float)windowWidth / (float)windowHeight,
                 CAMERA_ZNEAR, CAMERA_ZFAR);
 
-            cameraSphere = new BoundingSphere(camera.Position - new Vector3(0, 30, 0), 10);
-
             PresentationParameters pp = graphics.GraphicsDevice.PresentationParameters;
             renderTarget = new RenderTarget2D(GraphicsDevice, pp.BackBufferWidth, pp.BackBufferHeight, false, pp.BackBufferFormat, pp.DepthStencilFormat, pp.MultiSampleCount, RenderTargetUsage.DiscardContents);
 
@@ -166,23 +188,71 @@ namespace Game1
 
             spellMoveTerrain = new SpellMoveTerrain(octree);
             spellFireball = new SpellFireball(this, camera, octree);
-            
+
+            base.Initialize();
         }
 
         protected override void LoadContent()
         {
+            halfPixel = new Vector2()
+            {
+                X = 0.5f / GraphicsDevice.PresentationParameters.BackBufferWidth,
+                Y = 0.5f / GraphicsDevice.PresentationParameters.BackBufferHeight
+            };
+
             cross = Content.Load<Texture2D>("cross_cross");
-            spriteBatch = new SpriteBatch(GraphicsDevice);
             spriteFont = Content.Load<SpriteFont>(@"fonts\DemoFont");
             temp = new InstancingDraw(this, camera, Content);
+
+            //effect1Scene = Content.Load<Effect>("Effects/Deferred1Scene");
+            //effect2Lights = Content.Load<Effect>("Effects/Deferred2Lights");
+            //effect3Final = Content.Load<Effect>("Effects/Deferred3Final");
+
+            int backbufferWidth = GraphicsDevice.PresentationParameters.BackBufferWidth;
+            int backbufferHeight = GraphicsDevice.PresentationParameters.BackBufferHeight;
+
+            colorTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.Color, DepthFormat.Depth24);
+            normalTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.Color, DepthFormat.None);
+            depthTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.Single, DepthFormat.None);
+            lightTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.Color, DepthFormat.None);
+
+            hands = Content.Load<Model>("hands");
+            handstex = Content.Load<Texture2D>("handstex");
             skybox = Content.Load<Model>("SkySphere");
 
+            clearBufferEffect = Content.Load<Effect>("Effects/ClearGBuffer");
+            gbufferEffect = Content.Load<Effect>("Effects/RenderGBuffer");
+            directionalLightEffect = Content.Load<Effect>("Effects/DirectionalLight");
+            pointLightEffect = Content.Load<Effect>("Effects/PointLight");
+            finalCombineEffect = Content.Load<Effect>("Effects/CombineFinal");
+
+            sphereModel = Content.Load<Model>("Models/sphere");
+
             fxaaEffect = Content.Load<Effect>("Effects/fxaa");
+
+            spriteBatch = new SpriteBatch(GraphicsDevice);
+            base.LoadContent();
         }
 
         protected override void UnloadContent()
         {
             renderTarget.Dispose();
+        }
+
+        private void SetGBuffer()
+        {
+            GraphicsDevice.SetRenderTargets(colorTarget, normalTarget, depthTarget);
+        }
+
+        private void ResolveGBuffer()
+        {
+            GraphicsDevice.SetRenderTargets(null);
+        }
+
+        private void ClearGBuffer()
+        {
+            clearBufferEffect.Techniques[0].Passes[0].Apply();
+            quadRenderer.Render(Vector2.One * -1, Vector2.One);
         }
 
         private bool KeyJustPressed(Keys key)
@@ -597,21 +667,151 @@ namespace Game1
             spriteBatch.DrawString(spriteFont, buffer.ToString(), fontPos, Color.Yellow);
         }
 
-        protected override void Draw(GameTime gameTime)
+        private void DrawDirectionalLight(Vector3 lightDirection, Color color)
         {
-            GraphicsDevice.SetRenderTarget(renderTarget);
+            directionalLightEffect.Parameters["colorMap"].SetValue(colorTarget);
+            directionalLightEffect.Parameters["normalMap"].SetValue(normalTarget);
+            directionalLightEffect.Parameters["depthMap"].SetValue(depthTarget);
 
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            directionalLightEffect.Parameters["lightDirection"].SetValue(lightDirection);
+            directionalLightEffect.Parameters["Color"].SetValue(color.ToVector3());
+
+            directionalLightEffect.Parameters["cameraPosition"].SetValue(camera.Position);
+            directionalLightEffect.Parameters["InvertViewProjection"].SetValue(Matrix.Invert(camera.ViewProjectionMatrix));
+
+            directionalLightEffect.Parameters["halfPixel"].SetValue(halfPixel);
+
+            directionalLightEffect.Techniques[0].Passes[0].Apply();
+            quadRenderer.Render(Vector2.One * -1, Vector2.One);
+        }
+
+        private void DrawPointLight(Vector3 lightPosition, Color color, float lightRadius, float lightIntensity)
+        {
+            //set the G-Buffer parameters
+            pointLightEffect.Parameters["colorMap"].SetValue(colorTarget);
+            pointLightEffect.Parameters["normalMap"].SetValue(normalTarget);
+            pointLightEffect.Parameters["depthMap"].SetValue(depthTarget);
+
+            //compute the light world matrix
+            //scale according to light radius, and translate it to light position
+            Matrix sphereWorldMatrix = Matrix.CreateScale(lightRadius) * Matrix.CreateTranslation(lightPosition);
+            pointLightEffect.Parameters["World"].SetValue(sphereWorldMatrix);
+            pointLightEffect.Parameters["View"].SetValue(camera.ViewMatrix);
+            pointLightEffect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
+            //light position
+            pointLightEffect.Parameters["lightPosition"].SetValue(lightPosition);
+
+            //set the color, radius and Intensity
+            pointLightEffect.Parameters["Color"].SetValue(color.ToVector3());
+            pointLightEffect.Parameters["lightRadius"].SetValue(lightRadius);
+            pointLightEffect.Parameters["lightIntensity"].SetValue(lightIntensity);
+
+            //parameters for specular computations
+            pointLightEffect.Parameters["cameraPosition"].SetValue(camera.Position);
+            pointLightEffect.Parameters["InvertViewProjection"].SetValue(Matrix.Invert(camera.ViewProjectionMatrix));
+            //size of a halfpixel, for texture coordinates alignment
+            pointLightEffect.Parameters["halfPixel"].SetValue(halfPixel);
+
+            //calculate the distance between the camera and light center
+            float cameraToCenter = Vector3.Distance(camera.Position, lightPosition);
+            //if we are inside the light volume, draw the sphere's inside face
+            if (cameraToCenter < lightRadius)
+                GraphicsDevice.RasterizerState = RasterizerState.CullClockwise;
+            else
+                GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+
+            GraphicsDevice.DepthStencilState = DepthStencilState.None;
+
+            pointLightEffect.Techniques[0].Passes[0].Apply();
+            foreach (ModelMesh mesh in sphereModel.Meshes)
+            {
+                foreach (ModelMeshPart meshPart in mesh.MeshParts)
+                {
+                    GraphicsDevice.Indices = meshPart.IndexBuffer;
+                    GraphicsDevice.SetVertexBuffer(meshPart.VertexBuffer);
+
+                    GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, meshPart.PrimitiveCount);
+                }
+            }
+
+            GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+        }
+
+        private void DrawLights(GameTime gameTime)
+        {
+            GraphicsDevice.SetRenderTarget(lightTarget);
+            GraphicsDevice.Clear(Color.Transparent);
+            GraphicsDevice.BlendState = BlendState.AlphaBlend;
+            GraphicsDevice.DepthStencilState = DepthStencilState.None;
+
+            //draw some lights
+            DrawDirectionalLight(new Vector3(0, -1f, 1), Color.DimGray);
+            Color[] colors = new Color[10];
+            colors[0] = Color.Red; colors[1] = Color.Blue;
+            colors[2] = Color.IndianRed; colors[3] = Color.CornflowerBlue;
+            colors[4] = Color.Gold; colors[5] = Color.Green;
+            colors[6] = Color.Crimson; colors[7] = Color.SkyBlue;
+            colors[8] = Color.Red; colors[9] = Color.ForestGreen;
+            float angle = (float)gameTime.TotalGameTime.TotalSeconds;
+            int n = 15;
+
+            for (int i = 0; i < n; i++)
+            {
+                Vector3 pos = new Vector3((float)Math.Sin(i * MathHelper.TwoPi / n + angle), 0.30f, (float)Math.Cos(i * MathHelper.TwoPi / n + angle));
+                DrawPointLight(pos * 40, colors[i % 10], 15, 2);
+                pos = new Vector3((float)Math.Cos((i + 5) * MathHelper.TwoPi / n - angle), 0.30f, (float)Math.Sin((i + 5) * MathHelper.TwoPi / n - angle));
+                DrawPointLight(pos * 20, colors[i % 10], 20, 1);
+                pos = new Vector3((float)Math.Cos(i * MathHelper.TwoPi / n + angle), 0.10f, (float)Math.Sin(i * MathHelper.TwoPi / n + angle));
+                DrawPointLight(pos * 75, colors[i % 10], 45, 2);
+                pos = new Vector3((float)Math.Cos(i * MathHelper.TwoPi / n + angle), -0.3f, (float)Math.Sin(i * MathHelper.TwoPi / n + angle));
+                DrawPointLight(pos * 20, colors[i % 10], 20, 2);
+            }
+
+            DrawPointLight(new Vector3(0, (float)Math.Sin(angle * 0.8) * 40, 0), Color.Red, 30, 5);
+            DrawPointLight(new Vector3(0, 25, 0), Color.White, 30, 1);
+            DrawPointLight(new Vector3(0, 0, 70), Color.Wheat, 55 + 10 * (float)Math.Sin(5 * angle), 3);
 
             GraphicsDevice.BlendState = BlendState.Opaque;
-            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-            GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
+            GraphicsDevice.DepthStencilState = DepthStencilState.None;
+            GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+
+            GraphicsDevice.SetRenderTarget(null);
+
+            //Combine everything
+            finalCombineEffect.Parameters["colorMap"].SetValue(colorTarget);
+            finalCombineEffect.Parameters["lightMap"].SetValue(lightTarget);
+            finalCombineEffect.Parameters["halfPixel"].SetValue(halfPixel);
+
+            finalCombineEffect.Techniques[0].Passes[0].Apply();
+            //render a full-screen quad
+            quadRenderer.Render(Vector2.One * -1, Vector2.One);
+        }
+
+        protected override void Draw(GameTime gameTime)
+        {
+            SetGBuffer();
+            ClearGBuffer();
+
+            //GraphicsDevice.SetRenderTarget(renderTarget);
+
+            //GraphicsDevice.Clear(Color.CornflowerBlue);
+
+            //GraphicsDevice.BlendState = BlendState.Opaque;
+            //GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            //GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
             //GraphicsDevice.SamplerStates[1] = SamplerState.LinearWrap;
             //GraphicsDevice.SamplerStates[2] = SamplerState.LinearWrap;
 
+            Model model = Content.Load<Model>("hands");
+
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+            GraphicsDevice.BlendState = BlendState.AlphaBlend;
+
             modelsDrawn = 0;
             modelsDrawnInstanced = 0;
-            skybox.Draw(camera.worldMatrix * Matrix.CreateScale(5000), camera.viewMatrix, camera.projMatrix);
+            //skybox.Draw(camera.worldMatrix * Matrix.CreateScale(5000), camera.viewMatrix, camera.projMatrix);
 
 
             //Renders all visible objects by iterating through the oct tree recursively and testing for intersection 
@@ -655,40 +855,35 @@ namespace Game1
                 {
                     // ir.DrawableObjectObject.SetDirectionalLight(m_globalLight[0].Direction, m_globalLight[0].Color);
                     // ir.DrawableObjectObject.UpdateLOD(camera);
-                    ir.DrawableObjectObject.Draw(camera);
+                    ir.DrawableObjectObject.DrawDeferred(camera);
                     modelsDrawn++;
                 }
             }
 
             if (debugShapes)
             {
-                DebugShapeRenderer.AddBoundingSphere(cameraSphere, Color.Red);
                 octree.DrawBounds();
                 DebugShapeRenderer.Draw(gameTime, camera.ViewMatrix, camera.ProjectionMatrix);
             }
 
-            //rączki na razie po chuju tutaj
-            Effect effect = Content.Load<Effect>("Effects/test").Clone();
-            Model model = Content.Load<Model>("hands");
-            foreach (ModelMesh mesh in model.Meshes)
+            //rączki na razie tutaj
+            foreach (ModelMesh mesh in hands.Meshes)
             {
                 foreach (ModelMeshPart part in mesh.MeshParts)
                 {
-                    Vector3 temp = slonce - camera.Position;
-                    effect.Parameters["Texture"].SetValue(part.Effect.Parameters["Texture"].GetValueTexture2D());
-                    part.Effect = effect;
-                    //slonce
-                    effect.Parameters["DiffuseLightDirection"].SetValue(temp);
-                    effect.Parameters["DiffuseIntensity"].SetValue(3-(temp.Length()/1000));
-                    
+                    part.Effect = gbufferEffect;
+                }
+
+                foreach (Effect effect in mesh.Effects)
+                {
                     effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * Matrix.CreateScale(0.01f) * camera.WeaponWorldMatrix(0, -0.1f, 0.4f));
                     effect.Parameters["View"].SetValue(camera.ViewMatrix);
                     effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
-                    effect.Parameters["WorldInverseTranspose"].SetValue(
-                                            Matrix.Transpose(camera.worldMatrix * mesh.ParentBone.Transform));
+                    effect.Parameters["Texture"].SetValue(handstex);
                 }
                 mesh.Draw();
             }
+
             //rysowanie gdzie znajduje się movingRay do kolizji
             if (raybox)
             {
@@ -696,45 +891,63 @@ namespace Game1
             }
 
             //slonce
-            Content.Load<Model>("Monocube").Draw(camera.worldMatrix * Matrix.CreateTranslation(slonce), camera.viewMatrix, camera.projMatrix);
+            //Content.Load<Model>("Monocube").Draw(camera.worldMatrix * Matrix.CreateTranslation(slonce), camera.viewMatrix, camera.projMatrix);
 
-            GraphicsDevice.SetRenderTarget(null);
+            //GraphicsDevice.SetRenderTarget(null);
 
-            if (useFXAA)
-            {
-                float w = renderTarget.Width;
-                float h = renderTarget.Height;
-                fxaaEffect.CurrentTechnique = fxaaEffect.Techniques["ppfxaa_PC"];
-                fxaaEffect.Parameters["fxaaQualitySubpix"].SetValue(fxaaQualitySubpix);
-                fxaaEffect.Parameters["fxaaQualityEdgeThreshold"].SetValue(fxaaQualityEdgeThreshold);
-                fxaaEffect.Parameters["fxaaQualityEdgeThresholdMin"].SetValue(fxaaQualityEdgeThresholdMin);
-                fxaaEffect.Parameters["invViewportWidth"].SetValue(1f / w);
-                fxaaEffect.Parameters["invViewportHeight"].SetValue(1f / h);
-                fxaaEffect.Parameters["texScreen"].SetValue((Texture2D)renderTarget);
+            //if (useFXAA)
+            //{
+            //    float w = renderTarget.Width;
+            //    float h = renderTarget.Height;
+            //    fxaaEffect.CurrentTechnique = fxaaEffect.Techniques["ppfxaa_PC"];
+            //    fxaaEffect.Parameters["fxaaQualitySubpix"].SetValue(fxaaQualitySubpix);
+            //    fxaaEffect.Parameters["fxaaQualityEdgeThreshold"].SetValue(fxaaQualityEdgeThreshold);
+            //    fxaaEffect.Parameters["fxaaQualityEdgeThresholdMin"].SetValue(fxaaQualityEdgeThresholdMin);
+            //    fxaaEffect.Parameters["invViewportWidth"].SetValue(1f / w);
+            //    fxaaEffect.Parameters["invViewportHeight"].SetValue(1f / h);
+            //    fxaaEffect.Parameters["texScreen"].SetValue((Texture2D)renderTarget);
 
-                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone, fxaaEffect);
-                spriteBatch.Draw((Texture2D)renderTarget, new Rectangle(0, 0, renderTarget.Width, renderTarget.Height), Color.White);
-                //spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);
-                //DrawText();
-                spriteBatch.End();
-            }
-            else
-            {
-                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
-                spriteBatch.Draw((Texture2D)renderTarget, Vector2.Zero, Color.White);
-                spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);
-                DrawText();
-                spriteBatch.End();
-            }
+            //    spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone, fxaaEffect);
+            //    spriteBatch.Draw((Texture2D)renderTarget, new Rectangle(0, 0, renderTarget.Width, renderTarget.Height), Color.White);
+            //    //spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);
+            //    //DrawText();
+            //    spriteBatch.End();
+            //}
+            //else
+            //{
+            //    spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+            //    spriteBatch.Draw((Texture2D)renderTarget, Vector2.Zero, Color.White);
+            //    spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);
+            //    DrawText();
+            //    spriteBatch.End();
+            //}
 
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
-            spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);
-            DrawText();
-            spriteBatch.End();
+            //spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+            //spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);
+            //DrawText();
+            //spriteBatch.End();
+
+            ResolveGBuffer();
+            DrawLights(gameTime);
+
+            //check to see gbuffer contents
+            DrawGBuffer();
 
             base.Draw(gameTime);
             IncrementFrameCounter();
         }
 
+        private void DrawGBuffer()
+        {
+            int halfWidth = GraphicsDevice.Viewport.Width / 2;
+            int halfHeight = GraphicsDevice.Viewport.Height / 2;
+
+            spriteBatch.Begin();
+            spriteBatch.Draw(colorTarget, new Rectangle(0, 0, halfWidth, halfHeight), Color.White);
+            spriteBatch.Draw(normalTarget, new Rectangle(0, halfHeight, halfWidth, halfHeight), Color.White);
+            spriteBatch.Draw(depthTarget, new Rectangle(halfWidth, 0, halfWidth, halfHeight), Color.White);
+            DrawText();
+            spriteBatch.End();
+        }
     }
 }

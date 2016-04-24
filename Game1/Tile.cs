@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Game1.Helpers;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -18,7 +19,7 @@ namespace Game1
         public void Initialize(ContentManager contentManager)
         {
             model = contentManager.Load<Model>("1");
-            effect = contentManager.Load<Effect>("Effects/test");
+            effect = contentManager.Load<Effect>("Effects/RenderGBuffer");
             texture = contentManager.Load<Texture2D>("textchampfer");
             modelBones = new Matrix[model.Bones.Count];
             model.CopyAbsoluteBoneTransformsTo(modelBones);
@@ -44,6 +45,26 @@ namespace Game1
                     effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
                     effect.Parameters["WorldInverseTranspose"].SetValue(
                                             Matrix.Transpose(camera.worldMatrix * mesh.ParentBone.Transform));
+                    effect.Parameters["Texture"].SetValue(texture);
+                }
+                mesh.Draw();
+            }
+        }
+
+        public override void DrawDeferred(Camera camera)
+        {
+            foreach (ModelMesh mesh in model.Meshes)
+            {
+                foreach (ModelMeshPart part in mesh.MeshParts)
+                {
+                    part.Effect = effect;
+                }
+
+                foreach (Effect effect in mesh.Effects)
+                {
+                    effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index] * Matrix.CreateScale(Map.scale) * Matrix.CreateTranslation(position));
+                    effect.Parameters["View"].SetValue(camera.ViewMatrix);
+                    effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
                     effect.Parameters["Texture"].SetValue(texture);
                 }
                 mesh.Draw();

@@ -26,6 +26,11 @@ namespace Game1.Spells
             model.Draw(camera.worldMatrix * Matrix.CreateTranslation(position), camera.viewMatrix, camera.projMatrix);
         }
 
+        public override void DrawDeferred(Camera camera)
+        {
+            model.Draw(camera.worldMatrix * Matrix.CreateTranslation(position), camera.viewMatrix, camera.projMatrix);
+        }
+
         public SpellFireballProjectile(Game game, Matrix inWorldMatrix) : base(game, inWorldMatrix)
         {
             m_static = false;

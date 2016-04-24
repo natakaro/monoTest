@@ -13,7 +13,7 @@ using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Game1
+namespace Game1.Helpers
 {
     /// <summary>
     /// A system for handling rendering of various debug shapes.
