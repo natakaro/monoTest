@@ -607,6 +607,47 @@ namespace Game1
         }
 
         /// <summary>
+        /// Gives you a list of all intersection records which intersect or are contained within the given sphere area
+        /// </summary>
+        /// <param name="sphere">The containing sphere to check for intersection/containment with</param>
+        /// <returns>A list of intersection records with collisions</returns>
+        private List<IntersectionRecord> GetIntersection(BoundingSphere sphere, DrawableObject.ObjectType type = DrawableObject.ObjectType.ALL)
+        {
+            if (m_objects.Count == 0 && HasChildren == false)   //terminator for any recursion
+                return null;
+
+            List<IntersectionRecord> ret = new List<IntersectionRecord>();
+
+            //test each object in the list for intersection
+            foreach (DrawableObject obj in m_objects)
+            {
+
+                //skip any objects which don't meet our type criteria
+                if ((int)((int)type & (int)obj.Type) == 0)
+                    continue;
+
+                //test for intersection
+                IntersectionRecord ir = obj.Intersects(sphere);
+                if (ir != null) ret.Add(ir);
+            }
+
+            //test each object in the list for intersection
+            for (int a = 0; a < 8; a++)
+            {
+                if (m_childNode[a] != null && (sphere.Contains(m_childNode[a].m_region) == ContainmentType.Intersects || sphere.Contains(m_childNode[a].m_region) == ContainmentType.Contains))
+                {
+                    List<IntersectionRecord> hitList = m_childNode[a].GetIntersection(sphere);
+                    if (hitList != null)
+                    {
+                        foreach (IntersectionRecord ir in hitList)
+                            ret.Add(ir);
+                    }
+                }
+            }
+            return ret;
+        }
+
+        /// <summary>
         /// Gives you a list of intersection records for all objects which intersect with the given ray
         /// </summary>
         /// <param name="intersectRay">The ray to intersect objects against</param>
@@ -817,13 +858,13 @@ namespace Game1
         /// <param name="intersectionRay">The ray to intersect with all objects</param>
         /// <param name="type">The type of DrawableObject object we're interested in intersecting with</param>
         /// <returns>A list of intersections of the specified type of geometry</returns>
-        public List<IntersectionRecord> AllIntersections(Ray intersectionRay, DrawableObject.ObjectType type = DrawableObject.ObjectType.ALL)
-        {
-            if (!m_treeReady)
-                UpdateTree();
+        //public List<IntersectionRecord> AllIntersections(Ray intersectionRay, DrawableObject.ObjectType type = DrawableObject.ObjectType.ALL)
+        //{
+        //    if (!m_treeReady)
+        //        UpdateTree();
 
-            return null;
-        }
+        //    return null;
+        //}
 
         /// <summary>
         /// This gives you a list of all objects which [intersect or are contained within] the given frustum and meet the given object type
@@ -837,6 +878,20 @@ namespace Game1
                 UpdateTree();
 
             return GetIntersection(region, type);
+        }
+
+        /// <summary>
+        /// This gives you a list of all objects which [intersect or are contained within] the given sphere and meet the given object type
+        /// </summary>
+        /// <param name="sphere">The sphere to intersect with</param>
+        /// <param name="type">The type of objects you want to filter</param>
+        /// <returns>A list of intersection records for all objects intersecting with the sphere</returns>
+        public List<IntersectionRecord> AllIntersections(BoundingSphere sphere, DrawableObject.ObjectType type = DrawableObject.ObjectType.ALL)
+        {
+            if (!m_treeReady)
+                UpdateTree();
+
+            return GetIntersection(sphere, type);
         }
 
         #endregion

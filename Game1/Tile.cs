@@ -13,12 +13,15 @@ namespace Game1
     {
         Texture2D texture;
         Model model;
-        
+        Matrix[] modelBones;
+
         public void Initialize(ContentManager contentManager)
         {
             model = contentManager.Load<Model>("1");
             effect = contentManager.Load<Effect>("Effects/test");
             texture = contentManager.Load<Texture2D>("textchampfer");
+            modelBones = new Matrix[model.Bones.Count];
+            model.CopyAbsoluteBoneTransformsTo(modelBones);
         }
 
         public override void Draw(Camera camera)
@@ -36,7 +39,7 @@ namespace Game1
                     else
                         effect.Parameters["DiffuseIntensity"].SetValue(5 - (temp.Length() / 1000));
                     part.Effect = effect;
-                    effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * worldMatrix);
+                    effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index] * Matrix.CreateScale(Map.scale) * Matrix.CreateTranslation(position));
                     effect.Parameters["View"].SetValue(camera.ViewMatrix);
                     effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
                     effect.Parameters["WorldInverseTranspose"].SetValue(

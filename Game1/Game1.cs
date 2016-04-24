@@ -59,8 +59,10 @@ namespace Game1
         private KeyboardState prevKeyboardState;
         private MouseState currentMouseState;
         private MouseState prevMouseState;
-        private bool leftButton;
-        private bool rightButton;
+        private bool currentLeftButton;
+        private bool currentRightButton;
+        private bool prevLeftButton;
+        private bool prevRightButton;
         private Vector2 fontPos;
         private int windowWidth;
         private int windowHeight;
@@ -82,8 +84,8 @@ namespace Game1
             Fireball = 2
         };
 
-        private SpellMoveTerrain spellMoveTerrain = new SpellMoveTerrain();
-        private SpellFireball spellFireball = new SpellFireball();
+        private SpellMoveTerrain spellMoveTerrain;
+        private SpellFireball spellFireball;
 
         public SpellType selectedSpell = SpellType.MoveTerrain;
 
@@ -112,14 +114,14 @@ namespace Game1
 
             // Setup frame buffer.
             graphics.SynchronizeWithVerticalRetrace = false; //vsync
-            graphics.PreferredBackBufferWidth = windowWidth;
-            graphics.PreferredBackBufferHeight = windowHeight;
+            graphics.PreferredBackBufferWidth = 1280;
+            graphics.PreferredBackBufferHeight = 720;
             graphics.PreferMultiSampling = true;
             graphics.ApplyChanges();
 
             Window.Position = new Point(0, 0);
 
-            graphics.ToggleFullScreen();
+            //graphics.ToggleFullScreen();
 
             // Initial position for text rendering.
             fontPos = new Vector2(1.0f, 1.0f);
@@ -158,6 +160,10 @@ namespace Game1
             octree = new Octree(Map.CreateMap(this, 30, camera.worldMatrix));
             octree.m_objects.Add(testbox);
             octree.m_objects.Add(wall);
+
+            spellMoveTerrain = new SpellMoveTerrain(octree);
+            spellFireball = new SpellFireball(this, camera, octree);
+            
         }
 
         protected override void LoadContent()
@@ -181,13 +187,25 @@ namespace Game1
             return currentKeyboardState.IsKeyDown(key) && prevKeyboardState.IsKeyUp(key);
         }
 
-        private void ProcessKeyboard(GameTime gameTime)
+        private void ProcessKeyboard()
         {
             prevKeyboardState = currentKeyboardState;
             currentKeyboardState = Keyboard.GetState();
 
             prevMouseState = currentMouseState;
             currentMouseState = Mouse.GetState();
+
+            prevLeftButton = currentLeftButton;
+            if (currentMouseState.LeftButton == ButtonState.Pressed)
+                currentLeftButton = true;
+            else
+                currentLeftButton = false;
+
+            prevRightButton = currentRightButton;
+            if (currentMouseState.RightButton == ButtonState.Pressed)
+                currentRightButton = true;
+            else
+                currentRightButton = false;
 
             if (KeyJustPressed(Keys.Escape))
                 this.Exit();
@@ -263,28 +281,50 @@ namespace Game1
                     selectedSpell--;
                 }
             }
-
-            if (currentMouseState.LeftButton == ButtonState.Pressed)
-                leftButton = true;
-            if (currentMouseState.RightButton == ButtonState.Pressed)
-                rightButton = true;
-            if (currentMouseState.LeftButton == ButtonState.Released)
-                leftButton = false;
-            if (currentMouseState.RightButton == ButtonState.Released)
-                rightButton = false;
-
-            CastSpell(leftButton, rightButton, gameTime);
+            
+            if ((currentLeftButton && prevLeftButton == false) || (currentRightButton && prevRightButton == false))
+                StartSpellcasting(currentLeftButton, currentRightButton);
+            if ((currentLeftButton && prevLeftButton) || (currentRightButton && prevRightButton))
+                ContinueSpellcasting(currentLeftButton, currentRightButton);
+            if ((currentLeftButton == false && prevLeftButton) || (currentRightButton == false && prevRightButton))
+                StopSpellcasting(currentLeftButton, currentRightButton);
         }
 
-        private void CastSpell(bool leftButton, bool rightButton, GameTime gameTime)
+        private void StartSpellcasting(bool leftButton, bool rightButton)
         {
             switch (selectedSpell)
             {
                 case SpellType.MoveTerrain:
-                    spellMoveTerrain.Cast(leftButton, rightButton, selected_obj);
+                    spellMoveTerrain.Start(leftButton, rightButton, selected_obj);
                     break;
                 case SpellType.Fireball:
-                    spellFireball.Cast(leftButton, rightButton, this, gameTime, camera, octree);
+                    spellFireball.Start(leftButton, rightButton);
+                    break;
+            }
+        }
+
+        private void ContinueSpellcasting(bool leftButton, bool rightButton)
+        {
+            switch (selectedSpell)
+            {
+                case SpellType.MoveTerrain:
+                    spellMoveTerrain.Continue(leftButton, rightButton);
+                    break;
+                case SpellType.Fireball:
+                    spellFireball.Continue(leftButton, rightButton);
+                    break;
+            }
+        }
+
+        private void StopSpellcasting(bool leftButton, bool rightButton)
+        {
+            switch (selectedSpell)
+            {
+                case SpellType.MoveTerrain:
+                    spellMoveTerrain.Stop(leftButton, rightButton);
+                    break;
+                case SpellType.Fireball:
+                    spellFireball.Stop(leftButton, rightButton);
                     break;
             }
         }
@@ -296,7 +336,7 @@ namespace Game1
 
             base.Update(gameTime);
 
-            ProcessKeyboard(gameTime);
+            ProcessKeyboard();
 
             //poruszanie po y w zaleznosci od pozycji tila - czy powinno to byc w update a nie gdzies indziej?
             //cameraSphere.Center = camera.Position - new Vector3(0, 30, 0);
