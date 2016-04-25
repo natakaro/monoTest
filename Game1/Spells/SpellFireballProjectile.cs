@@ -13,22 +13,30 @@ namespace Game1.Spells
     {
         Texture2D texture;
         Model model;
+        Matrix[] modelBones;
 
         public void Initialize(ContentManager contentManager)
         {
             model = contentManager.Load<Model>("fireball");
-            effect = contentManager.Load<Effect>("Effects/test");
             texture = contentManager.Load<Texture2D>("firedot");
+            modelBones = new Matrix[model.Bones.Count];
+            model.CopyAbsoluteBoneTransformsTo(modelBones);
         }
 
         public override void Draw(Camera camera)
         {
-            model.Draw(camera.worldMatrix * Matrix.CreateTranslation(position), camera.viewMatrix, camera.projMatrix);
-        }
-
-        public override void DrawDeferred(Camera camera)
-        {
-            model.Draw(camera.worldMatrix * Matrix.CreateTranslation(position), camera.viewMatrix, camera.projMatrix);
+            //model.Draw(camera.worldMatrix * Matrix.CreateTranslation(position), camera.viewMatrix, camera.projMatrix);
+            foreach (ModelMesh mesh in model.Meshes)
+            {
+                foreach (Effect effect in mesh.Effects)
+                {
+                    effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index] * Matrix.CreateTranslation(position));
+                    effect.Parameters["View"].SetValue(camera.ViewMatrix);
+                    effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
+                    effect.Parameters["Texture"].SetValue(texture);
+                }
+                mesh.Draw();
+            }
         }
 
         public SpellFireballProjectile(Game game, Matrix inWorldMatrix) : base(game, inWorldMatrix)

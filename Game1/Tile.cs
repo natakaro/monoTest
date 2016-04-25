@@ -27,39 +27,8 @@ namespace Game1
 
         public override void Draw(Camera camera)
         {
-            //worldMatrix = Matrix.CreateScale(Map.scale) * Matrix.CreateTranslation(position) * camera.worldMatrix;
             foreach (ModelMesh mesh in model.Meshes)
             {
-                foreach (ModelMeshPart part in mesh.MeshParts)
-                {
-                    Vector3 temp = Game1.slonce - position;
-                    //slonce
-                    effect.Parameters["DiffuseLightDirection"].SetValue(temp);
-                    if (selected == true)
-                        effect.Parameters["DiffuseIntensity"].SetValue(10 - (temp.Length() / 1000));
-                    else
-                        effect.Parameters["DiffuseIntensity"].SetValue(5 - (temp.Length() / 1000));
-                    part.Effect = effect;
-                    effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index] * Matrix.CreateScale(Map.scale) * Matrix.CreateTranslation(position));
-                    effect.Parameters["View"].SetValue(camera.ViewMatrix);
-                    effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
-                    effect.Parameters["WorldInverseTranspose"].SetValue(
-                                            Matrix.Transpose(camera.worldMatrix * mesh.ParentBone.Transform));
-                    effect.Parameters["Texture"].SetValue(texture);
-                }
-                mesh.Draw();
-            }
-        }
-
-        public override void DrawDeferred(Camera camera)
-        {
-            foreach (ModelMesh mesh in model.Meshes)
-            {
-                foreach (ModelMeshPart part in mesh.MeshParts)
-                {
-                    part.Effect = effect;
-                }
-
                 foreach (Effect effect in mesh.Effects)
                 {
                     effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index] * Matrix.CreateScale(Map.scale) * Matrix.CreateTranslation(position));

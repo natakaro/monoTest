@@ -24,11 +24,7 @@ namespace Game1
         private Texture2D cross;
 
         private Effect fxaaEffect;
-        private RenderTarget2D renderTarget;
-
-        Effect effect1Scene;
-        Effect effect2Lights;
-        Effect effect3Final;
+        private RenderTarget2D fxaaTarget;
 
         private RenderTarget2D colorTarget;
         private RenderTarget2D normalTarget;
@@ -36,7 +32,6 @@ namespace Game1
         private RenderTarget2D lightTarget;
 
         private Effect clearBufferEffect;
-        private Effect gbufferEffect;
         private Effect directionalLightEffect;
         private Effect pointLightEffect;
         private Effect finalCombineEffect;
@@ -175,7 +170,7 @@ namespace Game1
                 CAMERA_ZNEAR, CAMERA_ZFAR);
 
             PresentationParameters pp = graphics.GraphicsDevice.PresentationParameters;
-            renderTarget = new RenderTarget2D(GraphicsDevice, pp.BackBufferWidth, pp.BackBufferHeight, false, pp.BackBufferFormat, pp.DepthStencilFormat, pp.MultiSampleCount, RenderTargetUsage.DiscardContents);
+            fxaaTarget = new RenderTarget2D(GraphicsDevice, pp.BackBufferWidth, pp.BackBufferHeight, false, pp.BackBufferFormat, pp.DepthStencilFormat, pp.MultiSampleCount, RenderTargetUsage.DiscardContents);
 
             currentKeyboardState = Keyboard.GetState();
 
@@ -204,10 +199,6 @@ namespace Game1
             spriteFont = Content.Load<SpriteFont>(@"fonts\DemoFont");
             temp = new InstancingDraw(this, camera, Content);
 
-            //effect1Scene = Content.Load<Effect>("Effects/Deferred1Scene");
-            //effect2Lights = Content.Load<Effect>("Effects/Deferred2Lights");
-            //effect3Final = Content.Load<Effect>("Effects/Deferred3Final");
-
             int backbufferWidth = GraphicsDevice.PresentationParameters.BackBufferWidth;
             int backbufferHeight = GraphicsDevice.PresentationParameters.BackBufferHeight;
 
@@ -221,7 +212,6 @@ namespace Game1
             skybox = Content.Load<Model>("SkySphere");
 
             clearBufferEffect = Content.Load<Effect>("Effects/ClearGBuffer");
-            gbufferEffect = Content.Load<Effect>("Effects/RenderGBuffer");
             directionalLightEffect = Content.Load<Effect>("Effects/DirectionalLight");
             pointLightEffect = Content.Load<Effect>("Effects/PointLight");
             finalCombineEffect = Content.Load<Effect>("Effects/CombineFinal");
@@ -236,7 +226,7 @@ namespace Game1
 
         protected override void UnloadContent()
         {
-            renderTarget.Dispose();
+            fxaaTarget.Dispose();
         }
 
         private void SetGBuffer()
@@ -777,7 +767,10 @@ namespace Game1
             GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
 
             GraphicsDevice.SetRenderTarget(null);
+        }
 
+        private void DrawFinal()
+        {
             //Combine everything
             finalCombineEffect.Parameters["colorMap"].SetValue(colorTarget);
             finalCombineEffect.Parameters["lightMap"].SetValue(lightTarget);
@@ -793,47 +786,16 @@ namespace Game1
             SetGBuffer();
             ClearGBuffer();
 
-            //GraphicsDevice.SetRenderTarget(renderTarget);
-
             //GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            //GraphicsDevice.BlendState = BlendState.Opaque;
-            //GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-            //GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
-            //GraphicsDevice.SamplerStates[1] = SamplerState.LinearWrap;
-            //GraphicsDevice.SamplerStates[2] = SamplerState.LinearWrap;
-
-            Model model = Content.Load<Model>("hands");
-
+            GraphicsDevice.BlendState = BlendState.Opaque;
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-            GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
-            GraphicsDevice.BlendState = BlendState.AlphaBlend;
 
             modelsDrawn = 0;
             modelsDrawnInstanced = 0;
-            //skybox.Draw(camera.worldMatrix * Matrix.CreateScale(5000), camera.viewMatrix, camera.projMatrix);
-
-
+            
             //Renders all visible objects by iterating through the oct tree recursively and testing for intersection 
             //with the current camera view frustum
-
-            //if (instancing)
-            //{
-            //    List<IntersectionRecord> list = octree.AllIntersections(camera.Frustum);
-            //    temp.DrawModelHardwareInstancing(list);
-            //    modelsDrawn = list.Count;
-            //}
-            //else
-            //{
-            //    foreach (IntersectionRecord ir in octree.AllIntersections(camera.Frustum))
-            //    {
-            //        // ir.DrawableObjectObject.SetDirectionalLight(m_globalLight[0].Direction, m_globalLight[0].Color);
-            //        // ir.DrawableObjectObject.UpdateLOD(camera);
-            //        ir.DrawableObjectObject.Draw(camera);
-            //        modelsDrawn++;
-            //    }
-            //}
-
             if (instancing)
             {
                 List<IntersectionRecord> list = octree.AllIntersections(camera.Frustum);
@@ -843,7 +805,6 @@ namespace Game1
                 modelsDrawnInstanced = instanceList.Count;
                 foreach (IntersectionRecord ir in list)
                 {
-                    // ir.DrawableObjectObject.SetDirectionalLight(m_globalLight[0].Direction, m_globalLight[0].Color);
                     // ir.DrawableObjectObject.UpdateLOD(camera);
                     ir.DrawableObjectObject.Draw(camera);
                     modelsDrawn++;
@@ -853,27 +814,17 @@ namespace Game1
             {
                 foreach (IntersectionRecord ir in octree.AllIntersections(camera.Frustum))
                 {
-                    // ir.DrawableObjectObject.SetDirectionalLight(m_globalLight[0].Direction, m_globalLight[0].Color);
                     // ir.DrawableObjectObject.UpdateLOD(camera);
-                    ir.DrawableObjectObject.DrawDeferred(camera);
+                    ir.DrawableObjectObject.Draw(camera);
                     modelsDrawn++;
                 }
             }
 
-            if (debugShapes)
-            {
-                octree.DrawBounds();
-                DebugShapeRenderer.Draw(gameTime, camera.ViewMatrix, camera.ProjectionMatrix);
-            }
+
 
             //rączki na razie tutaj
             foreach (ModelMesh mesh in hands.Meshes)
             {
-                foreach (ModelMeshPart part in mesh.MeshParts)
-                {
-                    part.Effect = gbufferEffect;
-                }
-
                 foreach (Effect effect in mesh.Effects)
                 {
                     effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * Matrix.CreateScale(0.01f) * camera.WeaponWorldMatrix(0, -0.1f, 0.4f));
@@ -884,54 +835,65 @@ namespace Game1
                 mesh.Draw();
             }
 
+            //foreach (ModelMesh mesh in skybox.Meshes)
+            //{
+            //    foreach (Effect effect in mesh.Effects)
+            //    {
+            //        effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * Matrix.CreateScale(5000));
+            //        effect.Parameters["View"].SetValue(camera.ViewMatrix);
+            //        effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
+            //        effect.Parameters["Texture"].SetValue(handstex);
+            //    }
+            //    mesh.Draw();
+            //}
+
             //rysowanie gdzie znajduje się movingRay do kolizji
             if (raybox)
             {
                 Content.Load<Model>("Monocube").Draw(camera.worldMatrix * Matrix.CreateTranslation(camera.MovingRay().Position), camera.viewMatrix, camera.projMatrix);
             }
 
-            //slonce
-            //Content.Load<Model>("Monocube").Draw(camera.worldMatrix * Matrix.CreateTranslation(slonce), camera.viewMatrix, camera.projMatrix);
+            ResolveGBuffer();
+            DrawLights(gameTime);
 
+            //GraphicsDevice.SetRenderTarget(fxaaTarget);
+            DrawFinal();
             //GraphicsDevice.SetRenderTarget(null);
 
             //if (useFXAA)
             //{
-            //    float w = renderTarget.Width;
-            //    float h = renderTarget.Height;
+            //    float w = fxaaTarget.Width;
+            //    float h = fxaaTarget.Height;
             //    fxaaEffect.CurrentTechnique = fxaaEffect.Techniques["ppfxaa_PC"];
             //    fxaaEffect.Parameters["fxaaQualitySubpix"].SetValue(fxaaQualitySubpix);
             //    fxaaEffect.Parameters["fxaaQualityEdgeThreshold"].SetValue(fxaaQualityEdgeThreshold);
             //    fxaaEffect.Parameters["fxaaQualityEdgeThresholdMin"].SetValue(fxaaQualityEdgeThresholdMin);
             //    fxaaEffect.Parameters["invViewportWidth"].SetValue(1f / w);
             //    fxaaEffect.Parameters["invViewportHeight"].SetValue(1f / h);
-            //    fxaaEffect.Parameters["texScreen"].SetValue((Texture2D)renderTarget);
+            //    fxaaEffect.Parameters["texScreen"].SetValue((Texture2D)fxaaTarget);
 
-            //    spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone, fxaaEffect);
-            //    spriteBatch.Draw((Texture2D)renderTarget, new Rectangle(0, 0, renderTarget.Width, renderTarget.Height), Color.White);
-            //    //spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);
-            //    //DrawText();
+            //    spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.DepthRead, RasterizerState.CullCounterClockwise, fxaaEffect);
+            //    spriteBatch.Draw((Texture2D)fxaaTarget, new Rectangle(0, 0, fxaaTarget.Width, fxaaTarget.Height), Color.White);
+            //    spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);
+            //    DrawText();
+            //    //DrawGBuffer();
             //    spriteBatch.End();
             //}
             //else
             //{
             //    spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
-            //    spriteBatch.Draw((Texture2D)renderTarget, Vector2.Zero, Color.White);
+            //    spriteBatch.Draw((Texture2D)fxaaTarget, Vector2.Zero, Color.White);
             //    spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);
             //    DrawText();
+            //    //DrawGBuffer();
             //    spriteBatch.End();
             //}
 
-            //spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
-            //spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);
-            //DrawText();
-            //spriteBatch.End();
-
-            ResolveGBuffer();
-            DrawLights(gameTime);
-
-            //check to see gbuffer contents
-            DrawGBuffer();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+            spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);
+            DrawText();
+            //DrawGBuffer();
+            spriteBatch.End();
 
             base.Draw(gameTime);
             IncrementFrameCounter();
@@ -942,12 +904,9 @@ namespace Game1
             int halfWidth = GraphicsDevice.Viewport.Width / 2;
             int halfHeight = GraphicsDevice.Viewport.Height / 2;
 
-            spriteBatch.Begin();
             spriteBatch.Draw(colorTarget, new Rectangle(0, 0, halfWidth, halfHeight), Color.White);
             spriteBatch.Draw(normalTarget, new Rectangle(0, halfHeight, halfWidth, halfHeight), Color.White);
             spriteBatch.Draw(depthTarget, new Rectangle(halfWidth, 0, halfWidth, halfHeight), Color.White);
-            DrawText();
-            spriteBatch.End();
         }
     }
 }

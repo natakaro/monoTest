@@ -93,7 +93,6 @@ namespace Game1
         }
 
         public abstract void Draw(Camera camera);
-        public abstract void DrawDeferred(Camera camera);
 
         public virtual void UpdateLOD(Camera camera)
         {

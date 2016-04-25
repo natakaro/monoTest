@@ -24,44 +24,19 @@ namespace Game1
 
         public override void Draw(Camera camera)
         {
-            model.Draw(camera.worldMatrix*Matrix.CreateScale(25), camera.viewMatrix, camera.projMatrix);
             //worldMatrix = Matrix.CreateScale(Map.scale) * Matrix.CreateTranslation(position) * camera.worldMatrix;
-            /*foreach (ModelMesh mesh in model.Meshes)
+            foreach (ModelMesh mesh in model.Meshes)
             {
-                foreach (ModelMeshPart part in mesh.MeshParts)
+                foreach (Effect effect in mesh.Effects)
                 {
-                    part.Effect = effect;
-                    effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * worldMatrix);
+                    effect.Parameters["World"].SetValue(camera.worldMatrix * Matrix.CreateScale(25) * Matrix.CreateTranslation(position));
                     effect.Parameters["View"].SetValue(camera.ViewMatrix);
                     effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
-                    effect.Parameters["WorldInverseTranspose"].SetValue(
-                                            Matrix.Transpose(camera.worldMatrix * mesh.ParentBone.Transform));
                     effect.Parameters["Texture"].SetValue(texture);
                 }
                 mesh.Draw();
-            }*/
+            }
         }
-
-        public override void DrawDeferred(Camera camera)
-        {
-            model.Draw(camera.worldMatrix * Matrix.CreateScale(25), camera.viewMatrix, camera.projMatrix);
-            //worldMatrix = Matrix.CreateScale(Map.scale) * Matrix.CreateTranslation(position) * camera.worldMatrix;
-            /*foreach (ModelMesh mesh in model.Meshes)
-            {
-                foreach (ModelMeshPart part in mesh.MeshParts)
-                {
-                    part.Effect = effect;
-                    effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * worldMatrix);
-                    effect.Parameters["View"].SetValue(camera.ViewMatrix);
-                    effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
-                    effect.Parameters["WorldInverseTranspose"].SetValue(
-                                            Matrix.Transpose(camera.worldMatrix * mesh.ParentBone.Transform));
-                    effect.Parameters["Texture"].SetValue(texture);
-                }
-                mesh.Draw();
-            }*/
-        }
-
 
         public Sky(Game game, Matrix inWorldMatrix) : base(game, inWorldMatrix)
         {
