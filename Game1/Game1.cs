@@ -191,8 +191,10 @@ namespace Game1
         {
             halfPixel = new Vector2()
             {
-                X = 0.5f / GraphicsDevice.PresentationParameters.BackBufferWidth,
-                Y = 0.5f / GraphicsDevice.PresentationParameters.BackBufferHeight
+                //X = 0.5f / GraphicsDevice.PresentationParameters.BackBufferWidth,
+                //Y = 0.5f / GraphicsDevice.PresentationParameters.BackBufferHeight
+                X = 0f / GraphicsDevice.PresentationParameters.BackBufferWidth,
+                Y = 0f / GraphicsDevice.PresentationParameters.BackBufferHeight
             };
 
             cross = Content.Load<Texture2D>("cross_cross");
@@ -820,7 +822,11 @@ namespace Game1
                 }
             }
 
-
+            if (debugShapes)
+            {
+                octree.DrawBounds();
+                DebugShapeRenderer.Draw(gameTime, camera.ViewMatrix, camera.ProjectionMatrix);
+            }
 
             //rączki na razie tutaj
             foreach (ModelMesh mesh in hands.Meshes)
