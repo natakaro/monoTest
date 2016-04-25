@@ -43,7 +43,7 @@ namespace Game1
             // Initialize the list of instances.
             graphicsDevice = game.GraphicsDevice;
             model = contentManager.Load<Model>("1");
-            effect = contentManager.Load<Effect>("Effects/testinsta");
+            effect = contentManager.Load<Effect>("Effects/RenderGBuffer");
             tex = contentManager.Load<Texture2D>("textchampfer");
             this.camera = camera;
             //instances = insta;
@@ -109,35 +109,37 @@ namespace Game1
 
             foreach (ModelMesh mesh in model.Meshes)
             {
-                foreach (ModelMeshPart meshPart in mesh.MeshParts)
+                foreach (Effect effect in mesh.Effects)
                 {
-                    // Tell the GPU to read from both the model vertex buffer plus our instanceVertexBuffer.
-                    graphicsDevice.SetVertexBuffers(
-                        new VertexBufferBinding(meshPart.VertexBuffer, meshPart.VertexOffset, 0),
-                        new VertexBufferBinding(instanceVertexBuffer, 0, 1)
-                    );
-
-                    graphicsDevice.Indices = meshPart.IndexBuffer;
-
-                    // Set up the instance rendering effect.
-                    meshPart.Effect = effect;
-
-                    //effect.CurrentTechnique = effect.Techniques["HardwareInstancing"];
-                    
-                    effect.Parameters["sunposition"].SetValue(Game1.slonce);
-                    effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index]);
-                    effect.Parameters["View"].SetValue(camera.ViewMatrix);
-                    effect.Parameters["Projection"].SetValue(camera.projMatrix);
-                    effect.Parameters["Texture"].SetValue(tex);
-
-                    // Draw all the instance copies in a single call.
-                    foreach (EffectPass pass in effect.CurrentTechnique.Passes)
+                    foreach (ModelMeshPart meshPart in mesh.MeshParts)
                     {
-                        pass.Apply();
+                        // Tell the GPU to read from both the model vertex buffer plus our instanceVertexBuffer.
+                        graphicsDevice.SetVertexBuffers(
+                            new VertexBufferBinding(meshPart.VertexBuffer, meshPart.VertexOffset, 0),
+                            new VertexBufferBinding(instanceVertexBuffer, 0, 1)
+                        );
 
-                        graphicsDevice.DrawInstancedPrimitives(PrimitiveType.TriangleList, 0, 0,
-                                                               meshPart.NumVertices, meshPart.StartIndex,
-                                                               meshPart.PrimitiveCount, instances.Length);
+                        graphicsDevice.Indices = meshPart.IndexBuffer;
+
+                        // Set up the instance rendering effect.
+                        //meshPart.Effect = effect;
+
+                        effect.CurrentTechnique = effect.Techniques["Instancing"];
+
+                        effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index]);
+                        effect.Parameters["View"].SetValue(camera.ViewMatrix);
+                        effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
+                        effect.Parameters["Texture"].SetValue(tex);
+
+                        // Draw all the instance copies in a single call.
+                        foreach (EffectPass pass in effect.CurrentTechnique.Passes)
+                        {
+                            pass.Apply();
+
+                            graphicsDevice.DrawInstancedPrimitives(PrimitiveType.TriangleList, 0, 0,
+                                                                   meshPart.NumVertices, meshPart.StartIndex,
+                                                                   meshPart.PrimitiveCount, instances.Length);
+                        }
                     }
                 }
             }

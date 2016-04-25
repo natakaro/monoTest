@@ -56,11 +56,11 @@ struct VertexShaderOutput
     float3x3 tangentToWorld : TEXCOORD2;
 };
 
-VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
+VertexShaderOutput VertexShaderFunction(VertexShaderInput input, float4x4 instanceTransform)
 {
     VertexShaderOutput output;
 
-    float4 worldPosition = mul(float4(input.Position.xyz,1), World);
+    float4 worldPosition = mul(float4(input.Position.xyz,1), instanceTransform);
     float4 viewPosition = mul(worldPosition, View);
     output.Position = mul(viewPosition, Projection);
 
@@ -70,12 +70,13 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 
     // calculate tangent space to world space matrix using the world space tangent,
     // binormal, and normal as basis vectors
-    output.tangentToWorld[0] = mul(input.Tangent, World);
-    output.tangentToWorld[1] = mul(input.Binormal, World);
-    output.tangentToWorld[2] = mul(input.Normal, World);
+    output.tangentToWorld[0] = mul(input.Tangent, instanceTransform);
+    output.tangentToWorld[1] = mul(input.Binormal, instanceTransform);
+    output.tangentToWorld[2] = mul(input.Normal, instanceTransform);
 
     return output;
 }
+
 struct PixelShaderOutput
 {
     half4 Color : COLOR0;
@@ -110,11 +111,32 @@ PixelShaderOutput PixelShaderFunction(VertexShaderOutput input)
     return output;
 }
 
+
+VertexShaderOutput HardwareInstancingVertexShader(VertexShaderInput input, float4x4 instanceTransform : BLENDWEIGHT)
+{
+	return VertexShaderFunction(input, mul(World, transpose(instanceTransform)));
+}
+
+VertexShaderOutput NoInstancingVertexShader(VertexShaderInput input)
+{
+	return VertexShaderFunction(input, World);
+}
+
+
 technique Technique1
 {
 	pass P0
 	{
-		VertexShader = compile VS_SHADERMODEL VertexShaderFunction();
+		VertexShader = compile VS_SHADERMODEL NoInstancingVertexShader();
+		PixelShader = compile PS_SHADERMODEL PixelShaderFunction();
+	}
+};
+
+technique Instancing
+{
+	pass P0
+	{
+		VertexShader = compile VS_SHADERMODEL HardwareInstancingVertexShader();
 		PixelShader = compile PS_SHADERMODEL PixelShaderFunction();
 	}
 };

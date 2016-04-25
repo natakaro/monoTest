@@ -150,15 +150,15 @@ technique ToonNoInstancing
 {
 	pass Pass1
 	{
-		VertexShader = compile vs_5_0 OutlineVertexShader();
-		PixelShader = compile ps_5_0 OutlinePixelShader();
+		VertexShader = compile vs_4_0 OutlineVertexShader();
+		PixelShader = compile ps_4_0 OutlinePixelShader();
 		CullMode = CW;
 	}
 
 	pass Pass2
 	{
-		VertexShader = compile vs_5_0 CelVertexShader();
-		PixelShader = compile ps_5_0 CelPixelShader();
+		VertexShader = compile vs_4_0 CelVertexShader();
+		PixelShader = compile ps_4_0 CelPixelShader();
 		CullMode = CCW;
 	}
 }

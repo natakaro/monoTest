@@ -100,7 +100,6 @@ namespace DeferredPipeline
             {
                 //this will contatin the path to the normal map texture
                 string normalMapPath = null;
-
                 //If the NormalMapTexture property is set, we use that normal map for all meshes in the model.
                 //This overrides anything else
                 if (!String.IsNullOrEmpty(NormalMapTexture))
