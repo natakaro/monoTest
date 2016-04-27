@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Game1.Helpers;
 
 namespace Game1.Spells
 {
@@ -39,7 +40,7 @@ namespace Game1.Spells
                         }
 
                         //tworzymy sphere duza wokol celu, zbieramy kolizje wszystkich wokol i wyliczyamy srednia pozycje na y
-                        areaSphere = new BoundingSphere(dObj.Position, Map.scale * 2);
+                        areaSphere = new BoundingSphere(dObj.Position, Map.scale * 1.75f);
                         sphere_list = octree.AllIntersections(areaSphere, DrawableObject.ObjectType.Terrain);
                         average_y = 0;
 
@@ -68,6 +69,7 @@ namespace Game1.Spells
         {
             if (leftButton == true && rightButton == true && sphere_list != null) //w wersji obszarowej poruszamy kazdym tilem w odpowiednim kierunku z usredniona predkoscia
             {
+                //DebugShapeRenderer.AddBoundingSphere(areaSphere, Color.White);
                 foreach (IntersectionRecord ir in sphere_list)
                 {
                     if (ir.DrawableObjectObject.Position.Y == average_y)

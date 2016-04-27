@@ -19,7 +19,7 @@ namespace Game1
         private SpriteFont spriteFont;
 
         Octree octree;
-        public static Vector3 slonce = new Vector3(300, 300, -500);
+        public static Vector3 slonce = new Vector3(300, 300, -4990);
         InstancingDraw temp;
         private Texture2D cross;
 
@@ -49,8 +49,9 @@ namespace Game1
         float acceleration = 100.0f; // przyspieszenie przy wspinaniu i opadaniu
 
 
-        private bool instancing = false;
+        private bool instancing = true;
         private bool useFXAA = true;
+        private bool showgbuffer = false;
         private bool debugShapes = false;
         private bool raybox = false;
 
@@ -136,14 +137,14 @@ namespace Game1
 
             // Setup frame buffer.
             graphics.SynchronizeWithVerticalRetrace = false; //vsync
-            graphics.PreferredBackBufferWidth = 1280;
-            graphics.PreferredBackBufferHeight = 720;
+            graphics.PreferredBackBufferWidth = 1920;
+            graphics.PreferredBackBufferHeight = 1080;
             graphics.PreferMultiSampling = true;
             graphics.ApplyChanges();
 
             Window.Position = new Point(0, 0);
 
-            //graphics.ToggleFullScreen();
+            graphics.ToggleFullScreen();
 
             // Initial position for text rendering.
             fontPos = new Vector2(1.0f, 1.0f);
@@ -291,6 +292,11 @@ namespace Game1
                 debugShapes = !debugShapes;
             }
 
+            if (KeyJustPressed(Keys.G))
+            {
+                showgbuffer = !showgbuffer;
+            }
+
             if (KeyJustPressed(Keys.D3))
             {
                 raybox = !raybox;
@@ -425,26 +431,28 @@ namespace Game1
             {
                 distance = 0;
             }
-            float temp = camera.EyeHeightStanding - (CAMERA_PLAYER_EYE_HEIGHT + distance);
-            if (-temp > 30)
+
+            float eyeHeight = camera.EyeHeightStanding - (CAMERA_PLAYER_EYE_HEIGHT + distance);
+
+            if (-eyeHeight > 30)
             {
                 camera.Block();
             }
-            else if (temp > 30)
+            else if (eyeHeight > 30)
             {
-                camera.EyeHeightStanding += -Math.Sign(temp) * acceleration * 2 * (float)(gameTime.ElapsedGameTime.TotalSeconds);
+                camera.EyeHeightStanding += -Math.Sign(eyeHeight) * acceleration * 2 * (float)(gameTime.ElapsedGameTime.TotalSeconds);
             }
-            else if (Math.Truncate(temp) == 0)
+            else if (Math.Truncate(eyeHeight) == 0)
             {
                 camera.EyeHeightStanding = CAMERA_PLAYER_EYE_HEIGHT + distance;
             }
-            else if (Math.Abs(temp) < 5)
+            else if (Math.Abs(eyeHeight) < 5)
             {
-                camera.EyeHeightStanding += -Math.Sign(temp) * acceleration / 2 * (float)(gameTime.ElapsedGameTime.TotalSeconds);
+                camera.EyeHeightStanding += -Math.Sign(eyeHeight) * acceleration / 2 * (float)(gameTime.ElapsedGameTime.TotalSeconds);
             }
             else
             {
-                camera.EyeHeightStanding += -Math.Sign(temp) * acceleration * (float)(gameTime.ElapsedGameTime.TotalSeconds);
+                camera.EyeHeightStanding += -Math.Sign(eyeHeight) * acceleration * (float)(gameTime.ElapsedGameTime.TotalSeconds);
             }
 
 
@@ -764,6 +772,8 @@ namespace Game1
             DrawPointLight(new Vector3(0, 25, 0), Color.White, 30, 1);
             DrawPointLight(new Vector3(0, 0, 70), Color.Wheat, 55 + 10 * (float)Math.Sin(5 * angle), 3);
 
+            //DrawPointLight(slonce, Color.Wheat, 500, 30);
+
             GraphicsDevice.BlendState = BlendState.Opaque;
             GraphicsDevice.DepthStencilState = DepthStencilState.None;
             GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
@@ -841,6 +851,19 @@ namespace Game1
                 mesh.Draw();
             }
 
+            foreach (ModelMesh mesh in skybox.Meshes)
+            {
+                foreach (Effect effect in mesh.Effects)
+                {
+                    effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * camera.worldMatrix * Matrix.CreateScale(5000));
+                    effect.Parameters["View"].SetValue(camera.ViewMatrix);
+                    effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
+                    effect.Parameters["Texture"].SetValue(handstex);
+                }
+                mesh.Draw();
+            }
+
+
             //foreach (ModelMesh mesh in skybox.Meshes)
             //{
             //    foreach (Effect effect in mesh.Effects)
@@ -862,43 +885,44 @@ namespace Game1
             ResolveGBuffer();
             DrawLights(gameTime);
 
-            //GraphicsDevice.SetRenderTarget(fxaaTarget);
+            GraphicsDevice.SetRenderTarget(fxaaTarget);
             DrawFinal();
-            //GraphicsDevice.SetRenderTarget(null);
+            GraphicsDevice.SetRenderTarget(null);
 
-            //if (useFXAA)
-            //{
-            //    float w = fxaaTarget.Width;
-            //    float h = fxaaTarget.Height;
-            //    fxaaEffect.CurrentTechnique = fxaaEffect.Techniques["ppfxaa_PC"];
-            //    fxaaEffect.Parameters["fxaaQualitySubpix"].SetValue(fxaaQualitySubpix);
-            //    fxaaEffect.Parameters["fxaaQualityEdgeThreshold"].SetValue(fxaaQualityEdgeThreshold);
-            //    fxaaEffect.Parameters["fxaaQualityEdgeThresholdMin"].SetValue(fxaaQualityEdgeThresholdMin);
-            //    fxaaEffect.Parameters["invViewportWidth"].SetValue(1f / w);
-            //    fxaaEffect.Parameters["invViewportHeight"].SetValue(1f / h);
-            //    fxaaEffect.Parameters["texScreen"].SetValue((Texture2D)fxaaTarget);
+            if (useFXAA)
+            {
+                float w = fxaaTarget.Width;
+                float h = fxaaTarget.Height;
+                fxaaEffect.CurrentTechnique = fxaaEffect.Techniques["ppfxaa_PC"];
+                fxaaEffect.Parameters["fxaaQualitySubpix"].SetValue(fxaaQualitySubpix);
+                fxaaEffect.Parameters["fxaaQualityEdgeThreshold"].SetValue(fxaaQualityEdgeThreshold);
+                fxaaEffect.Parameters["fxaaQualityEdgeThresholdMin"].SetValue(fxaaQualityEdgeThresholdMin);
+                fxaaEffect.Parameters["invViewportWidth"].SetValue(1f / w);
+                fxaaEffect.Parameters["invViewportHeight"].SetValue(1f / h);
+                fxaaEffect.Parameters["texScreen"].SetValue((Texture2D)fxaaTarget);
 
-            //    spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.DepthRead, RasterizerState.CullCounterClockwise, fxaaEffect);
-            //    spriteBatch.Draw((Texture2D)fxaaTarget, new Rectangle(0, 0, fxaaTarget.Width, fxaaTarget.Height), Color.White);
-            //    spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);
-            //    DrawText();
-            //    //DrawGBuffer();
-            //    spriteBatch.End();
-            //}
-            //else
-            //{
-            //    spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
-            //    spriteBatch.Draw((Texture2D)fxaaTarget, Vector2.Zero, Color.White);
-            //    spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);
-            //    DrawText();
-            //    //DrawGBuffer();
-            //    spriteBatch.End();
-            //}
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.DepthRead, RasterizerState.CullCounterClockwise, fxaaEffect);
+                spriteBatch.Draw((Texture2D)fxaaTarget, new Rectangle(0, 0, fxaaTarget.Width, fxaaTarget.Height), Color.White);
+                //spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);
+                //DrawText();
+                //DrawGBuffer();
+                spriteBatch.End();
+            }
+            else
+            {
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+                spriteBatch.Draw((Texture2D)fxaaTarget, Vector2.Zero, Color.White);
+                //spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);
+                //DrawText();
+                //DrawGBuffer();
+                spriteBatch.End();
+            }
 
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
             spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);
             DrawText();
-            //DrawGBuffer();
+            if(showgbuffer)
+                DrawGBuffer();
             spriteBatch.End();
 
             base.Draw(gameTime);
@@ -909,10 +933,12 @@ namespace Game1
         {
             int halfWidth = GraphicsDevice.Viewport.Width / 2;
             int halfHeight = GraphicsDevice.Viewport.Height / 2;
+            GraphicsDevice.Clear(Color.Black);
 
             spriteBatch.Draw(colorTarget, new Rectangle(0, 0, halfWidth, halfHeight), Color.White);
             spriteBatch.Draw(normalTarget, new Rectangle(0, halfHeight, halfWidth, halfHeight), Color.White);
             spriteBatch.Draw(depthTarget, new Rectangle(halfWidth, 0, halfWidth, halfHeight), Color.White);
+            spriteBatch.Draw(fxaaTarget, new Rectangle(halfWidth, halfHeight, halfWidth, halfHeight), Color.White);
         }
     }
 }
