@@ -1,11 +1,12 @@
-﻿#define VS_SHADERMODEL vs_4_0_level_9_1
-#define PS_SHADERMODEL ps_4_0_level_9_1
+﻿#define VS_SHADERMODEL vs_4_0
+#define PS_SHADERMODEL ps_4_0
 
 float4x4 World;
 float4x4 View;
 float4x4 Projection;
 float specularIntensity = 0.8f;
 float specularPower = 0.5f; 
+float4 heightcolor = float4(1, 0, 0, 1);
 
 texture Texture;
 sampler diffuseSampler = sampler_state
@@ -54,6 +55,7 @@ struct VertexShaderOutput
     float2 TexCoord : TEXCOORD0;
     float2 Depth : TEXCOORD1;
     float3x3 tangentToWorld : TEXCOORD2;
+	float4x4 instanceTransform : BLENDWEIGHT;
 };
 
 VertexShaderOutput VertexShaderFunction(VertexShaderInput input, float4x4 instanceTransform)
@@ -73,7 +75,7 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input, float4x4 instan
     output.tangentToWorld[0] = mul(input.Tangent, instanceTransform);
     output.tangentToWorld[1] = mul(input.Binormal, instanceTransform);
     output.tangentToWorld[2] = mul(input.Normal, instanceTransform);
-
+	output.instanceTransform = instanceTransform;
     return output;
 }
 
@@ -88,7 +90,8 @@ PixelShaderOutput PixelShaderFunction(VertexShaderOutput input)
 {
     PixelShaderOutput output;
     output.Color = tex2D(diffuseSampler, input.TexCoord);
-    
+
+	//output.Color *= heightcolor * World[3][1];
     float4 specularAttributes = tex2D(specularSampler, input.TexCoord);
     //specular Intensity
     output.Color.a = specularAttributes.r;
@@ -109,6 +112,42 @@ PixelShaderOutput PixelShaderFunction(VertexShaderOutput input)
 
     output.Depth = input.Depth.x / input.Depth.y;
     return output;
+}
+
+
+PixelShaderOutput PixelShaderFunctionColor(VertexShaderOutput input)
+{
+	PixelShaderOutput output;
+	//output.Color = tex2D(diffuseSampler, input.TexCoord);
+	if (input.instanceTransform[3][1] > 0)
+	{
+		output.Color = tex2D(diffuseSampler, float2(0, input.instanceTransform[3][1] / 25));
+	}
+	else
+	{
+		output.Color = tex2D(diffuseSampler, float2(0, 0));
+	}
+	//output.Color *= float4 (0.01*input.instanceTransform[3][1], 1-0.01*input.instanceTransform[3][1], 0, 1);
+	float4 specularAttributes = tex2D(specularSampler, input.TexCoord);
+	//specular Intensity
+	output.Color.a = specularAttributes.r;
+
+	// read the normal from the normal map
+	float3 normalFromMap = tex2D(normalSampler, input.TexCoord);
+	//tranform to [-1,1]
+	normalFromMap = 2.0f * normalFromMap - 1.0f;
+	//transform into world space
+	normalFromMap = mul(normalFromMap, input.tangentToWorld);
+	//normalize the result
+	normalFromMap = normalize(normalFromMap);
+	//output the normal, in [0,1] space
+	output.Normal.rgb = 0.5f * (normalFromMap + 1.0f);
+
+	//specular Power
+	output.Normal.a = specularAttributes.a;
+
+	output.Depth = input.Depth.x / input.Depth.y;
+	return output;
 }
 
 
@@ -138,5 +177,14 @@ technique Instancing
 	{
 		VertexShader = compile VS_SHADERMODEL HardwareInstancingVertexShader();
 		PixelShader = compile PS_SHADERMODEL PixelShaderFunction();
+	}
+};
+
+technique InstancingColor
+{
+	pass P0
+	{
+		VertexShader = compile VS_SHADERMODEL HardwareInstancingVertexShader();
+		PixelShader = compile PS_SHADERMODEL PixelShaderFunctionColor();
 	}
 };

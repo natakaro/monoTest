@@ -44,7 +44,7 @@ namespace Game1
             graphicsDevice = game.GraphicsDevice;
             model = contentManager.Load<Model>("1");
             effect = contentManager.Load<Effect>("Effects/RenderGBuffer");
-            tex = contentManager.Load<Texture2D>("textchampfer");
+            tex = contentManager.Load<Texture2D>("gradient");
             this.camera = camera;
             //instances = insta;
             modelBones = new Matrix[model.Bones.Count];
@@ -124,7 +124,7 @@ namespace Game1
                         // Set up the instance rendering effect.
                         //meshPart.Effect = effect;
 
-                        effect.CurrentTechnique = effect.Techniques["Instancing"];
+                        effect.CurrentTechnique = effect.Techniques["InstancingColor"];
 
                         effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index]);
                         effect.Parameters["View"].SetValue(camera.ViewMatrix);
