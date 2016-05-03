@@ -87,7 +87,6 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
     return output;
 }
 
-float2 halfPixel;
 float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 {
     //obtain screen position
@@ -97,8 +96,6 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
     //the screen coordinates are in [-1,1]*[1,-1]
     //the texture coordinates need to be in [0,1]*[0,1]
     float2 texCoord = 0.5f * (float2(input.ScreenPosition.x,-input.ScreenPosition.y) + 1);
-    //allign texels to pixels
-    texCoord -=halfPixel;
 
     //get normal data from the normalMap
     float4 normalData = tex2D(normalSampler,texCoord);

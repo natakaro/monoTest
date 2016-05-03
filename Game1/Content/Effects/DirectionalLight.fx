@@ -60,14 +60,12 @@ struct VertexShaderOutput
     float2 TexCoord : TEXCOORD0;
 };
 
-float2 halfPixel;
-
 VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 {
     VertexShaderOutput output;
     output.Position = float4(input.Position,1);
     //align texture coordinates
-    output.TexCoord = input.TexCoord - halfPixel;
+    output.TexCoord = input.TexCoord;
     return output;
 }
 

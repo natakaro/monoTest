@@ -36,8 +36,6 @@ namespace Game1
         private Effect pointLightEffect;
         private Effect finalCombineEffect;
 
-        private Vector2 halfPixel;
-
         private Model sphereModel;
 
         TestBox testbox;
@@ -47,7 +45,6 @@ namespace Game1
         Texture2D handstex;
 
         float acceleration = 100.0f; // przyspieszenie przy wspinaniu i opadaniu
-
 
         private bool instancing = true;
         private bool useFXAA = true;
@@ -137,14 +134,14 @@ namespace Game1
 
             // Setup frame buffer.
             graphics.SynchronizeWithVerticalRetrace = false; //vsync
-            graphics.PreferredBackBufferWidth = 1920;
-            graphics.PreferredBackBufferHeight = 1080;
+            graphics.PreferredBackBufferWidth = 1366;
+            graphics.PreferredBackBufferHeight = 768;
             graphics.PreferMultiSampling = true;
             graphics.ApplyChanges();
 
             Window.Position = new Point(0, 0);
 
-            graphics.ToggleFullScreen();
+            //graphics.ToggleFullScreen();
 
             // Initial position for text rendering.
             fontPos = new Vector2(1.0f, 1.0f);
@@ -190,14 +187,6 @@ namespace Game1
 
         protected override void LoadContent()
         {
-            halfPixel = new Vector2()
-            {
-                //X = 0.5f / GraphicsDevice.PresentationParameters.BackBufferWidth,
-                //Y = 0.5f / GraphicsDevice.PresentationParameters.BackBufferHeight
-                X = 0f / GraphicsDevice.PresentationParameters.BackBufferWidth,
-                Y = 0f / GraphicsDevice.PresentationParameters.BackBufferHeight
-            };
-
             cross = Content.Load<Texture2D>("cross_cross");
             spriteFont = Content.Load<SpriteFont>(@"fonts\DemoFont");
             temp = new InstancingDraw(this, camera, Content);
@@ -409,69 +398,30 @@ namespace Game1
 
             ProcessKeyboard();
 
-            //poruszanie po y w zaleznosci od pozycji tila - czy powinno to byc w update a nie gdzies indziej?
-            //cameraSphere.Center = camera.Position - new Vector3(0, 30, 0);
-            //Ray yRay = camera.GetDownwardRay();
             Ray yRay = camera.MovingRay();
             IntersectionRecord ir = octree.HighestIntersection(yRay);
 
             if (ir != null && ir.DrawableObjectObject != null)//..ujowy if ale działa
             {
-                //dla debugu, wywalic potem
-                //distance = (float)yRay.Intersects(ir.DrawableObjectObject.BoundingBox); //paskudne
-                //camera.Move(0, (distance-20)*-1, 0);
-                //distance = ir.DrawableObjectObject.Position.Y; //prosciej
                 distance = ir.DrawableObjectObject.BoundingBox.Max.Y;
-                //camera.EyeHeightStanding = CAMERA_PLAYER_EYE_HEIGHT + distance;
-                //camera.Move(0, (camera.Position.Y - distance-20) * -1, 0); //move jest natychmiastowy a nie plynny jak cala reszta kamery wiec wyglada niefajnie, plus do tego psuje kucanie - uzyc czegos z velocity w kamerze?
-                //camera.CurrentY = distance*10;
                 tileStandingOn = ir.DrawableObjectObject;
             }
+
             if (ir.DrawableObjectObject == null)
-            {
                 distance = 0;
-            }
 
             float eyeHeight = camera.EyeHeightStanding - (CAMERA_PLAYER_EYE_HEIGHT + distance);
 
             if (-eyeHeight > 30)
-            {
                 camera.Block();
-            }
             else if (eyeHeight > 30)
-            {
                 camera.EyeHeightStanding += -Math.Sign(eyeHeight) * acceleration * 2 * (float)(gameTime.ElapsedGameTime.TotalSeconds);
-            }
             else if (Math.Truncate(eyeHeight) == 0)
-            {
                 camera.EyeHeightStanding = CAMERA_PLAYER_EYE_HEIGHT + distance;
-            }
             else if (Math.Abs(eyeHeight) < 5)
-            {
                 camera.EyeHeightStanding += -Math.Sign(eyeHeight) * acceleration / 2 * (float)(gameTime.ElapsedGameTime.TotalSeconds);
-            }
             else
-            {
                 camera.EyeHeightStanding += -Math.Sign(eyeHeight) * acceleration * (float)(gameTime.ElapsedGameTime.TotalSeconds);
-            }
-
-
-            /*if (Math.Abs(camera.EyeHeightStanding - CAMERA_PLAYER_EYE_HEIGHT + distance) <= 0.1f)
-            {
-                camera.EyeHeightStanding = CAMERA_PLAYER_EYE_HEIGHT + distance;
-            }
-            if (Math.Abs(camera.EyeHeightStanding - CAMERA_PLAYER_EYE_HEIGHT + distance) > 100)
-            {
-                temp = (distance / 1000);
-            }
-            if (camera.EyeHeightStanding > (CAMERA_PLAYER_EYE_HEIGHT + distance))
-            {
-                camera.EyeHeightStanding -= 0.1f + temp;
-            }
-            else if (camera.EyeHeightStanding < (CAMERA_PLAYER_EYE_HEIGHT + distance))
-            {
-                camera.EyeHeightStanding += 0.1f + temp;
-            }*/
 
             //obrót słońca wokół punktu 0,0
             slonce = Vector3.Transform(slonce, Matrix.CreateRotationY((float)(gameTime.ElapsedGameTime.TotalSeconds)));
@@ -499,7 +449,6 @@ namespace Game1
                     selected_obj.Selected = true;
                 }
             }
-
 
             octree.Update(gameTime);
             UpdateFrameRate(gameTime);
@@ -543,7 +492,7 @@ namespace Game1
                 buffer.AppendLine();
                 buffer.AppendLine("Press H to hide help");
             }
-            else if (tileStandingOn != null) //chwilowe obejscie, wywalic potem caly elseif
+            else
             {
                 buffer.AppendFormat("FPS: {0}\n", framesPerSecond);
                 //buffer.AppendFormat("Technique: {0}\n",
@@ -612,56 +561,6 @@ namespace Game1
                 buffer.AppendFormat("  Selected Spell: {0}\n",
                     camera.GetMouseRay(this.GraphicsDevice.Viewport).Direction.ToString());
 
-
-
-                buffer.Append("\nPress H to display help");
-            }
-            else
-            {
-                buffer.AppendFormat("FPS: {0}\n", framesPerSecond);
-                //buffer.AppendFormat("Technique: {0}\n",
-                //    (enableParallax ? "Parallax normal mapping" : "Normal mapping"));
-                buffer.AppendFormat("Mouse smoothing: {0}\n\n",
-                    (camera.EnableMouseSmoothing ? "on" : "off"));
-                buffer.Append("Camera:\n");
-                buffer.AppendFormat("  Position: x:{0} y:{1} z:{2}\n",
-                    camera.Position.X.ToString("f2"),
-                    camera.Position.Y.ToString("f2"),
-                    camera.Position.Z.ToString("f2"));
-                buffer.AppendFormat("  Orientation: heading:{0} pitch:{1}\n",
-                    camera.HeadingDegrees.ToString("f2"),
-                    camera.PitchDegrees.ToString("f2"));
-                buffer.AppendFormat("  Velocity: x:{0} y:{1} z:{2}\n",
-                    camera.CurrentVelocity.X.ToString("f2"),
-                    camera.CurrentVelocity.Y.ToString("f2"),
-                    camera.CurrentVelocity.Z.ToString("f2"));
-                buffer.AppendFormat("  Rotation speed: {0}\n",
-                    camera.RotationSpeed.ToString("f2"));
-
-                //buffer.AppendFormat("  Ray Position: x:{0} y:{1} z:{2}\n",
-                //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Position.X.ToString("f2"),
-                //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Position.Y.ToString("f2"),
-                //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Position.Z.ToString("f2"));
-                //buffer.AppendFormat("  Ray Direction: x:{0} y:{1} z:{2}\n",
-                //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.X.ToString("f2"),
-                //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.Y.ToString("f2"),
-                //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.Z.ToString("f2"));
-                //buffer.AppendFormat(mapa.mapa[0, 0].model.Meshes[0].BoundingSphere.Radius.ToString());
-                buffer.AppendFormat("Instancing: {0}\n",
-                    instancing.ToString());
-                buffer.AppendFormat(" Models drawn: {0}\n",
-                    modelsDrawn.ToString("f2"));
-                buffer.AppendFormat(" Models drawn instanced: {0}\n",
-                    modelsDrawnInstanced.ToString("f2"));
-                buffer.AppendFormat("  Ray Position: x:{0} y:{1} z:{2}\n",
-                    camera.GetDownwardRay().Position.X.ToString("f2"),
-                    camera.GetDownwardRay().Position.Y.ToString("f2"),
-                    camera.GetDownwardRay().Position.Z.ToString("f2"));
-                buffer.AppendFormat("  Ray Direction: x:{0} y:{1} z:{2}\n",
-                    camera.GetDownwardRay().Direction.X.ToString("f2"),
-                    camera.GetDownwardRay().Direction.Y.ToString("f2"),
-                    camera.GetDownwardRay().Direction.Z.ToString("f2"));
-
                 buffer.Append("\nPress H to display help");
             }
             spriteBatch.DrawString(spriteFont, buffer.ToString(), fontPos, Color.Yellow);
@@ -678,8 +577,6 @@ namespace Game1
 
             directionalLightEffect.Parameters["cameraPosition"].SetValue(camera.Position);
             directionalLightEffect.Parameters["InvertViewProjection"].SetValue(Matrix.Invert(camera.ViewProjectionMatrix));
-
-            directionalLightEffect.Parameters["halfPixel"].SetValue(halfPixel);
 
             directionalLightEffect.Techniques[0].Passes[0].Apply();
             quadRenderer.Render(Vector2.One * -1, Vector2.One);
@@ -709,8 +606,6 @@ namespace Game1
             //parameters for specular computations
             pointLightEffect.Parameters["cameraPosition"].SetValue(camera.Position);
             pointLightEffect.Parameters["InvertViewProjection"].SetValue(Matrix.Invert(camera.ViewProjectionMatrix));
-            //size of a halfpixel, for texture coordinates alignment
-            pointLightEffect.Parameters["halfPixel"].SetValue(halfPixel);
 
             //calculate the distance between the camera and light center
             float cameraToCenter = Vector3.Distance(camera.Position, lightPosition);
@@ -786,7 +681,6 @@ namespace Game1
             //Combine everything
             finalCombineEffect.Parameters["colorMap"].SetValue(colorTarget);
             finalCombineEffect.Parameters["lightMap"].SetValue(lightTarget);
-            finalCombineEffect.Parameters["halfPixel"].SetValue(halfPixel);
 
             finalCombineEffect.Techniques[0].Passes[0].Apply();
             //render a full-screen quad
@@ -938,7 +832,7 @@ namespace Game1
             spriteBatch.Draw(colorTarget, new Rectangle(0, 0, halfWidth, halfHeight), Color.White);
             spriteBatch.Draw(normalTarget, new Rectangle(0, halfHeight, halfWidth, halfHeight), Color.White);
             spriteBatch.Draw(depthTarget, new Rectangle(halfWidth, 0, halfWidth, halfHeight), Color.White);
-            spriteBatch.Draw(fxaaTarget, new Rectangle(halfWidth, halfHeight, halfWidth, halfHeight), Color.White);
+            spriteBatch.Draw(lightTarget, new Rectangle(halfWidth, halfHeight, halfWidth, halfHeight), Color.White);
         }
     }
 }
