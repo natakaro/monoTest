@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Text;
 using Game1.Spells;
 using Game1.Helpers;
+using Game1.Shadows;
 
 namespace Game1
 {
@@ -31,18 +32,23 @@ namespace Game1
         private RenderTarget2D depthTarget;
         private RenderTarget2D lightTarget;
 
+        private RenderTarget2D testTarget;
+
         private Effect clearBufferEffect;
         private Effect directionalLightEffect;
         private Effect pointLightEffect;
         private Effect finalCombineEffect;
 
+        private ShadowRenderer shadowRenderer;
+
         private Model sphereModel;
 
-        TestBox testbox;
-        Wall wall;
         Model skybox;
         Model hands;
         Texture2D handstex;
+
+        Model village; //shadow test
+        Matrix[] villageTransforms;
 
         float acceleration = 100.0f; // przyspieszenie przy wspinaniu i opadaniu
 
@@ -134,8 +140,8 @@ namespace Game1
 
             // Setup frame buffer.
             graphics.SynchronizeWithVerticalRetrace = false; //vsync
-            graphics.PreferredBackBufferWidth = 1366;
-            graphics.PreferredBackBufferHeight = 768;
+            graphics.PreferredBackBufferWidth = 1280;
+            graphics.PreferredBackBufferHeight = 720;
             graphics.PreferMultiSampling = true;
             graphics.ApplyChanges();
 
@@ -172,12 +178,8 @@ namespace Game1
 
             currentKeyboardState = Keyboard.GetState();
 
-            testbox = new TestBox(this, camera.worldMatrix);
-            wall = new Wall(this, camera.worldMatrix);
             //octree
             octree = new Octree(Map.CreateMap(this, 30, camera.worldMatrix));
-            octree.m_objects.Add(testbox);
-            octree.m_objects.Add(wall);
 
             spellMoveTerrain = new SpellMoveTerrain(octree);
             spellFireball = new SpellFireball(this, camera, octree);
@@ -208,9 +210,17 @@ namespace Game1
             pointLightEffect = Content.Load<Effect>("Effects/PointLight");
             finalCombineEffect = Content.Load<Effect>("Effects/CombineFinal");
 
+
+            village = Content.Load<Model>("Models/village_house_obj");
+            villageTransforms = new Matrix[village.Bones.Count];
+            village.CopyAbsoluteBoneTransformsTo(villageTransforms);
+            shadowRenderer = new ShadowRenderer(GraphicsDevice, Content, village);
+
             sphereModel = Content.Load<Model>("Models/sphere");
 
             fxaaEffect = Content.Load<Effect>("Effects/fxaa");
+
+            
 
             spriteBatch = new SpriteBatch(GraphicsDevice);
             base.LoadContent();
@@ -689,22 +699,22 @@ namespace Game1
 
         protected override void Draw(GameTime gameTime)
         {
-            SetGBuffer();
-            ClearGBuffer();
+            //SetGBuffer();
+            //ClearGBuffer();
 
-            //GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.CornflowerBlue);
 
             GraphicsDevice.BlendState = BlendState.Opaque;
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 
             modelsDrawn = 0;
             modelsDrawnInstanced = 0;
-            
+
             //Renders all visible objects by iterating through the oct tree recursively and testing for intersection 
             //with the current camera view frustum
+            List<IntersectionRecord> list = octree.AllIntersections(camera.Frustum);
             if (instancing)
             {
-                List<IntersectionRecord> list = octree.AllIntersections(camera.Frustum);
                 List<IntersectionRecord> instanceList = list.FindAll(ir => ir.DrawableObjectObject.IsInstanced == true);
                 list.RemoveAll(ir => ir.DrawableObjectObject.IsInstanced == true);
                 temp.DrawModelHardwareInstancing(instanceList);
@@ -718,7 +728,7 @@ namespace Game1
             }
             else
             {
-                foreach (IntersectionRecord ir in octree.AllIntersections(camera.Frustum))
+                foreach (IntersectionRecord ir in list)
                 {
                     // ir.DrawableObjectObject.UpdateLOD(camera);
                     ir.DrawableObjectObject.Draw(camera);
@@ -776,11 +786,20 @@ namespace Game1
                 Content.Load<Model>("Monocube").Draw(camera.worldMatrix * Matrix.CreateTranslation(camera.MovingRay().Position), camera.viewMatrix, camera.projMatrix);
             }
 
-            ResolveGBuffer();
-            DrawLights(gameTime);
+            //ResolveGBuffer();
+
+            //DrawLights(gameTime);
+
+            List<DrawableObject> lista = new List<DrawableObject>();
+            foreach (IntersectionRecord ir in list)
+                lista.Add(ir.DrawableObjectObject);
+
+            testTarget = shadowRenderer.RenderShadowMap(GraphicsDevice, camera, Matrix.Identity, lista);
 
             GraphicsDevice.SetRenderTarget(fxaaTarget);
-            DrawFinal();
+            GraphicsDevice.Clear(Color.CornflowerBlue);
+            //DrawFinal();
+            shadowRenderer.Render(GraphicsDevice, camera, Matrix.Identity, list);
             GraphicsDevice.SetRenderTarget(null);
 
             if (useFXAA)
@@ -832,7 +851,7 @@ namespace Game1
             spriteBatch.Draw(colorTarget, new Rectangle(0, 0, halfWidth, halfHeight), Color.White);
             spriteBatch.Draw(normalTarget, new Rectangle(0, halfHeight, halfWidth, halfHeight), Color.White);
             spriteBatch.Draw(depthTarget, new Rectangle(halfWidth, 0, halfWidth, halfHeight), Color.White);
-            spriteBatch.Draw(lightTarget, new Rectangle(halfWidth, halfHeight, halfWidth, halfHeight), Color.White);
+            spriteBatch.Draw(testTarget, new Rectangle(halfWidth, halfHeight, halfWidth, halfHeight), Color.White);
         }
     }
 }

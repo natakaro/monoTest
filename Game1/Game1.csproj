@@ -43,6 +43,9 @@
     <Compile Include="Helpers\DebugShapeRenderer.cs" />
     <Compile Include="DrawableObject.cs" />
     <Compile Include="Helpers\QuadRenderer.cs" />
+    <Compile Include="Helpers\RasterizerStateUtility.cs" />
+    <Compile Include="Helpers\SamplerStateUtility.cs" />
+    <Compile Include="Helpers\Vector4Utility.cs" />
     <Compile Include="InstancingDraw.cs" />
     <Compile Include="IntersectionRecord.cs" />
     <Compile Include="Map.cs" />
@@ -50,12 +53,15 @@
     <Compile Include="Octree.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Shadows\ShadowCamera.cs" />
+    <Compile Include="Shadows\ShadowEffect.cs" />
+    <Compile Include="Shadows\ShadowMapEffect.cs" />
+    <Compile Include="Shadows\ShadowOrtographicCamera.cs" />
+    <Compile Include="Shadows\ShadowRenderer.cs" />
     <Compile Include="Sky.cs" />
     <Compile Include="Spells\SpellFireball.cs" />
     <Compile Include="Spells\SpellFireballProjectile.cs" />
     <Compile Include="Spells\SpellMoveTerrain.cs" />
-    <Compile Include="Wall.cs" />
-    <Compile Include="TestBox.cs" />
     <Compile Include="Tile.cs" />
   </ItemGroup>
   <ItemGroup>

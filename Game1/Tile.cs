@@ -13,8 +13,6 @@ namespace Game1
     class Tile : DrawableObject
     {
         Texture2D texture;
-        Model model;
-        Matrix[] modelBones;
 
         public void Initialize(ContentManager contentManager)
         {

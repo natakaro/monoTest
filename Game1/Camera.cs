@@ -1037,6 +1037,16 @@ namespace Game1
             get { return frustum; }
         }
 
+        public float FarZ
+        {
+            get { return zfar; }
+        }
+
+        public float NearZ
+        {
+            get { return znear; }
+        }
+
         #endregion
     }
 }

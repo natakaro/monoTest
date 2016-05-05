@@ -48,6 +48,8 @@ namespace Game1
         protected Vector3 acceleration;
         protected ObjectType type;
         protected Effect effect;
+        protected Model model;
+        protected Matrix[] modelBones;
 
         protected bool m_static = true;
         protected bool hasBounds = false;
@@ -379,6 +381,17 @@ namespace Game1
                 worldMatrix = value;
                 position = new Vector3(value.M41, value.M42, value.M43);
             }
+        }
+
+        public Model Model
+        {
+            get { return model; }
+            set { model = value; }
+        }
+
+        public Matrix[] ModelBones
+        {
+            get { return modelBones; }
         }
         #endregion
     }
