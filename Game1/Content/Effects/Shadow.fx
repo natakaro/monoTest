@@ -373,8 +373,8 @@ float4 PSMesh(VSOutput input,
     //float3 normalWS = normalize(input.NormalWS);
 
     // Convert color to grayscale, just beacuse it looks nicer.
-    //float diffuseValue = 0.299 * DiffuseColor.r + 0.587 * DiffuseColor.g + 0.114 * DiffuseColor.b;
-    //float3 diffuseAlbedo = float3(diffuseValue, diffuseValue, diffuseValue);
+    float diffuseValue = 0.299 * 1 + 0.587 * 1 + 0.114 * 1;
+    float3 diffuseAlbedo = float3(diffuseValue, diffuseValue, diffuseValue);
 
     float nDotL = saturate(dot(normal, LightDirection));
     uint2 screenPos = uint2(position.xy);
@@ -385,15 +385,15 @@ float4 PSMesh(VSOutput input,
     float3 lighting = 0.0f;
 
     // Add the directional light.
-    //lighting += nDotL * LightColor * diffuseAlbedo * (1.0f / 3.14159f) * shadowVisibility;
-    lighting += nDotL * LightColor  * (1.0f / 3.14159f) * shadowVisibility;
+    lighting += nDotL * LightColor * diffuseAlbedo * (1.0f / 3.14159f) * shadowVisibility;
+    //lighting += nDotL * LightColor  * (1.0f / 3.14159f) * shadowVisibility;
 
     // Ambient light.
-    //lighting += float3(0.2f, 0.2f, 0.2f) * 1.0f * diffuseAlbedo;
-    lighting += float3(0.2f, 0.2f, 0.2f) * 1.0f;
+    lighting += float3(0.2f, 0.2f, 0.2f) * 1.0f * diffuseAlbedo;
+    //lighting += float3(0.2f, 0.2f, 0.2f) * 1.0f;
 
     //reflexion vector
-    float3 reflectionVector = normalize(reflect(LightDirection, normal));
+    float3 reflectionVector = -(normalize(reflect(LightDirection, normal)));
     //camera-to-surface vector
     float3 directionToCamera = normalize(CameraPosWS - position);
     //compute specular light

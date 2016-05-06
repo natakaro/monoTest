@@ -32,8 +32,6 @@ namespace Game1
         private RenderTarget2D depthTarget;
         private RenderTarget2D lightTarget;
 
-        private RenderTarget2D testTarget;
-
         private Effect clearBufferEffect;
         private Effect directionalLightEffect;
         private Effect pointLightEffect;
@@ -48,9 +46,6 @@ namespace Game1
         Model hands;
         Model fireballModel;
         Texture2D handstex;
-
-        Model village; //shadow test
-        Matrix[] villageTransforms;
 
         float acceleration = 100.0f; // przyspieszenie przy wspinaniu i opadaniu
 
@@ -208,11 +203,7 @@ namespace Game1
             pointLightEffect = Content.Load<Effect>("Effects/PointLight");
             finalCombineEffect = Content.Load<Effect>("Effects/CombineFinal");
 
-
-            village = Content.Load<Model>("Models/village_house_obj");
-            villageTransforms = new Matrix[village.Bones.Count];
-            village.CopyAbsoluteBoneTransformsTo(villageTransforms);
-            shadowRenderer = new ShadowRenderer(GraphicsDevice, Content, village);
+            shadowRenderer = new ShadowRenderer(GraphicsDevice, Content);
 
             sphereModel = Content.Load<Model>("Models/sphere");
 
@@ -581,17 +572,18 @@ namespace Game1
 
         private void DrawDirectionalLight(Vector3 lightDirection, Color color)
         {
-            directionalLightEffect.Parameters["colorMap"].SetValue(colorTarget);
-            directionalLightEffect.Parameters["normalMap"].SetValue(normalTarget);
-            directionalLightEffect.Parameters["depthMap"].SetValue(depthTarget);
+            //directionalLightEffect.Parameters["colorMap"].SetValue(colorTarget);
+            //directionalLightEffect.Parameters["normalMap"].SetValue(normalTarget);
+            //directionalLightEffect.Parameters["depthMap"].SetValue(depthTarget);
 
-            directionalLightEffect.Parameters["lightDirection"].SetValue(lightDirection);
-            directionalLightEffect.Parameters["Color"].SetValue(color.ToVector3());
+            //directionalLightEffect.Parameters["lightDirection"].SetValue(lightDirection);
+            //directionalLightEffect.Parameters["Color"].SetValue(color.ToVector3());
 
-            directionalLightEffect.Parameters["cameraPosition"].SetValue(camera.Position);
-            directionalLightEffect.Parameters["InvertViewProjection"].SetValue(Matrix.Invert(camera.ViewProjectionMatrix));
+            //directionalLightEffect.Parameters["cameraPosition"].SetValue(camera.Position);
+            //directionalLightEffect.Parameters["InvertViewProjection"].SetValue(Matrix.Invert(camera.ViewProjectionMatrix));
 
-            directionalLightEffect.Techniques[0].Passes[0].Apply();
+            //directionalLightEffect.Techniques[0].Passes[0].Apply();
+            shadowRenderer.Render(GraphicsDevice, camera, Matrix.Identity, colorTarget, normalTarget, depthTarget);
             quadRenderer.Render(Vector2.One * -1, Vector2.One);
         }
 
@@ -650,11 +642,14 @@ namespace Game1
         {
             GraphicsDevice.SetRenderTarget(lightTarget);
             GraphicsDevice.Clear(Color.Transparent);
+
+            DrawDirectionalLight(new Vector3(0, -1f, 1), Color.DimGray);
             GraphicsDevice.BlendState = BlendState.AlphaBlend;
             GraphicsDevice.DepthStencilState = DepthStencilState.None;
 
             //draw some lights
-            DrawDirectionalLight(new Vector3(0, -1f, 1), Color.DimGray);
+            
+
             Color[] colors = new Color[10];
             colors[0] = Color.Red; colors[1] = Color.Blue;
             colors[2] = Color.IndianRed; colors[3] = Color.CornflowerBlue;
@@ -716,6 +711,11 @@ namespace Game1
             //Renders all visible objects by iterating through the oct tree recursively and testing for intersection 
             //with the current camera view frustum
             List<IntersectionRecord> list = octree.AllIntersections(camera.Frustum);
+
+            List<DrawableObject> lista = new List<DrawableObject>();
+            foreach (IntersectionRecord ir in list)
+                lista.Add(ir.DrawableObjectObject); //dla shadowmapy, wypadaloby zmienic na optymalniejsze
+
             if (instancing)
             {
                 List<IntersectionRecord> instanceList = list.FindAll(ir => ir.DrawableObjectObject.IsInstanced == true);
@@ -758,24 +758,11 @@ namespace Game1
                 mesh.Draw();
             }
 
-            foreach (ModelMesh mesh in skySphereModel.Meshes)
-            {
-                foreach (Effect effect in mesh.Effects)
-                {
-                    effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * camera.worldMatrix * Matrix.CreateScale(5000));
-                    effect.Parameters["View"].SetValue(camera.ViewMatrix);
-                    effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
-                    effect.Parameters["Texture"].SetValue(handstex);
-                }
-                mesh.Draw();
-            }
-
-
-            //foreach (ModelMesh mesh in skybox.Meshes)
+            //foreach (ModelMesh mesh in skySphereModel.Meshes)
             //{
             //    foreach (Effect effect in mesh.Effects)
             //    {
-            //        effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * Matrix.CreateScale(5000));
+            //        effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * camera.worldMatrix * Matrix.CreateScale(5000));
             //        effect.Parameters["View"].SetValue(camera.ViewMatrix);
             //        effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
             //        effect.Parameters["Texture"].SetValue(handstex);
@@ -790,20 +777,13 @@ namespace Game1
             }
 
             ResolveGBuffer();
+            shadowRenderer.RenderShadowMap(GraphicsDevice, camera, Matrix.Identity, lista);
 
             DrawLights(gameTime);
 
-            List<DrawableObject> lista = new List<DrawableObject>();
-            foreach (IntersectionRecord ir in list)
-                lista.Add(ir.DrawableObjectObject);
-
-            testTarget = shadowRenderer.RenderShadowMap(GraphicsDevice, camera, Matrix.Identity, lista);
-
             GraphicsDevice.SetRenderTarget(fxaaTarget);
             GraphicsDevice.Clear(Color.CornflowerBlue);
-            //DrawFinal();
-            shadowRenderer.Render(GraphicsDevice, camera, Matrix.Identity, list, colorTarget, normalTarget, depthTarget);
-            quadRenderer.Render(Vector2.One * -1, Vector2.One);
+            DrawFinal();
             GraphicsDevice.SetRenderTarget(null);
 
             if (useFXAA)
@@ -855,7 +835,7 @@ namespace Game1
             spriteBatch.Draw(colorTarget, new Rectangle(0, 0, halfWidth, halfHeight), Color.White);
             spriteBatch.Draw(normalTarget, new Rectangle(0, halfHeight, halfWidth, halfHeight), Color.White);
             spriteBatch.Draw(depthTarget, new Rectangle(halfWidth, 0, halfWidth, halfHeight), Color.White);
-            spriteBatch.Draw(testTarget, new Rectangle(halfWidth, halfHeight, halfWidth, halfHeight), Color.White);
+            spriteBatch.Draw(lightTarget, new Rectangle(halfWidth, halfHeight, halfWidth, halfHeight), Color.White);
         }
     }
 }
