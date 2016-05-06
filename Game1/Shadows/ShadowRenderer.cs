@@ -14,16 +14,12 @@ namespace Game1.Shadows
     {
         public const int NumCascades = 4;
         private const int ShadowMapSize = 2048;
-        private static readonly int[] kernelSizes = { 2, 3, 5, 7 };
-        public FixedFilterSize fixedFilterSize;
 
-        private bool stabilizeCascades = false;
-        private bool visualizeCascades = false;
-        private bool filterAcrossCascades = false;
         private Vector3 lightDirection;
 
         private ContentManager contentManager;
         private GraphicsDevice graphicsDevice;
+        private GameSettings settings;
 
         private ShadowEffect shadowEffect;
         private ShadowMapEffect shadowMapEffect;
@@ -32,17 +28,17 @@ namespace Game1.Shadows
         private float[] cascadeSplits;
         private Vector3[] frustumCorners;
 
-        public ShadowRenderer(GraphicsDevice graphicsDevice,
+        public ShadowRenderer(GraphicsDevice graphicsDevice, GameSettings settings,
                         ContentManager contentManager)
         {
             this.contentManager = contentManager;
             this.graphicsDevice = graphicsDevice;
+            this.settings = settings;
 
             cascadeSplits = new float[4];
             frustumCorners = new Vector3[8];
 
             lightDirection = Vector3.Normalize(new Vector3(1, 1, -1));
-            fixedFilterSize = FixedFilterSize.Filter2x2;
 
             shadowEffect = new ShadowEffect(graphicsDevice, contentManager.Load<Effect>("Effects/Shadow"));
             shadowMapEffect = new ShadowMapEffect(graphicsDevice, contentManager.Load<Effect>("Effects/ShadowMap"));
@@ -66,10 +62,10 @@ namespace Game1.Shadows
         public void RenderShadowMap(GraphicsDevice graphicsDevice, Camera camera, Matrix worldMatrix, List<DrawableObject> list)
         {
             // Set cascade split ratios.
-            cascadeSplits[0] = 0.05f;
-            cascadeSplits[1] = 0.15f;
-            cascadeSplits[2] = 0.50f;
-            cascadeSplits[3] = 1.0f;
+            cascadeSplits[0] = settings.SplitDistance0;
+            cascadeSplits[1] = settings.SplitDistance1;
+            cascadeSplits[2] = settings.SplitDistance2;
+            cascadeSplits[3] = settings.SplitDistance3; 
 
             var globalShadowMatrix = MakeGlobalShadowMatrix(camera);
             shadowEffect.ShadowMatrix = globalShadowMatrix;
@@ -113,7 +109,7 @@ namespace Game1.Shadows
                 Vector3 minExtents;
                 Vector3 maxExtents;
 
-                if (stabilizeCascades)
+                if (settings.StabilizeCascades)
                 {
                     // This needs to be constant for it to be stable
                     upDir = Vector3.Up;
@@ -152,7 +148,7 @@ namespace Game1.Shadows
                     maxExtents = maxes;
 
                     // Adjust the min/max to accommodate the filtering size
-                    var scale = (ShadowMapSize + kernelSizes[(int) fixedFilterSize]) / (float)ShadowMapSize;
+                    var scale = (ShadowMapSize + settings.FixedFilterKernelSize) / (float)ShadowMapSize;
                     minExtents.X *= scale;
                     minExtents.Y *= scale;
                     maxExtents.X *= scale;
@@ -170,7 +166,7 @@ namespace Game1.Shadows
                     0.0f, cascadeExtents.Z);
                 shadowCamera.SetLookAt(shadowCameraPos, frustumCenter, upDir);
 
-                if (stabilizeCascades)
+                if (settings.StabilizeCascades)
                 {
                     // Create the rounding matrix, by projecting the world-space origin and determining
                     // the fractional offset in texel space
@@ -195,7 +191,7 @@ namespace Game1.Shadows
                 }
 
                 // Draw the mesh with depth only, using the new shadow camera
-                RenderDepth(graphicsDevice, shadowCamera, worldMatrix, true, list);
+                RenderDepth(graphicsDevice, shadowCamera, worldMatrix, list);
 
                 // Apply the scale/offset matrix, which transforms from [-1,1]
                 // post-projection space to [0,1] UV space
@@ -260,7 +256,7 @@ namespace Game1.Shadows
             var upDir = camera.worldMatrix.Right;
 
             // This needs to be constant for it to be stable
-            if (stabilizeCascades)
+            if (settings.StabilizeCascades)
                 upDir = Vector3.Up;
 
             // Get position of the shadow camera
@@ -275,14 +271,12 @@ namespace Game1.Shadows
             return shadowCamera.ViewProjection * texScaleBias;
         }
 
-        private void RenderDepth(GraphicsDevice graphicsDevice, ShadowCamera camera, Matrix worldMatrix, bool shadowRendering, List<DrawableObject> list)
+        private void RenderDepth(GraphicsDevice graphicsDevice, ShadowCamera camera, Matrix worldMatrix, List<DrawableObject> list)
         {
             graphicsDevice.BlendState = BlendState.Opaque;
             graphicsDevice.DepthStencilState = DepthStencilState.Default;
 
-            graphicsDevice.RasterizerState = shadowRendering
-                ? RasterizerStateUtility.CreateShadowMap
-                : RasterizerState.CullCounterClockwise;
+            graphicsDevice.RasterizerState = RasterizerStateUtility.CreateShadowMap;
 
             var worldViewProjection = worldMatrix * camera.ViewProjection;
 
@@ -308,7 +302,7 @@ namespace Game1.Shadows
             }
         }
 
-        public void Render(GraphicsDevice graphicsDevice, Camera camera, Matrix worldMatrix,
+        public void Render(GraphicsDevice graphicsDevice, Camera camera, Matrix worldMatrix, Vector3 lightDirection, Vector3 lightColor,
             RenderTarget2D colorMap, RenderTarget2D normalMap, RenderTarget2D depthMap)
         {
             // Render scene.
@@ -319,11 +313,11 @@ namespace Game1.Shadows
 
             graphicsDevice.SamplerStates[0] = SamplerStateUtility.ShadowMap;
 
-            shadowEffect.VisualizeCascades = visualizeCascades;
-            shadowEffect.FilterAcrossCascades = filterAcrossCascades;
-            shadowEffect.FilterSize = fixedFilterSize;
-            shadowEffect.Bias = 0.002f;
-            shadowEffect.OffsetScale = 0.0f;
+            shadowEffect.VisualizeCascades = settings.VisualizeCascades;
+            shadowEffect.FilterAcrossCascades = settings.FilterAcrossCascades;
+            shadowEffect.FilterSize = settings.FixedFilterSize;
+            shadowEffect.Bias = settings.Bias;
+            shadowEffect.OffsetScale = settings.OffsetScale;
 
             shadowEffect.ViewProjection = camera.ViewProjectionMatrix;
             shadowEffect.CameraPosWS = camera.Position;
@@ -331,7 +325,7 @@ namespace Game1.Shadows
             shadowEffect.ShadowMap = shadowMap;
             
             shadowEffect.LightDirection = lightDirection;
-            shadowEffect.LightColor = new Vector3(3, 3, 3);
+            shadowEffect.LightColor = lightColor;
 
             shadowEffect.ColorMap = colorMap;
             shadowEffect.NormalMap = normalMap;

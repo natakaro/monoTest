@@ -38,6 +38,7 @@ namespace Game1
         private Effect finalCombineEffect;
 
         private ShadowRenderer shadowRenderer;
+        private GameSettings settings;
 
         private Model sphereModel;
 
@@ -128,8 +129,8 @@ namespace Game1
             camera = new Camera(this);
             Components.Add(camera);
 
-            quadRenderer = new QuadRenderComponent(this);
-            Components.Add(quadRenderer);
+            Components.Add(quadRenderer = new QuadRenderComponent(this));
+            Components.Add(settings = new GameSettings(this));
 
             // Setup the window to be a quarter the size of the desktop.
             windowWidth = GraphicsDevice.DisplayMode.Width;
@@ -203,7 +204,7 @@ namespace Game1
             pointLightEffect = Content.Load<Effect>("Effects/PointLight");
             finalCombineEffect = Content.Load<Effect>("Effects/CombineFinal");
 
-            shadowRenderer = new ShadowRenderer(GraphicsDevice, Content);
+            shadowRenderer = new ShadowRenderer(GraphicsDevice, settings, Content);
 
             sphereModel = Content.Load<Model>("Models/sphere");
 
@@ -325,7 +326,7 @@ namespace Game1
                     camera.RotationSpeed = 0.01f;
             }
 
-            if (KeyJustPressed(Keys.F))
+            if (KeyJustPressed(Keys.X))
             {
                 useFXAA = !useFXAA;
             }
@@ -499,8 +500,6 @@ namespace Game1
             else
             {
                 buffer.AppendFormat("FPS: {0}\n", framesPerSecond);
-                //buffer.AppendFormat("Technique: {0}\n",
-                //    (enableParallax ? "Parallax normal mapping" : "Normal mapping"));
                 buffer.AppendFormat("Mouse smoothing: {0}\n\n",
                     (camera.EnableMouseSmoothing ? "on" : "off"));
                 buffer.Append("Camera:\n");
@@ -518,59 +517,40 @@ namespace Game1
                 buffer.AppendFormat("  Rotation speed: {0}\n",
                     camera.RotationSpeed.ToString("f2"));
 
-                //buffer.AppendFormat("  Ray Position: x:{0} y:{1} z:{2}\n",
-                //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Position.X.ToString("f2"),
-                //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Position.Y.ToString("f2"),
-                //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Position.Z.ToString("f2"));
-                //buffer.AppendFormat("  Ray Direction: x:{0} y:{1} z:{2}\n",
-                //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.X.ToString("f2"),
-                //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.Y.ToString("f2"),
-                //    camera.GetMouseRay(graphics.GraphicsDevice.Viewport).Direction.Z.ToString("f2"));
-                //buffer.AppendFormat(mapa.mapa[0, 0].model.Meshes[0].BoundingSphere.Radius.ToString());
                 buffer.AppendFormat("Instancing: {0}\n",
                     instancing.ToString());
                 buffer.AppendFormat(" Models drawn: {0}\n",
                     modelsDrawn.ToString("f2"));
                 buffer.AppendFormat(" Models drawn instanced: {0}\n",
                     modelsDrawnInstanced.ToString("f2"));
-                buffer.AppendFormat("  Ray Position: x:{0} y:{1} z:{2}\n",
-                    camera.GetDownwardRay().Position.X.ToString("f2"),
-                    camera.GetDownwardRay().Position.Y.ToString("f2"),
-                    camera.GetDownwardRay().Position.Z.ToString("f2"));
-                buffer.AppendFormat("  Ray Direction: x:{0} y:{1} z:{2}\n",
-                    camera.GetDownwardRay().Direction.X.ToString("f2"),
-                    camera.GetDownwardRay().Direction.Y.ToString("f2"),
-                    camera.GetDownwardRay().Direction.Z.ToString("f2"));
 
-                buffer.AppendFormat(" Distance: {0}\n",
-                    distance.ToString("f2"));
-
-                buffer.AppendFormat(" TileStandingOn Y: {0}\n",
-                    tileStandingOn.Position.Y.ToString("f2"));
-
-                buffer.AppendFormat("  MovingRay Position: x:{0} y:{1} z:{2}\n",
-                    camera.MovingRay().Position.X.ToString("f2"),
-                    camera.MovingRay().Position.Y.ToString("f2"),
-                    camera.MovingRay().Position.Z.ToString("f2"));
-                Vector3 temp = slonce - camera.Position;
-                buffer.AppendFormat(" Sun distance Y: {0}\n",
-                    temp.Length().ToString("f2"));
+                buffer.Append("Shadows:\n");
+                buffer.AppendFormat(" Filter size (F): {0}\n", 
+                    settings.FixedFilterSize.ToString());
+                buffer.AppendFormat(" Stabilize cascades? (C): {0}\n",
+                    settings.StabilizeCascades.ToString());
+                buffer.AppendFormat(" Visualize cascades? (V): {0}\n",
+                    settings.VisualizeCascades.ToString());
+                buffer.AppendFormat(" Filter across cascades? (K): {0}\n",
+                    settings.FilterAcrossCascades.ToString());
+                buffer.AppendFormat(" Bias (b / B): {0}\n",
+                    settings.Bias.ToString());
+                buffer.AppendFormat(" Normal offset (o / O): {0}\n",
+                    settings.OffsetScale.ToString());
 
                 buffer.AppendFormat(" MouseWheel: {0}\n",
                     currentMouseState.ScrollWheelValue.ToString("f2"));
-
                 buffer.AppendFormat("  Selected Spell: {0}\n",
                     selectedSpell.ToString());
-
                 buffer.AppendFormat("  Selected Spell: {0}\n",
-                    camera.GetMouseRay(this.GraphicsDevice.Viewport).Direction.ToString());
+                    camera.GetMouseRay(GraphicsDevice.Viewport).Direction.ToString());
 
                 buffer.Append("\nPress H to display help");
             }
             spriteBatch.DrawString(spriteFont, buffer.ToString(), fontPos, Color.Yellow);
         }
 
-        private void DrawDirectionalLight(Vector3 lightDirection, Color color)
+        private void DrawDirectionalLight(Vector3 lightDirection, Vector3 lightColor)
         {
             //directionalLightEffect.Parameters["colorMap"].SetValue(colorTarget);
             //directionalLightEffect.Parameters["normalMap"].SetValue(normalTarget);
@@ -583,7 +563,7 @@ namespace Game1
             //directionalLightEffect.Parameters["InvertViewProjection"].SetValue(Matrix.Invert(camera.ViewProjectionMatrix));
 
             //directionalLightEffect.Techniques[0].Passes[0].Apply();
-            shadowRenderer.Render(GraphicsDevice, camera, Matrix.Identity, colorTarget, normalTarget, depthTarget);
+            shadowRenderer.Render(GraphicsDevice, camera, Matrix.Identity, lightDirection, lightColor, colorTarget, normalTarget, depthTarget);
             quadRenderer.Render(Vector2.One * -1, Vector2.One);
         }
 
@@ -643,13 +623,12 @@ namespace Game1
             GraphicsDevice.SetRenderTarget(lightTarget);
             GraphicsDevice.Clear(Color.Transparent);
 
-            DrawDirectionalLight(new Vector3(0, -1f, 1), Color.DimGray);
+            DrawDirectionalLight(settings.LightDirection, settings.LightColor); //directional light z cieniami
+
             GraphicsDevice.BlendState = BlendState.AlphaBlend;
             GraphicsDevice.DepthStencilState = DepthStencilState.None;
 
             //draw some lights
-            
-
             Color[] colors = new Color[10];
             colors[0] = Color.Red; colors[1] = Color.Blue;
             colors[2] = Color.IndianRed; colors[3] = Color.CornflowerBlue;

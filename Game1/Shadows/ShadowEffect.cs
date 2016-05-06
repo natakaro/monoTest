@@ -8,13 +8,6 @@ using System.Threading.Tasks;
 
 namespace Game1.Shadows
 {
-    public enum FixedFilterSize
-    {
-        Filter2x2,
-        Filter3x3,
-        Filter5x5,
-        Filter7x7
-    }
     class ShadowEffect
     {
         private readonly Effect _innerEffect;
