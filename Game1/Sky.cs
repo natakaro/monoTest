@@ -13,11 +13,9 @@ namespace Game1
     {
 
         Texture2D texture;
-        Model model;
 
         public void Initialize(ContentManager contentManager)
         {
-            model = contentManager.Load<Model>("SkySphere");
             texture = contentManager.Load<Texture2D>("MonoCubeTexture");
         }
 
@@ -38,7 +36,7 @@ namespace Game1
             }
         }
 
-        public Sky(Game game, Matrix inWorldMatrix) : base(game, inWorldMatrix)
+        public Sky(Game game, Matrix inWorldMatrix, Model inModel) : base(game, inWorldMatrix, inModel)
         {
             position = new Vector3(0, 0, 0);
             boundingSphere = new BoundingSphere(position, 25);

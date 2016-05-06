@@ -12,15 +12,10 @@ namespace Game1.Spells
     class SpellFireballProjectile : DrawableObject
     {
         Texture2D texture;
-        Model model;
-        Matrix[] modelBones;
 
         public void Initialize(ContentManager contentManager)
         {
-            model = contentManager.Load<Model>("fireball");
             texture = contentManager.Load<Texture2D>("firedot");
-            modelBones = new Matrix[model.Bones.Count];
-            model.CopyAbsoluteBoneTransformsTo(modelBones);
         }
 
         public override void Draw(Camera camera)
@@ -39,7 +34,7 @@ namespace Game1.Spells
             }
         }
 
-        public SpellFireballProjectile(Game game, Matrix inWorldMatrix) : base(game, inWorldMatrix)
+        public SpellFireballProjectile(Game game, Matrix inWorldMatrix, Model inModel) : base(game, inWorldMatrix, inModel)
         {
             m_static = false;
             boundingSphere = new BoundingSphere(position, 1f);

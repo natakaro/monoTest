@@ -59,7 +59,7 @@ namespace Game1
 
         protected bool m_instanced = false;
 
-        public DrawableObject(Game game, Matrix inWorldMatrix) : base(game)
+        public DrawableObject(Game game, Matrix inWorldMatrix, Model inModel) : base(game)
         {
             type = ObjectType.Unknown;
             worldMatrix = inWorldMatrix;
@@ -70,6 +70,9 @@ namespace Game1
             acceleration = Vector3.Zero;
             boundingSphere = new BoundingSphere();
             boundingBox = new BoundingBox();
+            model = inModel;
+            modelBones = new Matrix[model.Bones.Count];
+            model.CopyAbsoluteBoneTransformsTo(modelBones);
         }
 
         /// <summary>

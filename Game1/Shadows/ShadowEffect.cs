@@ -33,6 +33,11 @@ namespace Game1.Shadows
         private readonly EffectParameter _viewProjectionParameter;
         private readonly EffectParameter _shadowMapParameter;
 
+        private readonly EffectParameter _colorMap;
+        private readonly EffectParameter _normalMap;
+        private readonly EffectParameter _depthMap;
+        private readonly EffectParameter _invertViewProjectionParameter;
+
         public bool VisualizeCascades { get; set; }
         public bool FilterAcrossCascades { get; set; }
         public FixedFilterSize FilterSize { get; set; }
@@ -51,6 +56,11 @@ namespace Game1.Shadows
         public Matrix ViewProjection { get; set; }
         public Texture2D ShadowMap { get; set; }
 
+        public Texture2D ColorMap { get; set; }
+        public Texture2D NormalMap { get; set; }
+        public Texture2D DepthMap { get; set; }
+        public Matrix InvertViewProjection { get; set; }
+
         public ShadowEffect(GraphicsDevice graphicsDevice, Effect innerEffect)
         {
             _innerEffect = innerEffect;
@@ -68,6 +78,11 @@ namespace Game1.Shadows
             _worldParameter = _innerEffect.Parameters["World"];
             _viewProjectionParameter = _innerEffect.Parameters["ViewProjection"];
             _shadowMapParameter = _innerEffect.Parameters["ShadowMap"];
+
+            _colorMap = _innerEffect.Parameters["colorMap"];
+            _normalMap = _innerEffect.Parameters["normalMap"];
+            _depthMap = _innerEffect.Parameters["depthMap"];
+            _invertViewProjectionParameter = _innerEffect.Parameters["InvertViewProjection"];
 
             CascadeSplits = new float[ShadowRenderer.NumCascades];
             CascadeOffsets = new Vector4[ShadowRenderer.NumCascades];
@@ -88,10 +103,17 @@ namespace Game1.Shadows
             _offsetScaleParameter.SetValue(OffsetScale);
             _lightDirectionParameter.SetValue(LightDirection);
             _lightColorParameter.SetValue(LightColor);
-            _diffuseColorParameter.SetValue(DiffuseColor);
+            //_diffuseColorParameter.SetValue(DiffuseColor);
             _worldParameter.SetValue(World);
             _viewProjectionParameter.SetValue(ViewProjection);
             _shadowMapParameter.SetValue(ShadowMap);
+
+            _colorMap.SetValue(ColorMap);
+            _normalMap.SetValue(NormalMap);
+            _depthMap.SetValue(DepthMap);
+            _invertViewProjectionParameter.SetValue(InvertViewProjection);
+
+
 
             _innerEffect.CurrentTechnique.Passes[0].Apply();
         }

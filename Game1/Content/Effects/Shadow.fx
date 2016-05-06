@@ -4,6 +4,7 @@
 
 matrix World;
 matrix ViewProjection;
+matrix InvertViewProjection;
 
 float3 CameraPosWS;
 matrix ShadowMatrix;
@@ -13,7 +14,7 @@ float4 CascadeScales[NumCascades];
 
 float3 LightDirection;
 float3 LightColor;
-float3 DiffuseColor;
+//float3 DiffuseColor;
 
 float Bias;
 float OffsetScale;
@@ -24,29 +25,57 @@ Texture2DArray ShadowMap : register(t0);
 
 SamplerComparisonState ShadowSampler : register(s0);
 
+// diffuse color, and specularIntensity in the alpha channel
+texture colorMap;
+// normals, and specularPower in the alpha channel
+texture normalMap;
+//depth
+texture depthMap;
+
+sampler colorSampler = sampler_state
+{
+    Texture = (colorMap);
+    AddressU = CLAMP;
+    AddressV = CLAMP;
+    MagFilter = LINEAR;
+    MinFilter = LINEAR;
+    Mipfilter = LINEAR;
+};
+sampler depthSampler = sampler_state
+{
+    Texture = (depthMap);
+    AddressU = CLAMP;
+    AddressV = CLAMP;
+    MagFilter = POINT;
+    MinFilter = POINT;
+    Mipfilter = POINT;
+};
+sampler normalSampler = sampler_state
+{
+    Texture = (normalMap);
+    AddressU = CLAMP;
+    AddressV = CLAMP;
+    MagFilter = POINT;
+    MinFilter = POINT;
+    Mipfilter = POINT;
+};
+
 // Structures.
 
 struct VSInput
 {
-    float3 PositionOS : SV_POSITION;
-    float3 NormalOS   : NORMAL;
-    float3 Uv         : TEXCOORD0;
+    float4 Position : SV_POSITION;
+    //float3 NormalOS   : NORMAL;
+    float2 TexCoord : TEXCOORD0;
 };
 
 struct VSOutput
 {
-    float4 PositionCS : SV_Position;
-    float3 PositionWS : POSITIONWS;
-    float3 NormalWS   : NORMALWS;
-    float DepthVS     : DEPTHVS;
-};
-
-struct PSInput
-{
-    float4 PositionSS : SV_Position;
-    float3 PositionWS : POSITIONWS;
-    float3 NormalWS   : NORMALWS;
-    float DepthVS     : DEPTHVS;
+    float4 Position : SV_Position;
+    //float3 PositionWS : POSITIONWS;
+    float2 TexCoord : TEXCOORD0;
+    //float3 NormalWS   : NORMALWS;
+    //float DepthVS     : DEPTHVS;
 };
 
 // Vertex shader.
@@ -55,16 +84,8 @@ VSOutput VSMesh(VSInput input)
 {
     VSOutput output;
 
-    // Calculate the world space position.
-    output.PositionWS = mul(float4(input.PositionOS, 1), World).xyz;
-
-    // Calculate the clip space position.
-    output.PositionCS = mul(float4(output.PositionWS, 1), ViewProjection);
-
-    output.DepthVS = output.PositionCS.w;
-
-    // Rotate the normal into world space.
-    output.NormalWS = normalize(mul(input.NormalOS, (float3x3) World));
+    output.Position = input.Position;
+    output.TexCoord = input.TexCoord;
 
     return output;
 }
@@ -315,110 +336,148 @@ float3 ShadowVisibility(
     return shadowVisibility;
 }
 
-float4 PSMesh(PSInput input,
+float4 PSMesh(VSOutput input,
     bool visualizeCascades, bool filterAcrossCascades, 
     uint filterSize)
 {
+    //get normal data from the normalMap
+    float4 normalData = tex2D(normalSampler, input.TexCoord);
+    //tranform normal back into [-1,1] range
+    float3 normal = 2.0f * normalData.xyz - 1.0f;
+    //get specular power, and get it into [0,255] range]
+    float specularPower = normalData.a * 255;
+    //get specular intensity from the colorMap
+    float specularIntensity = tex2D(colorSampler, input.TexCoord).a;
+    
+    //read depth
+    float depthVal = tex2D(depthSampler, input.TexCoord).r;
+
+    //compute screen-space position
+    float4 position;
+    position.x = input.TexCoord.x * 2.0f - 1.0f;
+    position.y = (1 - input.TexCoord.y) * 2.0f - 1.0f;
+    position.z = depthVal;
+    position.w = 1.0f;
+    
+    //transform to world space
+    position = mul(position, InvertViewProjection);
+    position /= position.w;
+
+    //float4 positionWS = mul(position, ViewProjection);
+
+    //float4x4 matWorldViewProj = mul(World, ViewProjection);
+    //float4 positionWS = mul(input.Position, World);
+    //float4 positionCS = mul(positionWS, ViewProjection);
+
     // Normalize after interpolation.
-    float3 normalWS = normalize(input.NormalWS);
+    //float3 normalWS = normalize(input.NormalWS);
 
     // Convert color to grayscale, just beacuse it looks nicer.
-    float diffuseValue = 0.299 * DiffuseColor.r + 0.587 * DiffuseColor.g + 0.114 * DiffuseColor.b;
-    float3 diffuseAlbedo = float3(diffuseValue, diffuseValue, diffuseValue);
+    //float diffuseValue = 0.299 * DiffuseColor.r + 0.587 * DiffuseColor.g + 0.114 * DiffuseColor.b;
+    //float3 diffuseAlbedo = float3(diffuseValue, diffuseValue, diffuseValue);
 
-    float nDotL = saturate(dot(normalWS, LightDirection));
-    uint2 screenPos = uint2(input.PositionSS.xy);
+    float nDotL = saturate(dot(normal, LightDirection));
+    uint2 screenPos = uint2(position.xy);
     float3 shadowVisibility = ShadowVisibility(
-        input.PositionWS, input.DepthVS, nDotL, normalWS, screenPos, 
+        position, depthVal, nDotL, normal, screenPos, 
         filterAcrossCascades, visualizeCascades, filterSize);
 
     float3 lighting = 0.0f;
 
     // Add the directional light.
-    lighting += nDotL * LightColor * diffuseAlbedo * (1.0f / 3.14159f) * shadowVisibility;
+    //lighting += nDotL * LightColor * diffuseAlbedo * (1.0f / 3.14159f) * shadowVisibility;
+    lighting += nDotL * LightColor  * (1.0f / 3.14159f) * shadowVisibility;
 
     // Ambient light.
-    lighting += float3(0.2f, 0.2f, 0.2f) * 1.0f * diffuseAlbedo;
+    //lighting += float3(0.2f, 0.2f, 0.2f) * 1.0f * diffuseAlbedo;
+    lighting += float3(0.2f, 0.2f, 0.2f) * 1.0f;
 
-    return float4(max(lighting, 0.0001f), 1);
+    //reflexion vector
+    float3 reflectionVector = normalize(reflect(LightDirection, normal));
+    //camera-to-surface vector
+    float3 directionToCamera = normalize(CameraPosWS - position);
+    //compute specular light
+    float specularLight = specularIntensity * pow(saturate(dot(reflectionVector, directionToCamera)), specularPower);
+
+    return float4(max(lighting, 0.0001f), specularLight);
 }
 
-float4 PSMeshVisualizeFalseFilterFalseFilterSizeFilter2x2(PSInput input) : COLOR
+float4 PSMeshVisualizeFalseFilterFalseFilterSizeFilter2x2(VSOutput input) : COLOR
 {
     return PSMesh(input, false, false, 2);
 }
 
-float4 PSMeshVisualizeTrueFilterFalseFilterSizeFilter2x2(PSInput input) : COLOR
+float4 PSMeshVisualizeTrueFilterFalseFilterSizeFilter2x2(VSOutput input) : COLOR
 {
     return PSMesh(input, true, false, 2);
 }
 
-float4 PSMeshVisualizeFalseFilterFalseFilterSizeFilter3x3(PSInput input) : COLOR
+float4 PSMeshVisualizeFalseFilterFalseFilterSizeFilter3x3(VSOutput input) : COLOR
 {
     return PSMesh(input, false, false, 3);
 }
 
-float4 PSMeshVisualizeTrueFilterFalseFilterSizeFilter3x3(PSInput input) : COLOR
+float4 PSMeshVisualizeTrueFilterFalseFilterSizeFilter3x3(VSOutput input) : COLOR
 {
     return PSMesh(input, true, false, 3);
 }
 
-float4 PSMeshVisualizeFalseFilterFalseFilterSizeFilter5x5(PSInput input) : COLOR
+float4 PSMeshVisualizeFalseFilterFalseFilterSizeFilter5x5(VSOutput input) : COLOR
 {
     return PSMesh(input, false, false, 5);
 }
 
-float4 PSMeshVisualizeTrueFilterFalseFilterSizeFilter5x5(PSInput input) : COLOR
+float4 PSMeshVisualizeTrueFilterFalseFilterSizeFilter5x5(VSOutput input) : COLOR
 {
     return PSMesh(input, true, false, 5);
 }
 
-float4 PSMeshVisualizeFalseFilterFalseFilterSizeFilter7x7(PSInput input) : COLOR
+float4 PSMeshVisualizeFalseFilterFalseFilterSizeFilter7x7(VSOutput input) : COLOR
 {
     return PSMesh(input, false, false, 7);
 }
 
-float4 PSMeshVisualizeTrueFilterFalseFilterSizeFilter7x7(PSInput input) : COLOR
+float4 PSMeshVisualizeTrueFilterFalseFilterSizeFilter7x7(VSOutput input) : COLOR
 {
     return PSMesh(input, true, false, 7);
 }
 
-float4 PSMeshVisualizeFalseFilterTrueFilterSizeFilter2x2(PSInput input) : COLOR
+float4 PSMeshVisualizeFalseFilterTrueFilterSizeFilter2x2(VSOutput input) : COLOR
 {
     return PSMesh(input, false, true, 2);
 }
 
-float4 PSMeshVisualizeTrueFilterTrueFilterSizeFilter2x2(PSInput input) : COLOR
+float4 PSMeshVisualizeTrueFilterTrueFilterSizeFilter2x2(VSOutput input) : COLOR
 {
     return PSMesh(input, true, true, 2);
 }
 
-float4 PSMeshVisualizeFalseFilterTrueFilterSizeFilter3x3(PSInput input) : COLOR
+float4 PSMeshVisualizeFalseFilterTrueFilterSizeFilter3x3(VSOutput input) : COLOR
 {
     return PSMesh(input, false, true, 3);
 }
 
-float4 PSMeshVisualizeTrueFilterTrueFilterSizeFilter3x3(PSInput input) : COLOR
+float4 PSMeshVisualizeTrueFilterTrueFilterSizeFilter3x3(VSOutput input) : COLOR
 {
     return PSMesh(input, true, true, 3);
 }
 
-float4 PSMeshVisualizeFalseFilterTrueFilterSizeFilter5x5(PSInput input) : COLOR
+float4 PSMeshVisualizeFalseFilterTrueFilterSizeFilter5x5(VSOutput input) : COLOR
 {
     return PSMesh(input, false, true, 5);
 }
 
-float4 PSMeshVisualizeTrueFilterTrueFilterSizeFilter5x5(PSInput input) : COLOR
+float4 PSMeshVisualizeTrueFilterTrueFilterSizeFilter5x5(VSOutput input) : COLOR
 {
     return PSMesh(input, true, true, 5);
 }
 
-float4 PSMeshVisualizeFalseFilterTrueFilterSizeFilter7x7(PSInput input) : COLOR
+float4 PSMeshVisualizeFalseFilterTrueFilterSizeFilter7x7(VSOutput input) : COLOR
 {
     return PSMesh(input, false, true, 7);
 }
 
-float4 PSMeshVisualizeTrueFilterTrueFilterSizeFilter7x7(PSInput input) : COLOR
+float4 PSMeshVisualizeTrueFilterTrueFilterSizeFilter7x7(VSOutput input) : COLOR
 {
     return PSMesh(input, true, true, 7);
 }

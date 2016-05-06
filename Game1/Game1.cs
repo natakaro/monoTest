@@ -43,8 +43,10 @@ namespace Game1
 
         private Model sphereModel;
 
-        Model skybox;
+        Model tileModel;
+        Model skySphereModel;
         Model hands;
+        Model fireballModel;
         Texture2D handstex;
 
         Model village; //shadow test
@@ -178,12 +180,6 @@ namespace Game1
 
             currentKeyboardState = Keyboard.GetState();
 
-            //octree
-            octree = new Octree(Map.CreateMap(this, 30, camera.worldMatrix));
-
-            spellMoveTerrain = new SpellMoveTerrain(octree);
-            spellFireball = new SpellFireball(this, camera, octree);
-
             base.Initialize();
         }
 
@@ -201,9 +197,11 @@ namespace Game1
             depthTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.Single, DepthFormat.None);
             lightTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.Color, DepthFormat.None);
 
+            tileModel = Content.Load<Model>("1");
             hands = Content.Load<Model>("hands");
             handstex = Content.Load<Texture2D>("handstex");
-            skybox = Content.Load<Model>("SkySphere");
+            skySphereModel = Content.Load<Model>("SkySphere");
+            fireballModel = Content.Load<Model>("fireball");
 
             clearBufferEffect = Content.Load<Effect>("Effects/ClearGBuffer");
             directionalLightEffect = Content.Load<Effect>("Effects/DirectionalLight");
@@ -220,10 +218,15 @@ namespace Game1
 
             fxaaEffect = Content.Load<Effect>("Effects/fxaa");
 
-            
-
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            base.LoadContent();
+
+            //octree
+            octree = new Octree(Map.CreateMap(this, 30, camera.worldMatrix, tileModel));
+
+            spellMoveTerrain = new SpellMoveTerrain(octree);
+            spellFireball = new SpellFireball(this, camera, octree, fireballModel);
+
+
         }
 
         protected override void UnloadContent()
@@ -699,8 +702,8 @@ namespace Game1
 
         protected override void Draw(GameTime gameTime)
         {
-            //SetGBuffer();
-            //ClearGBuffer();
+            SetGBuffer();
+            ClearGBuffer();
 
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
@@ -755,7 +758,7 @@ namespace Game1
                 mesh.Draw();
             }
 
-            foreach (ModelMesh mesh in skybox.Meshes)
+            foreach (ModelMesh mesh in skySphereModel.Meshes)
             {
                 foreach (Effect effect in mesh.Effects)
                 {
@@ -786,9 +789,9 @@ namespace Game1
                 Content.Load<Model>("Monocube").Draw(camera.worldMatrix * Matrix.CreateTranslation(camera.MovingRay().Position), camera.viewMatrix, camera.projMatrix);
             }
 
-            //ResolveGBuffer();
+            ResolveGBuffer();
 
-            //DrawLights(gameTime);
+            DrawLights(gameTime);
 
             List<DrawableObject> lista = new List<DrawableObject>();
             foreach (IntersectionRecord ir in list)
@@ -799,7 +802,8 @@ namespace Game1
             GraphicsDevice.SetRenderTarget(fxaaTarget);
             GraphicsDevice.Clear(Color.CornflowerBlue);
             //DrawFinal();
-            shadowRenderer.Render(GraphicsDevice, camera, Matrix.Identity, list);
+            shadowRenderer.Render(GraphicsDevice, camera, Matrix.Identity, list, colorTarget, normalTarget, depthTarget);
+            quadRenderer.Render(Vector2.One * -1, Vector2.One);
             GraphicsDevice.SetRenderTarget(null);
 
             if (useFXAA)

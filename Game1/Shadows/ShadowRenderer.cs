@@ -294,17 +294,17 @@ namespace Game1.Shadows
 
             var worldViewProjection = worldMatrix * camera.ViewProjection;
 
-            //foreach (DrawableObject dObject in list)
-            //{
-            //    foreach (var mesh in dObject.Model.Meshes)
-            //    {
-            foreach (var mesh in _scene.Meshes)
-            { 
-                foreach (var meshPart in mesh.MeshParts)
+            foreach (DrawableObject dObject in list)
+            {
+                foreach (var mesh in dObject.Model.Meshes)
+                {
+                    //foreach (var mesh in _scene.Meshes)
+                    //{ 
+                    foreach (var meshPart in mesh.MeshParts)
                         if (meshPart.PrimitiveCount > 0)
                         {
-                            //shadowMapEffect.WorldViewProjection = dObject.ModelBones[mesh.ParentBone.Index] * worldViewProjection;
-                            shadowMapEffect.WorldViewProjection = _sceneTransforms[mesh.ParentBone.Index] * worldViewProjection;
+                            shadowMapEffect.WorldViewProjection = dObject.ModelBones[mesh.ParentBone.Index] * Matrix.CreateScale(Map.scale)  * Matrix.CreateTranslation(dObject.Position) * worldViewProjection;
+                            //shadowMapEffect.WorldViewProjection = _sceneTransforms[mesh.ParentBone.Index] * worldViewProjection;
                             shadowMapEffect.Apply();
 
                             graphicsDevice.SetVertexBuffer(meshPart.VertexBuffer);
@@ -312,14 +312,15 @@ namespace Game1.Shadows
 
                             graphicsDevice.DrawIndexedPrimitives(
                                 PrimitiveType.TriangleList,
-                                meshPart.VertexOffset, 0, meshPart.NumVertices,
+                                meshPart.VertexOffset,
                                 meshPart.StartIndex, meshPart.PrimitiveCount);
                         }
                 }
-            //}
+            }
         }
 
-        public void Render(GraphicsDevice graphicsDevice, Camera camera, Matrix worldMatrix, List<IntersectionRecord> list)
+        public void Render(GraphicsDevice graphicsDevice, Camera camera, Matrix worldMatrix, List<IntersectionRecord> list,
+            RenderTarget2D colorMap, RenderTarget2D normalMap, RenderTarget2D depthMap)
         {
             // Render scene.
 
@@ -342,6 +343,16 @@ namespace Game1.Shadows
             
             shadowEffect.LightDirection = lightDirection;
             shadowEffect.LightColor = new Vector3(3, 3, 3);
+
+            shadowEffect.ColorMap = colorMap;
+            shadowEffect.NormalMap = normalMap;
+            shadowEffect.DepthMap = depthMap;
+            shadowEffect.InvertViewProjection = Matrix.Invert(camera.ViewProjectionMatrix);
+
+            //shadowEffect.DiffuseColor = basicEffect.DiffuseColor;
+            shadowEffect.World = worldMatrix;
+
+            shadowEffect.Apply();
 
             // Draw all meshes.
             //foreach (IntersectionRecord ir in list)
@@ -368,29 +379,29 @@ namespace Game1.Shadows
             //    }
             //}
 
-            foreach (var mesh in _scene.Meshes)
-            {
-                //if (!boundingFrustum.Intersects(mesh.BoundingSphere))
-                //    continue;
+            //foreach (var mesh in _scene.Meshes)
+            //{
+            //    //if (!boundingFrustum.Intersects(mesh.BoundingSphere))
+            //    //    continue;
 
-                foreach (var meshPart in mesh.MeshParts)
-                    if (meshPart.PrimitiveCount > 0)
-                    {
-                        var basicEffect = (BasicEffect)meshPart.Effect;
+            //    foreach (var meshPart in mesh.MeshParts)
+            //        if (meshPart.PrimitiveCount > 0)
+            //        {
+            //            var basicEffect = (BasicEffect)meshPart.Effect;
 
-                        shadowEffect.DiffuseColor = basicEffect.DiffuseColor;
-                        shadowEffect.World = _sceneTransforms[mesh.ParentBone.Index] * worldMatrix;
-                        shadowEffect.Apply();
+            //            shadowEffect.DiffuseColor = basicEffect.DiffuseColor;
+            //            shadowEffect.World = _sceneTransforms[mesh.ParentBone.Index] * worldMatrix;
+            //            shadowEffect.Apply();
 
-                        graphicsDevice.SetVertexBuffer(meshPart.VertexBuffer);
-                        graphicsDevice.Indices = meshPart.IndexBuffer;
+            //            graphicsDevice.SetVertexBuffer(meshPart.VertexBuffer);
+            //            graphicsDevice.Indices = meshPart.IndexBuffer;
 
-                        graphicsDevice.DrawIndexedPrimitives(
-                            PrimitiveType.TriangleList,
-                            meshPart.VertexOffset, 0, meshPart.NumVertices,
-                            meshPart.StartIndex, meshPart.PrimitiveCount);
-                    }
-            }
+            //            graphicsDevice.DrawIndexedPrimitives(
+            //                PrimitiveType.TriangleList,
+            //                meshPart.VertexOffset, 0, meshPart.NumVertices,
+            //                meshPart.StartIndex, meshPart.PrimitiveCount);
+            //        }
+            //}
         }
     }
 }

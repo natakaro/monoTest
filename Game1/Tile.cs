@@ -16,16 +16,11 @@ namespace Game1
 
         public void Initialize(ContentManager contentManager)
         {
-            model = contentManager.Load<Model>("1");
-            effect = contentManager.Load<Effect>("Effects/RenderGBuffer");
             texture = contentManager.Load<Texture2D>("textchampfer");
-            modelBones = new Matrix[model.Bones.Count];
-            model.CopyAbsoluteBoneTransformsTo(modelBones);
         }
 
         public override void Draw(Camera camera)
         {
-            
             foreach (ModelMesh mesh in model.Meshes)
             {
                 foreach (Effect effect in mesh.Effects)
@@ -40,7 +35,7 @@ namespace Game1
             }
         }
 
-        public Tile(Game game, Matrix inWorldMatrix) : base(game, inWorldMatrix)
+        public Tile(Game game, Matrix inWorldMatrix, Model inModel) : base(game, inWorldMatrix, inModel)
         {
             m_instanced = true;
             boundingSphere = new BoundingSphere(position, Map.scale * 0.75f);
