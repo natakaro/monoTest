@@ -93,9 +93,6 @@ namespace Game1
         private KeyboardState previousKeyboardState;
         private Dictionary<Actions, Keys> actionKeys;
 
-        private BoundingFrustum frustum;
-        private BoundingSphere boundingSphere;
-
         #region Public Methods
 
         public Camera(Game game) : base(game)
@@ -339,7 +336,6 @@ namespace Game1
             base.Update(gameTime);
             UpdateInput();
             UpdateCamera(gameTime);
-            frustum = new BoundingFrustum(ViewProjectionMatrix);
         }
 
         /// <summary>
@@ -1034,7 +1030,7 @@ namespace Game1
 
         public BoundingFrustum Frustum
         {
-            get { return frustum; }
+            get { return new BoundingFrustum(ViewProjectionMatrix); }
         }
 
         public float FarZ

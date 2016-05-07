@@ -514,14 +514,14 @@ namespace Game1
                     camera.CurrentVelocity.X.ToString("f2"),
                     camera.CurrentVelocity.Y.ToString("f2"),
                     camera.CurrentVelocity.Z.ToString("f2"));
-                buffer.AppendFormat("  Rotation speed: {0}\n",
+                buffer.AppendFormat("  Rotation speed: {0}\n\n",
                     camera.RotationSpeed.ToString("f2"));
 
                 buffer.AppendFormat("Instancing: {0}\n",
                     instancing.ToString());
                 buffer.AppendFormat(" Models drawn: {0}\n",
                     modelsDrawn.ToString("f2"));
-                buffer.AppendFormat(" Models drawn instanced: {0}\n",
+                buffer.AppendFormat(" Models drawn instanced: {0}\n\n",
                     modelsDrawnInstanced.ToString("f2"));
 
                 buffer.Append("Shadows:\n");
@@ -535,7 +535,7 @@ namespace Game1
                     settings.FilterAcrossCascades.ToString());
                 buffer.AppendFormat(" Bias (b / B): {0}\n",
                     settings.Bias.ToString());
-                buffer.AppendFormat(" Normal offset (o / O): {0}\n",
+                buffer.AppendFormat(" Normal offset (o / O): {0}\n\n",
                     settings.OffsetScale.ToString());
 
                 buffer.AppendFormat(" MouseWheel: {0}\n",
@@ -690,11 +690,6 @@ namespace Game1
             //Renders all visible objects by iterating through the oct tree recursively and testing for intersection 
             //with the current camera view frustum
             List<IntersectionRecord> list = octree.AllIntersections(camera.Frustum);
-
-            List<DrawableObject> lista = new List<DrawableObject>();
-            foreach (IntersectionRecord ir in list)
-                lista.Add(ir.DrawableObjectObject); //dla shadowmapy, wypadaloby zmienic na optymalniejsze
-
             if (instancing)
             {
                 List<IntersectionRecord> instanceList = list.FindAll(ir => ir.DrawableObjectObject.IsInstanced == true);
@@ -756,7 +751,7 @@ namespace Game1
             }
 
             ResolveGBuffer();
-            shadowRenderer.RenderShadowMap(GraphicsDevice, camera, Matrix.Identity, lista);
+            shadowRenderer.RenderShadowMap(GraphicsDevice, camera, Matrix.Identity, octree);
 
             DrawLights(gameTime);
 
