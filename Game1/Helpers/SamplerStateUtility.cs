@@ -17,5 +17,29 @@ namespace Game1.Helpers
             Filter = TextureFilter.Linear,
             ComparisonFunction = CompareFunction.LessEqual
         };
+
+        public static readonly SamplerState ColorMap = new SamplerState
+        {
+            AddressU = TextureAddressMode.Clamp,
+            AddressV = TextureAddressMode.Clamp,
+            AddressW = TextureAddressMode.Clamp,
+            Filter = TextureFilter.Linear
+        };
+
+        public static readonly SamplerState NormalMap = new SamplerState
+        {
+            AddressU = TextureAddressMode.Clamp,
+            AddressV = TextureAddressMode.Clamp,
+            AddressW = TextureAddressMode.Clamp,
+            Filter = TextureFilter.Point
+        };
+
+        public static readonly SamplerState DepthMap = new SamplerState
+        {
+            AddressU = TextureAddressMode.Clamp,
+            AddressV = TextureAddressMode.Clamp,
+            AddressW = TextureAddressMode.Clamp,
+            Filter = TextureFilter.Point
+        };
     }
 }

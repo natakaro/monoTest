@@ -25,46 +25,54 @@ Texture2DArray ShadowMap : register(t0);
 
 SamplerComparisonState ShadowSampler : register(s0);
 
-// diffuse color, and specularIntensity in the alpha channel
-texture colorMap;
-// normals, and specularPower in the alpha channel
-texture normalMap;
-//depth
-texture depthMap;
+Texture2D colorMap : register(t1);
+SamplerState colorSampler : register(s1);
+Texture2D normalMap : register(t2);
+SamplerState normalSampler : register(s2);
+Texture2D depthMap : register(t3);
+SamplerState depthSampler : register(s3);
 
-sampler colorSampler = sampler_state
-{
-    Texture = (colorMap);
-    AddressU = CLAMP;
-    AddressV = CLAMP;
-    MagFilter = LINEAR;
-    MinFilter = LINEAR;
-    Mipfilter = LINEAR;
-};
-sampler depthSampler = sampler_state
-{
-    Texture = (depthMap);
-    AddressU = CLAMP;
-    AddressV = CLAMP;
-    MagFilter = POINT;
-    MinFilter = POINT;
-    Mipfilter = POINT;
-};
-sampler normalSampler = sampler_state
-{
-    Texture = (normalMap);
-    AddressU = CLAMP;
-    AddressV = CLAMP;
-    MagFilter = POINT;
-    MinFilter = POINT;
-    Mipfilter = POINT;
-};
+
+//// diffuse color, and specularIntensity in the alpha channel
+//texture colorMap;
+//// normals, and specularPower in the alpha channel
+//texture normalMap;
+////depth
+//texture depthMap;
+
+//sampler colorSampler = sampler_state
+//{
+//    Texture = (colorMap);
+//    AddressU = CLAMP;
+//    AddressV = CLAMP;
+//    MagFilter = LINEAR;
+//    MinFilter = LINEAR;
+//    Mipfilter = LINEAR;
+//};
+//sampler depthSampler = sampler_state
+//{
+//    Texture = (depthMap);
+//    AddressU = CLAMP;
+//    AddressV = CLAMP;
+//    MagFilter = POINT;
+//    MinFilter = POINT;
+//    Mipfilter = POINT;
+//};
+//sampler normalSampler = sampler_state
+//{
+//    Texture = (normalMap);
+//    AddressU = CLAMP;
+//    AddressV = CLAMP;
+//    MagFilter = POINT;
+//    MinFilter = POINT;
+//    Mipfilter = POINT;
+//};
 
 // Structures.
 
 struct VSInput
 {
-    float4 Position : SV_POSITION;
+    float3 Position : SV_POSITION;
     //float3 NormalOS   : NORMAL;
     float2 TexCoord : TEXCOORD0;
 };
@@ -84,7 +92,7 @@ VSOutput VSMesh(VSInput input)
 {
     VSOutput output;
 
-    output.Position = input.Position;
+    output.Position = float4(input.Position, 1);
     output.TexCoord = input.TexCoord;
 
     return output;
@@ -291,12 +299,20 @@ float3 ShadowVisibility(
     float3 shadowVisibility = 1.0f;
     uint cascadeIdx = 0;
 
+    const float cascadeSplit[NumCascades] =
+    {
+        0.05f,
+        0.15f,
+        0.50f,
+        1.0f      
+    };
+
     // Figure out which cascade to sample from.
     [unroll]
     for (uint i = 0; i < NumCascades - 1; ++i)
     {
         [flatten]
-        if (depthVS > CascadeSplits[i])
+        if (depthVS > cascadeSplit[i])
             cascadeIdx = i + 1;
     }
 
@@ -318,8 +334,8 @@ float3 ShadowVisibility(
         // Sample the next cascade, and blend between the two results to
         // smooth the transition
         const float BlendThreshold = 0.1f;
-        float nextSplit = CascadeSplits[cascadeIdx];
-        float splitSize = cascadeIdx == 0 ? nextSplit : nextSplit - CascadeSplits[cascadeIdx - 1];
+        float nextSplit = cascadeSplit[cascadeIdx];
+        float splitSize = cascadeIdx == 0 ? nextSplit : nextSplit - cascadeSplit[cascadeIdx - 1];
         float splitDist = (nextSplit - depthVS) / splitSize;
 
         [branch]
@@ -341,17 +357,17 @@ float4 PSMesh(VSOutput input,
     uint filterSize)
 {
     //get normal data from the normalMap
-    float4 normalData = tex2D(normalSampler, input.TexCoord);
+    float4 normalData = normalMap.Sample(normalSampler, input.TexCoord); //tex2D(normalSampler, input.TexCoord);
     //tranform normal back into [-1,1] range
     float3 normal = 2.0f * normalData.xyz - 1.0f;
     //get specular power, and get it into [0,255] range]
     float specularPower = normalData.a * 255;
     //get specular intensity from the colorMap
-    float specularIntensity = tex2D(colorSampler, input.TexCoord).a;
+    float specularIntensity = colorMap.Sample(colorSampler, input.TexCoord).a; //tex2D(colorSampler, input.TexCoord).a;
     
     //read depth
-    float depthVal = tex2D(depthSampler, input.TexCoord).r;
-
+    float depthVal = depthMap.Sample(depthSampler, input.TexCoord).r; //tex2D(depthSampler, input.TexCoord).r;
+    
     //compute screen-space position
     float4 position;
     position.x = input.TexCoord.x * 2.0f - 1.0f;
@@ -363,23 +379,16 @@ float4 PSMesh(VSOutput input,
     position = mul(position, InvertViewProjection);
     position /= position.w;
 
-    //float4 positionWS = mul(position, ViewProjection);
-
-    //float4x4 matWorldViewProj = mul(World, ViewProjection);
-    //float4 positionWS = mul(input.Position, World);
-    //float4 positionCS = mul(positionWS, ViewProjection);
-
-    // Normalize after interpolation.
-    //float3 normalWS = normalize(input.NormalWS);
+    depthVal = (2 * 0.1) / (2000 + 0.1 - depthVal * (2000 - 0.1));
 
     // Convert color to grayscale, just beacuse it looks nicer.
     float diffuseValue = 0.299 * 1 + 0.587 * 1 + 0.114 * 1;
     float3 diffuseAlbedo = float3(diffuseValue, diffuseValue, diffuseValue);
 
     float nDotL = saturate(dot(normal, LightDirection));
-    uint2 screenPos = uint2(position.xy);
+    uint2 screenPos = uint2(input.TexCoord.xy);
     float3 shadowVisibility = ShadowVisibility(
-        position, depthVal, nDotL, normal, screenPos, 
+        position.xyz, depthVal, nDotL, normal, screenPos, 
         filterAcrossCascades, visualizeCascades, filterSize);
 
     float3 lighting = 0.0f;
@@ -395,9 +404,17 @@ float4 PSMesh(VSOutput input,
     //reflexion vector
     float3 reflectionVector = -(normalize(reflect(LightDirection, normal)));
     //camera-to-surface vector
-    float3 directionToCamera = normalize(CameraPosWS - position);
+    float3 directionToCamera = normalize(CameraPosWS - position.xyz);
     //compute specular light
     float specularLight = specularIntensity * pow(saturate(dot(reflectionVector, directionToCamera)), specularPower);
+
+    //if (depthVal < 0.5f)
+    //    return float4(1, 0, 0, 1);
+    //if (depthVal > 0.75f)
+    //    return float4(0, 0, 1, 1);
+    //if (depthVal > 0.5f)
+    //    return float4(0, 1, 0, 1);
+    
 
     return float4(max(lighting, 0.0001f), specularLight);
 }

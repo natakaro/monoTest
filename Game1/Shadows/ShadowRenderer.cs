@@ -15,8 +15,6 @@ namespace Game1.Shadows
         public const int NumCascades = 4;
         private const int ShadowMapSize = 2048;
 
-        private Vector3 lightDirection;
-
         private ContentManager contentManager;
         private GraphicsDevice graphicsDevice;
         private GameSettings settings;
@@ -28,6 +26,11 @@ namespace Game1.Shadows
         private float[] cascadeSplits;
         private Vector3[] frustumCorners;
 
+        public RenderTarget2D ShadowMap
+        {
+            get { return shadowMap; }
+        }
+
         public ShadowRenderer(GraphicsDevice graphicsDevice, GameSettings settings,
                         ContentManager contentManager)
         {
@@ -37,8 +40,6 @@ namespace Game1.Shadows
 
             cascadeSplits = new float[4];
             frustumCorners = new Vector3[8];
-
-            lightDirection = Vector3.Normalize(new Vector3(1, 1, -1));
 
             shadowEffect = new ShadowEffect(graphicsDevice, contentManager.Load<Effect>("Effects/Shadow"));
             shadowMapEffect = new ShadowMapEffect(graphicsDevice, contentManager.Load<Effect>("Effects/ShadowMap"));
@@ -131,7 +132,7 @@ namespace Game1.Shadows
                 {
                     // Create a temporary view matrix for the light
                     var lightCameraPos = frustumCenter;
-                    var lookAt = frustumCenter - lightDirection;
+                    var lookAt = frustumCenter - settings.LightDirection;
                     var lightView = Matrix.CreateLookAt(lightCameraPos, lookAt, upDir);
 
                     // Calculate an AABB around the frustum corners
@@ -158,7 +159,7 @@ namespace Game1.Shadows
                 var cascadeExtents = maxExtents - minExtents;
 
                 // Get position of the shadow camera
-                var shadowCameraPos = frustumCenter + lightDirection * -minExtents.Z;
+                var shadowCameraPos = frustumCenter + settings.LightDirection * -minExtents.Z;
 
                 // Come up with a new orthographic camera for the shadow caster
                 var shadowCamera = new ShadowOrthographicCamera(
@@ -260,7 +261,7 @@ namespace Game1.Shadows
                 upDir = Vector3.Up;
 
             // Get position of the shadow camera
-            var shadowCameraPos = frustumCenter + lightDirection * -0.5f;
+            var shadowCameraPos = frustumCenter + settings.LightDirection * -0.5f;
 
             // Come up with a new orthographic camera for the shadow caster
             var shadowCamera = new ShadowOrthographicCamera(-0.5f, -0.5f, 0.5f, 0.5f, 0.0f, 1.0f);
@@ -302,7 +303,7 @@ namespace Game1.Shadows
             }
         }
 
-        public void Render(GraphicsDevice graphicsDevice, Camera camera, Matrix worldMatrix, Vector3 lightDirection, Vector3 lightColor,
+        public void Render(GraphicsDevice graphicsDevice, Camera camera, Matrix worldMatrix,
             RenderTarget2D colorMap, RenderTarget2D normalMap, RenderTarget2D depthMap)
         {
             // Render scene.
@@ -312,6 +313,13 @@ namespace Game1.Shadows
             graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
 
             graphicsDevice.SamplerStates[0] = SamplerStateUtility.ShadowMap;
+            graphicsDevice.SamplerStates[1] = SamplerStateUtility.ColorMap;
+            graphicsDevice.SamplerStates[2] = SamplerStateUtility.NormalMap;
+            graphicsDevice.SamplerStates[3] = SamplerStateUtility.DepthMap;
+
+            graphicsDevice.Textures[1] = colorMap;
+            graphicsDevice.Textures[2] = normalMap;
+            graphicsDevice.Textures[3] = depthMap;
 
             shadowEffect.VisualizeCascades = settings.VisualizeCascades;
             shadowEffect.FilterAcrossCascades = settings.FilterAcrossCascades;
@@ -324,8 +332,8 @@ namespace Game1.Shadows
             
             shadowEffect.ShadowMap = shadowMap;
             
-            shadowEffect.LightDirection = lightDirection;
-            shadowEffect.LightColor = lightColor;
+            shadowEffect.LightDirection = settings.LightDirection;
+            shadowEffect.LightColor = settings.LightColor;
 
             shadowEffect.ColorMap = colorMap;
             shadowEffect.NormalMap = normalMap;

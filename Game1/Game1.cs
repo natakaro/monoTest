@@ -20,7 +20,6 @@ namespace Game1
         private SpriteFont spriteFont;
 
         Octree octree;
-        public static Vector3 slonce = new Vector3(300, 300, -4990);
         InstancingDraw temp;
         private Texture2D cross;
 
@@ -57,8 +56,8 @@ namespace Game1
         private bool raybox = false;
 
         private const float CAMERA_FOVX = 90.0f;
-        private const float CAMERA_ZNEAR = 0.01f;
-        private const float CAMERA_ZFAR = 15000.0f;
+        private const float CAMERA_ZNEAR = 0.1f;
+        private const float CAMERA_ZFAR = 2000.0f;
         private const float CAMERA_PLAYER_EYE_HEIGHT = 30.0f;
         private const float CAMERA_ACCELERATION_X = 800.0f;
         private const float CAMERA_ACCELERATION_Y = 800.0f;
@@ -150,7 +149,7 @@ namespace Game1
             // Initial position for text rendering.
             fontPos = new Vector2(1.0f, 1.0f);
 
-            camera.worldMatrix = Matrix.CreateWorld(new Vector3(), Vector3.Forward, Vector3.Up);           
+            //camera.worldMatrix = Matrix.CreateWorld(new Vector3(), Vector3.Forward, Vector3.Up);           
 
             //Setup the camera.
             camera.EyeHeightStanding = CAMERA_PLAYER_EYE_HEIGHT;
@@ -213,7 +212,7 @@ namespace Game1
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             //octree
-            octree = new Octree(Map.CreateMap(this, 30, camera.worldMatrix, tileModel));
+            octree = new Octree(Map.CreateMap(this, 30, tileModel));
 
             spellMoveTerrain = new SpellMoveTerrain(octree);
             spellFireball = new SpellFireball(this, camera, octree, fireballModel);
@@ -428,9 +427,6 @@ namespace Game1
             else
                 camera.EyeHeightStanding += -Math.Sign(eyeHeight) * acceleration * (float)(gameTime.ElapsedGameTime.TotalSeconds);
 
-            //obrót słońca wokół punktu 0,0
-            slonce = Vector3.Transform(slonce, Matrix.CreateRotationY((float)(gameTime.ElapsedGameTime.TotalSeconds)));
-
             //wykrywanie obiektu na ktory celujesz
             Ray mouseRay = camera.GetMouseRay(graphics.GraphicsDevice.Viewport);
             IntersectionRecord mouse_ir = octree.NearestIntersection(mouseRay);
@@ -457,6 +453,13 @@ namespace Game1
 
             octree.Update(gameTime);
             UpdateFrameRate(gameTime);
+
+            //obrot slonca
+            //var rotationY = (float)gameTime.ElapsedGameTime.TotalMilliseconds * 0.00025f;
+            //var rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitY, rotationY);
+            //var lightDirection = settings.LightDirection;
+            //lightDirection = Vector3.Transform(lightDirection, rotation);
+            //settings.LightDirection = lightDirection;
         }
 
         private void UpdateFrameRate(GameTime gameTime)
@@ -563,7 +566,7 @@ namespace Game1
             //directionalLightEffect.Parameters["InvertViewProjection"].SetValue(Matrix.Invert(camera.ViewProjectionMatrix));
 
             //directionalLightEffect.Techniques[0].Passes[0].Apply();
-            shadowRenderer.Render(GraphicsDevice, camera, Matrix.Identity, lightDirection, lightColor, colorTarget, normalTarget, depthTarget);
+            shadowRenderer.Render(GraphicsDevice, camera, camera.ProjectionMatrix, colorTarget, normalTarget, depthTarget);
             quadRenderer.Render(Vector2.One * -1, Vector2.One);
         }
 
@@ -653,8 +656,6 @@ namespace Game1
             DrawPointLight(new Vector3(0, (float)Math.Sin(angle * 0.8) * 40, 0), Color.Red, 30, 5);
             DrawPointLight(new Vector3(0, 25, 0), Color.White, 30, 1);
             DrawPointLight(new Vector3(0, 0, 70), Color.Wheat, 55 + 10 * (float)Math.Sin(5 * angle), 3);
-
-            //DrawPointLight(slonce, Color.Wheat, 500, 30);
 
             GraphicsDevice.BlendState = BlendState.Opaque;
             GraphicsDevice.DepthStencilState = DepthStencilState.None;
@@ -806,7 +807,7 @@ namespace Game1
             int halfHeight = GraphicsDevice.Viewport.Height / 2;
             GraphicsDevice.Clear(Color.Black);
 
-            spriteBatch.Draw(colorTarget, new Rectangle(0, 0, halfWidth, halfHeight), Color.White);
+            spriteBatch.Draw(shadowRenderer.ShadowMap, new Rectangle(0, 0, halfWidth, halfHeight), Color.White);
             spriteBatch.Draw(normalTarget, new Rectangle(0, halfHeight, halfWidth, halfHeight), Color.White);
             spriteBatch.Draw(depthTarget, new Rectangle(halfWidth, 0, halfWidth, halfHeight), Color.White);
             spriteBatch.Draw(lightTarget, new Rectangle(halfWidth, halfHeight, halfWidth, halfHeight), Color.White);

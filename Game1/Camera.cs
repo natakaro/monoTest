@@ -34,7 +34,6 @@ namespace Game1
         public const float DEFAULT_ZNEAR = 0.1f;
         public const float DEFAULT_ZFAR = 1000.0f;
 
-        public Matrix worldMatrix;
         private static Vector3 WORLD_X_AXIS = new Vector3(1.0f, 0.0f, 0.0f);
         private static Vector3 WORLD_Y_AXIS = new Vector3(0.0f, 1.0f, 0.0f);
         private static Vector3 WORLD_Z_AXIS = new Vector3(0.0f, 0.0f, 1.0f);
@@ -1011,6 +1010,11 @@ namespace Game1
         public Matrix ViewProjectionMatrix
         {
             get { return viewMatrix * projMatrix; }
+        }
+
+        public Matrix worldMatrix
+        {
+            get { return Matrix.Invert(viewMatrix); }
         }
 
         public Vector3 XAxis
