@@ -31,6 +31,9 @@ namespace Game1.Shadows
         private readonly EffectParameter _depthMap;
         private readonly EffectParameter _invertViewProjectionParameter;
 
+        private readonly EffectParameter _nearClipParameter;
+        private readonly EffectParameter _farClipParameter;
+
         public bool VisualizeCascades { get; set; }
         public bool FilterAcrossCascades { get; set; }
         public FixedFilterSize FilterSize { get; set; }
@@ -53,6 +56,8 @@ namespace Game1.Shadows
         public Texture2D NormalMap { get; set; }
         public Texture2D DepthMap { get; set; }
         public Matrix InvertViewProjection { get; set; }
+        public float NearClip { get; set; }
+        public float FarClip { get; set; }
 
         public ShadowEffect(GraphicsDevice graphicsDevice, Effect innerEffect)
         {
@@ -76,6 +81,9 @@ namespace Game1.Shadows
             _normalMap = _innerEffect.Parameters["normalMap"];
             _depthMap = _innerEffect.Parameters["depthMap"];
             _invertViewProjectionParameter = _innerEffect.Parameters["InvertViewProjection"];
+
+            _nearClipParameter = _innerEffect.Parameters["NearClip"];
+            _farClipParameter = _innerEffect.Parameters["FarClip"];
 
             CascadeSplits = new float[ShadowRenderer.NumCascades];
             CascadeOffsets = new Vector4[ShadowRenderer.NumCascades];
@@ -106,7 +114,8 @@ namespace Game1.Shadows
             _depthMap.SetValue(DepthMap);
             _invertViewProjectionParameter.SetValue(InvertViewProjection);
 
-
+            _nearClipParameter.SetValue(NearClip);
+            _farClipParameter.SetValue(FarClip);
 
             _innerEffect.CurrentTechnique.Passes[0].Apply();
         }

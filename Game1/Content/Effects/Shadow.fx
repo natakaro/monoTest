@@ -5,6 +5,8 @@
 matrix World;
 matrix ViewProjection;
 matrix InvertViewProjection;
+float NearClip;
+float FarClip;
 
 float3 CameraPosWS;
 matrix ShadowMatrix;
@@ -379,7 +381,7 @@ float4 PSMesh(VSOutput input,
     position = mul(position, InvertViewProjection);
     position /= position.w;
 
-    depthVal = (2 * 0.1) / (2000 + 0.1 - depthVal * (2000 - 0.1));
+    depthVal = (2 * NearClip) / (FarClip + NearClip - depthVal * (FarClip - NearClip));
 
     // Convert color to grayscale, just beacuse it looks nicer.
     float diffuseValue = 0.299 * 1 + 0.587 * 1 + 0.114 * 1;

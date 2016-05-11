@@ -192,7 +192,7 @@ namespace Game1.Shadows
                 }
 
                 // Draw the mesh with depth only, using the new shadow camera
-                RenderDepth(graphicsDevice, shadowCamera, worldMatrix, octree.AllIntersections(new BoundingFrustum(shadowCamera.ViewProjection)));
+                RenderDepth(graphicsDevice, shadowCamera, worldMatrix, octree.AllObjects());
 
                 // Apply the scale/offset matrix, which transforms from [-1,1]
                 // post-projection space to [0,1] UV space
@@ -272,7 +272,7 @@ namespace Game1.Shadows
             return shadowCamera.ViewProjection * texScaleBias;
         }
 
-        private void RenderDepth(GraphicsDevice graphicsDevice, ShadowCamera camera, Matrix worldMatrix, List<IntersectionRecord> list)
+        private void RenderDepth(GraphicsDevice graphicsDevice, ShadowCamera camera, Matrix worldMatrix, List<DrawableObject> list)
         {
             graphicsDevice.BlendState = BlendState.Opaque;
             graphicsDevice.DepthStencilState = DepthStencilState.Default;
@@ -281,14 +281,14 @@ namespace Game1.Shadows
 
             var worldViewProjection = worldMatrix * camera.ViewProjection;
 
-            foreach (IntersectionRecord ir in list)
+            foreach (DrawableObject dObject in list)
             {
-                foreach (var mesh in ir.DrawableObjectObject.Model.Meshes)
+                foreach (var mesh in dObject.Model.Meshes)
                 {
                     foreach (var meshPart in mesh.MeshParts)
                         if (meshPart.PrimitiveCount > 0)
                         {
-                            shadowMapEffect.WorldViewProjection = ir.DrawableObjectObject.ModelBones[mesh.ParentBone.Index] * Matrix.CreateScale(Map.scale)  * Matrix.CreateTranslation(ir.DrawableObjectObject.Position) * worldViewProjection;
+                            shadowMapEffect.WorldViewProjection = dObject.ModelBones[mesh.ParentBone.Index] * Matrix.CreateScale(Map.scale)  * Matrix.CreateTranslation(dObject.Position) * worldViewProjection;
                             shadowMapEffect.Apply();
 
                             graphicsDevice.SetVertexBuffer(meshPart.VertexBuffer);
@@ -342,6 +342,9 @@ namespace Game1.Shadows
 
             //shadowEffect.DiffuseColor = basicEffect.DiffuseColor;
             shadowEffect.World = worldMatrix;
+
+            shadowEffect.NearClip = camera.NearZ;
+            shadowEffect.FarClip = camera.FarZ;
 
             shadowEffect.Apply();
         }

@@ -567,6 +567,45 @@ namespace Game1
         }
 
         /// <summary>
+        /// Returns all objects from the whole octree
+        /// </summary>
+        /// <returns>A list of DrawableObjects</returns>
+        private List<DrawableObject> GetAll(DrawableObject.ObjectType type = DrawableObject.ObjectType.ALL)
+        {
+            if (m_objects.Count == 0 && HasChildren == false)   //terminator for any recursion
+                return null;
+
+            List<DrawableObject> ret = new List<DrawableObject>();
+
+            //test each object in the list
+            foreach (DrawableObject obj in m_objects)
+            {
+
+                //skip any objects which don't meet our type criteria
+                if ((int)((int)type & (int)obj.Type) == 0)
+                    continue;
+
+                //add the object
+                ret.Add(obj);
+            }
+
+            //test each object in the list for intersection
+            for (int a = 0; a < 8; a++)
+            {
+                if (m_childNode[a] != null)
+                {
+                    List<DrawableObject> hitList = m_childNode[a].GetAll(type);
+                    if (hitList != null)
+                    {
+                        foreach (DrawableObject dObject in hitList)
+                            ret.Add(dObject);
+                    }
+                }
+            }
+            return ret;
+        }
+
+        /// <summary>
         /// Gives you a list of all intersection records which intersect or are contained within the given frustum area
         /// </summary>
         /// <param name="frustum">The containing frustum to check for intersection/containment with</param>
@@ -782,6 +821,17 @@ namespace Game1
         #endregion
 
         #region Colliders
+
+        /// <summary>
+        /// This gives you a list of all objects in the octree
+        /// </summary>
+        public List<DrawableObject> AllObjects(DrawableObject.ObjectType type = DrawableObject.ObjectType.ALL)
+        {
+            if (!m_treeReady)
+                UpdateTree();
+
+            return GetAll(type);
+        }
 
         /// <summary>
         /// This gives you a list of every intersection record created with the intersection ray
