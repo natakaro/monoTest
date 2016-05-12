@@ -38,8 +38,7 @@ namespace Game1
         public Tile(Game game, Matrix inWorldMatrix, Model inModel) : base(game, inWorldMatrix, inModel)
         {
             m_instanced = true;
-            boundingSphere = new BoundingSphere(position, Map.scale * 0.75f);
-            //boundingBox = new BoundingBox(position - new Vector3 (25, 4, 25), position + new Vector3(25, 4, 25)); // na oko wartosci, koniecznie wprowadzic poprawne!!
+            //boundingSphere = new BoundingSphere(position, Map.scale * 0.75f);
             
             type = ObjectType.Terrain;
 
