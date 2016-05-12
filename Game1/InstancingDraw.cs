@@ -43,7 +43,7 @@ namespace Game1
             // Initialize the list of instances.
             graphicsDevice = game.GraphicsDevice;
             model = contentManager.Load<Model>("1");
-            effect = contentManager.Load<Effect>("Effects/RenderGBuffer");
+            //effect = contentManager.Load<Effect>("Effects/RenderGBuffer");
             tex = contentManager.Load<Texture2D>("gradient");
             this.camera = camera;
             //instances = insta;
