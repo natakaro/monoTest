@@ -631,31 +631,31 @@ namespace Game1
             GraphicsDevice.BlendState = BlendState.AlphaBlend;
             GraphicsDevice.DepthStencilState = DepthStencilState.None;
 
-            //draw some lights
-            Color[] colors = new Color[10];
-            colors[0] = Color.Red; colors[1] = Color.Blue;
-            colors[2] = Color.IndianRed; colors[3] = Color.CornflowerBlue;
-            colors[4] = Color.Gold; colors[5] = Color.Green;
-            colors[6] = Color.Crimson; colors[7] = Color.SkyBlue;
-            colors[8] = Color.Red; colors[9] = Color.ForestGreen;
-            float angle = (float)gameTime.TotalGameTime.TotalSeconds;
-            int n = 15;
+            ////draw some lights
+            //Color[] colors = new Color[10];
+            //colors[0] = Color.Red; colors[1] = Color.Blue;
+            //colors[2] = Color.IndianRed; colors[3] = Color.CornflowerBlue;
+            //colors[4] = Color.Gold; colors[5] = Color.Green;
+            //colors[6] = Color.Crimson; colors[7] = Color.SkyBlue;
+            //colors[8] = Color.Red; colors[9] = Color.ForestGreen;
+            //float angle = (float)gameTime.TotalGameTime.TotalSeconds;
+            //int n = 15;
 
-            for (int i = 0; i < n; i++)
-            {
-                Vector3 pos = new Vector3((float)Math.Sin(i * MathHelper.TwoPi / n + angle), 0.30f, (float)Math.Cos(i * MathHelper.TwoPi / n + angle));
-                DrawPointLight(pos * 40, colors[i % 10], 15, 2);
-                pos = new Vector3((float)Math.Cos((i + 5) * MathHelper.TwoPi / n - angle), 0.30f, (float)Math.Sin((i + 5) * MathHelper.TwoPi / n - angle));
-                DrawPointLight(pos * 20, colors[i % 10], 20, 1);
-                pos = new Vector3((float)Math.Cos(i * MathHelper.TwoPi / n + angle), 0.10f, (float)Math.Sin(i * MathHelper.TwoPi / n + angle));
-                DrawPointLight(pos * 75, colors[i % 10], 45, 2);
-                pos = new Vector3((float)Math.Cos(i * MathHelper.TwoPi / n + angle), -0.3f, (float)Math.Sin(i * MathHelper.TwoPi / n + angle));
-                DrawPointLight(pos * 20, colors[i % 10], 20, 2);
-            }
+            //for (int i = 0; i < n; i++)
+            //{
+            //    Vector3 pos = new Vector3((float)Math.Sin(i * MathHelper.TwoPi / n + angle), 0.30f, (float)Math.Cos(i * MathHelper.TwoPi / n + angle));
+            //    DrawPointLight(pos * 40, colors[i % 10], 15, 2);
+            //    pos = new Vector3((float)Math.Cos((i + 5) * MathHelper.TwoPi / n - angle), 0.30f, (float)Math.Sin((i + 5) * MathHelper.TwoPi / n - angle));
+            //    DrawPointLight(pos * 20, colors[i % 10], 20, 1);
+            //    pos = new Vector3((float)Math.Cos(i * MathHelper.TwoPi / n + angle), 0.10f, (float)Math.Sin(i * MathHelper.TwoPi / n + angle));
+            //    DrawPointLight(pos * 75, colors[i % 10], 45, 2);
+            //    pos = new Vector3((float)Math.Cos(i * MathHelper.TwoPi / n + angle), -0.3f, (float)Math.Sin(i * MathHelper.TwoPi / n + angle));
+            //    DrawPointLight(pos * 20, colors[i % 10], 20, 2);
+            //}
 
-            DrawPointLight(new Vector3(0, (float)Math.Sin(angle * 0.8) * 40, 0), Color.Red, 30, 5);
-            DrawPointLight(new Vector3(0, 25, 0), Color.White, 30, 1);
-            DrawPointLight(new Vector3(0, 0, 70), Color.Wheat, 55 + 10 * (float)Math.Sin(5 * angle), 3);
+            //DrawPointLight(new Vector3(0, (float)Math.Sin(angle * 0.8) * 40, 0), Color.Red, 30, 5);
+            //DrawPointLight(new Vector3(0, 25, 0), Color.White, 30, 1);
+            //DrawPointLight(new Vector3(0, 0, 70), Color.Wheat, 55 + 10 * (float)Math.Sin(5 * angle), 3);
 
             GraphicsDevice.BlendState = BlendState.Opaque;
             GraphicsDevice.DepthStencilState = DepthStencilState.None;

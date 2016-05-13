@@ -81,13 +81,12 @@ namespace Game1
         public void DrawModelHardwareInstancing(List<IntersectionRecord> insta)
         {
             
-            Matrix temp = Matrix.CreateScale(Map.scale); //tylko do Tile
             // Gather instance transform matrices into a single array.
             Array.Resize(ref instances, insta.Count);
 
             for (int i = 0; i < insta.Count; i++)
             {
-                instances[i] = temp * Matrix.CreateTranslation(insta[i].DrawableObjectObject.Position);
+                instances[i] = Matrix.CreateTranslation(insta[i].DrawableObjectObject.Position);
             }
 
             if (instances.Length == 0)

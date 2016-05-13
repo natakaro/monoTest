@@ -14,27 +14,6 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin 1.DAE
-/importer:OpenAssetImporter
-/processor:DeferredModelProcessor
-/processorParam:NormalMapKey=NormalMap
-/processorParam:GenerateTangentFrames=True
-/processorParam:SpecularMapKey=SpecularMap
-/processorParam:ColorKeyColor=0,0,0,0
-/processorParam:ColorKeyEnabled=True
-/processorParam:DefaultEffect=BasicEffect
-/processorParam:GenerateMipmaps=True
-/processorParam:PremultiplyTextureAlpha=True
-/processorParam:PremultiplyVertexColors=True
-/processorParam:ResizeTexturesToPowerOfTwo=False
-/processorParam:RotationX=0
-/processorParam:RotationY=0
-/processorParam:RotationZ=0
-/processorParam:Scale=1
-/processorParam:SwapWindingOrder=False
-/processorParam:TextureFormat=DxtCompressed
-/build:1.DAE
-
 #begin 1t.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -554,4 +533,25 @@
 /processor:EffectProcessor
 /processorParam:DebugMode=Auto
 /build:Effects/ShadowInstancing.fx
+
+#begin 1.DAE
+/importer:OpenAssetImporter
+/processor:DeferredModelProcessor
+/processorParam:NormalMapKey=NormalMap
+/processorParam:GenerateTangentFrames=True
+/processorParam:SpecularMapKey=SpecularMap
+/processorParam:ColorKeyColor=0,0,0,0
+/processorParam:ColorKeyEnabled=True
+/processorParam:DefaultEffect=BasicEffect
+/processorParam:GenerateMipmaps=True
+/processorParam:PremultiplyTextureAlpha=True
+/processorParam:PremultiplyVertexColors=True
+/processorParam:ResizeTexturesToPowerOfTwo=False
+/processorParam:RotationX=0
+/processorParam:RotationY=0
+/processorParam:RotationZ=0
+/processorParam:Scale=1
+/processorParam:SwapWindingOrder=False
+/processorParam:TextureFormat=DxtCompressed
+/build:1.DAE
 

@@ -309,7 +309,7 @@ namespace Game1.Shadows
                     foreach (var meshPart in mesh.MeshParts)
                         if (meshPart.PrimitiveCount > 0)
                         {
-                            shadowMapEffect.WorldViewProjection = dObject.ModelBones[mesh.ParentBone.Index] * Matrix.CreateScale(Map.scale)  * Matrix.CreateTranslation(dObject.Position) * worldViewProjection;
+                            shadowMapEffect.WorldViewProjection = dObject.ModelBones[mesh.ParentBone.Index] * Matrix.CreateTranslation(dObject.Position) * worldViewProjection;
                             shadowMapEffect.Apply();
 
                             graphicsDevice.SetVertexBuffer(meshPart.VertexBuffer);
@@ -333,11 +333,9 @@ namespace Game1.Shadows
             // Gather instance transform matrices into a single array.
             Array.Resize(ref instances, list.Count);
 
-            Matrix scale = Matrix.CreateScale(Map.scale); //tylko do tili, do usuniecia potem
-
             for (int i = 0; i < list.Count; i++)
             {
-                instances[i] = scale * Matrix.CreateTranslation(list[i].Position); //do usuniecia po ogarnieciu modelu tili
+                instances[i] = Matrix.CreateTranslation(list[i].Position); //do usuniecia po ogarnieciu modelu tili
             }
 
             if (instances.Length == 0)

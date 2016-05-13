@@ -27,7 +27,7 @@ namespace Game1
             {
                 foreach (Effect effect in mesh.Effects)
                 {
-                    effect.Parameters["World"].SetValue(camera.worldMatrix * Matrix.CreateScale(25) * Matrix.CreateTranslation(position));
+                    effect.Parameters["World"].SetValue(camera.worldMatrix * Matrix.CreateTranslation(position));
                     effect.Parameters["View"].SetValue(camera.ViewMatrix);
                     effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
                     effect.Parameters["Texture"].SetValue(texture);

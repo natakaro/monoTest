@@ -40,7 +40,7 @@ namespace Game1.Spells
                         }
 
                         //tworzymy sphere duza wokol celu, zbieramy kolizje wszystkich wokol i wyliczyamy srednia pozycje na y
-                        areaSphere = new BoundingSphere(dObj.Position, Map.scale * 1.75f);
+                        areaSphere = new BoundingSphere(dObj.Position, 40f);
                         sphere_list = octree.AllIntersections(areaSphere, DrawableObject.ObjectType.Terrain);
                         average_y = 0;
 

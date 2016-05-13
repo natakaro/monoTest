@@ -12,12 +12,11 @@ namespace Game1
 {
     static class Map
     {
-        public static float scale = 25f;
         public static bool efekt = false;
 
         public static List<DrawableObject> CreateMap(Game game, int size, Model inModel)
         {
-            float height = 2 * scale;
+            float height = 50f;
             float vert = 0.75f * height;
             float width = (float)Math.Sqrt(3) / 2 * height;
             float horiz = width;
@@ -32,7 +31,7 @@ namespace Game1
                     Vector3 position = new Vector3(i * vert, a.Next(5), (j * horiz) + (i % 2) * horiz / 2);
                     //mapa[i, j] = new Tile(game, new Vector3(i * vert, a.Next(5), (j * width) + (i % 2) * width / 2) , a.Next(1, 2));
                     //mapa[i, j] = new Tile(game, Matrix.CreateScale(scale) * Matrix.CreateTranslation(position) * worldMatrix, a.Next(1, 2));
-                    tileList.Add(new Tile(game, Matrix.CreateScale(scale) * Matrix.CreateTranslation(position), inModel));                   
+                    tileList.Add(new Tile(game, Matrix.CreateTranslation(position), inModel));                   
                 }
             }
             return tileList;

@@ -26,7 +26,7 @@ namespace Game1
                 foreach (Effect effect in mesh.Effects)
                 {
                     effect.CurrentTechnique = effect.Techniques["Technique1"];
-                    effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index] * Matrix.CreateScale(Map.scale) * Matrix.CreateTranslation(position));
+                    effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index] * Matrix.CreateTranslation(position));
                     effect.Parameters["View"].SetValue(camera.ViewMatrix);
                     effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
                     effect.Parameters["Texture"].SetValue(texture);
@@ -43,7 +43,7 @@ namespace Game1
             type = ObjectType.Terrain;
 
             Initialize(game.Content);
-            boundingBox = CollisionBox.CreateBoundingBox(model, position, Map.scale);
+            boundingBox = CollisionBox.CreateBoundingBox(model, position, 1);
         }
     }
 }
