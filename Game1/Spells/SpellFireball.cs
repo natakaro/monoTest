@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Game1.Lights;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ namespace Game1.Spells
         Camera camera;
         Octree octree;
         Model fireballModel;
+        LightManager lightManager;
 
         Stopwatch stopwatch = new Stopwatch();
 
@@ -29,7 +31,7 @@ namespace Game1.Spells
             {
                 if (stopwatch.ElapsedMilliseconds > 1000)
                 {
-                    SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel);
+                    SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel, lightManager);
                     fireball.Position = camera.Position;
                     fireball.Velocity = camera.GetMouseRay(game.GraphicsDevice.Viewport).Direction * 100;
                     octree.m_objects.Add(fireball);
@@ -40,7 +42,7 @@ namespace Game1.Spells
             {
                 if (stopwatch.ElapsedMilliseconds > 250) //strzela 4 razy szybciej, a kulki sie rozpedzaja, tak dla sprawdzenia czy dziala
                 {
-                    SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel);
+                    SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel, lightManager);
                     fireball.Position = camera.Position;
                     fireball.Velocity = camera.GetMouseRay(game.GraphicsDevice.Viewport).Direction * 1;
                     fireball.Acceleration = camera.GetMouseRay(game.GraphicsDevice.Viewport).Direction * 10;
@@ -56,12 +58,13 @@ namespace Game1.Spells
             stopwatch.Reset();
         }
 
-        public SpellFireball(Game game, Camera camera, Octree octree, Model inModel)
+        public SpellFireball(Game game, Camera camera, Octree octree, Model inModel, LightManager lightManager)
         {
             this.game = game;
             this.camera = camera;
             this.octree = octree;
             this.fireballModel = inModel;
+            this.lightManager = lightManager;
         }
     }
 }

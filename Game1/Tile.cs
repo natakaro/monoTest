@@ -12,13 +12,6 @@ namespace Game1
 {
     class Tile : DrawableObject
     {
-        Texture2D texture;
-
-        public void Initialize(ContentManager contentManager)
-        {
-            //texture = contentManager.Load<Texture2D>("textchampfer");
-        }
-
         public override void Draw(Camera camera)
         {
             foreach (ModelMesh mesh in model.Meshes)
@@ -29,7 +22,7 @@ namespace Game1
                     effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index] * worldMatrix);
                     effect.Parameters["View"].SetValue(camera.ViewMatrix);
                     effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
-                    effect.Parameters["Texture"].SetValue(texture);
+                    //effect.Parameters["Texture"].SetValue(texture);
                 }
                 mesh.Draw();
             }
@@ -42,7 +35,6 @@ namespace Game1
             
             type = ObjectType.Terrain;
 
-            //Initialize(game.Content);
             boundingBox = CollisionBox.CreateBoundingBox(model, position, 1);
         }
     }

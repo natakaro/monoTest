@@ -7,6 +7,7 @@ using System.Text;
 using Game1.Spells;
 using Game1.Helpers;
 using Game1.Shadows;
+using Game1.Lights;
 
 namespace Game1
 {
@@ -15,31 +16,28 @@ namespace Game1
     {
         public static GraphicsDeviceManager graphics; //Ustawione na razie na static, żeby nie trzeba było dogrzebywać się do tego z każdej klasy
         private SpriteBatch spriteBatch;
-        private Camera camera;
-        private QuadRenderComponent quadRenderer;
+        public Camera camera;
+        public QuadRenderComponent quadRenderer;
         private SpriteFont spriteFont;
 
-        Octree octree;
+        public Octree octree;
         InstancingDraw temp;
         private Texture2D cross;
 
         private Effect fxaaEffect;
         private RenderTarget2D fxaaTarget;
 
-        private RenderTarget2D colorTarget;
-        private RenderTarget2D normalTarget;
-        private RenderTarget2D depthTarget;
-        private RenderTarget2D lightTarget;
+        public RenderTarget2D colorTarget;
+        public RenderTarget2D normalTarget;
+        public RenderTarget2D depthTarget;
+        public RenderTarget2D lightTarget;
 
         private Effect clearBufferEffect;
-        private Effect directionalLightEffect;
-        private Effect pointLightEffect;
         private Effect finalCombineEffect;
 
+        private LightManager lightManager;
         private ShadowRenderer shadowRenderer;
-        private GameSettings settings;
-
-        private Model sphereModel;
+        public GameSettings settings;
 
         Model tileModel;
         Model skySphereModel;
@@ -199,23 +197,22 @@ namespace Game1
             fireballModel = Content.Load<Model>("fireball");
 
             clearBufferEffect = Content.Load<Effect>("Effects/ClearGBuffer");
-            directionalLightEffect = Content.Load<Effect>("Effects/DirectionalLight");
-            pointLightEffect = Content.Load<Effect>("Effects/PointLight");
             finalCombineEffect = Content.Load<Effect>("Effects/CombineFinal");
 
             shadowRenderer = new ShadowRenderer(GraphicsDevice, settings, Content);
-
-            sphereModel = Content.Load<Model>("Models/sphere");
 
             fxaaEffect = Content.Load<Effect>("Effects/fxaa");
 
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            lightManager = new LightManager(this, lightTarget, Content);
+            TestLights();
+
             //octree
             octree = new Octree(Map.CreateMap(this, 30, tileModel));
 
             spellMoveTerrain = new SpellMoveTerrain(octree);
-            spellFireball = new SpellFireball(this, camera, octree, fireballModel);
+            spellFireball = new SpellFireball(this, camera, octree, fireballModel, lightManager);
 
 
         }
@@ -553,84 +550,8 @@ namespace Game1
             spriteBatch.DrawString(spriteFont, buffer.ToString(), fontPos, Color.Yellow);
         }
 
-        private void DrawDirectionalLight(Vector3 lightDirection, Vector3 lightColor)
+        private void TestLights()
         {
-            //directionalLightEffect.Parameters["colorMap"].SetValue(colorTarget);
-            //directionalLightEffect.Parameters["normalMap"].SetValue(normalTarget);
-            //directionalLightEffect.Parameters["depthMap"].SetValue(depthTarget);
-
-            //directionalLightEffect.Parameters["lightDirection"].SetValue(lightDirection);
-            //directionalLightEffect.Parameters["Color"].SetValue(color.ToVector3());
-
-            //directionalLightEffect.Parameters["cameraPosition"].SetValue(camera.Position);
-            //directionalLightEffect.Parameters["InvertViewProjection"].SetValue(Matrix.Invert(camera.ViewProjectionMatrix));
-
-            //directionalLightEffect.Techniques[0].Passes[0].Apply();
-            shadowRenderer.Render(GraphicsDevice, camera, camera.ProjectionMatrix, colorTarget, normalTarget, depthTarget);
-            quadRenderer.Render(Vector2.One * -1, Vector2.One);
-        }
-
-        private void DrawPointLight(Vector3 lightPosition, Color color, float lightRadius, float lightIntensity)
-        {
-            //set the G-Buffer parameters
-            pointLightEffect.Parameters["colorMap"].SetValue(colorTarget);
-            pointLightEffect.Parameters["normalMap"].SetValue(normalTarget);
-            pointLightEffect.Parameters["depthMap"].SetValue(depthTarget);
-
-            //compute the light world matrix
-            //scale according to light radius, and translate it to light position
-            Matrix sphereWorldMatrix = Matrix.CreateScale(lightRadius) * Matrix.CreateTranslation(lightPosition);
-            pointLightEffect.Parameters["World"].SetValue(sphereWorldMatrix);
-            pointLightEffect.Parameters["View"].SetValue(camera.ViewMatrix);
-            pointLightEffect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
-            //light position
-            pointLightEffect.Parameters["lightPosition"].SetValue(lightPosition);
-
-            //set the color, radius and Intensity
-            pointLightEffect.Parameters["Color"].SetValue(color.ToVector3());
-            pointLightEffect.Parameters["lightRadius"].SetValue(lightRadius);
-            pointLightEffect.Parameters["lightIntensity"].SetValue(lightIntensity);
-
-            //parameters for specular computations
-            pointLightEffect.Parameters["cameraPosition"].SetValue(camera.Position);
-            pointLightEffect.Parameters["InvertViewProjection"].SetValue(Matrix.Invert(camera.ViewProjectionMatrix));
-
-            //calculate the distance between the camera and light center
-            float cameraToCenter = Vector3.Distance(camera.Position, lightPosition);
-            //if we are inside the light volume, draw the sphere's inside face
-            if (cameraToCenter < lightRadius)
-                GraphicsDevice.RasterizerState = RasterizerState.CullClockwise;
-            else
-                GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
-
-            GraphicsDevice.DepthStencilState = DepthStencilState.None;
-
-            pointLightEffect.Techniques[0].Passes[0].Apply();
-            foreach (ModelMesh mesh in sphereModel.Meshes)
-            {
-                foreach (ModelMeshPart meshPart in mesh.MeshParts)
-                {
-                    GraphicsDevice.Indices = meshPart.IndexBuffer;
-                    GraphicsDevice.SetVertexBuffer(meshPart.VertexBuffer);
-
-                    GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, meshPart.PrimitiveCount);
-                }
-            }
-
-            GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
-            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-        }
-
-        private void DrawLights(GameTime gameTime)
-        {
-            GraphicsDevice.SetRenderTarget(lightTarget);
-            GraphicsDevice.Clear(Color.Transparent);
-
-            DrawDirectionalLight(settings.LightDirection, settings.LightColor); //directional light z cieniami
-
-            GraphicsDevice.BlendState = BlendState.AlphaBlend;
-            GraphicsDevice.DepthStencilState = DepthStencilState.None;
-
             //draw some lights
             Color[] colors = new Color[10];
             colors[0] = Color.Red; colors[1] = Color.Blue;
@@ -638,30 +559,23 @@ namespace Game1
             colors[4] = Color.Gold; colors[5] = Color.Green;
             colors[6] = Color.Crimson; colors[7] = Color.SkyBlue;
             colors[8] = Color.Red; colors[9] = Color.ForestGreen;
-            float angle = (float)gameTime.TotalGameTime.TotalSeconds;
             int n = 15;
 
             for (int i = 0; i < n; i++)
             {
-                Vector3 pos = new Vector3((float)Math.Sin(i * MathHelper.TwoPi / n + angle), 0.30f, (float)Math.Cos(i * MathHelper.TwoPi / n + angle));
-                DrawPointLight(pos * 40, colors[i % 10], 15, 2);
-                pos = new Vector3((float)Math.Cos((i + 5) * MathHelper.TwoPi / n - angle), 0.30f, (float)Math.Sin((i + 5) * MathHelper.TwoPi / n - angle));
-                DrawPointLight(pos * 20, colors[i % 10], 20, 1);
-                pos = new Vector3((float)Math.Cos(i * MathHelper.TwoPi / n + angle), 0.10f, (float)Math.Sin(i * MathHelper.TwoPi / n + angle));
-                DrawPointLight(pos * 75, colors[i % 10], 45, 2);
-                pos = new Vector3((float)Math.Cos(i * MathHelper.TwoPi / n + angle), -0.3f, (float)Math.Sin(i * MathHelper.TwoPi / n + angle));
-                DrawPointLight(pos * 20, colors[i % 10], 20, 2);
+                Vector3 pos = new Vector3((float)Math.Sin(i * MathHelper.TwoPi / n), 0.30f, (float)Math.Cos(i * MathHelper.TwoPi / n));
+                lightManager.AddLight(new PointLight(pos * 40, colors[i % 10], 15, 2));
+                pos = new Vector3((float)Math.Cos((i + 5) * MathHelper.TwoPi / n), 0.30f, (float)Math.Sin((i + 5) * MathHelper.TwoPi / n));
+                lightManager.AddLight(new PointLight(pos * 20, colors[i % 10], 20, 1));
+                pos = new Vector3((float)Math.Cos(i * MathHelper.TwoPi / n), 0.10f, (float)Math.Sin(i * MathHelper.TwoPi / n));
+                lightManager.AddLight(new PointLight(pos * 75, colors[i % 10], 45, 2));
+                pos = new Vector3((float)Math.Cos(i * MathHelper.TwoPi / n), -0.3f, (float)Math.Sin(i * MathHelper.TwoPi / n));
+                lightManager.AddLight(new PointLight(pos * 20, colors[i % 10], 20, 2));
             }
 
-            DrawPointLight(new Vector3(0, (float)Math.Sin(angle * 0.8) * 40, 0), Color.Red, 30, 5);
-            DrawPointLight(new Vector3(0, 25, 0), Color.White, 30, 1);
-            DrawPointLight(new Vector3(0, 0, 70), Color.Wheat, 55 + 10 * (float)Math.Sin(5 * angle), 3);
-
-            GraphicsDevice.BlendState = BlendState.Opaque;
-            GraphicsDevice.DepthStencilState = DepthStencilState.None;
-            GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
-
-            GraphicsDevice.SetRenderTarget(null);
+            lightManager.AddLight(new PointLight(new Vector3(0, (float)Math.Sin(0.8) * 40, 0), Color.Red, 30, 5));
+            lightManager.AddLight(new PointLight(new Vector3(0, 25, 0), Color.White, 30, 1));
+            lightManager.AddLight(new PointLight(new Vector3(0, 0, 70), Color.Wheat, 55 + 10 * (float)Math.Sin(5), 3));
         }
 
         private void DrawFinal()
@@ -754,7 +668,13 @@ namespace Game1
             ResolveGBuffer();
             shadowRenderer.RenderShadowMap(GraphicsDevice, camera, Matrix.Identity, octree);
 
-            DrawLights(gameTime);
+            GraphicsDevice.SetRenderTarget(lightTarget);
+            GraphicsDevice.Clear(Color.Transparent);
+
+            shadowRenderer.Render(GraphicsDevice, camera, camera.ProjectionMatrix, colorTarget, normalTarget, depthTarget);
+            quadRenderer.Render(Vector2.One * -1, Vector2.One);
+
+            lightManager.Draw();
 
             GraphicsDevice.SetRenderTarget(fxaaTarget);
             GraphicsDevice.Clear(Color.CornflowerBlue);
@@ -807,7 +727,7 @@ namespace Game1
             int halfHeight = GraphicsDevice.Viewport.Height / 2;
             GraphicsDevice.Clear(Color.Black);
 
-            spriteBatch.Draw(shadowRenderer.ShadowMap, new Rectangle(0, 0, halfWidth, halfHeight), Color.White);
+            spriteBatch.Draw(colorTarget, new Rectangle(0, 0, halfWidth, halfHeight), Color.White);
             spriteBatch.Draw(normalTarget, new Rectangle(0, halfHeight, halfWidth, halfHeight), Color.White);
             spriteBatch.Draw(depthTarget, new Rectangle(halfWidth, 0, halfWidth, halfHeight), Color.White);
             spriteBatch.Draw(lightTarget, new Rectangle(halfWidth, halfHeight, halfWidth, halfHeight), Color.White);

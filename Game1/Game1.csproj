@@ -49,6 +49,8 @@
     <Compile Include="Helpers\Vector4Utility.cs" />
     <Compile Include="InstancingDraw.cs" />
     <Compile Include="IntersectionRecord.cs" />
+    <Compile Include="Lights\LightManager.cs" />
+    <Compile Include="Lights\PointLight.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="Octree.cs" />

@@ -82,7 +82,7 @@ namespace Game1.Shadows
             cascadeSplits[0] = settings.SplitDistance0;
             cascadeSplits[1] = settings.SplitDistance1;
             cascadeSplits[2] = settings.SplitDistance2;
-            cascadeSplits[3] = settings.SplitDistance3; 
+            cascadeSplits[3] = settings.SplitDistance3;
 
             var globalShadowMatrix = MakeGlobalShadowMatrix(camera);
             shadowEffect.ShadowMatrix = globalShadowMatrix;
@@ -326,7 +326,7 @@ namespace Game1.Shadows
 
         private void DrawModelHardwareInstancing(List<DrawableObject> list, Model model, Matrix viewMatrix, Matrix projMatrix)
         {
-            
+
             Matrix[] modelBones = new Matrix[model.Bones.Count];
             model.CopyAbsoluteBoneTransformsTo(modelBones);
 
@@ -415,9 +415,9 @@ namespace Game1.Shadows
 
             shadowEffect.ViewProjection = camera.ViewProjectionMatrix;
             shadowEffect.CameraPosWS = camera.Position;
-            
+
             shadowEffect.ShadowMap = shadowMap;
-            
+
             shadowEffect.LightDirection = settings.LightDirection;
             shadowEffect.LightColor = settings.LightColor;
 

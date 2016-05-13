@@ -7,17 +7,15 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 using Game1.Helpers;
+using Game1.Lights;
 
 namespace Game1.Spells
 {
     class SpellFireballProjectile : DrawableObject
     {
         Texture2D texture;
-
-        public void Initialize(ContentManager contentManager)
-        {
-            texture = contentManager.Load<Texture2D>("firedot");
-        }
+        private PointLight pointLight;
+        LightManager lightManager;
 
         public override void Draw(Camera camera)
         {
@@ -35,20 +33,36 @@ namespace Game1.Spells
             }
         }
 
-        public SpellFireballProjectile(Game game, Matrix inWorldMatrix, Model inModel) : base(game, inWorldMatrix, inModel)
+        public override bool Update(GameTime gameTime)
         {
+            bool ret = base.Update(gameTime);
+            pointLight.Position = position;
+            return ret;
+        }
+
+        public SpellFireballProjectile(Game game, Matrix inWorldMatrix, Model inModel, LightManager lightManager) : base(game, inWorldMatrix, inModel)
+        {
+            this.lightManager = lightManager;
+            texture = game.Content.Load<Texture2D>("firedot");
             m_static = false;
             boundingSphere = new BoundingSphere(position, 1f);
             boundingBox = CollisionBox.CreateBoundingBox(model, position, 1);
             type = ObjectType.Projectile;
 
-            Initialize(game.Content);
+            pointLight = new PointLight(position, Color.OrangeRed, 25, 1);
+            lightManager.AddLight(pointLight);
         }
 
         public override void HandleIntersection(IntersectionRecord ir)
         {
             if (ir.OtherDrawableObjectObject.Type == ObjectType.Terrain)
-                Alive = false;
+                Destroy();
+        }
+
+        private void Destroy()
+        {
+            Alive = false;
+            lightManager.RemoveLight(pointLight);
         }
     }
 }
