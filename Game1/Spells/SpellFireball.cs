@@ -29,7 +29,7 @@ namespace Game1.Spells
             {
                 if (stopwatch.ElapsedMilliseconds > 1000)
                 {
-                    SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position) * camera.worldMatrix, fireballModel);
+                    SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel);
                     fireball.Position = camera.Position;
                     fireball.Velocity = camera.GetMouseRay(game.GraphicsDevice.Viewport).Direction * 100;
                     octree.m_objects.Add(fireball);
@@ -40,7 +40,7 @@ namespace Game1.Spells
             {
                 if (stopwatch.ElapsedMilliseconds > 250) //strzela 4 razy szybciej, a kulki sie rozpedzaja, tak dla sprawdzenia czy dziala
                 {
-                    SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position) * camera.worldMatrix, fireballModel);
+                    SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel);
                     fireball.Position = camera.Position;
                     fireball.Velocity = camera.GetMouseRay(game.GraphicsDevice.Viewport).Direction * 1;
                     fireball.Acceleration = camera.GetMouseRay(game.GraphicsDevice.Viewport).Direction * 10;

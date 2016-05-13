@@ -16,7 +16,7 @@ namespace Game1
 
         public void Initialize(ContentManager contentManager)
         {
-            texture = contentManager.Load<Texture2D>("textchampfer");
+            //texture = contentManager.Load<Texture2D>("textchampfer");
         }
 
         public override void Draw(Camera camera)
@@ -26,7 +26,7 @@ namespace Game1
                 foreach (Effect effect in mesh.Effects)
                 {
                     effect.CurrentTechnique = effect.Techniques["Technique1"];
-                    effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index] * Matrix.CreateTranslation(position));
+                    effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index] * worldMatrix);
                     effect.Parameters["View"].SetValue(camera.ViewMatrix);
                     effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
                     effect.Parameters["Texture"].SetValue(texture);
@@ -42,7 +42,7 @@ namespace Game1
             
             type = ObjectType.Terrain;
 
-            Initialize(game.Content);
+            //Initialize(game.Content);
             boundingBox = CollisionBox.CreateBoundingBox(model, position, 1);
         }
     }

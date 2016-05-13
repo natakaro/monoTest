@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
+using Game1.Helpers;
 
 namespace Game1.Spells
 {
@@ -25,7 +26,7 @@ namespace Game1.Spells
             {
                 foreach (Effect effect in mesh.Effects)
                 {
-                    effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index] * Matrix.CreateTranslation(position));
+                    effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index] * worldMatrix);
                     effect.Parameters["View"].SetValue(camera.ViewMatrix);
                     effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
                     effect.Parameters["Texture"].SetValue(texture);
@@ -38,7 +39,7 @@ namespace Game1.Spells
         {
             m_static = false;
             boundingSphere = new BoundingSphere(position, 1f);
-            boundingBox = new BoundingBox(position - new Vector3(1, 1, 1), position + new Vector3(1, 1, 1)); // na oko wartosci, koniecznie wprowadzic poprawne!!
+            boundingBox = CollisionBox.CreateBoundingBox(model, position, 1);
             type = ObjectType.Projectile;
 
             Initialize(game.Content);

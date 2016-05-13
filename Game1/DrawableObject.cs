@@ -88,6 +88,7 @@ namespace Game1
                 lastPosition = position;
                 velocity += acceleration * (float)(gameTime.ElapsedGameTime.TotalSeconds);
                 position += velocity * (float)(gameTime.ElapsedGameTime.TotalSeconds);
+                worldMatrix = Matrix.CreateTranslation(position);
                 boundingSphere.Center = position;
                 boundingBox.Min += velocity * (float)(gameTime.ElapsedGameTime.TotalSeconds);
                 boundingBox.Max += velocity * (float)(gameTime.ElapsedGameTime.TotalSeconds);
@@ -115,22 +116,6 @@ namespace Game1
         public virtual IntersectionRecord Intersects(Ray intersectionRay)
         {
             return new IntersectionRecord(this);
-        }
-
-        public virtual Matrix Projection
-        {
-            set { effect.Parameters["xProjection"].SetValue(value); }
-        }
-        public virtual Matrix View
-        {
-            set { effect.Parameters["xView"].SetValue(value); }
-        }
-
-        public virtual void SetDirectionalLight(Vector3 direction, Color color)
-        {
-            effect.Parameters["xLightDirection0"].SetValue(direction);
-            effect.Parameters["xLightColor0"].SetValue(color.ToVector3());
-            effect.Parameters["xEnableLighting"].SetValue(true);
         }
 
         /// <summary>
