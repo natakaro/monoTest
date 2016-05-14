@@ -122,5 +122,19 @@ namespace Game1
             m_ray = new Ray();
             m_distance = 0.0f;
         }
+
+        /// <summary>
+        /// Creates a new intersection record indicating whether there was a hit or not and the object which was hit.
+        /// </summary>
+        /// <param name="hitObject">Optional: The object which was hit. Defaults to null.</param>
+        public IntersectionRecord(float? distance, DrawableObject hitObject = null)
+        {
+            m_hasHit = hitObject != null;
+            m_intersectedObject1 = hitObject;
+            m_position = Vector3.Zero;
+            m_normal = Vector3.Zero;
+            m_ray = new Ray();
+            m_distance = (float)distance;
+        }
     }
 }

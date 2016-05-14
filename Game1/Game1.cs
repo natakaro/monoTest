@@ -21,7 +21,6 @@ namespace Game1
         private SpriteFont spriteFont;
 
         public Octree octree;
-        InstancingDraw temp;
         private Texture2D cross;
 
         private Effect fxaaEffect;
@@ -41,8 +40,11 @@ namespace Game1
 
         Model tileModel;
         Model hands;
+        Model crystalModel;
         Texture2D handstex;
         Texture2D tileTexture;
+
+        Core core;
 
         float acceleration = 100.0f; // przyspieszenie przy wspinaniu i opadaniu
 
@@ -193,6 +195,8 @@ namespace Game1
             hands = Content.Load<Model>("Models/hands");
             handstex = Content.Load<Texture2D>("Textures/handstex");
 
+            crystalModel = Content.Load<Model>("Models/crystal");
+
             clearBufferEffect = Content.Load<Effect>("Effects/ClearGBuffer");
             finalCombineEffect = Content.Load<Effect>("Effects/CombineFinal");
 
@@ -207,10 +211,12 @@ namespace Game1
 
             //octree
             octree = new Octree(Map.CreateMap(this, 30, tileModel));
+            core = new Core(this, Matrix.CreateTranslation(500, 0, 500), crystalModel);
+            octree.m_objects.Add(core);
 
             spellMoveTerrain = new SpellMoveTerrain(octree);
             spellFireball = new SpellFireball(this, camera, octree, lightManager);
-
+            
 
         }
 

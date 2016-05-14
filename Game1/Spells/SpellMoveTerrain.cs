@@ -59,6 +59,10 @@ namespace Game1.Spells
                     {
                         target = dObj;
                         target.IsStatic = false;
+                        if(leftButton)
+                            target.Acceleration = new Vector3(0, 10, 0);
+                        else
+                            target.Acceleration = new Vector3(0, -10, 0);
                         stopwatch.Start();
                     }
                 }

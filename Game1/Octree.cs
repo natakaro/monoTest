@@ -710,7 +710,7 @@ namespace Game1
 
                 if (obj.BoundingBox.Intersects(intersectRay) != null)
                 {
-                    IntersectionRecord ir = obj.Intersects(intersectRay);
+                    IntersectionRecord ir = new IntersectionRecord(obj.BoundingBox.Intersects(intersectRay), obj);
                     if (ir.HasHit)
                         ret.Add(ir);
                 }

@@ -39,6 +39,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Camera.cs" />
+    <Compile Include="Core.cs" />
     <Compile Include="GameSettings.cs" />
     <Compile Include="Helpers\CollisionBox.cs" />
     <Compile Include="Helpers\DebugShapeRenderer.cs" />
