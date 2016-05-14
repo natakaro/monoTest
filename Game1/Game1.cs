@@ -44,6 +44,8 @@ namespace Game1
         Texture2D handstex;
         Texture2D tileTexture;
 
+        Sky sky;
+
         Core core;
 
         float acceleration = 100.0f; // przyspieszenie przy wspinaniu i opadaniu
@@ -213,6 +215,8 @@ namespace Game1
             octree = new Octree(Map.CreateMap(this, 30, tileModel));
             core = new Core(this, Matrix.CreateTranslation(500, 0, 500), crystalModel);
             octree.m_objects.Add(core);
+
+            sky = new Sky("Textures/sky", GraphicsDevice, Content);
 
             spellMoveTerrain = new SpellMoveTerrain(octree);
             spellFireball = new SpellFireball(this, camera, octree, lightManager);
@@ -602,6 +606,8 @@ namespace Game1
             GraphicsDevice.BlendState = BlendState.Opaque;
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 
+            sky.Draw(GraphicsDevice, camera);
+
             modelsDrawn = 0;
             modelsDrawnInstanced = 0;
 
@@ -681,7 +687,9 @@ namespace Game1
 
             GraphicsDevice.SetRenderTarget(fxaaTarget);
             GraphicsDevice.Clear(Color.CornflowerBlue);
+
             DrawFinal();
+
             GraphicsDevice.SetRenderTarget(null);
 
             if (useFXAA)
