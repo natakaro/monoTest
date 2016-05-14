@@ -125,7 +125,7 @@ namespace DeferredPipeline
                     {
                         //if this fails also (that texture does not exist), 
                         //then we use a default texture, named null_normal.tga
-                        normalMapPath = "null_normal.tga";
+                        normalMapPath = "Textures/null_normal.tga";
                     }
                 }
                 else
@@ -158,7 +158,7 @@ namespace DeferredPipeline
                     {
                         //if this fails also (that texture does not exist), 
                         //then we use a default texture, named null_specular.tga
-                        specularMapPath = "null_specular.tga";
+                        specularMapPath = "Textures/null_specular.tga";
                     }
                 }
                 else

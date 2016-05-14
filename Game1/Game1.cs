@@ -40,10 +40,9 @@ namespace Game1
         public GameSettings settings;
 
         Model tileModel;
-        Model skySphereModel;
         Model hands;
-        Model fireballModel;
         Texture2D handstex;
+        Texture2D tileTexture;
 
         float acceleration = 100.0f; // przyspieszenie przy wspinaniu i opadaniu
 
@@ -178,9 +177,8 @@ namespace Game1
 
         protected override void LoadContent()
         {
-            cross = Content.Load<Texture2D>("cross_cross");
-            spriteFont = Content.Load<SpriteFont>(@"fonts\DemoFont");
-            temp = new InstancingDraw(this, camera, Content);
+            cross = Content.Load<Texture2D>("Hud/cross_cross");
+            spriteFont = Content.Load<SpriteFont>("Fonts/DemoFont");
 
             int backbufferWidth = GraphicsDevice.PresentationParameters.BackBufferWidth;
             int backbufferHeight = GraphicsDevice.PresentationParameters.BackBufferHeight;
@@ -190,11 +188,10 @@ namespace Game1
             depthTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.Single, DepthFormat.None);
             lightTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.Color, DepthFormat.None);
 
-            tileModel = Content.Load<Model>("1");
-            hands = Content.Load<Model>("hands");
-            handstex = Content.Load<Texture2D>("handstex");
-            skySphereModel = Content.Load<Model>("SkySphere");
-            fireballModel = Content.Load<Model>("fireball");
+            tileModel = Content.Load<Model>("Models/Tile");
+            tileTexture = Content.Load<Texture2D>("Textures/gradient");
+            hands = Content.Load<Model>("Models/hands");
+            handstex = Content.Load<Texture2D>("Textures/handstex");
 
             clearBufferEffect = Content.Load<Effect>("Effects/ClearGBuffer");
             finalCombineEffect = Content.Load<Effect>("Effects/CombineFinal");
@@ -212,7 +209,7 @@ namespace Game1
             octree = new Octree(Map.CreateMap(this, 30, tileModel));
 
             spellMoveTerrain = new SpellMoveTerrain(octree);
-            spellFireball = new SpellFireball(this, camera, octree, fireballModel, lightManager);
+            spellFireball = new SpellFireball(this, camera, octree, lightManager);
 
 
         }
@@ -609,7 +606,7 @@ namespace Game1
             {
                 List<IntersectionRecord> instanceList = list.FindAll(ir => ir.DrawableObjectObject.IsInstanced == true);
                 list.RemoveAll(ir => ir.DrawableObjectObject.IsInstanced == true);
-                temp.DrawModelHardwareInstancing(instanceList);
+                InstancingDraw.DrawModelHardwareInstancing(GraphicsDevice, camera, tileModel, tileTexture, instanceList);
                 modelsDrawnInstanced = instanceList.Count;
                 foreach (IntersectionRecord ir in list)
                 {
@@ -662,7 +659,7 @@ namespace Game1
             //rysowanie gdzie znajduje się movingRay do kolizji
             if (raybox)
             {
-                Content.Load<Model>("Monocube").Draw(camera.worldMatrix * Matrix.CreateTranslation(camera.MovingRay().Position), camera.viewMatrix, camera.projMatrix);
+                Content.Load<Model>("1").Draw(camera.worldMatrix * Matrix.CreateTranslation(camera.MovingRay().Position), camera.viewMatrix, camera.projMatrix);
             }
 
             ResolveGBuffer();

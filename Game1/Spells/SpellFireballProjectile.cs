@@ -40,10 +40,10 @@ namespace Game1.Spells
             return ret;
         }
 
-        public SpellFireballProjectile(Game game, Matrix inWorldMatrix, Model inModel, LightManager lightManager) : base(game, inWorldMatrix, inModel)
+        public SpellFireballProjectile(Game game, Matrix inWorldMatrix, Model inModel, Texture2D inTexture, LightManager lightManager) : base(game, inWorldMatrix, inModel)
         {
             this.lightManager = lightManager;
-            texture = game.Content.Load<Texture2D>("firedot");
+            texture = inTexture;
             m_static = false;
             boundingSphere = new BoundingSphere(position, 1f);
             boundingBox = CollisionBox.CreateBoundingBox(model, position, 1);

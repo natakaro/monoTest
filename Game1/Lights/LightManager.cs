@@ -46,7 +46,7 @@ namespace Game1.Lights
             //Initialize Point Lights
             pointLights = new List<PointLight>();
 
-            pointLightGeometry = content.Load<Model>("Models/sphere");
+            pointLightGeometry = content.Load<Model>("Models/pointLightGeometry");
             pointLightEffect = content.Load<Effect>("Effects/PointLight");
         }
 

@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">
+  <asset><contributor><author></author><authoring_tool>FBX COLLADA exporter</authoring_tool><comments></comments></contributor><created>2016-05-13T23:54:04Z</created><keywords></keywords><modified>2016-05-13T23:54:04Z</modified><revision></revision><subject></subject><title></title><unit meter="0.025400" name="centimeter"></unit><up_axis>Y_UP</up_axis></asset>
+  <library_geometries>
+    <geometry id="Cylinder001-lib" name="Cylinder001Mesh">
+      <mesh>
+        <source id="Cylinder001-POSITION">
+          <float_array id="Cylinder001-POSITION-array" count="39">
+1476.377930 0.000000 0.000000
+738.188904 1278.580811 0.000000
+-738.189026 1278.580811 0.000000
+-1476.377930 -0.000129 0.000000
+-738.188843 -1278.580811 0.000000
+738.188843 -1278.580811 0.000000
+1476.377930 0.000000 6299.212402
+738.188904 1278.580811 6299.212402
+-738.189026 1278.580811 6299.212402
+-1476.377930 -0.000129 6299.212402
+-738.188843 -1278.580811 6299.212402
+738.188843 -1278.580811 6299.212402
+-0.000036 0.000006 7874.015625
+</float_array>
+          <technique_common>
+            <accessor source="#Cylinder001-POSITION-array" count="13" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="Cylinder001-Normal0">
+          <float_array id="Cylinder001-Normal0-array" count="198">
+0.866025 0.500000 0.000000
+0.866025 0.500000 0.000000
+0.866025 0.500000 0.000000
+0.866025 0.500000 0.000000
+0.866025 0.500000 0.000000
+0.866025 0.500000 0.000000
+0.000000 1.000000 0.000000
+0.000000 1.000000 0.000000
+0.000000 1.000000 0.000000
+0.000000 1.000000 0.000000
+0.000000 1.000000 0.000000
+0.000000 1.000000 0.000000
+-0.866026 0.500000 0.000000
+-0.866025 0.500000 0.000000
+-0.866025 0.500000 0.000000
+-0.866026 0.500000 0.000000
+-0.866025 0.500000 0.000000
+-0.866025 0.500000 0.000000
+-0.866025 -0.500000 0.000000
+-0.866025 -0.500000 0.000000
+-0.866025 -0.500000 0.000000
+-0.866025 -0.500000 0.000000
+-0.866025 -0.500000 0.000000
+-0.866025 -0.500000 0.000000
+0.000000 -1.000000 0.000000
+0.000000 -1.000000 0.000000
+0.000000 -1.000000 0.000000
+0.000000 -1.000000 0.000000
+0.000000 -1.000000 0.000000
+0.000000 -1.000000 0.000000
+0.866025 -0.500000 0.000000
+0.866025 -0.500000 0.000000
+0.866025 -0.500000 0.000000
+0.866025 -0.500000 0.000000
+0.866025 -0.500000 0.000000
+0.866025 -0.500000 0.000000
+0.000000 0.000000 -1.000000
+0.000000 0.000000 -1.000000
+0.000000 0.000000 -1.000000
+0.000000 0.000000 -1.000000
+0.000000 0.000000 -1.000000
+0.000000 0.000000 -1.000000
+0.000000 0.000000 -1.000000
+0.000000 0.000000 -1.000000
+0.000000 0.000000 -1.000000
+0.000000 0.000000 -1.000000
+0.000000 0.000000 -1.000000
+0.000000 0.000000 -1.000000
+0.672332 0.388171 0.630311
+0.672332 0.388171 0.630311
+0.672332 0.388171 0.630311
+0.000000 0.776342 0.630311
+0.000000 0.776342 0.630311
+0.000000 0.776342 0.630311
+-0.672332 0.388171 0.630311
+-0.672332 0.388171 0.630311
+-0.672332 0.388171 0.630311
+-0.672332 -0.388171 0.630311
+-0.672332 -0.388171 0.630311
+-0.672332 -0.388171 0.630311
+0.000000 -0.776342 0.630311
+0.000000 -0.776342 0.630311
+0.000000 -0.776342 0.630311
+0.672332 -0.388171 0.630311
+0.672332 -0.388171 0.630311
+0.672332 -0.388171 0.630311
+</float_array>
+          <technique_common>
+            <accessor source="#Cylinder001-Normal0-array" count="66" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="Cylinder001-UV0">
+          <float_array id="Cylinder001-UV0-array" count="56">
+0.750000 0.000000
+0.916667 0.000000
+0.083333 0.000000
+0.250000 0.000000
+0.416667 0.000000
+0.583333 0.000000
+0.750000 1.000000
+0.916667 1.000000
+0.083333 1.000000
+0.250000 1.000000
+0.416667 1.000000
+0.583333 1.000000
+1.083333 0.000000
+1.083333 1.000000
+0.933013 0.750000
+0.933013 0.250000
+0.500000 0.000000
+0.066987 0.250000
+0.066987 0.750000
+0.500000 1.000000
+0.500000 1.000000
+0.066987 0.750000
+0.066987 0.250000
+0.500000 0.000000
+0.933013 0.250000
+0.933013 0.750000
+0.066987 0.500000
+0.716506 0.500000
+</float_array>
+          <technique_common>
+            <accessor source="#Cylinder001-UV0-array" count="28" stride="2">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="Cylinder001-VERTEX">
+          <input semantic="POSITION" source="#Cylinder001-POSITION"/>
+        </vertices>
+        <polylist count="22"><input semantic="VERTEX" offset="0" source="#Cylinder001-VERTEX"/><input semantic="NORMAL" offset="1" source="#Cylinder001-Normal0"/><input semantic="TEXCOORD" offset="2" set="0" source="#Cylinder001-UV0"/><vcount>3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 </vcount><p> 0 0 0 1 1 1 7 2 7 7 3 7 6 4 6 0 5 0 1 6 1 2 7 12 8 8 13 8 9 13 7 10 7 1 11 1 2 12 2 3 13 3 9 14 9 9 15 9 8 16 8 2 17 2 3 18 3 4 19 4 10 20 10 10 21 10 9 22 9 3 23 3 4 24 4 5 25 5 11 26 11 11 27 11 10 28 10 4 29 4 5 30 5 0 31 0 6 32 6 6 33 6 11 34 11 5 35 5 4 36 15 3 37 16 2 38 17 2 39 17 1 40 18 0 41 19 4 42 15 2 43 17 0 44 19 5 45 14 4 46 15 0 47 19 6 48 20 7 49 21 12 50 27 7 51 21 8 52 22 12 53 26 8 54 22 9 55 23 12 56 26 9 57 23 10 58 24 12 59 27 10 60 24 11 61 25 12 62 27 11 63 25 6 64 20 12 65 27</p></polylist>
+      </mesh>
+    </geometry>
+  </library_geometries>
+  <library_visual_scenes>
+    <visual_scene id="crystal" name="crystal">
+      <node name="Cylinder001" id="Cylinder001" sid="Cylinder001"><matrix sid="matrix">1.000000 0.000000 0.000000 0.000000 0.000000 0.000000 1.000000 0.000000 0.000000 -1.000000 0.000000 0.000000 0.000000 0.000000 0.000000 1.000000</matrix><instance_geometry url="#Cylinder001-lib"/><extra><technique profile="FCOLLADA"><visibility>1.000000</visibility></technique></extra></node>
+      <extra><technique profile="MAX3D"><frame_rate>30.000000</frame_rate></technique><technique profile="FCOLLADA"><start_time>0.000000</start_time><end_time>3.333333</end_time></technique></extra>
+    </visual_scene>
+  </library_visual_scenes>
+  <scene>
+    <instance_visual_scene url="#crystal"></instance_visual_scene>
+  </scene>
+</COLLADA>

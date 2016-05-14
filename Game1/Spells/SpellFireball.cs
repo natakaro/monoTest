@@ -16,6 +16,7 @@ namespace Game1.Spells
         Camera camera;
         Octree octree;
         Model fireballModel;
+        Texture2D fireballTexture;
         LightManager lightManager;
 
         Stopwatch stopwatch = new Stopwatch();
@@ -31,7 +32,7 @@ namespace Game1.Spells
             {
                 if (stopwatch.ElapsedMilliseconds > 1000)
                 {
-                    SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel, lightManager);
+                    SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel, fireballTexture, lightManager);
                     fireball.Position = camera.Position;
                     fireball.Velocity = camera.GetMouseRay(game.GraphicsDevice.Viewport).Direction * 100;
                     octree.m_objects.Add(fireball);
@@ -42,7 +43,7 @@ namespace Game1.Spells
             {
                 if (stopwatch.ElapsedMilliseconds > 250) //strzela 4 razy szybciej, a kulki sie rozpedzaja, tak dla sprawdzenia czy dziala
                 {
-                    SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel, lightManager);
+                    SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel, fireballTexture, lightManager);
                     fireball.Position = camera.Position;
                     fireball.Velocity = camera.GetMouseRay(game.GraphicsDevice.Viewport).Direction * 1;
                     fireball.Acceleration = camera.GetMouseRay(game.GraphicsDevice.Viewport).Direction * 10;
@@ -58,13 +59,14 @@ namespace Game1.Spells
             stopwatch.Reset();
         }
 
-        public SpellFireball(Game game, Camera camera, Octree octree, Model inModel, LightManager lightManager)
+        public SpellFireball(Game game, Camera camera, Octree octree, LightManager lightManager)
         {
             this.game = game;
             this.camera = camera;
             this.octree = octree;
-            this.fireballModel = inModel;
             this.lightManager = lightManager;
+            fireballModel = game.Content.Load<Model>("Models/fireball");
+            fireballTexture = game.Content.Load<Texture2D>("Textures/firedot");
         }
     }
 }
