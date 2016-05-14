@@ -37,6 +37,8 @@ namespace Game1.Spells
         {
             bool ret = base.Update(gameTime);
             pointLight.Position = position;
+            BoundingSphere pointLightSphere = pointLight.BoundingSphere;
+            pointLightSphere.Center = position;
             return ret;
         }
 

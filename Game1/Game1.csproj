@@ -61,7 +61,6 @@
     <Compile Include="Shadows\ShadowMapEffect.cs" />
     <Compile Include="Shadows\ShadowOrtographicCamera.cs" />
     <Compile Include="Shadows\ShadowRenderer.cs" />
-    <Compile Include="Sky.cs" />
     <Compile Include="Spells\SpellFireball.cs" />
     <Compile Include="Spells\SpellFireballProjectile.cs" />
     <Compile Include="Spells\SpellMoveTerrain.cs" />

@@ -14,11 +14,17 @@ namespace Game1.Lights
         Color color;
         float radius;
         float intensity;
+        BoundingSphere boundingSphere;
 
         public Vector3 Position
         {
             get { return position; }
             set { position = value; }
+        }
+
+        public BoundingSphere BoundingSphere
+        {
+            get { return boundingSphere; }
         }
         
         public PointLight(Vector3 position, Color color, float radius, float intensity)
@@ -27,6 +33,8 @@ namespace Game1.Lights
             this.color = color;
             this.radius = radius;
             this.intensity = intensity;
+
+            boundingSphere = new BoundingSphere(position, radius);
         }
 
         public void Draw(Game1 game, Camera camera, Effect pointLightEffect, RenderTarget2D colorTarget, RenderTarget2D normalTarget, RenderTarget2D depthTarget, Model pointLightGeometry)

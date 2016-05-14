@@ -54,6 +54,8 @@ namespace Game1.Lights
         {
             foreach (PointLight light in pointLights)
             {
+                if (!game.camera.Frustum.Intersects(light.BoundingSphere))
+                    continue;
                 light.Draw(game, game.camera, pointLightEffect, game.colorTarget, game.normalTarget, game.depthTarget, pointLightGeometry);
             }
         }

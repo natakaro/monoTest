@@ -659,7 +659,7 @@ namespace Game1
             //rysowanie gdzie znajduje się movingRay do kolizji
             if (raybox)
             {
-                Content.Load<Model>("1").Draw(camera.worldMatrix * Matrix.CreateTranslation(camera.MovingRay().Position), camera.viewMatrix, camera.projMatrix);
+                Content.Load<Model>("Models/tile").Draw(camera.worldMatrix * Matrix.CreateTranslation(camera.MovingRay().Position), camera.viewMatrix, camera.projMatrix);
             }
 
             ResolveGBuffer();
