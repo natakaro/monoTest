@@ -378,9 +378,6 @@ float4 PSMesh(VSOutput input,
     if (depthVal == 0)
         return float4(1, 1, 1, 0);
     
-    if (depthVal == 0) //skybox
-        return float4(1, 1, 1, 0);
-
     //compute screen-space position
     float4 position;
     position.x = input.TexCoord.x * 2.0f - 1.0f;

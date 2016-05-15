@@ -48,8 +48,6 @@ namespace Game1
         Texture2D handstex;
         Texture2D tileTexture;
 
-        Sky sky;
-
         Core core;
 
         private SkyDome sky;
@@ -244,8 +242,6 @@ namespace Game1
             octree = new Octree(Map.CreateMap(this, 30, tileModel));
             core = new Core(this, Matrix.CreateTranslation(500, 0, 500), crystalModel);
             octree.m_objects.Add(core);
-
-            sky = new Sky("Textures/sky", GraphicsDevice, Content);
 
             spellMoveTerrain = new SpellMoveTerrain(octree);
             spellFireball = new SpellFireball(this, camera, octree, lightManager);
@@ -496,9 +492,9 @@ namespace Game1
                 case SkyStatus.Manual:
                     sky.RealTime = false;
                     if (currentKeyboardState.IsKeyDown(Keys.Down))
-                        sky.Theta -= 0.4f * step;
+                        sky.Theta -= 0.1f * step;
                     if (currentKeyboardState.IsKeyDown(Keys.Up))
-                        sky.Theta += 0.4f * step;
+                        sky.Theta += 0.1f * step;
 
                     if (currentKeyboardState.IsKeyDown(Keys.Left))
                         sky.Phi -= 0.4f * step;
@@ -677,8 +673,6 @@ namespace Game1
             GraphicsDevice.BlendState = BlendState.Opaque;
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 
-            sky.Draw(GraphicsDevice, camera);
-
             modelsDrawn = 0;
             modelsDrawnInstanced = 0;
 
@@ -752,9 +746,7 @@ namespace Game1
 
             GraphicsDevice.SetRenderTarget(fxaaTarget);
             GraphicsDevice.Clear(Color.CornflowerBlue);
-
             DrawFinal();
-
             GraphicsDevice.SetRenderTarget(null);
 
             if (useFXAA)
