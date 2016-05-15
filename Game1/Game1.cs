@@ -8,6 +8,7 @@ using Game1.Spells;
 using Game1.Helpers;
 using Game1.Shadows;
 using Game1.Lights;
+using Game1.Sky;
 
 namespace Game1
 {
@@ -19,8 +20,11 @@ namespace Game1
         public Camera camera;
         public QuadRenderComponent quadRenderer;
         private SpriteFont spriteFont;
-
+        private InstancingManager instancingManager;
         public Octree octree;
+        private List<IntersectionRecord> frustumIntersections;
+        private List<IntersectionRecord> frustumInstancedIntersections;
+
         private Texture2D cross;
 
         private Effect fxaaEffect;
@@ -46,6 +50,10 @@ namespace Game1
 
         Core core;
 
+        private SkyDome sky;
+        Vector3 lightDirection;
+        Vector3 lightColor;
+
         float acceleration = 100.0f; // przyspieszenie przy wspinaniu i opadaniu
 
         private bool instancing = true;
@@ -56,7 +64,7 @@ namespace Game1
 
         private const float CAMERA_FOVX = 90.0f;
         private const float CAMERA_ZNEAR = 0.1f;
-        private const float CAMERA_ZFAR = 2000.0f;
+        private const float CAMERA_ZFAR = 5000.0f;
         private const float CAMERA_PLAYER_EYE_HEIGHT = 30.0f;
         private const float CAMERA_ACCELERATION_X = 800.0f;
         private const float CAMERA_ACCELERATION_Y = 800.0f;
@@ -98,6 +106,16 @@ namespace Game1
         private DrawableObject tileStandingOn;
 
         public DrawableObject selected_obj = null;
+
+        private enum SkyStatus
+        {
+            Manual = 0,
+            Automatic = 1,
+            ActualTime = 2
+        }
+
+        SkyStatus stat, prevStat;
+
         public enum SpellType
         {
             MoveTerrain = 1,
@@ -174,6 +192,15 @@ namespace Game1
 
             currentKeyboardState = Keyboard.GetState();
 
+            stat = SkyStatus.Manual;
+
+            sky = new SkyDome(this, ref camera);
+            // Set skydome parameters here
+            sky.Theta = 2.4f;// (float)Math.PI / 2.0f - 0.3f;
+            sky.Parameters.NumSamples = 10;
+
+            this.Components.Add(sky);
+
             base.Initialize();
         }
 
@@ -207,7 +234,9 @@ namespace Game1
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             lightManager = new LightManager(this, lightTarget, Content);
-            TestLights();
+            //TestLights();
+
+            instancingManager = new InstancingManager(this, camera, Content, tileModel, tileTexture);
 
             //octree
             octree = new Octree(Map.CreateMap(this, 30, tileModel));
@@ -285,15 +314,18 @@ namespace Game1
                 debugShapes = !debugShapes;
             }
 
+            if (KeyJustPressed(Keys.D3))
+            {
+                stat++;
+                if ((int)stat == 3)
+                    stat = SkyStatus.Manual;
+            }
+
             if (KeyJustPressed(Keys.G))
             {
                 showgbuffer = !showgbuffer;
             }
 
-            if (KeyJustPressed(Keys.D3))
-            {
-                raybox = !raybox;
-            }
             //if (KeyJustPressed(Keys.P))
             //    enableParallax = !enableParallax;
 
@@ -452,14 +484,51 @@ namespace Game1
             }
 
             octree.Update(gameTime);
-            UpdateFrameRate(gameTime);
 
-            //obrot slonca
-            //var rotationY = (float)gameTime.ElapsedGameTime.TotalMilliseconds * 0.00025f;
-            //var rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitY, rotationY);
-            //var lightDirection = settings.LightDirection;
-            //lightDirection = Vector3.Transform(lightDirection, rotation);
-            //settings.LightDirection = lightDirection;
+            float step = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            switch (stat)
+            {
+                case SkyStatus.Manual:
+                    sky.RealTime = false;
+                    if (currentKeyboardState.IsKeyDown(Keys.Down))
+                        sky.Theta -= 0.1f * step;
+                    if (currentKeyboardState.IsKeyDown(Keys.Up))
+                        sky.Theta += 0.1f * step;
+
+                    if (currentKeyboardState.IsKeyDown(Keys.Left))
+                        sky.Phi -= 0.4f * step;
+                    if (currentKeyboardState.IsKeyDown(Keys.Right))
+                        sky.Phi += 0.4f * step;
+
+                    if (sky.Theta > (float)Math.PI * 2.0f)
+                        sky.Theta = sky.Theta - (float)Math.PI * 2.0f;
+                    if (sky.Theta < 0.0f)
+                        sky.Theta = (float)Math.PI * 2.0f + sky.Theta;
+
+                    if (sky.Phi > (float)Math.PI * 2.0f)
+                        sky.Phi = sky.Phi - (float)Math.PI * 2.0f;
+                    if (sky.Phi < 0.0f)
+                        sky.Phi = (float)Math.PI * 2.0f + sky.Phi;
+                    break;
+                case SkyStatus.Automatic:
+                    sky.RealTime = false;
+                    sky.Theta += 0.1f * step;
+                    sky.Phi += 0.1f * step;
+                    if (sky.Theta > (float)Math.PI * 2.0f)
+                        sky.Theta = sky.Theta - (float)Math.PI * 2.0f;
+                    if (sky.Theta < 0.0f)
+                        sky.Theta = (float)Math.PI * 2.0f + sky.Theta;
+                    break;
+                case SkyStatus.ActualTime:
+                    sky.RealTime = true;
+                    if (stat != prevStat)
+                        sky.ApplyChanges();
+                    break;
+            }
+            prevStat = stat;
+
+            UpdateFrameRate(gameTime);
         }
 
         private void UpdateFrameRate(GameTime gameTime)
@@ -597,7 +666,9 @@ namespace Game1
             SetGBuffer();
             ClearGBuffer();
 
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Transparent);
+
+            base.Draw(gameTime);
 
             GraphicsDevice.BlendState = BlendState.Opaque;
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
@@ -607,14 +678,14 @@ namespace Game1
 
             //Renders all visible objects by iterating through the oct tree recursively and testing for intersection 
             //with the current camera view frustum
-            List<IntersectionRecord> list = octree.AllIntersections(camera.Frustum);
+            frustumIntersections = octree.AllIntersections(camera.Frustum);
             if (instancing)
             {
-                List<IntersectionRecord> instanceList = list.FindAll(ir => ir.DrawableObjectObject.IsInstanced == true);
-                list.RemoveAll(ir => ir.DrawableObjectObject.IsInstanced == true);
-                InstancingDraw.DrawModelHardwareInstancing(GraphicsDevice, camera, tileModel, tileTexture, instanceList);
-                modelsDrawnInstanced = instanceList.Count;
-                foreach (IntersectionRecord ir in list)
+                frustumInstancedIntersections = frustumIntersections.FindAll(ir => ir.DrawableObjectObject.IsInstanced == true);
+                frustumIntersections.RemoveAll(ir => ir.DrawableObjectObject.IsInstanced == true);
+                instancingManager.DrawModelHardwareInstancing(frustumInstancedIntersections);
+                modelsDrawnInstanced = frustumInstancedIntersections.Count;
+                foreach (IntersectionRecord ir in frustumIntersections)
                 {
                     // ir.DrawableObjectObject.UpdateLOD(camera);
                     ir.DrawableObjectObject.Draw(camera);
@@ -623,7 +694,7 @@ namespace Game1
             }
             else
             {
-                foreach (IntersectionRecord ir in list)
+                foreach (IntersectionRecord ir in frustumIntersections)
                 {
                     // ir.DrawableObjectObject.UpdateLOD(camera);
                     ir.DrawableObjectObject.Draw(camera);
@@ -650,31 +721,25 @@ namespace Game1
                 mesh.Draw();
             }
 
-            //foreach (ModelMesh mesh in skySphereModel.Meshes)
-            //{
-            //    foreach (Effect effect in mesh.Effects)
-            //    {
-            //        effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * camera.worldMatrix * Matrix.CreateScale(5000));
-            //        effect.Parameters["View"].SetValue(camera.ViewMatrix);
-            //        effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
-            //        effect.Parameters["Texture"].SetValue(handstex);
-            //    }
-            //    mesh.Draw();
-            //}
-
-            //rysowanie gdzie znajduje się movingRay do kolizji
-            if (raybox)
-            {
-                Content.Load<Model>("Models/tile").Draw(camera.worldMatrix * Matrix.CreateTranslation(camera.MovingRay().Position), camera.viewMatrix, camera.projMatrix);
-            }
-
             ResolveGBuffer();
-            shadowRenderer.RenderShadowMap(GraphicsDevice, camera, Matrix.Identity, octree);
+
+            lightDirection = sky.Parameters.LightDirection.ToVector3();
+            if (lightDirection.Y < 0)
+            {
+                lightDirection = Vector3.Negate(lightDirection); //odwrocenie kierunku kiedy zrodlem swiatla jest ksiezyc
+            }
+                
+            lightColor = sky.SunColor.ToVector3();
+            if (lightColor == Vector3.Zero)
+            {
+                //lightColor = new Vector3(0.2f, 0.2f, 0.2f); //ambient w nocy
+            }
+            shadowRenderer.RenderShadowMap(GraphicsDevice, camera, lightDirection, Matrix.Identity, octree);
 
             GraphicsDevice.SetRenderTarget(lightTarget);
             GraphicsDevice.Clear(Color.Transparent);
 
-            shadowRenderer.Render(GraphicsDevice, camera, camera.ProjectionMatrix, colorTarget, normalTarget, depthTarget);
+            shadowRenderer.Render(GraphicsDevice, camera, Matrix.Identity, lightDirection, lightColor, colorTarget, normalTarget, depthTarget);
             quadRenderer.Render(Vector2.One * -1, Vector2.One);
 
             lightManager.Draw();
@@ -720,7 +785,6 @@ namespace Game1
                 DrawGBuffer();
             spriteBatch.End();
 
-            base.Draw(gameTime);
             IncrementFrameCounter();
         }
 
@@ -730,7 +794,7 @@ namespace Game1
             int halfHeight = GraphicsDevice.Viewport.Height / 2;
             GraphicsDevice.Clear(Color.Black);
 
-            spriteBatch.Draw(colorTarget, new Rectangle(0, 0, halfWidth, halfHeight), Color.White);
+            spriteBatch.Draw(shadowRenderer.ShadowMap, new Rectangle(0, 0, halfWidth, halfHeight), Color.White);
             spriteBatch.Draw(normalTarget, new Rectangle(0, halfHeight, halfWidth, halfHeight), Color.White);
             spriteBatch.Draw(depthTarget, new Rectangle(halfWidth, 0, halfWidth, halfHeight), Color.White);
             spriteBatch.Draw(lightTarget, new Rectangle(halfWidth, halfHeight, halfWidth, halfHeight), Color.White);

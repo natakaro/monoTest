@@ -9,8 +9,16 @@ using Microsoft.Xna.Framework.Content;
 namespace Game1
 {
 
-    public class InstancingDraw
+    public class InstancingManager
     {
+        GraphicsDevice graphicsDevice;
+        Camera camera;
+        Model model;
+        Texture2D texture;
+        Matrix[] modelBones;
+        DynamicVertexBuffer instanceVertexBuffer = null;
+        Matrix[] instances = null;
+
         // To store instance transform matrices in a vertex buffer, we use this custom
         // vertex type which encodes 4x4 matrices as a set of four Vector4 values.
         static VertexDeclaration instanceVertexDeclaration = new VertexDeclaration
@@ -21,12 +29,20 @@ namespace Game1
             new VertexElement(48, VertexElementFormat.Vector4, VertexElementUsage.BlendWeight, 3)
         );
 
-        public static void DrawModelHardwareInstancing(GraphicsDevice graphicsDevice, Camera camera, Model model, Texture2D texture, List<IntersectionRecord> insta)
+        public InstancingManager(Game game, Camera camera, ContentManager contentManager, Model model, Texture2D texture)
         {
-            Matrix[] modelBones = new Matrix[model.Bones.Count];
+            // Initialize the list of instances.
+            graphicsDevice = game.GraphicsDevice;
+            this.model = model;
+            this.texture = texture;
+            this.camera = camera;
+            modelBones = new Matrix[model.Bones.Count];
             model.CopyAbsoluteBoneTransformsTo(modelBones);
-            DynamicVertexBuffer instanceVertexBuffer = null;
-            Matrix[] instances = null;
+        }
+
+        public void DrawModelHardwareInstancing(List<IntersectionRecord> insta)
+        {
+            
 
             // Gather instance transform matrices into a single array.
             Array.Resize(ref instances, insta.Count);

@@ -360,15 +360,23 @@ float4 PSMesh(VSOutput input,
 {
     //get normal data from the normalMap
     float4 normalData = normalMap.Sample(normalSampler, input.TexCoord); //tex2D(normalSampler, input.TexCoord);
-    //tranform normal back into [-1,1] range
+    //transform normal back into [-1,1] range
     float3 normal = 2.0f * normalData.xyz - 1.0f;
     //get specular power, and get it into [0,255] range]
     float specularPower = normalData.a * 255;
+
+    //get color data from the colorMap
+    float4 colorData = colorMap.Sample(colorSampler, input.TexCoord); //tex2D(colorSampler, input.TexCoord).a;
     //get specular intensity from the colorMap
-    float specularIntensity = colorMap.Sample(colorSampler, input.TexCoord).a; //tex2D(colorSampler, input.TexCoord).a;
-    
-    //read depth
+    float specularIntensity = colorData.a;
+    //get diffuse color
+    float3 diffuseColor = colorData.rgb;
+
+    //get depth
     float depthVal = depthMap.Sample(depthSampler, input.TexCoord).r; //tex2D(depthSampler, input.TexCoord).r;
+
+    if (depthVal == 0)
+        return float4(1, 1, 1, 0);
     
     //compute screen-space position
     float4 position;
@@ -384,7 +392,7 @@ float4 PSMesh(VSOutput input,
     depthVal = (2 * NearClip) / (FarClip + NearClip - depthVal * (FarClip - NearClip));
 
     // Convert color to grayscale, just beacuse it looks nicer.
-    float diffuseValue = 0.299 * 1 + 0.587 * 1 + 0.114 * 1;
+    float diffuseValue = 0.299 * diffuseColor.r + 0.587 * diffuseColor.g + 0.114 * diffuseColor.b;
     float3 diffuseAlbedo = float3(diffuseValue, diffuseValue, diffuseValue);
 
     float nDotL = saturate(dot(normal, LightDirection));
@@ -396,14 +404,14 @@ float4 PSMesh(VSOutput input,
     float3 lighting = 0.0f;
 
     // Add the directional light.
-    lighting += nDotL * LightColor * diffuseAlbedo * (1.0f / 3.14159f) * shadowVisibility;
+    lighting += nDotL * (LightColor + float3(0.1f, 0.1f, 0.1f)) * diffuseAlbedo * (1.0f / 3.14159f) * shadowVisibility;
     //lighting += nDotL * LightColor  * (1.0f / 3.14159f) * shadowVisibility;
 
     // Ambient light.
     lighting += float3(0.2f, 0.2f, 0.2f) * 1.0f * diffuseAlbedo;
     //lighting += float3(0.2f, 0.2f, 0.2f) * 1.0f;
 
-    //reflexion vector
+    //reflection vector
     float3 reflectionVector = -(normalize(reflect(LightDirection, normal)));
     //camera-to-surface vector
     float3 directionToCamera = normalize(CameraPosWS - position.xyz);

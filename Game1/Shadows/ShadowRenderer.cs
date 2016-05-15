@@ -76,7 +76,7 @@ namespace Game1.Shadows
                 false, NumCascades);
         }
 
-        public void RenderShadowMap(GraphicsDevice graphicsDevice, Camera camera, Matrix worldMatrix, Octree octree)
+        public void RenderShadowMap(GraphicsDevice graphicsDevice, Camera camera, Vector3 lightDirection, Matrix worldMatrix, Octree octree)
         {
             // Set cascade split ratios.
             cascadeSplits[0] = settings.SplitDistance0;
@@ -84,7 +84,7 @@ namespace Game1.Shadows
             cascadeSplits[2] = settings.SplitDistance2;
             cascadeSplits[3] = settings.SplitDistance3;
 
-            var globalShadowMatrix = MakeGlobalShadowMatrix(camera);
+            var globalShadowMatrix = MakeGlobalShadowMatrix(camera, lightDirection);
             shadowEffect.ShadowMatrix = globalShadowMatrix;
 
             // Render the meshes to each cascade.
@@ -148,7 +148,7 @@ namespace Game1.Shadows
                 {
                     // Create a temporary view matrix for the light
                     var lightCameraPos = frustumCenter;
-                    var lookAt = frustumCenter - settings.LightDirection;
+                    var lookAt = frustumCenter - lightDirection;
                     var lightView = Matrix.CreateLookAt(lightCameraPos, lookAt, upDir);
 
                     // Calculate an AABB around the frustum corners
@@ -175,7 +175,7 @@ namespace Game1.Shadows
                 var cascadeExtents = maxExtents - minExtents;
 
                 // Get position of the shadow camera
-                var shadowCameraPos = frustumCenter + settings.LightDirection * -minExtents.Z;
+                var shadowCameraPos = frustumCenter + lightDirection * -minExtents.Z;
 
                 // Come up with a new orthographic camera for the shadow caster
                 var shadowCamera = new ShadowOrthographicCamera(
@@ -254,7 +254,7 @@ namespace Game1.Shadows
         /// <summary>
         /// Makes the "global" shadow matrix used as the reference point for the cascades.
         /// </summary>
-        private Matrix MakeGlobalShadowMatrix(Camera camera)
+        private Matrix MakeGlobalShadowMatrix(Camera camera, Vector3 lightDirection)
         {
             // Get the 8 points of the view frustum in world space
             ResetViewFrustumCorners();
@@ -277,7 +277,7 @@ namespace Game1.Shadows
                 upDir = Vector3.Up;
 
             // Get position of the shadow camera
-            var shadowCameraPos = frustumCenter + settings.LightDirection * -0.5f;
+            var shadowCameraPos = frustumCenter + lightDirection * -0.5f;
 
             // Come up with a new orthographic camera for the shadow caster
             var shadowCamera = new ShadowOrthographicCamera(-0.5f, -0.5f, 0.5f, 0.5f, 0.0f, 1.0f);
@@ -389,7 +389,7 @@ namespace Game1.Shadows
             }
         }
 
-        public void Render(GraphicsDevice graphicsDevice, Camera camera, Matrix worldMatrix,
+        public void Render(GraphicsDevice graphicsDevice, Camera camera, Matrix worldMatrix, Vector3 lightDirection, Vector3 lightColor,
             RenderTarget2D colorMap, RenderTarget2D normalMap, RenderTarget2D depthMap)
         {
             // Render scene.
@@ -418,8 +418,8 @@ namespace Game1.Shadows
 
             shadowEffect.ShadowMap = shadowMap;
 
-            shadowEffect.LightDirection = settings.LightDirection;
-            shadowEffect.LightColor = settings.LightColor;
+            shadowEffect.LightDirection = lightDirection;
+            shadowEffect.LightColor = lightColor;
 
             shadowEffect.ColorMap = colorMap;
             shadowEffect.NormalMap = normalMap;

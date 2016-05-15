@@ -48,7 +48,7 @@
     <Compile Include="Helpers\RasterizerStateUtility.cs" />
     <Compile Include="Helpers\SamplerStateUtility.cs" />
     <Compile Include="Helpers\Vector4Utility.cs" />
-    <Compile Include="InstancingDraw.cs" />
+    <Compile Include="InstancingManager.cs" />
     <Compile Include="IntersectionRecord.cs" />
     <Compile Include="Lights\LightManager.cs" />
     <Compile Include="Lights\PointLight.cs" />
@@ -62,6 +62,8 @@
     <Compile Include="Shadows\ShadowMapEffect.cs" />
     <Compile Include="Shadows\ShadowOrtographicCamera.cs" />
     <Compile Include="Shadows\ShadowRenderer.cs" />
+    <Compile Include="Sky\SkyDome.cs" />
+    <Compile Include="Sky\SkyDomeParameters.cs" />
     <Compile Include="Spells\SpellFireball.cs" />
     <Compile Include="Spells\SpellFireballProjectile.cs" />
     <Compile Include="Spells\SpellMoveTerrain.cs" />
