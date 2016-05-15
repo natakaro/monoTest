@@ -492,9 +492,9 @@ namespace Game1
                 case SkyStatus.Manual:
                     sky.RealTime = false;
                     if (currentKeyboardState.IsKeyDown(Keys.Down))
-                        sky.Theta -= 0.1f * step;
+                        sky.Theta -= 0.4f * step;
                     if (currentKeyboardState.IsKeyDown(Keys.Up))
-                        sky.Theta += 0.1f * step;
+                        sky.Theta += 0.4f * step;
 
                     if (currentKeyboardState.IsKeyDown(Keys.Left))
                         sky.Phi -= 0.4f * step;

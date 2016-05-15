@@ -416,7 +416,7 @@ float4 PSMesh(VSOutput input,
     //camera-to-surface vector
     float3 directionToCamera = normalize(CameraPosWS - position.xyz);
     //compute specular light
-    float specularLight = specularIntensity * pow(saturate(dot(reflectionVector, directionToCamera)), specularPower);
+    float specularLight = specularIntensity * (LightColor + float3(0.2f, 0.2f, 0.2f)) * pow(saturate(dot(reflectionVector, directionToCamera)), specularPower);
 
     //if (depthVal < 0.5f)
     //    return float4(1, 0, 0, 1);
