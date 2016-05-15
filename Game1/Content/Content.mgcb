@@ -212,18 +212,6 @@
 /processorParam:TextureFormat=Color
 /build:Textures/null_specular.tga
 
-#begin Textures/sphere.jpg
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Textures/sphere.jpg
-
 #begin Fonts/DemoFont.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
