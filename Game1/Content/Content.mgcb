@@ -363,6 +363,7 @@
 /processorParam:TextureFormat=DxtCompressed
 /build:Models\pointLightGeometry.x
 
+<<<<<<< HEAD
 #begin Effects/scatter.fx
 /importer:EffectImporter
 /processor:EffectProcessor
@@ -406,14 +407,50 @@
 /build:Textures/moonglow.tga
 
 #begin Textures/starfield.png
+=======
+#begin Effects/Sky.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/Sky.fx
+
+#begin Models/skyBox.DAE
+/importer:OpenAssetImporter
+/processor:ModelProcessor
+/processorParam:ColorKeyColor=0,0,0,0
+/processorParam:ColorKeyEnabled=True
+/processorParam:DefaultEffect=BasicEffect
+/processorParam:GenerateMipmaps=True
+/processorParam:GenerateTangentFrames=False
+/processorParam:PremultiplyTextureAlpha=False
+/processorParam:PremultiplyVertexColors=True
+/processorParam:ResizeTexturesToPowerOfTwo=False
+/processorParam:RotationX=0
+/processorParam:RotationY=0
+/processorParam:RotationZ=0
+/processorParam:Scale=1
+/processorParam:SwapWindingOrder=False
+/processorParam:TextureFormat=DxtCompressed
+/build:Models/skyBox.DAE
+
+#begin Textures/sky.dds
+>>>>>>> 7434c63bb70700618c187ba32304abfdd515f4a3
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
 /processorParam:ColorKeyEnabled=True
 /processorParam:GenerateMipmaps=False
+<<<<<<< HEAD
 /processorParam:PremultiplyAlpha=True
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Textures/starfield.png
+=======
+/processorParam:PremultiplyAlpha=False
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/sky.dds
+>>>>>>> 7434c63bb70700618c187ba32304abfdd515f4a3
 

@@ -62,8 +62,12 @@
     <Compile Include="Shadows\ShadowMapEffect.cs" />
     <Compile Include="Shadows\ShadowOrtographicCamera.cs" />
     <Compile Include="Shadows\ShadowRenderer.cs" />
+<<<<<<< HEAD
     <Compile Include="Sky\SkyDome.cs" />
     <Compile Include="Sky\SkyDomeParameters.cs" />
+=======
+    <Compile Include="Sky.cs" />
+>>>>>>> 7434c63bb70700618c187ba32304abfdd515f4a3
     <Compile Include="Spells\SpellFireball.cs" />
     <Compile Include="Spells\SpellFireballProjectile.cs" />
     <Compile Include="Spells\SpellMoveTerrain.cs" />
