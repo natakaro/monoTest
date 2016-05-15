@@ -39,7 +39,7 @@ namespace Game1
             Bias = 0.002f;
             OffsetScale = 0.0f;
 
-            StabilizeCascades = false;
+            StabilizeCascades = true;
             VisualizeCascades = false;
 
             SplitDistance0 = 0.05f;

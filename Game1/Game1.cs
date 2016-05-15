@@ -64,7 +64,7 @@ namespace Game1
 
         private const float CAMERA_FOVX = 90.0f;
         private const float CAMERA_ZNEAR = 0.1f;
-        private const float CAMERA_ZFAR = 5000.0f;
+        private const float CAMERA_ZFAR = 2000.0f;
         private const float CAMERA_PLAYER_EYE_HEIGHT = 30.0f;
         private const float CAMERA_ACCELERATION_X = 800.0f;
         private const float CAMERA_ACCELERATION_Y = 800.0f;

@@ -120,7 +120,7 @@ namespace DeferredPipeline
                     //If a key with the required name is not found, we make a final attempt, 
                     //and search, in the same directory as the model, for a texture named 
                     //meshname_n.tga, where meshname is the name of a mesh inside the model.
-                    normalMapPath = Path.Combine(directory, mesh.Name + "_n.tga");
+                    normalMapPath = Path.Combine("../Textures/", mesh.Name + "_n.tga");
                     if (!File.Exists(normalMapPath))
                     {
                         //if this fails also (that texture does not exist), 
@@ -130,7 +130,7 @@ namespace DeferredPipeline
                 }
                 else
                 {
-                    normalMapPath = Path.Combine(directory, normalMapPath);
+                    normalMapPath = Path.Combine(directory, "../Textures/", normalMapPath);
                 }
 
                 string specularMapPath = null;
@@ -153,7 +153,7 @@ namespace DeferredPipeline
                 {
                     //we search, in the same directory as the model, for a texture named 
                     //meshname_s.tga
-                    specularMapPath = Path.Combine(directory, mesh.Name + "_s.tga");
+                    specularMapPath = Path.Combine(directory, "../Textures/", mesh.Name + "_n.tga");
                     if (!File.Exists(specularMapPath))
                     {
                         //if this fails also (that texture does not exist), 
@@ -163,7 +163,7 @@ namespace DeferredPipeline
                 }
                 else
                 {
-                    specularMapPath = Path.Combine(directory, specularMapPath);
+                    specularMapPath = Path.Combine(directory, "../Textures/", specularMapPath);
                 }
                 //add the keys to the material, so they can be used by the shader
                 foreach (GeometryContent geometry in mesh.Geometry)

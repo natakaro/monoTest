@@ -5,10 +5,13 @@ float4x4 Projection;
 float time;
 float numTiles;
 
-float CloudCover = -0.1;
-float CloudSharpness = 0.25;
+float CloudCover;
+float CloudSharpness;
 
 float4 SunColor;
+
+float3 v3SunDir;
+float3 cameraPosition;
 
 texture permTexture;
 
@@ -32,6 +35,7 @@ struct VertexShaderOutput
 {
     float4 Position : POSITION0;
     float2 TexCoord : TEXCOORD0;
+    float4 WorldPos : POSITION1;
 };
 
 VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
@@ -41,6 +45,7 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
     float4 worldPosition = mul(input.Position, World);
     float4 viewPosition = mul(worldPosition, View);
     output.Position = mul(viewPosition, Projection);
+    output.WorldPos = worldPosition;
     output.TexCoord = (input.TexCoord * numTiles);
 
     return output;
@@ -51,6 +56,8 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 #define ONEHALF 0.001953125
 // The numbers above are 1/256 and 0.5/256, change accordingly
 // if you change the code to use another texture size.
+//#define ONE 0.0009765625
+//#define ONEHALF 0.00048828125
 
 float fade(float t) {
   // return t*t*(3.0-2.0*t);
@@ -82,7 +89,12 @@ float noise(float2 P)
   return n_xy;
 }
 
-
+float HeyneyGreenstein(float3 inLightVector, float3 inViewVector, float inG)
+{
+    float cos_angle = dot(normalize(inLightVector),
+                          normalize(inViewVector));
+    return ((1.0 - inG * inG) / pow((1.0 + inG * inG - 2.0 * inG * cos_angle), 3.0 / 2.0)) / 4.0 * 3.1415;
+}
 
 float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 {
@@ -94,13 +106,18 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 	
 	float nFinal = n + (n2 / 2) + (n3 / 4) + (n4 / 8);
 	
-	float c = CloudCover - nFinal;
+    float c = nFinal - CloudCover;
     if (c < 0) 
 		c=0;
  
     float CloudDensity = 1.0 - pow(CloudSharpness,c);
-    
-    float4 retColor = CloudDensity;
+
+    float3 V = -(cameraPosition - input.WorldPos.xyz);
+    float3 L = v3SunDir;
+    if (L.y < -0.2)
+        L = -L;
+
+    float4 retColor = CloudDensity; // * HeyneyGreenstein(L, V, 0.2);
     retColor *= SunColor;
     
     return retColor;

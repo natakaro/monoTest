@@ -188,30 +188,6 @@
 /processorParam:TextureFormat=Color
 /build:Textures/handstex.jpg
 
-#begin Textures/null_normal.tga
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Textures/null_normal.tga
-
-#begin Textures/null_specular.tga
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Textures/null_specular.tga
-
 #begin Textures/sphere.jpg
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -326,6 +302,7 @@
 #begin Models/tile.DAE
 /importer:OpenAssetImporter
 /processor:DeferredModelProcessor
+/processorParam:NormalMapTexture=
 /processorParam:NormalMapKey=NormalMap
 /processorParam:GenerateTangentFrames=True
 /processorParam:SpecularMapKey=SpecularMap

@@ -38,11 +38,10 @@ namespace Game1.Sky
 
         Texture2D mieTex, rayleighTex;
         RenderTarget2D mieRT, rayleighRT;
-        //DepthStencilBuffer oldDepthBuffer, newDepthBuffer;
 
         Texture2D moonTex, glowTex, starsTex;
 
-        Texture2D permTex, gradTex;
+        Texture2D permTex;
 
         Effect scatterEffect, texturedEffect, noiseEffect;
 
@@ -50,13 +49,15 @@ namespace Game1.Sky
 
         SkyDomeParameters parameters;
 
-        //VertexDeclaration vertexDecl;
-        VertexPositionTexture[] domeVerts, quadVerts;
-        short[] ib, quadIb;
+        VertexPositionTexture[] domeVerts, quadVerts, planeVerts;
+        short[] ib, quadIb, planeIb;
 
         int DomeN;
         int DVSize;
         int DISize;
+
+        int PVSize;
+        int PISize;
 
         Vector4 sunColor;
 
@@ -158,15 +159,15 @@ namespace Game1.Sky
                 SurfaceFormat.Color, MultiSampleType.None, 0);
 #else
             // You can use SurfaceFormat.Color to increase performance / reduce quality
-            this.mieRT = new RenderTarget2D(game.GraphicsDevice, 128, 64, true,
+            mieRT = new RenderTarget2D(game.GraphicsDevice, 128, 64, true,
                 SurfaceFormat.HalfVector4, DepthFormat.None);
-            this.rayleighRT = new RenderTarget2D(game.GraphicsDevice, 128, 64, true,
+            rayleighRT = new RenderTarget2D(game.GraphicsDevice, 128, 64, true,
                 SurfaceFormat.HalfVector4, DepthFormat.None);
 #endif
 
-            // Clouds constantes
+            // Clouds constants
             inverseCloudVelocity = 16.0f;
-            CloudCover = -0.1f;
+            CloudCover = 0.1f;
             CloudSharpness = 0.5f;
             numTiles = 16.0f;
 
@@ -193,9 +194,10 @@ namespace Game1.Sky
             moonTex = game.Content.Load<Texture2D>("Textures/moon");
             glowTex = game.Content.Load<Texture2D>("Textures/moonglow");
             starsTex = game.Content.Load<Texture2D>("Textures/starfield");
-
+            
             GenerateDome();
             GenerateMoon();
+            GeneratePlane();
 
             base.LoadContent();
 
@@ -214,11 +216,11 @@ namespace Game1.Sky
 
             if (realTime)
             {
-                int minutos = DateTime.Now.Hour * 60 + DateTime.Now.Minute;
-                this.fTheta = (float)minutos * (float)(Math.PI) / 12.0f / 60.0f;
+                int minutes = DateTime.Now.Hour * 60 + DateTime.Now.Minute;
+                fTheta = minutes * (float)(Math.PI) / 12.0f / 60.0f;
             }
 
-            parameters.LightDirection = this.GetDirection();
+            parameters.LightDirection = GetDirection();
             parameters.LightDirection.Normalize();
 
             base.Update(gameTime);
@@ -242,7 +244,7 @@ namespace Game1.Sky
             if (previousTheta != fTheta || previousPhi != fPhi)
                 UpdateMieRayleighTextures();
 
-            this.sunColor = this.GetSunColor(-this.fTheta, 2);
+            sunColor = GetSunColor(-fTheta, 2);
 
             //game.GraphicsDevice.Clear(Color.CornflowerBlue);
 
@@ -252,8 +254,8 @@ namespace Game1.Sky
             game.GraphicsDevice.RasterizerState = RasterizerState.CullNone;
 
             scatterEffect.CurrentTechnique = scatterEffect.Techniques["Render"];
-            scatterEffect.Parameters["txMie"].SetValue(this.mieTex);
-            scatterEffect.Parameters["txRayleigh"].SetValue(this.rayleighTex);
+            scatterEffect.Parameters["txMie"].SetValue(mieTex);
+            scatterEffect.Parameters["txRayleigh"].SetValue(rayleighTex);
             scatterEffect.Parameters["WorldViewProjection"].SetValue(World * View * Projection);
             scatterEffect.Parameters["v3SunDir"].SetValue(new Vector3(-parameters.LightDirection.X,
                 -parameters.LightDirection.Y, -parameters.LightDirection.Z));
@@ -270,8 +272,7 @@ namespace Game1.Sky
             {
                 pass.Apply();
 
-                game.GraphicsDevice.DrawUserIndexedPrimitives<VertexPositionTexture>
-                    (PrimitiveType.TriangleList, domeVerts, 0, this.DVSize, ib, 0, this.DISize);
+                game.GraphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, domeVerts, 0, DVSize, ib, 0, DISize);
             }
 
             DrawGlow();
@@ -281,8 +282,8 @@ namespace Game1.Sky
             game.GraphicsDevice.DepthStencilState = prevDepthState;
             game.GraphicsDevice.RasterizerState = prevRasterizerState;
 
-            previousTheta = this.fTheta;
-            previousPhi = this.fPhi;
+            previousTheta = fTheta;
+            previousPhi = fPhi;
 
         }
 
@@ -295,8 +296,8 @@ namespace Game1.Sky
 
             texturedEffect.CurrentTechnique = texturedEffect.Techniques["Textured"];
             texturedEffect.Parameters["World"].SetValue(
-                Matrix.CreateRotationX(this.Theta + (float)Math.PI / 2.0f) *
-                Matrix.CreateRotationY(-this.Phi + (float)Math.PI / 2.0f) *
+                Matrix.CreateRotationX(Theta + (float)Math.PI / 2.0f) *
+                Matrix.CreateRotationY(-Phi + (float)Math.PI / 2.0f) *
                 Matrix.CreateTranslation(parameters.LightDirection.X * 15,
                 parameters.LightDirection.Y * 15,
                 parameters.LightDirection.Z * 15) *
@@ -305,7 +306,7 @@ namespace Game1.Sky
                 camera.Position.Z));
             texturedEffect.Parameters["View"].SetValue(camera.ViewMatrix);
             texturedEffect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
-            texturedEffect.Parameters["Texture"].SetValue(this.moonTex);
+            texturedEffect.Parameters["Texture"].SetValue(moonTex);
             if (fTheta < Math.PI / 2.0f || fTheta > 3.0f * Math.PI / 2.0f)
                 texturedEffect.Parameters["alpha"].SetValue((float)Math.Abs(
                     Math.Sin(Theta + (float)Math.PI / 2.0f)));
@@ -315,8 +316,7 @@ namespace Game1.Sky
             {
                 pass.Apply();
 
-                game.GraphicsDevice.DrawUserIndexedPrimitives<VertexPositionTexture>
-                    (PrimitiveType.TriangleList, quadVerts, 0, 4, quadIb, 0, 2);
+                game.GraphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, quadVerts, 0, 4, quadIb, 0, 2);
             }
 
             game.GraphicsDevice.BlendState = prevState;
@@ -334,8 +334,8 @@ namespace Game1.Sky
 
             texturedEffect.CurrentTechnique = texturedEffect.Techniques["Textured"];
             texturedEffect.Parameters["World"].SetValue(
-                Matrix.CreateRotationX(this.Theta + (float)Math.PI / 2.0f) *
-                Matrix.CreateRotationY(-this.Phi + (float)Math.PI / 2.0f) *
+                Matrix.CreateRotationX(Theta + (float)Math.PI / 2.0f) *
+                Matrix.CreateRotationY(-Phi + (float)Math.PI / 2.0f) *
                 Matrix.CreateTranslation(parameters.LightDirection.X * 5,
                 parameters.LightDirection.Y * 5,
                 parameters.LightDirection.Z * 5) *
@@ -344,7 +344,7 @@ namespace Game1.Sky
                 camera.Position.Z));//*
             texturedEffect.Parameters["View"].SetValue(camera.ViewMatrix);
             texturedEffect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
-            texturedEffect.Parameters["Texture"].SetValue(this.glowTex);
+            texturedEffect.Parameters["Texture"].SetValue(glowTex);
             if (fTheta < Math.PI / 2.0f || fTheta > 3.0f * Math.PI / 2.0f)
                 texturedEffect.Parameters["alpha"].SetValue((float)Math.Abs(
                     Math.Sin(Theta + (float)Math.PI / 2.0f)));
@@ -354,8 +354,7 @@ namespace Game1.Sky
             {
                 pass.Apply();
 
-                game.GraphicsDevice.DrawUserIndexedPrimitives<VertexPositionTexture>
-                    (PrimitiveType.TriangleList, quadVerts, 0, 4, quadIb, 0, 2);
+                game.GraphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, quadVerts, 0, 4, quadIb, 0, 2);
             }
 
             game.GraphicsDevice.BlendState = prevState;
@@ -372,18 +371,21 @@ namespace Game1.Sky
             game.GraphicsDevice.BlendState = BlendState.AlphaBlend;
 
             noiseEffect.CurrentTechnique = noiseEffect.Techniques["Noise"];
-            noiseEffect.Parameters["World"].SetValue(Matrix.CreateScale(5000.0f) *
-                Matrix.CreateTranslation(new Vector3(0, 0, -100)) *
-                Matrix.CreateRotationX((float)Math.PI / 2.0f) *
+            noiseEffect.Parameters["World"].SetValue(//Matrix.CreateScale(2000.0f) *
+                //Matrix.CreateTranslation(new Vector3(0, 0, -100)) *
+                //Matrix.CreateRotationX((float)Math.PI / 2.0f) *
                 Matrix.CreateTranslation(camera.Position.X,
                 camera.Position.Y,
                 camera.Position.Z)
                 );
             noiseEffect.Parameters["View"].SetValue(camera.ViewMatrix);
             noiseEffect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
-            noiseEffect.Parameters["permTexture"].SetValue(this.permTex);
+            noiseEffect.Parameters["permTexture"].SetValue(permTex);
             noiseEffect.Parameters["time"].SetValue((float)gameTime.TotalGameTime.TotalSeconds / inverseCloudVelocity);
-            noiseEffect.Parameters["SunColor"].SetValue(this.sunColor);
+            noiseEffect.Parameters["SunColor"].SetValue(sunColor);
+            noiseEffect.Parameters["v3SunDir"].SetValue(new Vector3(-parameters.LightDirection.X,
+                -parameters.LightDirection.Y, -parameters.LightDirection.Z));
+            noiseEffect.Parameters["cameraPosition"].SetValue(camera.Position);
             noiseEffect.Parameters["numTiles"].SetValue(numTiles);
             noiseEffect.Parameters["CloudCover"].SetValue(cloudCover);
             noiseEffect.Parameters["CloudSharpness"].SetValue(cloudSharpness);
@@ -392,8 +394,11 @@ namespace Game1.Sky
             {
                 pass.Apply();
 
+                //game.GraphicsDevice.DrawUserIndexedPrimitives<VertexPositionTexture>
+                //    (PrimitiveType.TriangleList, quadVerts, 0, 4, quadIb, 0, 2);
+
                 game.GraphicsDevice.DrawUserIndexedPrimitives<VertexPositionTexture>
-                    (PrimitiveType.TriangleList, quadVerts, 0, 4, quadIb, 0, 2);
+                        (PrimitiveType.TriangleList, planeVerts, 0, PVSize, planeIb, 0, PISize);
             }
 
             game.GraphicsDevice.BlendState = prevState;
@@ -410,9 +415,9 @@ namespace Game1.Sky
         Vector4 GetDirection()
         {
 
-            float y = (float)Math.Cos((double)this.fTheta);
-            float x = (float)(Math.Sin((double)this.fTheta) * Math.Cos(this.fPhi));
-            float z = (float)(Math.Sin((double)this.fTheta) * Math.Sin(this.fPhi));
+            float y = (float)Math.Cos(fTheta);
+            float x = (float)(Math.Sin(fTheta) * Math.Cos(fPhi));
+            float z = (float)(Math.Sin(fTheta) * Math.Sin(fPhi));
             float w = 1.0f;
 
             return new Vector4(x, y, z, w);
@@ -442,10 +447,9 @@ namespace Game1.Sky
 
             game.GraphicsDevice.SetRenderTargets(null);
 
-            this.mieTex = mieRT;
-            this.rayleighTex = rayleighRT;
+            mieTex = mieRT;
+            rayleighTex = rayleighRT;
 
-            //game.GraphicsDevice.DepthStencilBuffer = oldDepthBuffer;
             game.GraphicsDevice.DepthStencilState = prevState;
             game.GraphicsDevice.SetRenderTargets(prevTargets);
 
@@ -547,6 +551,82 @@ namespace Game1.Sky
 
         #endregion
 
+        #region GeneratePlane
+        private void GeneratePlane()
+        {
+            int planeResolution = 20;
+            float planeWidth = 10.0f;
+            float planeTop = 0.5f;
+            float planeBottom = -0.5f;
+            int textureRepeat = 1;
+
+            float quadSize = planeWidth / (float)planeResolution;
+            float radius = planeWidth / 2.0f;
+            float constant = (planeTop - planeBottom) / (radius * radius);
+            float textureDelta = (float)textureRepeat / (float)planeResolution;
+
+            PVSize = planeResolution * planeResolution;
+            PISize = (planeResolution - 1) * (planeResolution - 1) * 2;
+            PVSize *= 2;
+            PISize *= 2;
+
+            planeVerts = new VertexPositionTexture[PVSize];
+
+            // Fill Vertex Buffer
+            int PlaneIndex = 0;
+            for (int i = 0; i < planeResolution; i++)
+            {
+                for (int j = 0; j < planeResolution; j++)
+                {
+                    planeVerts[PlaneIndex] = new VertexPositionTexture();
+
+                    float positionX = (-0.5f * planeWidth) + (i * quadSize);
+                    float positionZ = (-0.5f * planeWidth) + (j * quadSize);
+                    float positionY = planeTop - (constant * ((positionX * positionX) + (positionZ * positionZ)));
+                    planeVerts[PlaneIndex].Position.X = positionX;
+                    planeVerts[PlaneIndex].Position.Y = positionY;
+                    planeVerts[PlaneIndex].Position.Z = positionZ;
+
+                    planeVerts[PlaneIndex].TextureCoordinate.X = i * textureDelta;
+                    planeVerts[PlaneIndex].TextureCoordinate.Y = j * textureDelta;
+
+                    PlaneIndex++;
+                }
+            }
+
+            // Fill index buffer
+            planeIb = new short[PISize * 3];
+            int index = 0;
+            for (short i = 0; i < planeResolution - 1; i++)
+            {
+                for (short j = 0; j < planeResolution - 1; j++)
+                {
+                    planeIb[index++] = (short)(i * planeResolution + j);
+                    planeIb[index++] = (short)((i + 1) * planeResolution + j);
+                    planeIb[index++] = (short)((i + 1) * planeResolution + j + 1);
+
+                    planeIb[index++] = (short)((i + 1) * planeResolution + j + 1);
+                    planeIb[index++] = (short)(i * planeResolution + j + 1);
+                    planeIb[index++] = (short)(i * planeResolution + j);
+                }
+            }
+            short Offset = (short)(planeResolution * planeResolution);
+            for (short i = 0; i < planeResolution - 1; i++)
+            {
+                for (short j = 0; j < planeResolution - 1; j++)
+                {
+                    planeIb[index++] = (short)(Offset + i * planeResolution + j);
+                    planeIb[index++] = (short)(Offset + (i + 1) * planeResolution + j + 1);
+                    planeIb[index++] = (short)(Offset + (i + 1) * planeResolution + j);
+
+                    planeIb[index++] = (short)(Offset + i * planeResolution + j + 1);
+                    planeIb[index++] = (short)(Offset + (i + 1) * planeResolution + j + 1);
+                    planeIb[index++] = (short)(Offset + i * planeResolution + j);
+                }
+            }
+        }
+        #endregion
+
         #region GenerateMoon
 
         private void GenerateMoon()
@@ -646,7 +726,7 @@ namespace Game1.Sky
                 0,-1,-1
             };
 
-            permTex = new Texture2D(game.GraphicsDevice, 256, 256, true,
+            permTex = new Texture2D(game.GraphicsDevice, 256, 256, false,
                 SurfaceFormat.Color);
 
             byte[] pixels;
@@ -665,6 +745,7 @@ namespace Game1.Sky
             }
 
             permTex.SetData<byte>(pixels);
+            //permTex.SaveAsPng(new System.IO.FileStream("../Tex.png", System.IO.FileMode.Create), 256, 256);
         }
 
         #endregion
