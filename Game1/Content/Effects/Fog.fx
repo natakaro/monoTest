@@ -7,11 +7,11 @@
 	#define PS_SHADERMODEL ps_4_0_level_9_1
 #endif
 
-const float4 FogColor = float4(0.5f, 0.5f, 0.5f, 0.5f);
-const float FogDensity = 0.51;
+float4 FogColor;
+float FogDensity;
 
-float NearClip = 0.1f;
-float FarClip = 2000.0f;
+float NearClip;
+float FarClip;
 
 texture depthMap;
 

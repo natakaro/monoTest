@@ -242,6 +242,10 @@ namespace Game1
             fxaaEffect = Content.Load<Effect>("Effects/fxaa");
             fogEffect = Content.Load<Effect>("Effects/Fog");
             fogEffect.CurrentTechnique = fogEffect.Techniques["FogExp"];
+            fogEffect.Parameters["NearClip"].SetValue(camera.NearZ);
+            fogEffect.Parameters["FarClip"].SetValue(camera.FarZ);
+            fogEffect.Parameters["FogDensity"].SetValue(0.25f);
+            fogEffect.Parameters["FogColor"].SetValue(Color.CornflowerBlue.ToVector4());
 
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
