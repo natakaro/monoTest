@@ -9,6 +9,7 @@ using Game1.Helpers;
 using Game1.Shadows;
 using Game1.Lights;
 using Game1.Sky;
+using System.Diagnostics;
 
 namespace Game1
 {
@@ -29,6 +30,8 @@ namespace Game1
 
         private Effect fxaaEffect;
         private RenderTarget2D fxaaTarget;
+
+        private Effect fogEffect;
 
         public RenderTarget2D colorTarget;
         public RenderTarget2D normalTarget;
@@ -60,7 +63,6 @@ namespace Game1
         private bool useFXAA = true;
         private bool showgbuffer = false;
         private bool debugShapes = false;
-        private bool raybox = false;
 
         private const float CAMERA_FOVX = 90.0f;
         private const float CAMERA_ZNEAR = 0.1f;
@@ -126,6 +128,14 @@ namespace Game1
         private SpellFireball spellFireball;
 
         public SpellType selectedSpell = SpellType.MoveTerrain;
+
+        Stopwatch swUpdate;
+        Stopwatch swDraw;
+        Stopwatch swGPU;
+
+        double updateMs = 0;
+        double drawMs = 0;
+        double gpuMs = 0;
 
         public Game1()
         {
@@ -199,7 +209,7 @@ namespace Game1
             sky.Theta = 2.4f;// (float)Math.PI / 2.0f - 0.3f;
             sky.Parameters.NumSamples = 10;
 
-            this.Components.Add(sky);
+            Components.Add(sky);
 
             base.Initialize();
         }
@@ -230,6 +240,8 @@ namespace Game1
             shadowRenderer = new ShadowRenderer(GraphicsDevice, settings, Content);
 
             fxaaEffect = Content.Load<Effect>("Effects/fxaa");
+            fogEffect = Content.Load<Effect>("Effects/Fog");
+            fogEffect.CurrentTechnique = fogEffect.Techniques["FogExp"];
 
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
@@ -245,6 +257,10 @@ namespace Game1
 
             spellMoveTerrain = new SpellMoveTerrain(octree);
             spellFireball = new SpellFireball(this, camera, octree, lightManager);
+
+            swDraw = new Stopwatch();
+            swUpdate = new Stopwatch();
+            swGPU = new Stopwatch();
             
 
         }
@@ -319,6 +335,21 @@ namespace Game1
                 stat++;
                 if ((int)stat == 3)
                     stat = SkyStatus.Manual;
+            }
+
+            if (KeyJustPressed(Keys.D5))
+            {
+                fogEffect.CurrentTechnique = fogEffect.Techniques["FogLinear"];
+            }
+
+            if (KeyJustPressed(Keys.D6))
+            {
+                fogEffect.CurrentTechnique = fogEffect.Techniques["FogExp"];
+            }
+
+            if (KeyJustPressed(Keys.D7))
+            {
+                fogEffect.CurrentTechnique = fogEffect.Techniques["FogExp2"];
             }
 
             if (KeyJustPressed(Keys.G))
@@ -430,6 +461,12 @@ namespace Game1
             if (!this.IsActive)
                 return;
 
+            swGPU.Stop();
+            gpuMs = swGPU.Elapsed.TotalMilliseconds;
+
+            swUpdate.Reset();
+            swUpdate.Start();
+
             base.Update(gameTime);
 
             ProcessKeyboard();
@@ -529,6 +566,8 @@ namespace Game1
             prevStat = stat;
 
             UpdateFrameRate(gameTime);
+
+            swUpdate.Stop();
         }
 
         private void UpdateFrameRate(GameTime gameTime)
@@ -563,7 +602,6 @@ namespace Game1
                 buffer.AppendLine("Press and hold LEFT SHIFT to run");
                 buffer.AppendLine();
                 buffer.AppendLine("Press M to toggle mouse smoothing");
-                //buffer.AppendLine("Press P to toggle between parallax normal mapping and normal mapping");
                 buffer.AppendLine("Press NUMPAD +/- to change camera rotation speed");
                 buffer.AppendLine("Press ALT + ENTER to toggle full screen");
                 buffer.AppendLine();
@@ -572,6 +610,10 @@ namespace Game1
             else
             {
                 buffer.AppendFormat("FPS: {0}\n", framesPerSecond);
+                buffer.AppendFormat(" Update: {0} ms\n", updateMs);
+                buffer.AppendFormat(" Draw:     {0} ms\n", drawMs);
+                buffer.AppendFormat(" GPU:      {0} ms\n", gpuMs);
+                buffer.AppendFormat("  Total: {0} ms\n\n", updateMs + drawMs + gpuMs);
                 buffer.AppendFormat("Mouse smoothing: {0}\n\n",
                     (camera.EnableMouseSmoothing ? "on" : "off"));
                 buffer.Append("Camera:\n");
@@ -661,6 +703,25 @@ namespace Game1
             quadRenderer.Render(Vector2.One * -1, Vector2.One);
         }
 
+        private void DrawFog()
+        {
+            GraphicsDevice.BlendState = BlendState.NonPremultiplied;
+            //GraphicsDevice.DepthStencilState = DepthStencilState.None;
+            fogEffect.Parameters["depthMap"].SetValue(depthTarget);
+            fogEffect.CurrentTechnique.Passes[0].Apply();
+            quadRenderer.Render(Vector2.One * -1, Vector2.One);
+            GraphicsDevice.BlendState = BlendState.Opaque;
+            //GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+        }
+
+        protected override bool BeginDraw()
+        {
+            swDraw.Reset();
+            swDraw.Start();
+
+            return base.BeginDraw();
+        }
+
         protected override void Draw(GameTime gameTime)
         {
             SetGBuffer();
@@ -747,6 +808,8 @@ namespace Game1
             GraphicsDevice.SetRenderTarget(fxaaTarget);
             GraphicsDevice.Clear(Color.CornflowerBlue);
             DrawFinal();
+            if(settings.DrawFog)
+                DrawFog();
             GraphicsDevice.SetRenderTarget(null);
 
             if (useFXAA)
@@ -778,6 +841,8 @@ namespace Game1
                 spriteBatch.End();
             }
 
+            swDraw.Stop();
+
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
             spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);
             DrawText();
@@ -786,6 +851,12 @@ namespace Game1
             spriteBatch.End();
 
             IncrementFrameCounter();
+
+            updateMs = swUpdate.Elapsed.TotalMilliseconds;
+            drawMs = swDraw.Elapsed.TotalMilliseconds;
+
+            swGPU.Reset();
+            swGPU.Start();
         }
 
         private void DrawGBuffer()

@@ -394,3 +394,9 @@
 /processorParam:TextureFormat=Color
 /build:Textures/starfield.png
 
+#begin Effects/Fog.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/Fog.fx
+

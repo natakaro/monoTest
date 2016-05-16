@@ -24,6 +24,8 @@ namespace Game1
         public float Bias;
         public float OffsetScale;
 
+        public bool DrawFog;
+
         private KeyboardState _lastKeyboardState;
 
         public int FixedFilterKernelSize
@@ -46,6 +48,8 @@ namespace Game1
             SplitDistance1 = 0.15f;
             SplitDistance2 = 0.50f;
             SplitDistance3 = 1.0f;
+
+            DrawFog = true;
         }
 
         public override void Initialize()
@@ -100,6 +104,9 @@ namespace Game1
                 }
                 OffsetScale = (float)Math.Round(OffsetScale, 1);
             }
+
+            if (keyboardState.IsKeyDown(Keys.D4) && !_lastKeyboardState.IsKeyDown(Keys.D4))
+                DrawFog = !DrawFog;
 
             _lastKeyboardState = keyboardState;
         }
