@@ -108,7 +108,7 @@ namespace Game1
                 DebugShapeRenderer.AddBoundingBox(dObject.BoundingBox, Color.Blue);
                 DebugShapeRenderer.AddBoundingSphere(dObject.BoundingSphere, Color.Red);
             }
-                
+
 
             for (int a = 0; a < 8; a++)
             {
@@ -687,6 +687,43 @@ namespace Game1
             return ret;
         }
 
+
+        private List<IntersectionRecord> GetIntersection(BoundingBox box, DrawableObject.ObjectType type = DrawableObject.ObjectType.ALL)
+        {
+            if (m_objects.Count == 0 && HasChildren == false)   //terminator for any recursion
+                return null;
+
+            List<IntersectionRecord> ret = new List<IntersectionRecord>();
+
+            //test each object in the list for intersection
+            foreach (DrawableObject obj in m_objects)
+            {
+
+                //skip any objects which don't meet our type criteria
+                if ((int)((int)type & (int)obj.Type) == 0)
+                    continue;
+
+                //test for intersection
+                IntersectionRecord ir = obj.Intersects(box);
+                if (ir != null) ret.Add(ir);
+            }
+
+            //test each object in the list for intersection
+            for (int a = 0; a < 8; a++)
+            {
+                if (m_childNode[a] != null && (box.Contains(m_childNode[a].m_region) == ContainmentType.Intersects || box.Contains(m_childNode[a].m_region) == ContainmentType.Contains))
+                {
+                    List<IntersectionRecord> hitList = m_childNode[a].GetIntersection(box);
+                    if (hitList != null)
+                    {
+                        foreach (IntersectionRecord ir in hitList)
+                            ret.Add(ir);
+                    }
+                }
+            }
+            return ret;
+        }
+
         /// <summary>
         /// Gives you a list of intersection records for all objects which intersect with the given ray
         /// </summary>
@@ -879,6 +916,32 @@ namespace Game1
         }
 
 
+        public IntersectionRecord NearestIntersection(BoundingBox box, DrawableObject.ObjectType type = DrawableObject.ObjectType.ALL)
+        {
+            if (!m_treeReady)
+                UpdateTree();
+
+            List<IntersectionRecord> intersections = GetIntersection(box, type);
+
+            IntersectionRecord nearest = new IntersectionRecord();
+
+            foreach (IntersectionRecord ir in intersections)
+            {
+                if (nearest.HasHit == false)
+                {
+                    nearest = ir;
+                    continue;
+                }
+
+                if (ir.Distance < nearest.Distance)
+                {
+                    nearest = ir;
+                }
+            }
+
+            return nearest;
+        }
+
         public IntersectionRecord HighestIntersection(Ray intersectionRay, DrawableObject.ObjectType type = DrawableObject.ObjectType.ALL)
         {
             if (!m_treeReady)
@@ -886,21 +949,78 @@ namespace Game1
 
             List<IntersectionRecord> intersections = GetIntersection(intersectionRay, type);
 
-            IntersectionRecord nearest = new IntersectionRecord();
+            IntersectionRecord highest = new IntersectionRecord();
 
             foreach (IntersectionRecord ir in intersections)
             {
-                if (nearest.HasHit == true)
+                if (highest.HasHit == false)
                 {
-                    nearest = ir;
+                    highest = ir;
                     continue;
                 }
-                if (ir.Distance < nearest.Distance)
+                else if (ir.DrawableObjectObject.BoundingBox.Max.Y > highest.DrawableObjectObject.BoundingBox.Max.Y)
                 {
-                    nearest = ir;
+                    highest = ir;
                 }
             }
-            return nearest;
+            return highest;
+        }
+
+        public IntersectionRecord HighestIntersection(BoundingBox box, DrawableObject.ObjectType type = DrawableObject.ObjectType.ALL)
+        {
+            if (!m_treeReady)
+                UpdateTree();
+
+            List<IntersectionRecord> intersections = GetIntersection(box, type);
+
+            IntersectionRecord highest = new IntersectionRecord();
+
+            foreach (IntersectionRecord ir in intersections)
+            {
+                if (highest.HasHit == false)
+                {
+                    highest = ir;
+                    continue;
+                }
+                else if (ir.DrawableObjectObject.BoundingBox.Max.Y > highest.DrawableObjectObject.BoundingBox.Max.Y)
+                {
+                    highest = ir;
+                }
+            }
+            return highest;
+        }
+
+        public IntersectionRecord HighestIntersection(DrawableObject obj, DrawableObject.ObjectType type = DrawableObject.ObjectType.ALL)
+        {
+            if (!m_treeReady)
+                UpdateTree();
+
+            List<IntersectionRecord> intersections = GetIntersection(obj.BoundingBox, type);
+
+            IntersectionRecord highest = new IntersectionRecord();
+
+            foreach (IntersectionRecord ir in intersections)
+            {
+                if (ir.DrawableObjectObject == obj)
+                {
+                    intersections.Remove(ir);
+                    break;
+                }
+            }
+
+            foreach (IntersectionRecord ir in intersections)
+            {
+                if (highest.HasHit == false)
+                {
+                    highest = ir;
+                    continue;
+                }
+                else if (ir.DrawableObjectObject.BoundingBox.Max.Y > highest.DrawableObjectObject.BoundingBox.Max.Y)
+                {
+                    highest = ir;
+                }
+            }
+            return highest;
         }
 
         /// <summary>
@@ -945,6 +1065,14 @@ namespace Game1
             return GetIntersection(sphere, type);
         }
 
+
+        public List<IntersectionRecord> AllIntersections(BoundingBox box, DrawableObject.ObjectType type = DrawableObject.ObjectType.ALL)
+        {
+            if (!m_treeReady)
+                UpdateTree();
+
+            return GetIntersection(box, type);
+        }
         #endregion
 
         #region Accessors

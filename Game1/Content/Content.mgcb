@@ -10,7 +10,7 @@
 
 #-------------------------------- References --------------------------------#
 
-/reference:DeferredPipeline.dll
+/reference:..\..\AnimationPipeline\bin\Debug\AnimationPipeline.dll
 
 #---------------------------------- Content ---------------------------------#
 
@@ -112,7 +112,7 @@
 
 #begin Models/fireball.DAE
 /importer:OpenAssetImporter
-/processor:DeferredModelProcessor
+/processor:AnimationProcessor
 /processorParam:NormalMapKey=NormalMap
 /processorParam:GenerateTangentFrames=True
 /processorParam:SpecularMapKey=SpecularMap
@@ -133,7 +133,7 @@
 
 #begin Models/hands.DAE
 /importer:OpenAssetImporter
-/processor:DeferredModelProcessor
+/processor:AnimationProcessor
 /processorParam:NormalMapKey=NormalMap
 /processorParam:GenerateTangentFrames=True
 /processorParam:SpecularMapKey=SpecularMap
@@ -280,7 +280,7 @@
 
 #begin Models/crystal.DAE
 /importer:OpenAssetImporter
-/processor:DeferredModelProcessor
+/processor:AnimationProcessor
 /processorParam:NormalMapKey=NormalMap
 /processorParam:GenerateTangentFrames=True
 /processorParam:SpecularMapKey=SpecularMap
@@ -301,8 +301,7 @@
 
 #begin Models/tile.DAE
 /importer:OpenAssetImporter
-/processor:DeferredModelProcessor
-/processorParam:NormalMapTexture=
+/processor:AnimationProcessor
 /processorParam:NormalMapKey=NormalMap
 /processorParam:GenerateTangentFrames=True
 /processorParam:SpecularMapKey=SpecularMap

@@ -56,9 +56,9 @@ namespace Game1
         private SkyDome sky;
         Vector3 lightDirection;
         Vector3 lightColor;
-
+        
         float acceleration = 100.0f; // przyspieszenie przy wspinaniu i opadaniu
-
+        
         private bool instancing = true;
         private bool useFXAA = true;
         private bool showgbuffer = false;
@@ -170,7 +170,7 @@ namespace Game1
             graphics.ApplyChanges();
 
             Window.Position = new Point(0, 0);
-
+            
             //graphics.ToggleFullScreen();
 
             // Initial position for text rendering.
@@ -712,6 +712,7 @@ namespace Game1
             GraphicsDevice.BlendState = BlendState.NonPremultiplied;
             //GraphicsDevice.DepthStencilState = DepthStencilState.None;
             fogEffect.Parameters["depthMap"].SetValue(depthTarget);
+            fogEffect.Parameters["FogColor"].SetValue(sky.SunColor);
             fogEffect.CurrentTechnique.Passes[0].Apply();
             quadRenderer.Render(Vector2.One * -1, Vector2.One);
             GraphicsDevice.BlendState = BlendState.Opaque;
