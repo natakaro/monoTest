@@ -10,7 +10,7 @@
 
 #-------------------------------- References --------------------------------#
 
-/reference:..\..\AnimationPipeline\bin\Debug\AnimationPipeline.dll
+/reference:AnimationPipeline.dll
 
 #---------------------------------- Content ---------------------------------#
 
