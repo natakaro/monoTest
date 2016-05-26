@@ -371,9 +371,9 @@ namespace Game1.Sky
             game.GraphicsDevice.BlendState = BlendState.AlphaBlend;
 
             noiseEffect.CurrentTechnique = noiseEffect.Techniques["Noise"];
-            noiseEffect.Parameters["World"].SetValue(//Matrix.CreateScale(2000.0f) *
-                //Matrix.CreateTranslation(new Vector3(0, 0, -100)) *
-                //Matrix.CreateRotationX((float)Math.PI / 2.0f) *
+            noiseEffect.Parameters["World"].SetValue(Matrix.CreateScale(2000.0f) *
+                Matrix.CreateTranslation(new Vector3(0, 0, -100)) *
+                Matrix.CreateRotationX((float)Math.PI / 2.0f) *
                 Matrix.CreateTranslation(camera.Position.X,
                 camera.Position.Y,
                 camera.Position.Z)
@@ -394,11 +394,11 @@ namespace Game1.Sky
             {
                 pass.Apply();
 
-                //game.GraphicsDevice.DrawUserIndexedPrimitives<VertexPositionTexture>
-                //    (PrimitiveType.TriangleList, quadVerts, 0, 4, quadIb, 0, 2);
-
                 game.GraphicsDevice.DrawUserIndexedPrimitives<VertexPositionTexture>
-                        (PrimitiveType.TriangleList, planeVerts, 0, PVSize, planeIb, 0, PISize);
+                    (PrimitiveType.TriangleList, quadVerts, 0, 4, quadIb, 0, 2);
+
+                //game.GraphicsDevice.DrawUserIndexedPrimitives<VertexPositionTexture>
+                //        (PrimitiveType.TriangleList, planeVerts, 0, PVSize, planeIb, 0, PISize);
             }
 
             game.GraphicsDevice.BlendState = prevState;

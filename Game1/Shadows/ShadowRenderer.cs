@@ -390,7 +390,7 @@ namespace Game1.Shadows
         }
 
         public void Render(GraphicsDevice graphicsDevice, Camera camera, Matrix worldMatrix, Vector3 lightDirection, Vector3 lightColor,
-            RenderTarget2D colorMap, RenderTarget2D normalMap, RenderTarget2D depthMap)
+            RenderTarget2D colorMap, RenderTarget2D normalMap, RenderTarget2D depthMap, RenderTarget2D ssaoMap)
         {
             // Render scene.
 
@@ -402,10 +402,12 @@ namespace Game1.Shadows
             graphicsDevice.SamplerStates[1] = SamplerStateUtility.ColorMap;
             graphicsDevice.SamplerStates[2] = SamplerStateUtility.NormalMap;
             graphicsDevice.SamplerStates[3] = SamplerStateUtility.DepthMap;
+            graphicsDevice.SamplerStates[4] = SamplerStateUtility.SSAOMap;
 
             graphicsDevice.Textures[1] = colorMap;
             graphicsDevice.Textures[2] = normalMap;
             graphicsDevice.Textures[3] = depthMap;
+            graphicsDevice.Textures[4] = ssaoMap;
 
             shadowEffect.VisualizeCascades = settings.VisualizeCascades;
             shadowEffect.FilterAcrossCascades = settings.FilterAcrossCascades;
@@ -424,10 +426,11 @@ namespace Game1.Shadows
             shadowEffect.ColorMap = colorMap;
             shadowEffect.NormalMap = normalMap;
             shadowEffect.DepthMap = depthMap;
-            shadowEffect.InvertViewProjection = Matrix.Invert(camera.ViewProjectionMatrix);
+            shadowEffect.SSAOMap = ssaoMap;
 
             //shadowEffect.DiffuseColor = basicEffect.DiffuseColor;
             shadowEffect.World = worldMatrix;
+            shadowEffect.InvertViewProjection = Matrix.Invert(camera.ViewProjectionMatrix);
 
             shadowEffect.NearClip = camera.NearZ;
             shadowEffect.FarClip = camera.FarZ;

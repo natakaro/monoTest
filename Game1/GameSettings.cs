@@ -25,6 +25,12 @@ namespace Game1
         public float OffsetScale;
 
         public bool DrawFog;
+        public bool DrawSSAO;
+        public bool SSAO2;
+        public bool BlurSSAO;
+
+        public float SSAORadius;
+        public float SSAOPower;
 
         private KeyboardState _lastKeyboardState;
 
@@ -50,6 +56,12 @@ namespace Game1
             SplitDistance3 = 1.0f;
 
             DrawFog = true;
+            DrawSSAO = true;
+            SSAO2 = true;
+            BlurSSAO = true;
+
+            SSAORadius = 5;
+            SSAOPower = 1;
         }
 
         public override void Initialize()
@@ -107,6 +119,27 @@ namespace Game1
 
             if (keyboardState.IsKeyDown(Keys.D4) && !_lastKeyboardState.IsKeyDown(Keys.D4))
                 DrawFog = !DrawFog;
+
+            if (keyboardState.IsKeyDown(Keys.D8) && !_lastKeyboardState.IsKeyDown(Keys.D8))
+                DrawSSAO = !DrawSSAO;
+
+            if (keyboardState.IsKeyDown(Keys.D9) && !_lastKeyboardState.IsKeyDown(Keys.D9))
+                SSAO2 = !SSAO2;
+
+            if (keyboardState.IsKeyDown(Keys.D0) && !_lastKeyboardState.IsKeyDown(Keys.D0))
+                BlurSSAO = !BlurSSAO;
+
+            if (keyboardState.IsKeyDown(Keys.F1) && !_lastKeyboardState.IsKeyDown(Keys.F1))
+                SSAORadius -= 0.1f;
+
+            if (keyboardState.IsKeyDown(Keys.F2) && !_lastKeyboardState.IsKeyDown(Keys.F2))
+                SSAORadius += 0.1f;
+
+            if (keyboardState.IsKeyDown(Keys.F3) && !_lastKeyboardState.IsKeyDown(Keys.F3))
+                SSAOPower -= 0.1f;
+
+            if (keyboardState.IsKeyDown(Keys.F4) && !_lastKeyboardState.IsKeyDown(Keys.F4))
+                SSAOPower += 0.1f;
 
             _lastKeyboardState = keyboardState;
         }

@@ -399,3 +399,21 @@
 /processorParam:DebugMode=Auto
 /build:Effects/Fog.fx
 
+#begin Effects/SSAOBlur.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/SSAOBlur.fx
+
+#begin Effects\SSAO2.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects\SSAO2.fx
+
+#begin Effects/SSAO.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/SSAO.fx
+

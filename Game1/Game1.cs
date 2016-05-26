@@ -43,6 +43,7 @@ namespace Game1
 
         private LightManager lightManager;
         private ShadowRenderer shadowRenderer;
+        private SSAO ssao;
         public GameSettings settings;
 
         Model tileModel;
@@ -216,8 +217,7 @@ namespace Game1
 
         protected override void LoadContent()
         {
-            cross = Content.Load<Texture2D>("Hud/cross_cross");
-            spriteFont = Content.Load<SpriteFont>("Fonts/DemoFont");
+            spriteBatch = new SpriteBatch(GraphicsDevice);
 
             int backbufferWidth = GraphicsDevice.PresentationParameters.BackBufferWidth;
             int backbufferHeight = GraphicsDevice.PresentationParameters.BackBufferHeight;
@@ -226,6 +226,9 @@ namespace Game1
             normalTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.Color, DepthFormat.None);
             depthTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.Single, DepthFormat.None);
             lightTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.Color, DepthFormat.None);
+
+            cross = Content.Load<Texture2D>("Hud/cross_cross");
+            spriteFont = Content.Load<SpriteFont>("Fonts/DemoFont");
 
             tileModel = Content.Load<Model>("Models/Tile");
             tileTexture = Content.Load<Texture2D>("Textures/gradient");
@@ -247,7 +250,9 @@ namespace Game1
             fogEffect.Parameters["FogDensity"].SetValue(0.25f);
             fogEffect.Parameters["FogColor"].SetValue(Color.CornflowerBlue.ToVector4());
 
-            spriteBatch = new SpriteBatch(GraphicsDevice);
+            ssao = new SSAO(GraphicsDevice, Content, settings, quadRenderer, camera, normalTarget, depthTarget);
+
+            
 
             lightManager = new LightManager(this, lightTarget, Content);
             //TestLights();
@@ -653,8 +658,12 @@ namespace Game1
                     settings.FilterAcrossCascades.ToString());
                 buffer.AppendFormat(" Bias (b / B): {0}\n",
                     settings.Bias.ToString());
-                buffer.AppendFormat(" Normal offset (o / O): {0}\n\n",
+                buffer.AppendFormat(" Normal offset (o / O): {0}\n",
                     settings.OffsetScale.ToString());
+                buffer.AppendFormat(" SSAORadius (F1/F2): {0}\n",
+                    settings.SSAORadius.ToString());
+                buffer.AppendFormat(" SSAOPower (F3/F4): {0}\n\n",
+                    settings.SSAOPower.ToString());
 
                 buffer.AppendFormat(" MouseWheel: {0}\n",
                     currentMouseState.ScrollWheelValue.ToString("f2"));
@@ -801,20 +810,26 @@ namespace Game1
                 //lightColor = new Vector3(0.2f, 0.2f, 0.2f); //ambient w nocy
             }
             shadowRenderer.RenderShadowMap(GraphicsDevice, camera, lightDirection, Matrix.Identity, octree);
+            
+            ssao.DrawSSAO();
 
             GraphicsDevice.SetRenderTarget(lightTarget);
             GraphicsDevice.Clear(Color.Transparent);
 
-            shadowRenderer.Render(GraphicsDevice, camera, Matrix.Identity, lightDirection, lightColor, colorTarget, normalTarget, depthTarget);
+            if(settings.BlurSSAO)
+                shadowRenderer.Render(GraphicsDevice, camera, Matrix.Identity, lightDirection, lightColor, colorTarget, normalTarget, depthTarget, ssao.BlurTarget);
+            else
+                shadowRenderer.Render(GraphicsDevice, camera, Matrix.Identity, lightDirection, lightColor, colorTarget, normalTarget, depthTarget, ssao.SSAOTarget);
             quadRenderer.Render(Vector2.One * -1, Vector2.One);
 
             lightManager.Draw();
 
             GraphicsDevice.SetRenderTarget(fxaaTarget);
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.White);
             DrawFinal();
             if(settings.DrawFog)
                 DrawFog();
+            
             GraphicsDevice.SetRenderTarget(null);
 
             if (useFXAA)
@@ -868,12 +883,17 @@ namespace Game1
         {
             int halfWidth = GraphicsDevice.Viewport.Width / 2;
             int halfHeight = GraphicsDevice.Viewport.Height / 2;
-            GraphicsDevice.Clear(Color.Black);
+            GraphicsDevice.Clear(Color.Transparent);
 
-            spriteBatch.Draw(shadowRenderer.ShadowMap, new Rectangle(0, 0, halfWidth, halfHeight), Color.White);
+            if(settings.BlurSSAO)
+                spriteBatch.Draw(ssao.BlurTarget, new Rectangle(0, 0, halfWidth, halfHeight), Color.White);
+            else
+                spriteBatch.Draw(ssao.SSAOTarget, new Rectangle(0, 0, halfWidth, halfHeight), Color.White);
             spriteBatch.Draw(normalTarget, new Rectangle(0, halfHeight, halfWidth, halfHeight), Color.White);
             spriteBatch.Draw(depthTarget, new Rectangle(halfWidth, 0, halfWidth, halfHeight), Color.White);
-            spriteBatch.Draw(lightTarget, new Rectangle(halfWidth, halfHeight, halfWidth, halfHeight), Color.White);
+            spriteBatch.Draw(lightTarget, new Rectangle(halfWidth, halfHeight, halfWidth, halfHeight), Color.Black);
+
+            //ssaoTarget.SaveAsPng(new System.IO.FileStream("../Tex.png", System.IO.FileMode.Create), 1280, 720);
         }
     }
 }

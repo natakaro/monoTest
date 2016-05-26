@@ -33,6 +33,8 @@ Texture2D normalMap : register(t2);
 SamplerState normalSampler : register(s2);
 Texture2D depthMap : register(t3);
 SamplerState depthSampler : register(s3);
+Texture2D ssaoMap : register(t4);
+SamplerState ssaoSampler : register(s4);
 
 
 //// diffuse color, and specularIntensity in the alpha channel
@@ -128,9 +130,9 @@ float SampleShadowMapOptimizedPCF(float3 shadowPos,
 
     float2 uv = shadowPos.xy * shadowMapSize; // 1 unit - 1 texel
 
-        float2 shadowMapSizeInv = 1.0 / shadowMapSize;
+    float2 shadowMapSizeInv = 1.0 / shadowMapSize;
 
-        float2 baseUv;
+    float2 baseUv;
     baseUv.x = floor(uv.x + 0.5);
     baseUv.y = floor(uv.y + 0.5);
 
@@ -246,7 +248,7 @@ float SampleShadowMapOptimizedPCF(float3 shadowPos,
 }
 
 float3 SampleShadowCascade(
-    float3 shadowPosition, 
+    float3 shadowPosition,
     float3 shadowPosDX, float3 shadowPosDY,
     uint cascadeIdx, uint2 screenPos,
     bool visualizeCascades,
@@ -292,8 +294,8 @@ float3 GetShadowPosOffset(float nDotL, float3 normal)
 }
 
 float3 ShadowVisibility(
-    float3 positionWS, float depthVS, float nDotL, 
-    float3 normal, uint2 screenPos, 
+    float3 positionWS, float depthVS, float nDotL,
+    float3 normal, uint2 screenPos,
     bool filterAcrossCascades,
     bool visualizeCascades,
     uint filterSize)
@@ -306,7 +308,7 @@ float3 ShadowVisibility(
         0.05f,
         0.15f,
         0.50f,
-        1.0f      
+        1.0f
     };
 
     // Figure out which cascade to sample from.
@@ -327,7 +329,7 @@ float3 ShadowVisibility(
     float3 shadowPosDX = ddx_fine(shadowPosition);
     float3 shadowPosDY = ddy_fine(shadowPosition);
 
-    shadowVisibility = SampleShadowCascade(shadowPosition, 
+    shadowVisibility = SampleShadowCascade(shadowPosition,
         shadowPosDX, shadowPosDY, cascadeIdx, screenPos,
         visualizeCascades, filterSize);
 
@@ -355,7 +357,7 @@ float3 ShadowVisibility(
 }
 
 float4 PSMesh(VSOutput input,
-    bool visualizeCascades, bool filterAcrossCascades, 
+    bool visualizeCascades, bool filterAcrossCascades,
     uint filterSize)
 {
     //get normal data from the normalMap
@@ -373,7 +375,7 @@ float4 PSMesh(VSOutput input,
     float3 diffuseColor = colorData.rgb;
 
     //get depth
-    float depthVal = depthMap.Sample(depthSampler, input.TexCoord).r; //tex2D(depthSampler, input.TexCoord).r;
+    float depthVal = depthMap.Sample(depthSampler, input.TexCoord); //tex2D(depthSampler, input.TexCoord).r;
 
     if (depthVal == 0)
         return float4(1, 1, 1, 0);
@@ -398,7 +400,7 @@ float4 PSMesh(VSOutput input,
     float nDotL = saturate(dot(normal, LightDirection));
     uint2 screenPos = uint2(input.TexCoord.xy);
     float3 shadowVisibility = ShadowVisibility(
-        position.xyz, depthVal, nDotL, normal, screenPos, 
+        position.xyz, depthVal, nDotL, normal, screenPos,
         filterAcrossCascades, visualizeCascades, filterSize);
 
     float3 lighting = 0.0f;
@@ -410,6 +412,10 @@ float4 PSMesh(VSOutput input,
     // Ambient light.
     lighting += float3(0.2f, 0.2f, 0.2f) * 1.0f * diffuseAlbedo;
     //lighting += float3(0.2f, 0.2f, 0.2f) * 1.0f;
+
+    // Add ssao.
+    float ssao = ssaoMap.Sample(ssaoSampler, input.TexCoord).a;
+    lighting *= ssao;
 
     //reflection vector
     float3 reflectionVector = -(normalize(reflect(LightDirection, normal)));
@@ -425,8 +431,8 @@ float4 PSMesh(VSOutput input,
     //if (depthVal > 0.5f)
     //    return float4(0, 1, 0, 1);
     
-
     return float4(max(lighting, 0.0001f), specularLight);
+    //return float4(lighting * ssao, specularLight);
 }
 
 float4 PSMeshVisualizeFalseFilterFalseFilterSizeFilter2x2(VSOutput input) : COLOR

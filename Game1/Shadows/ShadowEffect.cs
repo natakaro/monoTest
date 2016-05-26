@@ -29,6 +29,8 @@ namespace Game1.Shadows
         private readonly EffectParameter _colorMap;
         private readonly EffectParameter _normalMap;
         private readonly EffectParameter _depthMap;
+        private readonly EffectParameter _ssaoMap;
+
         private readonly EffectParameter _invertViewProjectionParameter;
 
         private readonly EffectParameter _nearClipParameter;
@@ -55,6 +57,7 @@ namespace Game1.Shadows
         public Texture2D ColorMap { get; set; }
         public Texture2D NormalMap { get; set; }
         public Texture2D DepthMap { get; set; }
+        public Texture2D SSAOMap { get; set; }
         public Matrix InvertViewProjection { get; set; }
         public float NearClip { get; set; }
         public float FarClip { get; set; }
@@ -80,6 +83,8 @@ namespace Game1.Shadows
             _colorMap = _innerEffect.Parameters["colorMap"];
             _normalMap = _innerEffect.Parameters["normalMap"];
             _depthMap = _innerEffect.Parameters["depthMap"];
+            _ssaoMap = _innerEffect.Parameters["ssaoMap"];
+
             _invertViewProjectionParameter = _innerEffect.Parameters["InvertViewProjection"];
 
             _nearClipParameter = _innerEffect.Parameters["NearClip"];
@@ -112,6 +117,8 @@ namespace Game1.Shadows
             _colorMap.SetValue(ColorMap);
             _normalMap.SetValue(NormalMap);
             _depthMap.SetValue(DepthMap);
+            _ssaoMap.SetValue(SSAOMap);
+
             _invertViewProjectionParameter.SetValue(InvertViewProjection);
 
             _nearClipParameter.SetValue(NearClip);

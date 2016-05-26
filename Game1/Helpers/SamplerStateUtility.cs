@@ -41,5 +41,13 @@ namespace Game1.Helpers
             AddressW = TextureAddressMode.Clamp,
             Filter = TextureFilter.Point
         };
+
+        public static readonly SamplerState SSAOMap = new SamplerState
+        {
+            AddressU = TextureAddressMode.Clamp,
+            AddressV = TextureAddressMode.Clamp,
+            AddressW = TextureAddressMode.Clamp,
+            Filter = TextureFilter.Point
+        };
     }
 }

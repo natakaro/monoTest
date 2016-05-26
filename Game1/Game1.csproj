@@ -71,6 +71,7 @@
     <Compile Include="Spells\SpellFireball.cs" />
     <Compile Include="Spells\SpellFireballProjectile.cs" />
     <Compile Include="Spells\SpellMoveTerrain.cs" />
+    <Compile Include="SSAO.cs" />
     <Compile Include="Tile.cs" />
   </ItemGroup>
   <ItemGroup>
