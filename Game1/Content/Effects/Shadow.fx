@@ -360,6 +360,12 @@ float4 PSMesh(VSOutput input,
     bool visualizeCascades, bool filterAcrossCascades,
     uint filterSize)
 {
+    //get depth
+    float depthVal = depthMap.Sample(depthSampler, input.TexCoord); //tex2D(depthSampler, input.TexCoord).r;
+
+    if (depthVal == 0)
+        return float4(1, 1, 1, 0);
+
     //get normal data from the normalMap
     float4 normalData = normalMap.Sample(normalSampler, input.TexCoord); //tex2D(normalSampler, input.TexCoord);
     //transform normal back into [-1,1] range
@@ -373,13 +379,7 @@ float4 PSMesh(VSOutput input,
     float specularIntensity = colorData.a;
     //get diffuse color
     float3 diffuseColor = colorData.rgb;
-
-    //get depth
-    float depthVal = depthMap.Sample(depthSampler, input.TexCoord); //tex2D(depthSampler, input.TexCoord).r;
-
-    if (depthVal == 0)
-        return float4(1, 1, 1, 0);
-    
+ 
     //compute screen-space position
     float4 position;
     position.x = input.TexCoord.x * 2.0f - 1.0f;

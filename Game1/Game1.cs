@@ -66,7 +66,7 @@ namespace Game1
         private bool debugShapes = false;
 
         private const float CAMERA_FOVX = 90.0f;
-        private const float CAMERA_ZNEAR = 0.1f;
+        private const float CAMERA_ZNEAR = 1.0f;
         private const float CAMERA_ZFAR = 2000.0f;
         private const float CAMERA_PLAYER_EYE_HEIGHT = 30.0f;
         private const float CAMERA_ACCELERATION_X = 800.0f;
@@ -788,7 +788,7 @@ namespace Game1
             {
                 foreach (Effect effect in mesh.Effects)
                 {
-                    effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * Matrix.CreateScale(0.01f) * camera.WeaponWorldMatrix(0, -0.1f, 0.4f));
+                    effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * Matrix.CreateScale(0.03f) * camera.WeaponWorldMatrix(0, -0.7f, 2.5f));
                     effect.Parameters["View"].SetValue(camera.ViewMatrix);
                     effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
                     effect.Parameters["Texture"].SetValue(handstex);

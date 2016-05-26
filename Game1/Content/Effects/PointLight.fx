@@ -97,6 +97,10 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
     //the texture coordinates need to be in [0,1]*[0,1]
     float2 texCoord = 0.5f * (float2(input.ScreenPosition.x,-input.ScreenPosition.y) + 1);
 
+    //read depth
+    float depthVal = tex2D(depthSampler, texCoord).r;
+    clip(-0.0001f + depthVal);
+
     //get normal data from the normalMap
     float4 normalData = tex2D(normalSampler,texCoord);
     //tranform normal back into [-1,1] range
@@ -106,8 +110,7 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
     //get specular intensity from the colorMap
     float specularIntensity = tex2D(colorSampler, texCoord).a;
 
-    //read depth
-    float depthVal = tex2D(depthSampler,texCoord).r;
+    
 
     //compute screen-space position
     float4 position;

@@ -118,7 +118,9 @@ float4 MainPS(VSOutput input) : COLOR
 
         float3 sampleDir = normalize(sample - p);
  
-        float nDotS = max(dot(n, sampleDir), 0);
+        float NdotS = max(dot(n, sampleDir), 0);
+
+        //clip(0.966 - NdotS);
     
         //project sample position
         float4 offset = float4(sample, 1.0);
@@ -134,11 +136,11 @@ float4 MainPS(VSOutput input) : COLOR
     
         //range check & accumulate
 
-        //float rangeCheck = abs(p.z - sampleDepth) < g_sample_rad ? 1.0 : 0.0;
-        //occlusion += (sampleDepth <= sample.z ? 1.0 : 0.0) * rangeCheck;
+        //float rangeCheck = abs(p.z - sampleDepth) < Radius ? 1.0 : 0.0;
+        //occlusion += (sampleDepth <= sample.z ? 0.0 : 1.0) * rangeCheck;
 
         float rangeCheck = smoothstep(0.0, 1.0, Radius / abs(p.z - sampleDepth));
-        occlusion += rangeCheck * step(sample.z, sampleDepth); // * nDotS;
+        occlusion += rangeCheck * step(sample.z, sampleDepth); //* NdotS;
     }
 
     occlusion = (1.0 - occlusion / SampleKernelSize);
