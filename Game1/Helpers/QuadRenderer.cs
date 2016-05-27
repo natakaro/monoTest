@@ -11,7 +11,7 @@ namespace Game1.Helpers
     public partial class QuadRenderComponent : DrawableGameComponent
     {
         #region Private Members        
-        VertexPositionTexture[] verts = null;
+        VertexPositionTextureRayIndex[] verts = null;
         short[] ib = null;
 
         #endregion
@@ -33,20 +33,20 @@ namespace Game1.Helpers
                                             typeof(IGraphicsDeviceService));
 
 
-            verts = new VertexPositionTexture[]
+            verts = new VertexPositionTextureRayIndex[]
                     {
-                            new VertexPositionTexture(
+                            new VertexPositionTextureRayIndex(
                                 new Vector3(0,0,0),
-                                new Vector2(1,1)),
-                            new VertexPositionTexture(
+                                new Vector3(1,1,2)),
+                            new VertexPositionTextureRayIndex(
                                 new Vector3(0,0,0),
-                                new Vector2(0,1)),
-                            new VertexPositionTexture(
+                                new Vector3(0,1,3)),
+                            new VertexPositionTextureRayIndex(
                                 new Vector3(0,0,0),
-                                new Vector2(0,0)),
-                            new VertexPositionTexture(
+                                new Vector3(0,0,0)),
+                            new VertexPositionTextureRayIndex(
                                 new Vector3(0,0,0),
-                                new Vector2(1,0))
+                                new Vector3(1,0,1))
                     };
 
             ib = new short[] { 0, 1, 2, 2, 3, 0 };
@@ -74,7 +74,30 @@ namespace Game1.Helpers
             verts[3].Position.X = v2.X;
             verts[3].Position.Y = v2.Y;
 
-            device.DrawUserIndexedPrimitives<VertexPositionTexture>
+            device.DrawUserIndexedPrimitives<VertexPositionTextureRayIndex>
+                (PrimitiveType.TriangleList, verts, 0, 4, ib, 0, 2);
+        }
+
+        public void Render()
+        {
+            IGraphicsDeviceService graphicsService = (IGraphicsDeviceService)
+                base.Game.Services.GetService(typeof(IGraphicsDeviceService));
+
+            GraphicsDevice device = graphicsService.GraphicsDevice;
+
+            verts[0].Position.X = 1;
+            verts[0].Position.Y = -1;
+
+            verts[1].Position.X = -1;
+            verts[1].Position.Y = -1;
+
+            verts[2].Position.X = -1;
+            verts[2].Position.Y = 1;
+
+            verts[3].Position.X = 1;
+            verts[3].Position.Y = 1;
+
+            device.DrawUserIndexedPrimitives<VertexPositionTextureRayIndex>
                 (PrimitiveType.TriangleList, verts, 0, 4, ib, 0, 2);
         }
         #endregion

@@ -27,6 +27,7 @@ namespace Game1.Spells
                     effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index] * worldMatrix);
                     effect.Parameters["View"].SetValue(camera.ViewMatrix);
                     effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
+                    effect.Parameters["FarClip"].SetValue(camera.FarZ);
                     effect.Parameters["Texture"].SetValue(texture);
                 }
                 mesh.Draw();

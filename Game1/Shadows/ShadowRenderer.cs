@@ -428,12 +428,16 @@ namespace Game1.Shadows
             shadowEffect.DepthMap = depthMap;
             shadowEffect.SSAOMap = ssaoMap;
 
-            //shadowEffect.DiffuseColor = basicEffect.DiffuseColor;
             shadowEffect.World = worldMatrix;
-            shadowEffect.InvertViewProjection = Matrix.Invert(camera.ViewProjectionMatrix);
+
+            shadowEffect.InvertView = Matrix.Invert(camera.ViewMatrix);
+            shadowEffect.InvertProjection = Matrix.Invert(camera.ProjectionMatrix);
+            shadowEffect.InvertViewProjection = Matrix.Invert(camera.ViewProjectionMatrix);            
 
             shadowEffect.NearClip = camera.NearZ;
             shadowEffect.FarClip = camera.FarZ;
+
+            shadowEffect.FrustumCorners = camera.FrustumCorners;
 
             shadowEffect.Apply();
         }

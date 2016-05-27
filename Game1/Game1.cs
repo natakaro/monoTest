@@ -292,7 +292,7 @@ namespace Game1
         private void ClearGBuffer()
         {
             clearBufferEffect.Techniques[0].Passes[0].Apply();
-            quadRenderer.Render(Vector2.One * -1, Vector2.One);
+            quadRenderer.Render();
         }
 
         private bool KeyJustPressed(Keys key)
@@ -713,7 +713,7 @@ namespace Game1
 
             finalCombineEffect.Techniques[0].Passes[0].Apply();
             //render a full-screen quad
-            quadRenderer.Render(Vector2.One * -1, Vector2.One);
+            quadRenderer.Render();
         }
 
         private void DrawFog()
@@ -723,7 +723,7 @@ namespace Game1
             fogEffect.Parameters["depthMap"].SetValue(depthTarget);
             fogEffect.Parameters["FogColor"].SetValue(sky.SunColor);
             fogEffect.CurrentTechnique.Passes[0].Apply();
-            quadRenderer.Render(Vector2.One * -1, Vector2.One);
+            quadRenderer.Render();
             GraphicsDevice.BlendState = BlendState.Opaque;
             //GraphicsDevice.DepthStencilState = DepthStencilState.Default;
         }
@@ -791,6 +791,7 @@ namespace Game1
                     effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * Matrix.CreateScale(0.03f) * camera.WeaponWorldMatrix(0, -0.7f, 2.5f));
                     effect.Parameters["View"].SetValue(camera.ViewMatrix);
                     effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
+                    effect.Parameters["FarClip"].SetValue(camera.FarZ);
                     effect.Parameters["Texture"].SetValue(handstex);
                 }
                 mesh.Draw();
@@ -820,7 +821,7 @@ namespace Game1
                 shadowRenderer.Render(GraphicsDevice, camera, Matrix.Identity, lightDirection, lightColor, colorTarget, normalTarget, depthTarget, ssao.BlurTarget);
             else
                 shadowRenderer.Render(GraphicsDevice, camera, Matrix.Identity, lightDirection, lightColor, colorTarget, normalTarget, depthTarget, ssao.SSAOTarget);
-            quadRenderer.Render(Vector2.One * -1, Vector2.One);
+            quadRenderer.Render();
 
             lightManager.Draw();
 
@@ -891,7 +892,7 @@ namespace Game1
                 spriteBatch.Draw(ssao.SSAOTarget, new Rectangle(0, 0, halfWidth, halfHeight), Color.White);
             spriteBatch.Draw(normalTarget, new Rectangle(0, halfHeight, halfWidth, halfHeight), Color.White);
             spriteBatch.Draw(depthTarget, new Rectangle(halfWidth, 0, halfWidth, halfHeight), Color.White);
-            spriteBatch.Draw(lightTarget, new Rectangle(halfWidth, halfHeight, halfWidth, halfHeight), Color.Black);
+            spriteBatch.Draw(lightTarget, new Rectangle(halfWidth, halfHeight, halfWidth, halfHeight), Color.White);
 
             //ssaoTarget.SaveAsPng(new System.IO.FileStream("../Tex.png", System.IO.FileMode.Create), 1280, 720);
         }

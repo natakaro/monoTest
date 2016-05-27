@@ -60,8 +60,8 @@ namespace Game1
             SSAO2 = true;
             BlurSSAO = true;
 
-            SSAORadius = 5;
-            SSAOPower = 1;
+            SSAORadius = 3;
+            SSAOPower = 2;
         }
 
         public override void Initialize()

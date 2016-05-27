@@ -52,6 +52,7 @@
     <Compile Include="Helpers\RasterizerStateUtility.cs" />
     <Compile Include="Helpers\SamplerStateUtility.cs" />
     <Compile Include="Helpers\Vector4Utility.cs" />
+    <Compile Include="Helpers\VertexPositionTextureRayIndex.cs" />
     <Compile Include="InstancingManager.cs" />
     <Compile Include="IntersectionRecord.cs" />
     <Compile Include="Lights\LightManager.cs" />

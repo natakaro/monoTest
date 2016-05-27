@@ -1037,6 +1037,20 @@ namespace Game1
             get { return new BoundingFrustum(ViewProjectionMatrix); }
         }
 
+        public Vector3[] FrustumCorners
+        {
+            get
+            {
+                Vector3[] farFrustumCornersVS = new Vector3[4];
+                Vector3[] frustumCornersWS = Frustum.GetCorners();
+                for (int i = 0; i < 4; i++)
+                {
+                    farFrustumCornersVS[i] = Vector3.Transform(frustumCornersWS[i + 4], ViewMatrix);
+                }
+                return farFrustumCornersVS;
+            }
+        }
+
         public float FarZ
         {
             get { return zfar; }

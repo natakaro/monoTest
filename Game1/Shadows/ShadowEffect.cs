@@ -31,10 +31,13 @@ namespace Game1.Shadows
         private readonly EffectParameter _depthMap;
         private readonly EffectParameter _ssaoMap;
 
+        private readonly EffectParameter _invertViewParameter;
+        private readonly EffectParameter _invertProjectionParameter;
         private readonly EffectParameter _invertViewProjectionParameter;
 
         private readonly EffectParameter _nearClipParameter;
         private readonly EffectParameter _farClipParameter;
+        private readonly EffectParameter _frustumCorners;
 
         public bool VisualizeCascades { get; set; }
         public bool FilterAcrossCascades { get; set; }
@@ -58,9 +61,12 @@ namespace Game1.Shadows
         public Texture2D NormalMap { get; set; }
         public Texture2D DepthMap { get; set; }
         public Texture2D SSAOMap { get; set; }
+        public Matrix InvertView { get; set; }
+        public Matrix InvertProjection { get; set; }
         public Matrix InvertViewProjection { get; set; }
         public float NearClip { get; set; }
         public float FarClip { get; set; }
+        public Vector3[] FrustumCorners { get; set; }
 
         public ShadowEffect(GraphicsDevice graphicsDevice, Effect innerEffect)
         {
@@ -85,10 +91,14 @@ namespace Game1.Shadows
             _depthMap = _innerEffect.Parameters["depthMap"];
             _ssaoMap = _innerEffect.Parameters["ssaoMap"];
 
+            _invertViewParameter = _innerEffect.Parameters["InvertView"];
+            _invertProjectionParameter = _innerEffect.Parameters["InvertProjection"];
             _invertViewProjectionParameter = _innerEffect.Parameters["InvertViewProjection"];
 
             _nearClipParameter = _innerEffect.Parameters["NearClip"];
             _farClipParameter = _innerEffect.Parameters["FarClip"];
+
+            _frustumCorners = _innerEffect.Parameters["FrustumCornersVS"];
 
             CascadeSplits = new float[ShadowRenderer.NumCascades];
             CascadeOffsets = new Vector4[ShadowRenderer.NumCascades];
@@ -119,10 +129,14 @@ namespace Game1.Shadows
             _depthMap.SetValue(DepthMap);
             _ssaoMap.SetValue(SSAOMap);
 
+            _invertViewParameter.SetValue(InvertView);
+            _invertProjectionParameter.SetValue(InvertProjection);
             _invertViewProjectionParameter.SetValue(InvertViewProjection);
 
             _nearClipParameter.SetValue(NearClip);
             _farClipParameter.SetValue(FarClip);
+
+            _frustumCorners.SetValue(FrustumCorners);
 
             _innerEffect.CurrentTechnique.Passes[0].Apply();
         }

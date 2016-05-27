@@ -20,6 +20,7 @@ namespace Game1
                     effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index] * worldMatrix);
                     effect.Parameters["View"].SetValue(camera.ViewMatrix);
                     effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
+                    effect.Parameters["FarClip"].SetValue(camera.FarZ);
                 }
                 mesh.Draw();
             }

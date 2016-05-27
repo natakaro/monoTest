@@ -50,6 +50,8 @@ namespace Game1.Lights
             pointLightEffect.Parameters["World"].SetValue(sphereWorldMatrix);
             pointLightEffect.Parameters["View"].SetValue(camera.ViewMatrix);
             pointLightEffect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
+            pointLightEffect.Parameters["FarClip"].SetValue(camera.FarZ);
+            pointLightEffect.Parameters["InvertView"].SetValue(Matrix.Invert(camera.ViewMatrix));
             //light position
             pointLightEffect.Parameters["lightPosition"].SetValue(position);
 

@@ -4,9 +4,14 @@
 
 matrix World;
 matrix ViewProjection;
+matrix InvertView;
+matrix InvertProjection;
 matrix InvertViewProjection;
+
 float NearClip;
 float FarClip;
+
+float3 FrustumCornersVS[4];
 
 float3 CameraPosWS;
 matrix ShadowMatrix;
@@ -16,7 +21,6 @@ float4 CascadeScales[NumCascades];
 
 float3 LightDirection;
 float3 LightColor;
-//float3 DiffuseColor;
 
 float Bias;
 float OffsetScale;
@@ -77,17 +81,15 @@ SamplerState ssaoSampler : register(s4);
 struct VSInput
 {
     float3 Position : SV_POSITION;
-    //float3 NormalOS   : NORMAL;
-    float2 TexCoord : TEXCOORD0;
+    float3 TexCoordAndRayIndex : TEXCOORD0;
 };
 
 struct VSOutput
 {
     float4 Position : SV_Position;
-    //float3 PositionWS : POSITIONWS;
     float2 TexCoord : TEXCOORD0;
-    //float3 NormalWS   : NORMALWS;
-    //float DepthVS     : DEPTHVS;
+    float3 FrustumCornerVS : TEXCOORD1;
+    float3 FrustumRayWS : TEXCOORD2;
 };
 
 // Vertex shader.
@@ -97,7 +99,9 @@ VSOutput VSMesh(VSInput input)
     VSOutput output;
 
     output.Position = float4(input.Position, 1);
-    output.TexCoord = input.TexCoord;
+    output.TexCoord = input.TexCoordAndRayIndex.xy;
+    output.FrustumCornerVS = FrustumCornersVS[input.TexCoordAndRayIndex.z];
+    output.FrustumRayWS = mul(output.FrustumCornerVS, InvertView);
 
     return output;
 }
@@ -380,18 +384,20 @@ float4 PSMesh(VSOutput input,
     //get diffuse color
     float3 diffuseColor = colorData.rgb;
  
-    //compute screen-space position
-    float4 position;
-    position.x = input.TexCoord.x * 2.0f - 1.0f;
-    position.y = (1 - input.TexCoord.y) * 2.0f - 1.0f;
-    position.z = depthVal;
-    position.w = 1.0f;
+    ////compute screen-space position
+    //float4 position;
+    //position.x = input.TexCoord.x * 2.0f - 1.0f;
+    //position.y = (1 - input.TexCoord.y) * 2.0f - 1.0f;
+    //position.z = depthVal;
+    //position.w = 1.0f;
     
-    //transform to world space
-    position = mul(position, InvertViewProjection);
-    position /= position.w;
+    ////transform to world space
+    //position = mul(position, InvertViewProjection);
+    //position /= position.w;
 
-    depthVal = (2 * NearClip) / (FarClip + NearClip - depthVal * (FarClip - NearClip));
+    //depthVal = (2 * NearClip) / (FarClip + NearClip - depthVal * (FarClip - NearClip));
+
+    float3 positionWS = CameraPosWS + depthVal * input.FrustumRayWS;
 
     // Convert color to grayscale, just beacuse it looks nicer.
     float diffuseValue = 0.299 * diffuseColor.r + 0.587 * diffuseColor.g + 0.114 * diffuseColor.b;
@@ -400,7 +406,7 @@ float4 PSMesh(VSOutput input,
     float nDotL = saturate(dot(normal, LightDirection));
     uint2 screenPos = uint2(input.TexCoord.xy);
     float3 shadowVisibility = ShadowVisibility(
-        position.xyz, depthVal, nDotL, normal, screenPos,
+        positionWS.xyz, depthVal, nDotL, normal, screenPos,
         filterAcrossCascades, visualizeCascades, filterSize);
 
     float3 lighting = 0.0f;
@@ -414,13 +420,13 @@ float4 PSMesh(VSOutput input,
     //lighting += float3(0.2f, 0.2f, 0.2f) * 1.0f;
 
     // Add ssao.
-    float ssao = ssaoMap.Sample(ssaoSampler, input.TexCoord).a;
+    float ssao = ssaoMap.Sample(ssaoSampler, input.TexCoord);
     lighting *= ssao;
 
     //reflection vector
     float3 reflectionVector = -(normalize(reflect(LightDirection, normal)));
     //camera-to-surface vector
-    float3 directionToCamera = normalize(CameraPosWS - position.xyz);
+    float3 directionToCamera = normalize(CameraPosWS - positionWS.xyz);
     //compute specular light
     float specularLight = specularIntensity * (LightColor + float3(0.2f, 0.2f, 0.2f)) * pow(saturate(dot(reflectionVector, directionToCamera)), specularPower);
 
@@ -432,7 +438,6 @@ float4 PSMesh(VSOutput input,
     //    return float4(0, 1, 0, 1);
     
     return float4(max(lighting, 0.0001f), specularLight);
-    //return float4(lighting * ssao, specularLight);
 }
 
 float4 PSMeshVisualizeFalseFilterFalseFilterSizeFilter2x2(VSOutput input) : COLOR

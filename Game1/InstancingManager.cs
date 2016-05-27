@@ -91,6 +91,7 @@ namespace Game1
                         effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index]);
                         effect.Parameters["View"].SetValue(camera.ViewMatrix);
                         effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
+                        effect.Parameters["FarClip"].SetValue(camera.FarZ);
                         effect.Parameters["Texture"].SetValue(texture);
 
                         // Draw all the instance copies in a single call.

@@ -89,6 +89,7 @@ namespace Game1
                     ssao2Effect.Parameters["InvertProjection"].SetValue(Matrix.Invert(Camera.ProjectionMatrix));
                     ssao2Effect.Parameters["View"].SetValue(Camera.ViewMatrix);
                     ssao2Effect.Parameters["Projection"].SetValue(Camera.ProjectionMatrix);
+                    ssao2Effect.Parameters["FrustumCornersVS"].SetValue(Camera.FrustumCorners);
                     ssao2Effect.Parameters["Radius"].SetValue(Settings.SSAORadius);
                     ssao2Effect.Parameters["Power"].SetValue(Settings.SSAOPower);
                     ssao2Effect.CurrentTechnique.Passes[0].Apply();
@@ -99,7 +100,7 @@ namespace Game1
                     ssaoEffect.Parameters["View"].SetValue(Camera.ViewMatrix);
                     ssaoEffect.CurrentTechnique.Passes[0].Apply();
                 }
-                quadRenderer.Render(Vector2.One * -1, Vector2.One);
+                quadRenderer.Render();
             }
 
             GraphicsDevice.SetRenderTarget(blurTarget);
@@ -107,7 +108,7 @@ namespace Game1
             if (Settings.DrawSSAO && Settings.BlurSSAO)
             {
                 ssaoBlur.CurrentTechnique.Passes[0].Apply();
-                quadRenderer.Render(Vector2.One * -1, Vector2.One);
+                quadRenderer.Render();
             }
         }
 
@@ -123,11 +124,11 @@ namespace Game1
 
                 kernel[i].Normalize();
 
-                //kernel[i] *= (float)random.NextDouble();
+                kernel[i] *= (float)random.NextDouble();
 
-                float scale = i / kernelSize;
-                scale = MathHelper.Lerp(0.1f, 1.0f, scale * scale);
-                kernel[i] *= scale;
+                //float scale = i / kernelSize;
+                //scale = MathHelper.Lerp(0.1f, 1.0f, scale * scale);
+                //kernel[i] *= scale;
             }
 
             return kernel;

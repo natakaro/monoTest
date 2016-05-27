@@ -17,6 +17,8 @@ matrix InvertProjection;
 matrix View;
 matrix Projection;
 
+float3 FrustumCornersVS[4];
+
 Texture2D normalMap;
 Texture2D depthMap;
 Texture2D randomMap;
@@ -53,44 +55,31 @@ sampler randomSampler = sampler_state
 
 struct VSInput
 {
-    float4 Position : SV_POSITION;
-    float2 TexCoord : TEXCOORD0;
+    float3 Position : SV_POSITION;
+    float3 TexCoordAndRayIndex : TEXCOORD0;
 };
 
 struct VSOutput
 {
     float4 Position : SV_POSITION;
     float2 TexCoord : TEXCOORD0;
+    float3 FrustumCornerVS : TEXCOORD1;
 };
 
 VSOutput MainVS(in VSInput input)
 {
-    VSOutput output = (VSOutput) 0;
+    VSOutput output;
 
-    output.Position = input.Position;
-    output.TexCoord = input.TexCoord;
+    output.Position = float4(input.Position, 1);
+    output.TexCoord = input.TexCoordAndRayIndex.xy;
+    output.FrustumCornerVS = FrustumCornersVS[input.TexCoordAndRayIndex.z];
 
     return output;
 }
 
-float3 getPosition(in float2 uv, in float depthVal)
-{
-    float4 position;
-    position.x = uv.x * 2.0f - 1.0f;
-    position.y = (1 - uv.y) * 2.0f - 1.0f;
-    position.z = depthVal;
-    position.w = 1.0f;
-
-	//transform to view space
-    position = mul(position, InvertProjection);
-    position /= position.w;
-
-    return position;
-}
-
 float3 getNormal(in float2 uv)
 {
-    return normalize(tex2D(normalSampler, uv).xyz * 2.0f - 1.0f);
+    return tex2D(normalSampler, uv).xyz * 2.0f - 1.0f;
 }
 
 float4 MainPS(VSOutput input) : COLOR
@@ -99,26 +88,26 @@ float4 MainPS(VSOutput input) : COLOR
     output.rgb = 0.0f;
 
     float depthVal = tex2D(depthSampler, input.TexCoord);
-    clip(-0.0001f + depthVal);
-    float3 p = getPosition(input.TexCoord, depthVal);
-    float3 n = mul(getNormal(input.TexCoord), View);
+    clip(-0.0001f + depthVal); //skip skybox
 
-    float3 rand = tex2D(randomSampler, input.TexCoord * NoiseScale).xyz * 2.0 - 1.0;
-    float3 tangent = normalize(rand - n * dot(rand, n));
-    float3 bitangent = cross(n, tangent);
-    float3x3 tbn = float3x3(tangent, bitangent, n);
+    float3 origin = input.FrustumCornerVS * depthVal;
+    float3 normal = mul(getNormal(input.TexCoord), View);
+
+    float3 rvec = tex2D(randomSampler, input.TexCoord * NoiseScale).xyz * 2.0 - 1.0;
+    float3 tangent = normalize(rvec - normal * dot(rvec, normal));
+    float3 bitangent = cross(normal, tangent);
+    float3x3 tbn = float3x3(tangent, bitangent, normal);
     
     float occlusion = 0.0;
-
     for (int i = 0; i < SampleKernelSize; ++i)
     {
         //get sample position
         float3 sample = mul(SampleKernel[i], tbn);
-        sample = sample * Radius + p;
+        sample = sample * Radius + origin;
 
-        float3 sampleDir = normalize(sample - p);
- 
-        float NdotS = max(dot(n, sampleDir), 0);
+        float3 sampleDir = normalize(sample - origin);
+        
+        float NdotS = max(dot(normal, sampleDir), 0);
 
         //clip(0.966 - NdotS);
     
@@ -131,22 +120,21 @@ float4 MainPS(VSOutput input) : COLOR
     
         //get sample depth
         float sampleDepth = tex2D(depthSampler, offset.xy);
-        //sampleDepth = Projection[3][2] / (sampleDepth - Projection[2][2]);
-        sampleDepth = getPosition(offset.xy, sampleDepth).z;
-    
+        sampleDepth = input.FrustumCornerVS.z * sampleDepth;
+
         //range check & accumulate
 
-        //float rangeCheck = abs(p.z - sampleDepth) < Radius ? 1.0 : 0.0;
+        //float rangeCheck = abs(origin.z - sampleDepth) < Radius ? 1.0 : 0.0;
         //occlusion += (sampleDepth <= sample.z ? 0.0 : 1.0) * rangeCheck;
 
-        float rangeCheck = smoothstep(0.0, 1.0, Radius / abs(p.z - sampleDepth));
-        occlusion += rangeCheck * step(sample.z, sampleDepth); //* NdotS;
+        float rangeCheck = smoothstep(0.0, 1.0, Radius / abs(origin.z - sampleDepth));
+        occlusion += rangeCheck * step(sample.z, sampleDepth) * NdotS;
     }
 
-    occlusion = (1.0 - occlusion / SampleKernelSize);
+    occlusion = 1.0 - (occlusion / SampleKernelSize);
 
-    output = pow(occlusion, Power);
-    return output;
+    float finalOcclusion = pow(occlusion, Power);
+    return float4(finalOcclusion, finalOcclusion, finalOcclusion, 1.0);
 }
 
 technique SSAO

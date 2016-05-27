@@ -4,6 +4,7 @@
 float4x4 World;
 float4x4 View;
 float4x4 Projection;
+float FarClip;
 float specularIntensity = 0.8f;
 float specularPower = 0.5f; 
 float4 heightcolor = float4(1, 0, 0, 1);
@@ -53,7 +54,7 @@ struct VertexShaderOutput
 {
     float4 Position : POSITION0;
     float2 TexCoord : TEXCOORD0;
-    float2 Depth : TEXCOORD1;
+    float Depth : TEXCOORD1;
     float3x3 tangentToWorld : TEXCOORD2;
 	float4x4 instanceTransform : BLENDWEIGHT;
 };
@@ -67,8 +68,11 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input, float4x4 instan
     output.Position = mul(viewPosition, Projection);
 
     output.TexCoord = input.TexCoord;
-    output.Depth.x = output.Position.z;
-    output.Depth.y = output.Position.w;
+    //classic depth
+    //output.Depth.x = output.Position.z;
+    //output.Depth.y = output.Position.w;
+    //linear depth
+    output.Depth = viewPosition.z;
 
     // calculate tangent space to world space matrix using the world space tangent,
     // binormal, and normal as basis vectors
@@ -81,9 +85,9 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input, float4x4 instan
 
 struct PixelShaderOutput
 {
-    half4 Color : COLOR0;
-    half4 Normal : COLOR1;
-    half4 Depth : COLOR2;
+    float4 Color : COLOR0;
+    float4 Normal : COLOR1;
+    float Depth : COLOR2;
 };
 
 PixelShaderOutput PixelShaderFunction(VertexShaderOutput input)
@@ -110,7 +114,10 @@ PixelShaderOutput PixelShaderFunction(VertexShaderOutput input)
     //specular Power
     output.Normal.a = specularAttributes.a;
 
-    output.Depth = input.Depth.x / input.Depth.y;
+    //classic depth
+    //output.Depth = input.Depth.x / input.Depth.y;
+    //linear depth
+    output.Depth = -input.Depth / FarClip;
     return output;
 }
 
@@ -146,7 +153,10 @@ PixelShaderOutput PixelShaderFunctionColor(VertexShaderOutput input)
 	//specular Power
 	output.Normal.a = specularAttributes.a;
 
-	output.Depth = input.Depth.x / input.Depth.y;
+	//classic depth
+    //output.Depth = input.Depth.x / input.Depth.y;
+    //linear depth
+    output.Depth = -input.Depth / FarClip;
 	return output;
 }
 

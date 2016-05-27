@@ -11,6 +11,8 @@ float4x4 World;
 float4x4 View;
 float4x4 Projection;
 
+float FarClip = 2000;
+
 //color of the light 
 float3 Color; 
 
@@ -19,6 +21,7 @@ float3 cameraPosition;
 
 //this is used to compute the world-position
 float4x4 InvertViewProjection; 
+float4x4 InvertView;
 
 //this is the position of the light
 float3 lightPosition;
@@ -67,38 +70,41 @@ sampler normalSampler = sampler_state
 
 struct VertexShaderInput
 {
-    float3 Position : POSITION0;
+    float3 Position : SV_Position;
 };
 
 struct VertexShaderOutput
 {
-    float4 Position : POSITION0;
-    float4 ScreenPosition : TEXCOORD0;
+    float4 Position : SV_Position;
+    float4 PositionCS : TEXCOORD0;
+    float3 PositionVS : TEXCOORD1;
 };
 
 VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 {
     VertexShaderOutput output;
-    //processing geometry coordinates
+    
     float4 worldPosition = mul(float4(input.Position,1), World);
     float4 viewPosition = mul(worldPosition, View);
     output.Position = mul(viewPosition, Projection);
-    output.ScreenPosition = output.Position;
+    output.PositionCS = output.Position;
+    output.PositionVS = viewPosition;
+
     return output;
 }
 
 float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 {
     //obtain screen position
-    input.ScreenPosition.xy /= input.ScreenPosition.w;
+    input.PositionCS.xy /= input.PositionCS.w;
 
     //obtain textureCoordinates corresponding to the current pixel
     //the screen coordinates are in [-1,1]*[1,-1]
     //the texture coordinates need to be in [0,1]*[0,1]
-    float2 texCoord = 0.5f * (float2(input.ScreenPosition.x,-input.ScreenPosition.y) + 1);
+    float2 texCoord = 0.5f * (float2(input.PositionCS.x,-input.PositionCS.y) + 1);
 
     //read depth
-    float depthVal = tex2D(depthSampler, texCoord).r;
+    float depthVal = tex2D(depthSampler, texCoord);
     clip(-0.0001f + depthVal);
 
     //get normal data from the normalMap
@@ -110,16 +116,9 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
     //get specular intensity from the colorMap
     float specularIntensity = tex2D(colorSampler, texCoord).a;
 
-    
-
-    //compute screen-space position
-    float4 position;
-    position.xy = input.ScreenPosition.xy;
-    position.z = depthVal;
-    position.w = 1.0f;
-    //transform to world space
-    position = mul(position, InvertViewProjection);
-    position /= position.w;
+    float3 viewRay = input.PositionVS.xyz * (FarClip / -input.PositionVS.z);
+    float3 positionVS = viewRay * depthVal;
+    float3 position = mul(float4(positionVS, 1), InvertView);
 
     //surface-to-light vector
     float3 lightVector = lightPosition - position;
