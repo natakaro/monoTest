@@ -390,7 +390,7 @@ namespace Game1.Shadows
         }
 
         public void Render(GraphicsDevice graphicsDevice, Camera camera, Matrix worldMatrix, Vector3 lightDirection, Vector3 lightColor,
-            RenderTarget2D colorMap, RenderTarget2D normalMap, RenderTarget2D depthMap, RenderTarget2D ssaoMap)
+            RenderTarget2D colorMap, RenderTarget2D normalMap, RenderTarget2D depthMap, RenderTarget2D ssaoMap, TimeOfDay timeOfDay)
         {
             // Render scene.
 
@@ -438,6 +438,8 @@ namespace Game1.Shadows
             shadowEffect.FarClip = camera.FarZ;
 
             shadowEffect.FrustumCorners = camera.FrustumCorners;
+
+            shadowEffect.SkyIntensity = timeOfDay.LogisticTime(2, 4, 2.5f); 
 
             shadowEffect.Apply();
         }

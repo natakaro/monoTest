@@ -26,44 +26,41 @@ namespace Game1
         private List<IntersectionRecord> frustumIntersections;
         private List<IntersectionRecord> frustumInstancedIntersections;
 
-        private Texture2D cross;
-
         private Effect fxaaEffect;
-        private RenderTarget2D fxaaTarget;
-
         private Effect fogEffect;
 
         public RenderTarget2D colorTarget;
         public RenderTarget2D normalTarget;
         public RenderTarget2D depthTarget;
         public RenderTarget2D lightTarget;
-
+        public RenderTarget2D finalTarget;
+        public RenderTarget2D fxaaTarget;
+        
         private Effect clearBufferEffect;
         private Effect finalCombineEffect;
 
         private LightManager lightManager;
         private ShadowRenderer shadowRenderer;
         private SSAO ssao;
+        private HDRProcessor hdrProcessor;
         public GameSettings settings;
 
-        Model tileModel;
-        Model hands;
-        Model crystalModel;
-        Texture2D handstex;
-        Texture2D tileTexture;
+        private Model tileModel;
+        private Model hands;
+        private Model crystalModel;
+        private Texture2D handstex;
+        private Texture2D tileTexture;
+        private Texture2D cross;
 
-        Core core;
+        private Core core;
 
         private SkyDome sky;
-        Vector3 lightDirection;
-        Vector3 lightColor;
+        private Vector3 lightDirection;
+        private Vector3 lightColor;
+
+        private TimeOfDay timeOfDay;
         
         float acceleration = 100.0f; // przyspieszenie przy wspinaniu i opadaniu
-        
-        private bool instancing = true;
-        private bool useFXAA = true;
-        private bool showgbuffer = false;
-        private bool debugShapes = false;
 
         private const float CAMERA_FOVX = 90.0f;
         private const float CAMERA_ZNEAR = 1.0f;
@@ -114,10 +111,9 @@ namespace Game1
         {
             Manual = 0,
             Automatic = 1,
-            ActualTime = 2
         }
 
-        SkyStatus stat, prevStat;
+        SkyStatus stat;
 
         public enum SpellType
         {
@@ -141,11 +137,7 @@ namespace Game1
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
-
             Content.RootDirectory = "Content";
-            
-            
-
             IsFixedTimeStep = false; //to ustawione na false albo vsync na true potrzebne
         }
 
@@ -198,16 +190,16 @@ namespace Game1
                 (float)windowWidth / (float)windowHeight,
                 CAMERA_ZNEAR, CAMERA_ZFAR);
 
-            PresentationParameters pp = graphics.GraphicsDevice.PresentationParameters;
-            fxaaTarget = new RenderTarget2D(GraphicsDevice, pp.BackBufferWidth, pp.BackBufferHeight, false, pp.BackBufferFormat, pp.DepthStencilFormat, pp.MultiSampleCount, RenderTargetUsage.DiscardContents);
-
             currentKeyboardState = Keyboard.GetState();
 
-            stat = SkyStatus.Manual;
+            stat = SkyStatus.Automatic;
+
+            timeOfDay = new TimeOfDay(8, 30, 0);
 
             sky = new SkyDome(this, ref camera);
             // Set skydome parameters here
-            sky.Theta = 2.4f;// (float)Math.PI / 2.0f - 0.3f;
+            //sky.Theta = 2.4f;// (float)Math.PI / 2.0f - 0.3f;
+            sky.Theta = timeOfDay.TotalMinutes * (float)(Math.PI) / 12.0f / 60.0f;
             sky.Parameters.NumSamples = 10;
 
             Components.Add(sky);
@@ -222,10 +214,13 @@ namespace Game1
             int backbufferWidth = GraphicsDevice.PresentationParameters.BackBufferWidth;
             int backbufferHeight = GraphicsDevice.PresentationParameters.BackBufferHeight;
 
-            colorTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.Color, DepthFormat.Depth24);
+            colorTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.HdrBlendable, DepthFormat.Depth24Stencil8);
             normalTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.Color, DepthFormat.None);
             depthTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.Single, DepthFormat.None);
-            lightTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.Color, DepthFormat.None);
+            lightTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.HdrBlendable, DepthFormat.None);
+
+            finalTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.HdrBlendable, DepthFormat.None);
+            fxaaTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.HdrBlendable, DepthFormat.None);
 
             cross = Content.Load<Texture2D>("Hud/cross_cross");
             spriteFont = Content.Load<SpriteFont>("Fonts/DemoFont");
@@ -252,7 +247,8 @@ namespace Game1
 
             ssao = new SSAO(GraphicsDevice, Content, settings, quadRenderer, camera, normalTarget, depthTarget);
 
-            
+            hdrProcessor = new HDRProcessor(GraphicsDevice, Content, quadRenderer);
+            hdrProcessor.FlushCache();
 
             lightManager = new LightManager(this, lightTarget, Content);
             //TestLights();
@@ -329,57 +325,18 @@ namespace Game1
             if (KeyJustPressed(Keys.M))
                 camera.EnableMouseSmoothing = !camera.EnableMouseSmoothing;
 
-            if (KeyJustPressed(Keys.D1))
-            {
-                instancing = !instancing;
-            }
-
-            if (KeyJustPressed(Keys.D2))
-            {
-                debugShapes = !debugShapes;
-            }
-
             if (KeyJustPressed(Keys.D3))
             {
                 stat++;
-                if ((int)stat == 3)
+                if ((int)stat == 2)
                     stat = SkyStatus.Manual;
             }
-
-            if (KeyJustPressed(Keys.D5))
-            {
-                fogEffect.CurrentTechnique = fogEffect.Techniques["FogLinear"];
-            }
-
-            if (KeyJustPressed(Keys.D6))
-            {
-                fogEffect.CurrentTechnique = fogEffect.Techniques["FogExp"];
-            }
-
-            if (KeyJustPressed(Keys.D7))
-            {
-                fogEffect.CurrentTechnique = fogEffect.Techniques["FogExp2"];
-            }
-
-            if (KeyJustPressed(Keys.G))
-            {
-                showgbuffer = !showgbuffer;
-            }
-
-            //if (KeyJustPressed(Keys.P))
-            //    enableParallax = !enableParallax;
-
-            //if (KeyJustPressed(Keys.T))
-            //    enableColorMap = !enableColorMap;
 
             if (currentKeyboardState.IsKeyDown(Keys.LeftAlt) || currentKeyboardState.IsKeyDown(Keys.RightAlt))
             {
                 if (KeyJustPressed(Keys.Enter))
                     graphics.ToggleFullScreen();
             }
-
-            //if (KeyJustPressed(Keys.Enter))
-            //    graphics.ToggleFullScreen();
 
             if (KeyJustPressed(Keys.Add))
             {
@@ -395,11 +352,6 @@ namespace Game1
 
                 if (camera.RotationSpeed <= 0.0f)
                     camera.RotationSpeed = 0.01f;
-            }
-
-            if (KeyJustPressed(Keys.X))
-            {
-                useFXAA = !useFXAA;
             }
 
             if (currentMouseState.ScrollWheelValue < prevMouseState.ScrollWheelValue && currentMouseState.LeftButton == ButtonState.Released && currentMouseState.RightButton == ButtonState.Released)
@@ -478,6 +430,8 @@ namespace Game1
 
             base.Update(gameTime);
 
+            timeOfDay.Update((float)gameTime.ElapsedGameTime.TotalSeconds, 1);
+
             ProcessKeyboard();
 
             Ray yRay = camera.MovingRay();
@@ -535,22 +489,39 @@ namespace Game1
 
             switch (stat)
             {
+                //case SkyStatus.Manual:
+                //    if (currentKeyboardState.IsKeyDown(Keys.Down))
+                //        sky.Theta -= 0.4f * step;
+                //    if (currentKeyboardState.IsKeyDown(Keys.Up))
+                //        sky.Theta += 0.4f * step;
+
+                //    if (currentKeyboardState.IsKeyDown(Keys.Left))
+                //        sky.Phi -= 0.4f * step;
+                //    if (currentKeyboardState.IsKeyDown(Keys.Right))
+                //        sky.Phi += 0.4f * step;
+
+                //    if (sky.Theta > (float)Math.PI * 2.0f)
+                //        sky.Theta = sky.Theta - (float)Math.PI * 2.0f;
+                //    if (sky.Theta < 0.0f)
+                //        sky.Theta = (float)Math.PI * 2.0f + sky.Theta;
+
+                //    if (sky.Phi > (float)Math.PI * 2.0f)
+                //        sky.Phi = sky.Phi - (float)Math.PI * 2.0f;
+                //    if (sky.Phi < 0.0f)
+                //        sky.Phi = (float)Math.PI * 2.0f + sky.Phi;
+                //    break;
                 case SkyStatus.Manual:
-                    sky.RealTime = false;
                     if (currentKeyboardState.IsKeyDown(Keys.Down))
-                        sky.Theta -= 0.4f * step;
+                        timeOfDay.Minutes -= 1;
                     if (currentKeyboardState.IsKeyDown(Keys.Up))
-                        sky.Theta += 0.4f * step;
+                        timeOfDay.Minutes += 1;
 
                     if (currentKeyboardState.IsKeyDown(Keys.Left))
                         sky.Phi -= 0.4f * step;
                     if (currentKeyboardState.IsKeyDown(Keys.Right))
                         sky.Phi += 0.4f * step;
 
-                    if (sky.Theta > (float)Math.PI * 2.0f)
-                        sky.Theta = sky.Theta - (float)Math.PI * 2.0f;
-                    if (sky.Theta < 0.0f)
-                        sky.Theta = (float)Math.PI * 2.0f + sky.Theta;
+                    sky.Theta = timeOfDay.TotalMinutes * (float)(Math.PI) / 12.0f / 60.0f;
 
                     if (sky.Phi > (float)Math.PI * 2.0f)
                         sky.Phi = sky.Phi - (float)Math.PI * 2.0f;
@@ -558,21 +529,14 @@ namespace Game1
                         sky.Phi = (float)Math.PI * 2.0f + sky.Phi;
                     break;
                 case SkyStatus.Automatic:
-                    sky.RealTime = false;
-                    sky.Theta += 0.1f * step;
-                    sky.Phi += 0.1f * step;
-                    if (sky.Theta > (float)Math.PI * 2.0f)
-                        sky.Theta = sky.Theta - (float)Math.PI * 2.0f;
-                    if (sky.Theta < 0.0f)
-                        sky.Theta = (float)Math.PI * 2.0f + sky.Theta;
-                    break;
-                case SkyStatus.ActualTime:
-                    sky.RealTime = true;
-                    if (stat != prevStat)
-                        sky.ApplyChanges();
+                    sky.Theta = timeOfDay.TotalMinutes * (float)(Math.PI) / 12.0f / 60.0f;
                     break;
             }
-            prevStat = stat;
+
+            hdrProcessor.ToneMapKey = timeOfDay.LogisticTime(0.1f, 0.8f, 3f);
+            //hdrProcessor.MaxLuminance = 512.0f * timeOfDay.LogisticTime(0f, 1f, 1f);
+
+            //sky.Theta = timeOfDay.TotalMinutes * (float)(Math.PI) / 12.0f / 60.0f;
 
             UpdateFrameRate(gameTime);
 
@@ -602,53 +566,28 @@ namespace Game1
 
             if (displayHelp)
             {
-                buffer.AppendLine("Move mouse to free look");
-                buffer.AppendLine();
-                buffer.AppendLine("Press W and S to move forwards and backwards");
-                buffer.AppendLine("Press A and D to strafe left and right");
-                buffer.AppendLine("Press SPACE to jump");
-                buffer.AppendLine("Press and hold LEFT CTRL to crouch");
-                buffer.AppendLine("Press and hold LEFT SHIFT to run");
-                buffer.AppendLine();
-                buffer.AppendLine("Press M to toggle mouse smoothing");
-                buffer.AppendLine("Press NUMPAD +/- to change camera rotation speed");
-                buffer.AppendLine("Press ALT + ENTER to toggle full screen");
-                buffer.AppendLine();
-                buffer.AppendLine("Press H to hide help");
-            }
-            else
-            {
-                buffer.AppendFormat("FPS: {0}\n", framesPerSecond);
-                buffer.AppendFormat(" Update: {0} ms\n", updateMs);
-                buffer.AppendFormat(" Draw:     {0} ms\n", drawMs);
-                buffer.AppendFormat(" GPU:      {0} ms\n", gpuMs);
-                buffer.AppendFormat("  Total: {0} ms\n\n", updateMs + drawMs + gpuMs);
-                buffer.AppendFormat("Mouse smoothing: {0}\n\n",
-                    (camera.EnableMouseSmoothing ? "on" : "off"));
-                buffer.Append("Camera:\n");
-                buffer.AppendFormat("  Position: x:{0} y:{1} z:{2}\n",
-                    camera.Position.X.ToString("f2"),
-                    camera.Position.Y.ToString("f2"),
-                    camera.Position.Z.ToString("f2"));
-                buffer.AppendFormat("  Orientation: heading:{0} pitch:{1}\n",
-                    camera.HeadingDegrees.ToString("f2"),
-                    camera.PitchDegrees.ToString("f2"));
-                buffer.AppendFormat("  Velocity: x:{0} y:{1} z:{2}\n",
-                    camera.CurrentVelocity.X.ToString("f2"),
-                    camera.CurrentVelocity.Y.ToString("f2"),
-                    camera.CurrentVelocity.Z.ToString("f2"));
-                buffer.AppendFormat("  Rotation speed: {0}\n\n",
-                    camera.RotationSpeed.ToString("f2"));
-
+                //buffer.AppendLine("Move mouse to free look");
+                //buffer.AppendLine();
+                //buffer.AppendLine("Press W and S to move forwards and backwards");
+                //buffer.AppendLine("Press A and D to strafe left and right");
+                //buffer.AppendLine("Press SPACE to jump");
+                //buffer.AppendLine("Press and hold LEFT CTRL to crouch");
+                //buffer.AppendLine("Press and hold LEFT SHIFT to run");
+                //buffer.AppendLine();
+                //buffer.AppendLine("Press M to toggle mouse smoothing");
+                //buffer.AppendLine("Press NUMPAD +/- to change camera rotation speed");
+                //buffer.AppendLine("Press ALT + ENTER to toggle full screen");
+                //buffer.AppendLine();
+                //buffer.AppendLine("Press H to hide help");
                 buffer.AppendFormat("Instancing: {0}\n",
-                    instancing.ToString());
+                    settings.Instancing.ToString());
                 buffer.AppendFormat(" Models drawn: {0}\n",
                     modelsDrawn.ToString("f2"));
                 buffer.AppendFormat(" Models drawn instanced: {0}\n\n",
                     modelsDrawnInstanced.ToString("f2"));
 
                 buffer.Append("Shadows:\n");
-                buffer.AppendFormat(" Filter size (F): {0}\n", 
+                buffer.AppendFormat(" Filter size (F): {0}\n",
                     settings.FixedFilterSize.ToString());
                 buffer.AppendFormat(" Stabilize cascades? (C): {0}\n",
                     settings.StabilizeCascades.ToString());
@@ -664,6 +603,38 @@ namespace Game1
                     settings.SSAORadius.ToString());
                 buffer.AppendFormat(" SSAOPower (F3/F4): {0}\n\n",
                     settings.SSAOPower.ToString());
+                buffer.AppendLine("Press H to return");
+            }
+            else
+            {
+                buffer.AppendFormat("FPS: {0}\n", framesPerSecond);
+                buffer.AppendFormat(" Update: {0} ms\n", updateMs);
+                buffer.AppendFormat(" Draw:     {0} ms\n", drawMs);
+                buffer.AppendFormat(" GPU:      {0} ms\n", gpuMs);
+                buffer.AppendFormat("  Total: {0} ms\n\n", updateMs + drawMs + gpuMs);
+                buffer.AppendFormat("Mouse smoothing: {0}\n\n",
+                    (camera.EnableMouseSmoothing ? "on" : "off"));
+                buffer.Append("Camera:\n");
+                buffer.AppendFormat("  Position: x:{0} y:{1} z:{2}\n",
+                    camera.Position.X.ToString("f2"),
+                    camera.Position.Y.ToString("f2"),
+                    camera.Position.Z.ToString("f2"));
+                //buffer.AppendFormat("  Orientation: heading:{0} pitch:{1}\n",
+                //    camera.HeadingDegrees.ToString("f2"),
+                //    camera.PitchDegrees.ToString("f2"));
+                //buffer.AppendFormat("  Velocity: x:{0} y:{1} z:{2}\n",
+                //    camera.CurrentVelocity.X.ToString("f2"),
+                //    camera.CurrentVelocity.Y.ToString("f2"),
+                //    camera.CurrentVelocity.Z.ToString("f2"));
+                //buffer.AppendFormat("  Rotation speed: {0}\n\n",
+                //    camera.RotationSpeed.ToString("f2"));
+
+                buffer.AppendFormat(" Time of day: {0}:{1}:{2}\n\n",
+                    timeOfDay.Hours.ToString("D2"),
+                    timeOfDay.Minutes.ToString("D2"),
+                    timeOfDay.Seconds.ToString("00"));
+                buffer.AppendFormat(" Time of day Logistic: {0}\n\n",
+                    timeOfDay.LogisticTime(0.1f, 0.8f, 3.0f).ToString("f2"));
 
                 buffer.AppendFormat(" MouseWheel: {0}\n",
                     currentMouseState.ScrollWheelValue.ToString("f2"));
@@ -672,7 +643,7 @@ namespace Game1
                 buffer.AppendFormat("  Selected Spell: {0}\n",
                     camera.GetMouseRay(GraphicsDevice.Viewport).Direction.ToString());
 
-                buffer.Append("\nPress H to display help");
+                buffer.Append("\nPress H to display more");
             }
             spriteBatch.DrawString(spriteFont, buffer.ToString(), fontPos, Color.Yellow);
         }
@@ -722,6 +693,8 @@ namespace Game1
             //GraphicsDevice.DepthStencilState = DepthStencilState.None;
             fogEffect.Parameters["depthMap"].SetValue(depthTarget);
             fogEffect.Parameters["FogColor"].SetValue(sky.SunColor);
+            fogEffect.Parameters["FogDensity"].SetValue(1 - timeOfDay.LogisticTime(0.2f, 0.8f, 1.5f));
+            fogEffect.CurrentTechnique = fogEffect.Techniques[settings.fog.ToString()];
             fogEffect.CurrentTechnique.Passes[0].Apply();
             quadRenderer.Render();
             GraphicsDevice.BlendState = BlendState.Opaque;
@@ -754,7 +727,7 @@ namespace Game1
             //Renders all visible objects by iterating through the oct tree recursively and testing for intersection 
             //with the current camera view frustum
             frustumIntersections = octree.AllIntersections(camera.Frustum);
-            if (instancing)
+            if (settings.Instancing)
             {
                 frustumInstancedIntersections = frustumIntersections.FindAll(ir => ir.DrawableObjectObject.IsInstanced == true);
                 frustumIntersections.RemoveAll(ir => ir.DrawableObjectObject.IsInstanced == true);
@@ -777,7 +750,7 @@ namespace Game1
                 }
             }
 
-            if (debugShapes)
+            if (settings.DrawDebugShapes)
             {
                 octree.DrawBounds();
                 DebugShapeRenderer.Draw(gameTime, camera.ViewMatrix, camera.ProjectionMatrix);
@@ -817,10 +790,7 @@ namespace Game1
             GraphicsDevice.SetRenderTarget(lightTarget);
             GraphicsDevice.Clear(Color.Transparent);
 
-            if(settings.BlurSSAO)
-                shadowRenderer.Render(GraphicsDevice, camera, Matrix.Identity, lightDirection, lightColor, colorTarget, normalTarget, depthTarget, ssao.BlurTarget);
-            else
-                shadowRenderer.Render(GraphicsDevice, camera, Matrix.Identity, lightDirection, lightColor, colorTarget, normalTarget, depthTarget, ssao.SSAOTarget);
+            shadowRenderer.Render(GraphicsDevice, camera, Matrix.Identity, lightDirection, lightColor, colorTarget, normalTarget, depthTarget, ssao.BlurTarget, timeOfDay);
             quadRenderer.Render();
 
             lightManager.Draw();
@@ -830,10 +800,13 @@ namespace Game1
             DrawFinal();
             if(settings.DrawFog)
                 DrawFog();
-            
+
+            if (settings.ToneMap)
+                hdrProcessor.ToneMap(fxaaTarget, finalTarget, (float)gameTime.ElapsedGameTime.TotalMilliseconds / 1000f, false);
+
             GraphicsDevice.SetRenderTarget(null);
 
-            if (useFXAA)
+            if (settings.FXAA)
             {
                 float w = fxaaTarget.Width;
                 float h = fxaaTarget.Height;
@@ -844,9 +817,12 @@ namespace Game1
                 fxaaEffect.Parameters["invViewportWidth"].SetValue(1f / w);
                 fxaaEffect.Parameters["invViewportHeight"].SetValue(1f / h);
                 fxaaEffect.Parameters["texScreen"].SetValue((Texture2D)fxaaTarget);
-
+            
                 spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.DepthRead, RasterizerState.CullCounterClockwise, fxaaEffect);
-                spriteBatch.Draw((Texture2D)fxaaTarget, new Rectangle(0, 0, fxaaTarget.Width, fxaaTarget.Height), Color.White);
+                if(settings.ToneMap)
+                    spriteBatch.Draw((Texture2D)finalTarget, new Rectangle(0, 0, fxaaTarget.Width, fxaaTarget.Height), Color.White);
+                else
+                    spriteBatch.Draw((Texture2D)fxaaTarget, new Rectangle(0, 0, fxaaTarget.Width, fxaaTarget.Height), Color.White);
                 //spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);
                 //DrawText();
                 //DrawGBuffer();
@@ -855,19 +831,24 @@ namespace Game1
             else
             {
                 spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
-                spriteBatch.Draw((Texture2D)fxaaTarget, Vector2.Zero, Color.White);
+                if (settings.ToneMap)
+                    spriteBatch.Draw((Texture2D)finalTarget, Vector2.Zero, Color.White);
+                else
+                    spriteBatch.Draw((Texture2D)fxaaTarget, Vector2.Zero, Color.White);
                 //spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);
                 //DrawText();
                 //DrawGBuffer();
                 spriteBatch.End();
             }
 
+
+
             swDraw.Stop();
 
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
             spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);
             DrawText();
-            if(showgbuffer)
+            if(settings.ShowGBuffer)
                 DrawGBuffer();
             spriteBatch.End();
 
@@ -886,10 +867,7 @@ namespace Game1
             int halfHeight = GraphicsDevice.Viewport.Height / 2;
             GraphicsDevice.Clear(Color.Transparent);
 
-            if(settings.BlurSSAO)
-                spriteBatch.Draw(ssao.BlurTarget, new Rectangle(0, 0, halfWidth, halfHeight), Color.White);
-            else
-                spriteBatch.Draw(ssao.SSAOTarget, new Rectangle(0, 0, halfWidth, halfHeight), Color.White);
+            spriteBatch.Draw(ssao.BlurTarget, new Rectangle(0, 0, halfWidth, halfHeight), Color.White);
             spriteBatch.Draw(normalTarget, new Rectangle(0, halfHeight, halfWidth, halfHeight), Color.White);
             spriteBatch.Draw(depthTarget, new Rectangle(halfWidth, 0, halfWidth, halfHeight), Color.White);
             spriteBatch.Draw(lightTarget, new Rectangle(halfWidth, halfHeight, halfWidth, halfHeight), Color.White);

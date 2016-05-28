@@ -21,6 +21,7 @@ float4 CascadeScales[NumCascades];
 
 float3 LightDirection;
 float3 LightColor;
+float SkyIntensity;
 
 float Bias;
 float OffsetScale;
@@ -367,8 +368,8 @@ float4 PSMesh(VSOutput input,
     //get depth
     float depthVal = depthMap.Sample(depthSampler, input.TexCoord); //tex2D(depthSampler, input.TexCoord).r;
 
-    if (depthVal == 0)
-        return float4(1, 1, 1, 0);
+    if (depthVal == 0) //skybox
+        return float4(1, 1, 1, 0) * SkyIntensity; //over 1.0 for hdr
 
     //get normal data from the normalMap
     float4 normalData = normalMap.Sample(normalSampler, input.TexCoord); //tex2D(normalSampler, input.TexCoord);
@@ -412,7 +413,7 @@ float4 PSMesh(VSOutput input,
     float3 lighting = 0.0f;
 
     // Add the directional light.
-    lighting += nDotL * (LightColor + float3(0.1f, 0.1f, 0.1f)) * diffuseAlbedo * (1.0f / 3.14159f) * shadowVisibility;
+    lighting += nDotL * (LightColor + float3(0.5f, 0.5f, 0.5f)) * diffuseAlbedo * (1.0f / 3.14159f) * shadowVisibility;
     //lighting += nDotL * LightColor  * (1.0f / 3.14159f) * shadowVisibility;
 
     // Ambient light.

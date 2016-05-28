@@ -30,7 +30,7 @@ float3 WavelengthMie;
 
 float starIntensity = 0.5f;
 
-Texture txRayleigh;
+Texture2D txRayleigh;
 
 sampler2D rayleighSampler = sampler_state
 {
@@ -42,7 +42,7 @@ sampler2D rayleighSampler = sampler_state
 	MIPFILTER = LINEAR;
 };
 
-Texture txMie;
+Texture2D txMie;
 
 sampler2D mieSampler = sampler_state
 {
@@ -54,7 +54,7 @@ sampler2D mieSampler = sampler_state
 	MIPFILTER = LINEAR;
 };
 
-Texture StarsTex;
+Texture2D StarsTex;
 
 sampler2D starSampler = sampler_state
 {
@@ -138,10 +138,11 @@ float4 PS( PS_INPUT input) : COLOR0
 
 	float3 Color;
 	Color.rgb = getRayleighPhase(fCos2) * v3RayleighSamples.rgb + getMiePhase(fCos, fCos2) * v3MieSamples.rgb;
-	Color.rgb = HDR( Color.rgb );
+	//Color.rgb = HDR( Color.rgb );
 	
 	// Hack Sky Night Color
-	Color.rgb += max(0,(1 - Color.rgb)) * float3( 0.05, 0.05, 0.1 ); 
+	//Color.rgb += max(0,(1 - Color.rgb)) * float3( 0.05, 0.05, 0.1 ); 
+    Color.rgb += max(0, (1 - Color.rgb)) * float3(0.005, 0.005, 0.01);
 
 	return float4( Color.rgb, 1 ) + tex2D(starSampler, input.Tex0) * starIntensity;
 }

@@ -417,3 +417,27 @@
 /processorParam:DebugMode=Auto
 /build:Effects/SSAO.fx
 
+#begin Effects/HDR/Blur.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/HDR/Blur.fx
+
+#begin Effects/HDR/Threshold.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/HDR/Threshold.fx
+
+#begin Effects/HDR/Scale.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/HDR/Scale.fx
+
+#begin Effects/HDR/HDR.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/HDR/HDR.fx
+

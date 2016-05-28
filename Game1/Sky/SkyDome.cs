@@ -152,18 +152,11 @@ namespace Game1.Sky
         /// </summary>
         public override void Initialize()
         {
-#if XBOX
-            this.mieRT = new RenderTarget2D(game.GraphicsDevice, 256, 128, 1,
-                SurfaceFormat.Color, MultiSampleType.None, 0);
-            this.rayleighRT = new RenderTarget2D(game.GraphicsDevice, 256, 128, 1,
-                SurfaceFormat.Color, MultiSampleType.None, 0);
-#else
             // You can use SurfaceFormat.Color to increase performance / reduce quality
             mieRT = new RenderTarget2D(game.GraphicsDevice, 128, 64, true,
                 SurfaceFormat.HalfVector4, DepthFormat.None);
             rayleighRT = new RenderTarget2D(game.GraphicsDevice, 128, 64, true,
                 SurfaceFormat.HalfVector4, DepthFormat.None);
-#endif
 
             // Clouds constants
             inverseCloudVelocity = 16.0f;

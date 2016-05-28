@@ -39,6 +39,8 @@ namespace Game1.Shadows
         private readonly EffectParameter _farClipParameter;
         private readonly EffectParameter _frustumCorners;
 
+        private readonly EffectParameter _skyIntensity;
+
         public bool VisualizeCascades { get; set; }
         public bool FilterAcrossCascades { get; set; }
         public FixedFilterSize FilterSize { get; set; }
@@ -56,7 +58,6 @@ namespace Game1.Shadows
         public Matrix World { get; set; }
         public Matrix ViewProjection { get; set; }
         public Texture2D ShadowMap { get; set; }
-
         public Texture2D ColorMap { get; set; }
         public Texture2D NormalMap { get; set; }
         public Texture2D DepthMap { get; set; }
@@ -67,6 +68,7 @@ namespace Game1.Shadows
         public float NearClip { get; set; }
         public float FarClip { get; set; }
         public Vector3[] FrustumCorners { get; set; }
+        public float SkyIntensity { get; set; }
 
         public ShadowEffect(GraphicsDevice graphicsDevice, Effect innerEffect)
         {
@@ -99,6 +101,8 @@ namespace Game1.Shadows
             _farClipParameter = _innerEffect.Parameters["FarClip"];
 
             _frustumCorners = _innerEffect.Parameters["FrustumCornersVS"];
+
+            _skyIntensity = _innerEffect.Parameters["SkyIntensity"];
 
             CascadeSplits = new float[ShadowRenderer.NumCascades];
             CascadeOffsets = new Vector4[ShadowRenderer.NumCascades];
@@ -137,6 +141,8 @@ namespace Game1.Shadows
             _farClipParameter.SetValue(FarClip);
 
             _frustumCorners.SetValue(FrustumCorners);
+
+            _skyIntensity.SetValue(SkyIntensity);
 
             _innerEffect.CurrentTechnique.Passes[0].Apply();
         }

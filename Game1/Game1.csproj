@@ -45,6 +45,7 @@
     <Compile Include="Core.cs" />
     <Compile Include="Enemy\Enemy.cs" />
     <Compile Include="GameSettings.cs" />
+    <Compile Include="HDRProcessor.cs" />
     <Compile Include="Helpers\CollisionBox.cs" />
     <Compile Include="Helpers\DebugShapeRenderer.cs" />
     <Compile Include="DrawableObject.cs" />
@@ -74,6 +75,7 @@
     <Compile Include="Spells\SpellMoveTerrain.cs" />
     <Compile Include="SSAO.cs" />
     <Compile Include="Tile.cs" />
+    <Compile Include="TimeOfDay.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="AnimationPipeline, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
