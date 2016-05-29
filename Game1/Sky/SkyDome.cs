@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 
 namespace Game1.Sky
 {
-    public class SkyDome : DrawableGameComponent
+    public class SkyDome
     {
         #region Properties
 
@@ -123,7 +123,6 @@ namespace Game1.Sky
         #region Contructor
 
         public SkyDome(Game game, ref Camera camera)
-            : base(game)
         {
             this.game = game;
             this.camera = camera;
@@ -150,7 +149,7 @@ namespace Game1.Sky
         /// Allows the game component to perform any initialization it needs to before starting
         /// to run.  This is where it can query for any required services and load content.
         /// </summary>
-        public override void Initialize()
+        public void Initialize()
         {
             // You can use SurfaceFormat.Color to increase performance / reduce quality
             mieRT = new RenderTarget2D(game.GraphicsDevice, 128, 64, true,
@@ -163,14 +162,12 @@ namespace Game1.Sky
             CloudCover = 0.1f;
             CloudSharpness = 0.5f;
             numTiles = 16.0f;
-
-            base.Initialize();
         }
         #endregion
 
         #region Load
 
-        protected override void LoadContent()
+        public void LoadContent()
         {
 
             scatterEffect = game.Content.Load<Effect>("Effects/scatter");
@@ -190,10 +187,7 @@ namespace Game1.Sky
             
             GenerateDome();
             GenerateMoon();
-            GeneratePlane();
-
-            base.LoadContent();
-
+            //GeneratePlane();
         }
 
         #endregion
@@ -203,10 +197,8 @@ namespace Game1.Sky
         /// Allows the game component to update itself.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        public override void Update(GameTime gameTime)
+        public void Update(GameTime gameTime)
         {
-            KeyboardState keyState = Keyboard.GetState();
-
             if (realTime)
             {
                 int minutes = DateTime.Now.Hour * 60 + DateTime.Now.Minute;
@@ -215,8 +207,6 @@ namespace Game1.Sky
 
             parameters.LightDirection = GetDirection();
             parameters.LightDirection.Normalize();
-
-            base.Update(gameTime);
         }
         #endregion
 
@@ -225,14 +215,13 @@ namespace Game1.Sky
         /// Draws the component.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        public override void Draw(GameTime gameTime)
+        public void Draw(GameTime gameTime, Matrix viewMatrix, Vector3 cameraPosition)
         {
-
-            Matrix View = camera.ViewMatrix;
+            Matrix View = viewMatrix;
             Matrix Projection = camera.ProjectionMatrix;
-            Matrix World = Matrix.CreateTranslation(camera.Position.X,
-                camera.Position.Y,
-                camera.Position.Z);
+            Matrix World = Matrix.CreateTranslation(cameraPosition.X,
+                cameraPosition.Y,
+                cameraPosition.Z);
 
             if (previousTheta != fTheta || previousPhi != fPhi)
                 UpdateMieRayleighTextures();
@@ -268,9 +257,9 @@ namespace Game1.Sky
                 game.GraphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, domeVerts, 0, DVSize, ib, 0, DISize);
             }
 
-            DrawGlow();
-            DrawMoon();
-            DrawClouds(gameTime);
+            //DrawGlow(viewMatrix, cameraPosition);
+            DrawMoon(viewMatrix, cameraPosition);
+            DrawClouds(gameTime, viewMatrix, cameraPosition);
 
             game.GraphicsDevice.DepthStencilState = prevDepthState;
             game.GraphicsDevice.RasterizerState = prevRasterizerState;
@@ -282,7 +271,7 @@ namespace Game1.Sky
 
         #region DrawMoon
 
-        private void DrawMoon()
+        private void DrawMoon(Matrix viewMatrix, Vector3 cameraPosition)
         {
             BlendState prevState = game.GraphicsDevice.BlendState;
             game.GraphicsDevice.BlendState = BlendState.AlphaBlend;
@@ -294,10 +283,10 @@ namespace Game1.Sky
                 Matrix.CreateTranslation(parameters.LightDirection.X * 15,
                 parameters.LightDirection.Y * 15,
                 parameters.LightDirection.Z * 15) *
-                Matrix.CreateTranslation(camera.Position.X,
-                camera.Position.Y,
-                camera.Position.Z));
-            texturedEffect.Parameters["View"].SetValue(camera.ViewMatrix);
+                Matrix.CreateTranslation(cameraPosition.X,
+                cameraPosition.Y,
+                cameraPosition.Z));
+            texturedEffect.Parameters["View"].SetValue(viewMatrix);
             texturedEffect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
             texturedEffect.Parameters["Texture"].SetValue(moonTex);
             if (fTheta < Math.PI / 2.0f || fTheta > 3.0f * Math.PI / 2.0f)
@@ -320,7 +309,7 @@ namespace Game1.Sky
 
         #region DrawGlow
 
-        private void DrawGlow()
+        private void DrawGlow(Matrix viewMatrix, Vector3 cameraPosition)
         {
             BlendState prevState = game.GraphicsDevice.BlendState;
             game.GraphicsDevice.BlendState = BlendState.AlphaBlend;
@@ -332,10 +321,10 @@ namespace Game1.Sky
                 Matrix.CreateTranslation(parameters.LightDirection.X * 5,
                 parameters.LightDirection.Y * 5,
                 parameters.LightDirection.Z * 5) *
-                Matrix.CreateTranslation(camera.Position.X,
-                camera.Position.Y,
-                camera.Position.Z));//*
-            texturedEffect.Parameters["View"].SetValue(camera.ViewMatrix);
+                Matrix.CreateTranslation(cameraPosition.X,
+                cameraPosition.Y,
+                cameraPosition.Z));
+            texturedEffect.Parameters["View"].SetValue(viewMatrix);
             texturedEffect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
             texturedEffect.Parameters["Texture"].SetValue(glowTex);
             if (fTheta < Math.PI / 2.0f || fTheta > 3.0f * Math.PI / 2.0f)
@@ -358,7 +347,7 @@ namespace Game1.Sky
 
         #region DrawClouds
 
-        private void DrawClouds(GameTime gameTime)
+        private void DrawClouds(GameTime gameTime, Matrix viewMatrix, Vector3 cameraPosition)
         {
             BlendState prevState = game.GraphicsDevice.BlendState;
             game.GraphicsDevice.BlendState = BlendState.AlphaBlend;
@@ -367,18 +356,18 @@ namespace Game1.Sky
             noiseEffect.Parameters["World"].SetValue(Matrix.CreateScale(2000.0f) *
                 Matrix.CreateTranslation(new Vector3(0, 0, -100)) *
                 Matrix.CreateRotationX((float)Math.PI / 2.0f) *
-                Matrix.CreateTranslation(camera.Position.X,
-                camera.Position.Y,
-                camera.Position.Z)
+                Matrix.CreateTranslation(cameraPosition.X,
+                cameraPosition.Y,
+                cameraPosition.Z)
                 );
-            noiseEffect.Parameters["View"].SetValue(camera.ViewMatrix);
+            noiseEffect.Parameters["View"].SetValue(viewMatrix);
             noiseEffect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
             noiseEffect.Parameters["permTexture"].SetValue(permTex);
             noiseEffect.Parameters["time"].SetValue((float)gameTime.TotalGameTime.TotalSeconds / inverseCloudVelocity);
             noiseEffect.Parameters["SunColor"].SetValue(sunColor);
             noiseEffect.Parameters["v3SunDir"].SetValue(new Vector3(-parameters.LightDirection.X,
                 -parameters.LightDirection.Y, -parameters.LightDirection.Z));
-            noiseEffect.Parameters["cameraPosition"].SetValue(camera.Position);
+            noiseEffect.Parameters["cameraPosition"].SetValue(cameraPosition);
             noiseEffect.Parameters["numTiles"].SetValue(numTiles);
             noiseEffect.Parameters["CloudCover"].SetValue(cloudCover);
             noiseEffect.Parameters["CloudSharpness"].SetValue(cloudSharpness);

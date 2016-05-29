@@ -441,3 +441,9 @@
 /processorParam:DebugMode=Auto
 /build:Effects/HDR/HDR.fx
 
+#begin Effects/Water.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/Water.fx
+

@@ -43,6 +43,7 @@ namespace Game1
         private ShadowRenderer shadowRenderer;
         private SSAO ssao;
         private HDRProcessor hdrProcessor;
+        private Water water;
         public GameSettings settings;
 
         private Model tileModel;
@@ -159,7 +160,8 @@ namespace Game1
             graphics.SynchronizeWithVerticalRetrace = false; //vsync
             graphics.PreferredBackBufferWidth = 1280;
             graphics.PreferredBackBufferHeight = 720;
-            graphics.PreferMultiSampling = true;
+            graphics.PreferMultiSampling = false;
+            graphics.PreferredBackBufferFormat = SurfaceFormat.HdrBlendable;
             graphics.ApplyChanges();
 
             Window.Position = new Point(0, 0);
@@ -201,10 +203,10 @@ namespace Game1
             //sky.Theta = 2.4f;// (float)Math.PI / 2.0f - 0.3f;
             sky.Theta = timeOfDay.TotalMinutes * (float)(Math.PI) / 12.0f / 60.0f;
             sky.Parameters.NumSamples = 10;
-
-            Components.Add(sky);
+            sky.Initialize();
 
             base.Initialize();
+            
         }
 
         protected override void LoadContent()
@@ -250,6 +252,8 @@ namespace Game1
             hdrProcessor = new HDRProcessor(GraphicsDevice, Content, quadRenderer);
             hdrProcessor.FlushCache();
 
+            water = new Water(GraphicsDevice, Content);
+
             lightManager = new LightManager(this, lightTarget, Content);
             //TestLights();
 
@@ -266,8 +270,8 @@ namespace Game1
             swDraw = new Stopwatch();
             swUpdate = new Stopwatch();
             swGPU = new Stopwatch();
-            
 
+            sky.LoadContent();
         }
 
         protected override void UnloadContent()
@@ -428,6 +432,7 @@ namespace Game1
             swUpdate.Reset();
             swUpdate.Start();
 
+            sky.Update(gameTime);
             base.Update(gameTime);
 
             timeOfDay.Update((float)gameTime.ElapsedGameTime.TotalSeconds, 1);
@@ -533,7 +538,7 @@ namespace Game1
                     break;
             }
 
-            hdrProcessor.ToneMapKey = timeOfDay.LogisticTime(0.1f, 0.8f, 3f);
+            hdrProcessor.ToneMapKey = timeOfDay.LogisticTime(0.05f, 0.8f, 2.0f);
             //hdrProcessor.MaxLuminance = 512.0f * timeOfDay.LogisticTime(0f, 1f, 1f);
 
             //sky.Theta = timeOfDay.TotalMinutes * (float)(Math.PI) / 12.0f / 60.0f;
@@ -634,7 +639,7 @@ namespace Game1
                     timeOfDay.Minutes.ToString("D2"),
                     timeOfDay.Seconds.ToString("00"));
                 buffer.AppendFormat(" Time of day Logistic: {0}\n\n",
-                    timeOfDay.LogisticTime(0.1f, 0.8f, 3.0f).ToString("f2"));
+                    timeOfDay.LogisticTime(0.1f, 0.8f, 2.0f).ToString("f2"));
 
                 buffer.AppendFormat(" MouseWheel: {0}\n",
                     currentMouseState.ScrollWheelValue.ToString("f2"));
@@ -714,12 +719,19 @@ namespace Game1
             SetGBuffer();
             ClearGBuffer();
 
-            GraphicsDevice.Clear(Color.Transparent);
-
-            base.Draw(gameTime);
-
             GraphicsDevice.BlendState = BlendState.Opaque;
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+
+            GraphicsDevice.Clear(Color.Transparent);
+            base.Draw(gameTime);
+
+            if(settings.DrawWater)
+                water.RenderReflectionMap(gameTime, camera, sky);
+
+            sky.Draw(gameTime, camera.ViewMatrix, camera.Position);
+
+            if (settings.DrawWater)
+                water.DrawWater(camera, 0);
 
             modelsDrawn = 0;
             modelsDrawnInstanced = 0;

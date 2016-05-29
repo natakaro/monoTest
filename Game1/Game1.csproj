@@ -76,6 +76,7 @@
     <Compile Include="SSAO.cs" />
     <Compile Include="Tile.cs" />
     <Compile Include="TimeOfDay.cs" />
+    <Compile Include="Water.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="AnimationPipeline, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
