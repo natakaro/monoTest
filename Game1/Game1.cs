@@ -793,7 +793,7 @@ namespace Game1
             {
                 lightDirection = Vector3.Negate(lightDirection); //odwrocenie kierunku kiedy zrodlem swiatla jest ksiezyc
             }
-                
+
             lightColor = sky.SunColor.ToVector3();
             if (lightColor == Vector3.Zero)
             {
@@ -821,7 +821,7 @@ namespace Game1
             GraphicsDevice.Clear(Color.White);
 
             if (settings.DrawWater)
-                water.DrawWater(camera, (float)gameTime.TotalGameTime.TotalMilliseconds*10, finalTarget, depthTarget, lightDirection, lightColor);
+                water.DrawWater(camera, (float)gameTime.TotalGameTime.TotalMilliseconds*5, finalTarget, depthTarget, lightDirection, lightColor);
 
             if (settings.ToneMap)
             {
