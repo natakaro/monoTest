@@ -13,7 +13,6 @@ using System.Diagnostics;
 
 namespace Game1
 {
-
     public class Game1 : Game
     {
         public static GraphicsDeviceManager graphics; //Ustawione na razie na static, żeby nie trzeba było dogrzebywać się do tego z każdej klasy
@@ -33,6 +32,7 @@ namespace Game1
         public RenderTarget2D normalTarget;
         public RenderTarget2D depthTarget;
         public RenderTarget2D lightTarget;
+        public RenderTarget2D waterTarget;
         public RenderTarget2D finalTarget;
         public RenderTarget2D fxaaTarget;
         
@@ -221,6 +221,7 @@ namespace Game1
             depthTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.Single, DepthFormat.None);
             lightTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.HdrBlendable, DepthFormat.None);
 
+            waterTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.HdrBlendable, DepthFormat.None);
             finalTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.HdrBlendable, DepthFormat.None);
             fxaaTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.HdrBlendable, DepthFormat.None);
 
@@ -252,7 +253,7 @@ namespace Game1
             hdrProcessor = new HDRProcessor(GraphicsDevice, Content, quadRenderer);
             hdrProcessor.FlushCache();
 
-            water = new Water(GraphicsDevice, Content);
+            water = new Water(GraphicsDevice, Content, quadRenderer);
 
             lightManager = new LightManager(this, lightTarget, Content);
             //TestLights();
@@ -357,6 +358,12 @@ namespace Game1
                 if (camera.RotationSpeed <= 0.0f)
                     camera.RotationSpeed = 0.01f;
             }
+
+            //if (KeyJustPressed(Keys.F8))
+            //{
+            //    water.reflectionTarget.SaveAsPng(new System.IO.FileStream("../Reflection.png", System.IO.FileMode.Create), 1280, 720);
+            //    finalTarget.SaveAsPng(new System.IO.FileStream("../Final.png", System.IO.FileMode.Create), 1280, 720);
+            //}
 
             if (currentMouseState.ScrollWheelValue < prevMouseState.ScrollWheelValue && currentMouseState.LeftButton == ButtonState.Released && currentMouseState.RightButton == ButtonState.Released)
             {
@@ -730,9 +737,6 @@ namespace Game1
 
             sky.Draw(gameTime, camera.ViewMatrix, camera.Position);
 
-            if (settings.DrawWater)
-                water.DrawWater(camera, 0);
-
             modelsDrawn = 0;
             modelsDrawnInstanced = 0;
 
@@ -807,14 +811,25 @@ namespace Game1
 
             lightManager.Draw();
 
-            GraphicsDevice.SetRenderTarget(fxaaTarget);
+            GraphicsDevice.SetRenderTarget(finalTarget);
             GraphicsDevice.Clear(Color.White);
             DrawFinal();
-            if(settings.DrawFog)
+            if (settings.DrawFog)
                 DrawFog();
 
+            GraphicsDevice.SetRenderTarget(waterTarget);
+            GraphicsDevice.Clear(Color.White);
+
+            if (settings.DrawWater)
+                water.DrawWater(camera, (float)gameTime.TotalGameTime.TotalMilliseconds*10, finalTarget, depthTarget, lightDirection, lightColor);
+
             if (settings.ToneMap)
-                hdrProcessor.ToneMap(fxaaTarget, finalTarget, (float)gameTime.ElapsedGameTime.TotalMilliseconds / 1000f, false);
+            {
+                if(settings.DrawWater)
+                    hdrProcessor.ToneMap(waterTarget, fxaaTarget, (float)gameTime.ElapsedGameTime.TotalMilliseconds / 1000f, false);
+                else
+                    hdrProcessor.ToneMap(finalTarget, fxaaTarget, (float)gameTime.ElapsedGameTime.TotalMilliseconds / 1000f, false);
+            }
 
             GraphicsDevice.SetRenderTarget(null);
 
@@ -828,13 +843,15 @@ namespace Game1
                 fxaaEffect.Parameters["fxaaQualityEdgeThresholdMin"].SetValue(fxaaQualityEdgeThresholdMin);
                 fxaaEffect.Parameters["invViewportWidth"].SetValue(1f / w);
                 fxaaEffect.Parameters["invViewportHeight"].SetValue(1f / h);
-                fxaaEffect.Parameters["texScreen"].SetValue((Texture2D)fxaaTarget);
+                fxaaEffect.Parameters["texScreen"].SetValue(fxaaTarget);
             
                 spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.DepthRead, RasterizerState.CullCounterClockwise, fxaaEffect);
                 if(settings.ToneMap)
-                    spriteBatch.Draw((Texture2D)finalTarget, new Rectangle(0, 0, fxaaTarget.Width, fxaaTarget.Height), Color.White);
+                    spriteBatch.Draw(fxaaTarget, new Rectangle(0, 0, fxaaTarget.Width, fxaaTarget.Height), Color.White);
+                else if(settings.DrawWater)
+                    spriteBatch.Draw(waterTarget, new Rectangle(0, 0, fxaaTarget.Width, fxaaTarget.Height), Color.White);
                 else
-                    spriteBatch.Draw((Texture2D)fxaaTarget, new Rectangle(0, 0, fxaaTarget.Width, fxaaTarget.Height), Color.White);
+                    spriteBatch.Draw(finalTarget, new Rectangle(0, 0, fxaaTarget.Width, fxaaTarget.Height), Color.White);
                 //spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);
                 //DrawText();
                 //DrawGBuffer();
@@ -844,9 +861,11 @@ namespace Game1
             {
                 spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
                 if (settings.ToneMap)
-                    spriteBatch.Draw((Texture2D)finalTarget, Vector2.Zero, Color.White);
+                    spriteBatch.Draw(fxaaTarget, Vector2.Zero, Color.White);
+                else if (settings.DrawWater)
+                    spriteBatch.Draw(waterTarget, Vector2.Zero, Color.White);
                 else
-                    spriteBatch.Draw((Texture2D)fxaaTarget, Vector2.Zero, Color.White);
+                    spriteBatch.Draw(finalTarget, Vector2.Zero, Color.White);
                 //spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);
                 //DrawText();
                 //DrawGBuffer();

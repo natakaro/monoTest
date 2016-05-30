@@ -257,7 +257,7 @@ namespace Game1.Sky
                 game.GraphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, domeVerts, 0, DVSize, ib, 0, DISize);
             }
 
-            //DrawGlow(viewMatrix, cameraPosition);
+            DrawGlow(viewMatrix, cameraPosition);
             DrawMoon(viewMatrix, cameraPosition);
             DrawClouds(gameTime, viewMatrix, cameraPosition);
 
