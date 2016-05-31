@@ -34,7 +34,7 @@ namespace Game1
             waterEffect = content.Load<Effect>("Effects/Water");
             normalMap = content.Load<Texture2D>("Textures/waternormal");
             heightMap = content.Load<Texture2D>("Textures/waterheight");
-            foamMap = content.Load<Texture2D>("Textures/waterfoam3");
+            foamMap = content.Load<Texture2D>("Textures/waterfoam2");
         }
 
         public void RenderReflectionMap(GameTime gameTime, Camera camera, SkyDome sky)

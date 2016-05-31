@@ -111,10 +111,10 @@ float R0 = 0.5f;
 float maxAmplitude = 1.0f;
 
 // Direction of the light
-float3 lightDir = { 0.0f, 1.0f, 0.0f };
+float3 lightDir;
 
 // Colour of the sun
-float3 sunColor = { 1.0f, 1.0f, 1.0f };
+float3 sunColor;
 
 // The smaller this value is, the more soft the transition between
 // shore and water. If you want hard edges use very big value.
@@ -137,7 +137,7 @@ float displace = 1.7f;
 // Describes at what depth foam starts to fade out and
 // at what it is completely invisible. The fird value is at
 // what height foam for waves appear (+ waterLevel).
-float3 foamExistence = { 0.65f, 1.35f, 0.5f };
+float3 foamExistence = { 0.65f, 1.35f, 0.7f };
 
 float sunScale = 3.0f;
 
@@ -153,7 +153,7 @@ float shininess = 0.7f;
 float specular_intensity = 0.32;
 
 // Colour of the water surface
-float3 depthColour = { 0.0078f, 0.5176f, 0.7f };
+float3 depthColour = { 0.0078f, 0.5176f, 0.65f };
 // Colour of the water depth
 float3 bigDepthColour = { 0.0039f, 0.00196f, 0.145f };
 float3 extinction = { 7.0f, 30.0f, 40.0f }; // Horizontal
@@ -357,8 +357,13 @@ float4 WaterPS(VSOutput input) : COLOR0
 
         half3 mirrorEye = (2.0f * dot(eyeVecNorm, normal) * normal - eyeVecNorm);
         half dotSpec = saturate(dot(mirrorEye.xyz, lightDir) * 0.5f + 0.5f);
+<<<<<<< HEAD
         specular = (1.0f - fresnel) * saturate(lightDir.y) * ((pow(dotSpec, 512.0f)) * (shininess * 1.8f + 0.2f)) * sunColor;
         specular += specular * 25 * saturate(shininess - 0.05f) * sunColor;
+=======
+        specular = (1.0f - fresnel) * saturate(lightDir.y) * ((pow(dotSpec, 512.0f)) * (shininess * 1.8f + 0.2f)) * min(0.1, sunColor);
+		specular += specular * 25 * saturate(shininess - 0.05f) * min(0.1, sunColor);
+>>>>>>> a3531435539c161199fec4d30eef7df2eed969dc
 
         color = lerp(refraction, reflect, fresnel);
         color = saturate(color + max(specular, foam * sunColor));
