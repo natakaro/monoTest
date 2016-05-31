@@ -53,6 +53,11 @@ namespace Game1
         private Texture2D tileTexture;
         private Texture2D cross;
 
+        //map
+        private Texture2D mapTex;
+        //enemy
+        Enemy enemy;
+
         private Core core;
 
         private SkyDome sky;
@@ -65,7 +70,7 @@ namespace Game1
 
         private const float CAMERA_FOVX = 90.0f;
         private const float CAMERA_ZNEAR = 1.0f;
-        private const float CAMERA_ZFAR = 2000.0f;
+        private const float CAMERA_ZFAR = 10000.0f;
         private const float CAMERA_PLAYER_EYE_HEIGHT = 30.0f;
         private const float CAMERA_ACCELERATION_X = 800.0f;
         private const float CAMERA_ACCELERATION_Y = 800.0f;
@@ -158,8 +163,8 @@ namespace Game1
 
             // Setup frame buffer.
             graphics.SynchronizeWithVerticalRetrace = false; //vsync
-            graphics.PreferredBackBufferWidth = 1280;
-            graphics.PreferredBackBufferHeight = 720;
+            graphics.PreferredBackBufferWidth = 1920;
+            graphics.PreferredBackBufferHeight = 1080;
             graphics.PreferMultiSampling = false;
             graphics.PreferredBackBufferFormat = SurfaceFormat.HdrBlendable;
             graphics.ApplyChanges();
@@ -174,7 +179,8 @@ namespace Game1
             //camera.worldMatrix = Matrix.CreateWorld(new Vector3(), Vector3.Forward, Vector3.Up);           
 
             //Setup the camera.
-            camera.EyeHeightStanding = CAMERA_PLAYER_EYE_HEIGHT;
+            camera.Position = new Vector3(2000, 200, 2000); //player position
+            camera.EyeHeightStanding = CAMERA_PLAYER_EYE_HEIGHT + 200;
             camera.Acceleration = new Vector3(
                 CAMERA_ACCELERATION_X,
                 CAMERA_ACCELERATION_Y,
@@ -191,6 +197,7 @@ namespace Game1
                 CAMERA_FOVX,
                 (float)windowWidth / (float)windowHeight,
                 CAMERA_ZNEAR, CAMERA_ZFAR);
+
 
             currentKeyboardState = Keyboard.GetState();
 
@@ -232,8 +239,10 @@ namespace Game1
             tileTexture = Content.Load<Texture2D>("Textures/gradient");
             hands = Content.Load<Model>("Models/hands");
             handstex = Content.Load<Texture2D>("Textures/handstex");
-
             crystalModel = Content.Load<Model>("Models/crystal");
+
+            //map
+            mapTex = Content.Load<Texture2D>("Textures/map");
 
             clearBufferEffect = Content.Load<Effect>("Effects/ClearGBuffer");
             finalCombineEffect = Content.Load<Effect>("Effects/CombineFinal");
@@ -261,8 +270,9 @@ namespace Game1
             instancingManager = new InstancingManager(this, camera, Content, tileModel, tileTexture);
 
             //octree
-            octree = new Octree(Map.CreateMap(this, 30, tileModel));
-            core = new Core(this, Matrix.CreateTranslation(500, 0, 500), crystalModel);
+            //octree = new Octree(Map.CreateMap(this, 30, tileModel));
+            octree = new Octree(Map.CreateMapFromTex(this, mapTex, tileModel));
+            core = new Core(this, Matrix.CreateTranslation(1100, 50, 1700), crystalModel);
             octree.m_objects.Add(core);
 
             spellMoveTerrain = new SpellMoveTerrain(octree);
@@ -273,6 +283,8 @@ namespace Game1
             swGPU = new Stopwatch();
 
             sky.LoadContent();
+
+            enemy = new Enemy(this, Matrix.CreateTranslation(300, 100, 1100), tileModel, Content);
         }
 
         protected override void UnloadContent()
@@ -442,7 +454,7 @@ namespace Game1
             sky.Update(gameTime);
             base.Update(gameTime);
 
-            timeOfDay.Update((float)gameTime.ElapsedGameTime.TotalSeconds, 1);
+            timeOfDay.Update((float)gameTime.ElapsedGameTime.TotalSeconds, 100);
 
             ProcessKeyboard();
 
@@ -549,6 +561,12 @@ namespace Game1
             //hdrProcessor.MaxLuminance = 512.0f * timeOfDay.LogisticTime(0f, 1f, 1f);
 
             //sky.Theta = timeOfDay.TotalMinutes * (float)(Math.PI) / 12.0f / 60.0f;
+            if (settings.EnemyMove)
+            {
+                enemy.Update(gameTime, camera, octree);
+            }
+            
+
 
             UpdateFrameRate(gameTime);
 
@@ -739,6 +757,8 @@ namespace Game1
 
             modelsDrawn = 0;
             modelsDrawnInstanced = 0;
+
+            enemy.Draw(camera);
 
             //Renders all visible objects by iterating through the oct tree recursively and testing for intersection 
             //with the current camera view frustum

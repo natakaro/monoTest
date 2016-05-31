@@ -37,6 +37,8 @@ namespace Game1
         public float SSAORadius;
         public float SSAOPower;
 
+        public bool EnemyMove;
+
         public enum FogEffect
         {
             FogLinear = 0,
@@ -81,6 +83,7 @@ namespace Game1
             DrawSSAO = true;
             ToneMap = true;
             DrawWater = true;
+            EnemyMove = false;
 
             SSAORadius = 5;
             SSAOPower = 2;
@@ -117,33 +120,33 @@ namespace Game1
             if (KeyJustPressed(Keys.K))
                 FilterAcrossCascades = !FilterAcrossCascades;
 
-            if (KeyJustPressed(Keys.B))
-            {
-                 if (_currentKeyboardState.IsKeyDown(Keys.LeftShift) || _currentKeyboardState.IsKeyDown(Keys.RightShift))
-                    {
-                    Bias += 0.001f;
-                }
-                else
-                {
-                    Bias -= 0.001f;
-                    Bias = Math.Max(Bias, 0.0f);
-                }
-                Bias = (float)Math.Round(Bias, 3);
-            }
-
-            if (KeyJustPressed(Keys.O))
-            {
-                if (_currentKeyboardState.IsKeyDown(Keys.LeftShift) || _currentKeyboardState.IsKeyDown(Keys.RightShift))
-                    {
-                    OffsetScale += 0.1f;
-                }
-                else
-                {
-                    OffsetScale -= 0.1f;
-                    OffsetScale = Math.Max(OffsetScale, 0.0f);
-                }
-                OffsetScale = (float)Math.Round(OffsetScale, 1);
-            }
+            //if (KeyJustPressed(Keys.B))
+            //{
+            //     if (_currentKeyboardState.IsKeyDown(Keys.LeftShift) || _currentKeyboardState.IsKeyDown(Keys.RightShift))
+            //        {
+            //        Bias += 0.001f;
+            //    }
+            //    else
+            //    {
+            //        Bias -= 0.001f;
+            //        Bias = Math.Max(Bias, 0.0f);
+            //    }
+            //    Bias = (float)Math.Round(Bias, 3);
+            //}
+            //
+            //if (KeyJustPressed(Keys.O))
+            //{
+            //    if (_currentKeyboardState.IsKeyDown(Keys.LeftShift) || _currentKeyboardState.IsKeyDown(Keys.RightShift))
+            //        {
+            //        OffsetScale += 0.1f;
+            //    }
+            //    else
+            //    {
+            //        OffsetScale -= 0.1f;
+            //        OffsetScale = Math.Max(OffsetScale, 0.0f);
+            //    }
+            //    OffsetScale = (float)Math.Round(OffsetScale, 1);
+            //}
 
             if (KeyJustPressed(Keys.G))
             {
@@ -193,6 +196,9 @@ namespace Game1
 
             if (KeyJustPressed(Keys.D9))
                 DrawWater = !DrawWater;
+
+            if (KeyJustPressed(Keys.Q))
+                EnemyMove = !EnemyMove;
         }
     }
     public enum FixedFilterSize

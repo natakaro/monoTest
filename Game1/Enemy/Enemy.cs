@@ -7,6 +7,7 @@ using Game1.Helpers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using AnimationAux;
 
 namespace Game1
 {
@@ -20,17 +21,33 @@ namespace Game1
         float a;
         float b;
         public float feetheight;
-        public Enemy(Game game, Matrix inWorldMatrix, Model inModel) : base(game, inWorldMatrix, inModel)
+        ContentManager Content;
+        private AnimatedModel modell = null;
+        private AnimatedModel dance = null;
+
+        public Enemy(Game game, Matrix inWorldMatrix, Model inModel, ContentManager Content) : base(game, inWorldMatrix, inModel)
         {
+            this.Content = Content;
             m_instanced = true;
             //boundingSphere = new BoundingSphere(position, Map.scale * 0.75f);
+           
+
+            modell = new AnimatedModel("Models/dude");
+            modell.LoadContent(Content);
+
+
+            dance = new AnimatedModel("Models/dude");
+            dance.LoadContent(Content);
+            AnimationClip clip = dance.Clips[0];
+
+            AnimationPlayer player = modell.PlayClip(clip);
+            player.Looping = true;
 
             type = ObjectType.Unit;
-            boundingBox = CollisionBox.CreateBoundingBox(model, position, 1);
-            positionray = new Ray(new Vector3(position.X, boundingBox.Min.Y, position.Z), Vector3.Down);
-
+            boundingBox = CollisionBox.CreateBoundingBox(modell.Model, position, 1);
             a = boundingBox.Max.Y - boundingBox.Min.Y;
             b = position.Y - boundingBox.Min.Y;
+            positionray = new Ray(new Vector3(position.X, boundingBox.Min.Y, position.Z), Vector3.Down);
         }
 
         public bool Update(GameTime gameTime, Camera camera, Octree octree)
@@ -57,7 +74,10 @@ namespace Game1
 
             boundingBox.Max.Y = boundingBox.Min.Y + a;
             position.Y = boundingBox.Min.Y + b;
-            worldMatrix = Matrix.CreateTranslation(position);
+
+            float targetrotation = (float)Math.Atan2((double)(camera.Position.Y - position.Y), (double)(camera.Position.X - position.X));
+            worldMatrix = Matrix.CreateRotationY(targetrotation) * Matrix.CreateTranslation(position);
+            modell.Update(gameTime);
 
             return true;
 
@@ -67,16 +87,21 @@ namespace Game1
 
         public override void Draw(Camera camera)
         {
+            /*
             foreach (ModelMesh mesh in model.Meshes)
             {
                 foreach (Effect effect in mesh.Effects)
                 {
+                    effect.CurrentTechnique = effect.Techniques["Technique1"];
                     effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index] * worldMatrix);
                     effect.Parameters["View"].SetValue(camera.ViewMatrix);
                     effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
+                    //effect.Parameters["FarClip"].SetValue(camera.FarZ);
                 }
                 mesh.Draw();
             }
+            */
+            modell.Draw(GraphicsDevice, camera, worldMatrix, Content);
         }
     }
 }

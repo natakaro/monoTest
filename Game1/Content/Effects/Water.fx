@@ -356,8 +356,8 @@ float4 WaterPS(VSOutput input) : COLOR0
         half3 specular = 0.0f;
 
         half3 mirrorEye = (2.0f * dot(eyeVecNorm, normal) * normal - eyeVecNorm);
-        half dotSpec = saturate(dot(mirrorEye.xyz, -lightDir) * 0.5f + 0.5f);
-        specular = (1.0f - fresnel) * saturate(-lightDir.y) * ((pow(dotSpec, 512.0f)) * (shininess * 1.8f + 0.2f)) * sunColor;
+        half dotSpec = saturate(dot(mirrorEye.xyz, lightDir) * 0.5f + 0.5f);
+        specular = (1.0f - fresnel) * saturate(lightDir.y) * ((pow(dotSpec, 512.0f)) * (shininess * 1.8f + 0.2f)) * sunColor;
         specular += specular * 25 * saturate(shininess - 0.05f) * sunColor;
 
         color = lerp(refraction, reflect, fresnel);

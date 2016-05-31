@@ -128,7 +128,7 @@ PixelShaderOutput PixelShaderFunctionColor(VertexShaderOutput input)
 	//output.Color = tex2D(diffuseSampler, input.TexCoord);
 	if (input.instanceTransform[3][1] > 0)
 	{
-		output.Color = tex2D(diffuseSampler, float2(0, input.instanceTransform[3][1] / 25));
+		output.Color = tex2D(diffuseSampler, float2(0, input.instanceTransform[3][1] / 255));
 	}
 	else
 	{

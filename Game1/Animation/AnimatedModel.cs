@@ -216,6 +216,7 @@ namespace Game1
                             part.Effect.Parameters["World"].SetValue(boneTransforms[modelMesh.ParentBone.Index] * world);
                             part.Effect.Parameters["View"].SetValue(camera.viewMatrix);
                             part.Effect.Parameters["Projection"].SetValue(camera.projMatrix);
+                            part.Effect.Parameters["FarClip"].SetValue(camera.FarZ);
                         }
                 }
                 mesh.Draw();
