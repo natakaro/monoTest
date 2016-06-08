@@ -25,7 +25,6 @@ namespace Game1
         RenderTarget2D lightTarget;
         Matrix reflectionViewMatrix;
         Effect waterEffect;
-        Effect clearBufferEffect;
         Effect lightEffect;
         Effect finalCombineEffect;
         Texture2D normalMap;
@@ -53,10 +52,10 @@ namespace Game1
             waterEffect = content.Load<Effect>("Effects/Water");
             normalMap = content.Load<Texture2D>("Textures/waternormal");
             //heightMap = content.Load<Texture2D>("Textures/waterheight");
-            heightMap = new Texture2D(graphicsDevice, 512, 512, false, SurfaceFormat.Color, 100);
-            for(int i = 0; i < 100; i++)
+            heightMap = new Texture2D(graphicsDevice, 512, 512, false, SurfaceFormat.Color, 200);
+            for(int i = 0; i < 200; i++)
             {
-                Texture2D layer = content.Load<Texture2D>("Textures/Waves/" + i.ToString("D2"));
+                Texture2D layer = content.Load<Texture2D>("Textures/waves5/" + i.ToString("D3"));
                 heightMap.SetData(0, i, null, layer.GetPixels(), 0, 262144);
             }
             foamMap = content.Load<Texture2D>("Textures/waterfoam2");
@@ -85,7 +84,7 @@ namespace Game1
                 graphicsDevice.DepthStencilState = DepthStencilState.Default;
                 graphicsDevice.RasterizerState = RasterizerState.CullNone;
 
-                Vector4 clipPlane = new Vector4(reflectionPlane.Normal, reflectionPlane.D);
+                Vector4 clipPlane = new Vector4(reflectionPlane.Normal, reflectionPlane.D + 0.25f);
 
                 //Renders all visible objects by iterating through the oct tree recursively and testing for intersection 
                 //with the current camera view frustum

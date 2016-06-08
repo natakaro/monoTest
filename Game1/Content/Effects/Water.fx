@@ -50,7 +50,7 @@ float normalScale = 1.0f;
 float R0 = 0.5f;
 
 // Maximum waves amplitude
-float maxAmplitude = 1.0f;
+float maxAmplitude = 2.5f;
 
 // Direction of the light
 float3 lightDir;
@@ -74,12 +74,12 @@ float refractionStrength = 0.0f;
 float4 normalModifier = { 1.0f, 2.0f, 4.0f, 8.0f };
 
 // Strength of displacement along normal.
-float displace = 0.1f;
+float displace = 0.25f;
 
 // Describes at what depth foam starts to fade out and
 // at what it is completely invisible. The third value is at
 // what height foam for waves appear (+ waterLevel).
-float3 foamExistence = { 0.65f, 1.35f, 0.7f };
+float3 foamExistence = { 0.65f, 1.35f, 1.25f };
 
 float sunScale = 3.0f;
 
@@ -199,7 +199,7 @@ float4 WaterPS(VSOutput input) : COLOR0
         {
             texCoord = (surfacePoint.xz + eyeVecNorm.xz * 0.1f) * scale + timer * 0.000005f * wind;
 			
-            float bias = heightMap.Sample(heightSampler, float3(texCoord, timer * 0.005f % 100)).r;
+            float bias = heightMap.Sample(heightSampler, float3(texCoord, timer * 0.016f % 200)).r;
 	
             bias *= 0.1f;
             level += bias * maxAmplitude;
@@ -212,10 +212,10 @@ float4 WaterPS(VSOutput input) : COLOR0
 
         eyeVecNorm = normalize(cameraPos - surfacePoint);
         
-        float normal1 = heightMap.Sample(heightSampler, float3(texCoord + float2(-1, 0) / 256, timer * 0.005f % 100)).r;
-        float normal2 = heightMap.Sample(heightSampler, float3(texCoord + float2(1, 0) / 256, timer * 0.005f % 100)).r;
-        float normal3 = heightMap.Sample(heightSampler, float3(texCoord + float2(0, -1) / 256, timer * 0.005f % 100)).r;
-        float normal4 = heightMap.Sample(heightSampler, float3(texCoord + float2(0, 1) / 256, timer * 0.005f % 100)).r;
+        float normal1 = heightMap.Sample(heightSampler, float3(texCoord + float2(-1, 0) / 256, timer * 0.016f % 200)).r;
+        float normal2 = heightMap.Sample(heightSampler, float3(texCoord + float2(1, 0)  / 256, timer * 0.016f % 200)).r;
+        float normal3 = heightMap.Sample(heightSampler, float3(texCoord + float2(0, -1) / 256, timer * 0.016f % 200)).r;
+        float normal4 = heightMap.Sample(heightSampler, float3(texCoord + float2(0, 1)  / 256, timer * 0.016f % 200)).r;
 		
         float3 myNormal = normalize(float3((normal1 - normal2) * maxAmplitude,
 										   normalScale,
