@@ -49,5 +49,37 @@ namespace Game1.Helpers
             AddressW = TextureAddressMode.Clamp,
             Filter = TextureFilter.Point
         };
+
+        public static readonly SamplerState WaterReflectionNormalMap = new SamplerState
+        {
+            AddressU = TextureAddressMode.Wrap,
+            AddressV = TextureAddressMode.Wrap,
+            AddressW = TextureAddressMode.Wrap,
+            Filter = TextureFilter.Linear
+        };
+
+        public static readonly SamplerState WaterHeightMap = new SamplerState
+        {
+            AddressU = TextureAddressMode.Wrap,
+            AddressV = TextureAddressMode.Wrap,
+            AddressW = TextureAddressMode.Wrap,
+            Filter = TextureFilter.Linear
+        };
+
+        public static readonly SamplerState WaterReflectionMap = new SamplerState
+        {
+            AddressU = TextureAddressMode.Mirror,
+            AddressV = TextureAddressMode.Mirror,
+            AddressW = TextureAddressMode.Mirror,
+            Filter = TextureFilter.Linear
+        };
+
+        public static readonly SamplerState WaterFoamMap = new SamplerState
+        {
+            AddressU = TextureAddressMode.Wrap,
+            AddressV = TextureAddressMode.Wrap,
+            AddressW = TextureAddressMode.Wrap,
+            Filter = TextureFilter.Linear
+        };
     }
 }

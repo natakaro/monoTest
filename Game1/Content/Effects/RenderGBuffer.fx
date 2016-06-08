@@ -9,6 +9,9 @@ float specularIntensity = 0.8f;
 float specularPower = 0.5f; 
 float4 heightcolor = float4(1, 0, 0, 1);
 
+bool Clipping = false;
+float4 ClipPlane;
+
 texture Texture;
 sampler diffuseSampler = sampler_state
 {
@@ -57,6 +60,8 @@ struct VertexShaderOutput
     float Depth : TEXCOORD1;
     float3x3 tangentToWorld : TEXCOORD2;
 	float4x4 instanceTransform : BLENDWEIGHT;
+
+    float4 Clip : SV_ClipDistance0;
 };
 
 VertexShaderOutput VertexShaderFunction(VertexShaderInput input, float4x4 instanceTransform)
@@ -80,6 +85,11 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input, float4x4 instan
     output.tangentToWorld[1] = mul(input.Binormal, instanceTransform);
     output.tangentToWorld[2] = mul(input.Normal, instanceTransform);
 	output.instanceTransform = instanceTransform;
+
+    if(Clipping)
+        output.Clip = dot(worldPosition, ClipPlane);
+    else
+        output.Clip = 0;
     return output;
 }
 
@@ -93,6 +103,7 @@ struct PixelShaderOutput
 PixelShaderOutput PixelShaderFunction(VertexShaderOutput input)
 {
     PixelShaderOutput output;
+
     output.Color = tex2D(diffuseSampler, input.TexCoord);
 
 	//output.Color *= heightcolor * World[3][1];
@@ -125,6 +136,7 @@ PixelShaderOutput PixelShaderFunction(VertexShaderOutput input)
 PixelShaderOutput PixelShaderFunctionColor(VertexShaderOutput input)
 {
 	PixelShaderOutput output;
+
 	//output.Color = tex2D(diffuseSampler, input.TexCoord);
 	if (input.instanceTransform[3][1] > 0)
 	{

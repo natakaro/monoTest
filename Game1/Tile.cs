@@ -12,22 +12,6 @@ namespace Game1
 {
     class Tile : DrawableObject
     {
-        public override void Draw(Camera camera)
-        {
-            foreach (ModelMesh mesh in model.Meshes)
-            {
-                foreach (Effect effect in mesh.Effects)
-                {
-                    effect.CurrentTechnique = effect.Techniques["Technique1"];
-                    effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index] * worldMatrix);
-                    effect.Parameters["View"].SetValue(camera.ViewMatrix);
-                    effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
-                    effect.Parameters["FarClip"].SetValue(camera.FarZ);
-                }
-                mesh.Draw();
-            }
-        }
-
         public Tile(Game game, Matrix inWorldMatrix, Model inModel) : base(game, inWorldMatrix, inModel)
         {
             m_instanced = true;

@@ -85,7 +85,7 @@ namespace Game1
 
 
 
-        public override void Draw(Camera camera)
+        public new void Draw(Camera camera)
         {
             /*
             foreach (ModelMesh mesh in model.Meshes)

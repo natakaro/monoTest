@@ -12,7 +12,7 @@ namespace Game1
 {
     class Asset : DrawableObject
     {
-        public override void Draw(Camera camera)
+        public new void Draw(Camera camera)
         {
             foreach (ModelMesh mesh in model.Meshes)
             {
@@ -23,6 +23,7 @@ namespace Game1
                     effect.Parameters["View"].SetValue(camera.ViewMatrix);
                     effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
                     effect.Parameters["FarClip"].SetValue(camera.FarZ);
+                    effect.Parameters["Clipping"].SetValue(false);
                 }
                 mesh.Draw();
             }

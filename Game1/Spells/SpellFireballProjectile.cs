@@ -17,7 +17,7 @@ namespace Game1.Spells
         private PointLight pointLight;
         LightManager lightManager;
 
-        public override void Draw(Camera camera)
+        public new void Draw(Camera camera)
         {
             //model.Draw(camera.worldMatrix * Matrix.CreateTranslation(position), camera.viewMatrix, camera.projMatrix);
             foreach (ModelMesh mesh in model.Meshes)
@@ -29,6 +29,7 @@ namespace Game1.Spells
                     effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
                     effect.Parameters["FarClip"].SetValue(camera.FarZ);
                     effect.Parameters["Texture"].SetValue(texture);
+                    effect.Parameters["Clipping"].SetValue(false);
                 }
                 mesh.Draw();
             }

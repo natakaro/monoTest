@@ -93,6 +93,77 @@ namespace Game1
                         effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
                         effect.Parameters["FarClip"].SetValue(camera.FarZ);
                         effect.Parameters["Texture"].SetValue(texture);
+                        effect.Parameters["Clipping"].SetValue(false);
+
+                        // Draw all the instance copies in a single call.
+                        foreach (EffectPass pass in effect.CurrentTechnique.Passes)
+                        {
+                            pass.Apply();
+
+                            graphicsDevice.DrawInstancedPrimitives(PrimitiveType.TriangleList, 0, 0,
+                                                                   meshPart.NumVertices, meshPart.StartIndex,
+                                                                   meshPart.PrimitiveCount, instances.Length);
+                        }
+                    }
+                }
+            }
+        }
+
+        public void DrawModelHardwareInstancing(List<IntersectionRecord> insta, Matrix viewMatrix, Vector4 clipPlane)
+        {
+
+
+            // Gather instance transform matrices into a single array.
+            Array.Resize(ref instances, insta.Count);
+
+            for (int i = 0; i < insta.Count; i++)
+            {
+                instances[i] = Matrix.CreateTranslation(insta[i].DrawableObjectObject.Position);
+            }
+
+            if (instances.Length == 0)
+                return;
+
+            // If we have more instances than room in our vertex buffer, grow it to the neccessary size.
+            if ((instanceVertexBuffer == null) ||
+                (instances.Length > instanceVertexBuffer.VertexCount))
+            {
+                if (instanceVertexBuffer != null)
+                    instanceVertexBuffer.Dispose();
+
+                instanceVertexBuffer = new DynamicVertexBuffer(graphicsDevice, instanceVertexDeclaration,
+                                                               instances.Length, BufferUsage.WriteOnly);
+            }
+
+            // Transfer the latest instance transform matrices into the instanceVertexBuffer.
+            instanceVertexBuffer.SetData(instances, 0, instances.Length, SetDataOptions.Discard);
+
+            foreach (ModelMesh mesh in model.Meshes)
+            {
+                foreach (Effect effect in mesh.Effects)
+                {
+                    foreach (ModelMeshPart meshPart in mesh.MeshParts)
+                    {
+                        // Tell the GPU to read from both the model vertex buffer plus our instanceVertexBuffer.
+                        graphicsDevice.SetVertexBuffers(
+                            new VertexBufferBinding(meshPart.VertexBuffer, meshPart.VertexOffset, 0),
+                            new VertexBufferBinding(instanceVertexBuffer, 0, 1)
+                        );
+
+                        graphicsDevice.Indices = meshPart.IndexBuffer;
+
+                        // Set up the instance rendering effect.
+                        //meshPart.Effect = effect;
+
+                        effect.CurrentTechnique = effect.Techniques["InstancingColor"];
+
+                        effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index]);
+                        effect.Parameters["View"].SetValue(viewMatrix);
+                        effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
+                        effect.Parameters["FarClip"].SetValue(camera.FarZ);
+                        effect.Parameters["Texture"].SetValue(texture);
+                        effect.Parameters["Clipping"].SetValue(true);
+                        effect.Parameters["ClipPlane"].SetValue(clipPlane);
 
                         // Draw all the instance copies in a single call.
                         foreach (EffectPass pass in effect.CurrentTechnique.Passes)

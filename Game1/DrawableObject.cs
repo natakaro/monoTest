@@ -98,7 +98,39 @@ namespace Game1
             return false;
         }
 
-        public abstract void Draw(Camera camera);
+        public void Draw(Camera camera)
+        {
+            foreach (ModelMesh mesh in model.Meshes)
+            {
+                foreach (Effect effect in mesh.Effects)
+                {
+                    effect.CurrentTechnique = effect.Techniques["Technique1"];
+                    effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index] * worldMatrix);
+                    effect.Parameters["View"].SetValue(camera.ViewMatrix);
+                    effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
+                    effect.Parameters["FarClip"].SetValue(camera.FarZ);
+                    effect.Parameters["Clipping"].SetValue(false);
+                }
+                mesh.Draw();
+            }
+        }
+
+        public void Draw(Camera camera, Matrix viewMatrix, Vector4 clipPlane)
+        {
+            foreach (ModelMesh mesh in model.Meshes)
+            {
+                foreach (Effect effect in mesh.Effects)
+                {
+                    effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index] * worldMatrix);
+                    effect.Parameters["View"].SetValue(viewMatrix);
+                    effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
+                    effect.Parameters["FarClip"].SetValue(camera.FarZ);
+                    effect.Parameters["Clipping"].SetValue(true);
+                    effect.Parameters["ClipPlane"].SetValue(clipPlane);
+                }
+                mesh.Draw();
+            }
+        }
 
         public virtual void UpdateLOD(Camera camera)
         {

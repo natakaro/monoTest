@@ -33,6 +33,7 @@ namespace Game1
         public bool DrawSSAO;
         public bool ToneMap;
         public bool DrawWater;
+        public bool Reflect;
 
         public float SSAORadius;
         public float SSAOPower;
@@ -83,6 +84,8 @@ namespace Game1
             DrawSSAO = true;
             ToneMap = true;
             DrawWater = true;
+            Reflect = true;
+
             EnemyMove = false;
 
             SSAORadius = 5;
@@ -199,6 +202,9 @@ namespace Game1
 
             if (KeyJustPressed(Keys.Q))
                 EnemyMove = !EnemyMove;
+
+            if (KeyJustPressed(Keys.R))
+                Reflect = !Reflect;
         }
     }
     public enum FixedFilterSize

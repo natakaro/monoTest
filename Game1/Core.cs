@@ -11,21 +11,6 @@ namespace Game1
 {
     class Core : DrawableObject
     {
-        public override void Draw(Camera camera)
-        {
-            foreach (ModelMesh mesh in model.Meshes)
-            {
-                foreach (Effect effect in mesh.Effects)
-                {
-                    effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index] * worldMatrix);
-                    effect.Parameters["View"].SetValue(camera.ViewMatrix);
-                    effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
-                    effect.Parameters["FarClip"].SetValue(camera.FarZ);
-                }
-                mesh.Draw();
-            }
-        }
-
         public Core(Game game, Matrix inWorldMatrix, Model inModel) : base(game, inWorldMatrix, inModel)
         {
             //boundingSphere = new BoundingSphere(position, Map.scale * 0.75f);

@@ -2,16 +2,20 @@
 #define PS_SHADERMODEL ps_4_0_level_9_1
 
 //direction of the light
-float3 lightDirection;
+float3 LightDirection;
 
 //color of the light 
-float3 Color; 
+float3 LightColor; 
+
+float SkyIntensity;
+
+float3 FrustumCornersVS[4];
 
 //position of the camera, for specular light
-float3 cameraPosition; 
+float3 CameraPosWS; 
 
 //this is used to compute the world-position
-float4x4 InvertViewProjection; 
+float4x4 InvertView; 
 
 // diffuse color, and specularIntensity in the alpha channel
 texture colorMap; 
@@ -50,65 +54,77 @@ sampler normalSampler = sampler_state
 
 struct VertexShaderInput
 {
-    float3 Position : POSITION0;
-    float2 TexCoord : TEXCOORD0;
+    float3 Position : SV_POSITION;
+    float3 TexCoordAndRayIndex : TEXCOORD0;
 };
 
 struct VertexShaderOutput
 {
-    float4 Position : POSITION0;
+    float4 Position : SV_Position;
     float2 TexCoord : TEXCOORD0;
+    float3 FrustumCornerVS : TEXCOORD1;
+    float3 FrustumRayWS : TEXCOORD2;
 };
 
 VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 {
     VertexShaderOutput output;
-    output.Position = float4(input.Position,1);
-    //align texture coordinates
-    output.TexCoord = input.TexCoord;
+    
+    output.Position = float4(input.Position, 1);
+    output.TexCoord = input.TexCoordAndRayIndex.xy;
+    output.FrustumCornerVS = FrustumCornersVS[input.TexCoordAndRayIndex.z];
+    output.FrustumRayWS = mul(output.FrustumCornerVS, InvertView);
+
     return output;
 }
 
 float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 {
+    //get depth
+    float depthVal = tex2D(depthSampler, input.TexCoord);
+
+    if (depthVal == 0) //skybox
+        return float4(1, 1, 1, 0) * SkyIntensity; //over 1.0 for hdr
+
     //get normal data from the normalMap
-    float4 normalData = tex2D(normalSampler,input.TexCoord);
-    //tranform normal back into [-1,1] range
+    float4 normalData = tex2D(normalSampler, input.TexCoord);
+    //transform normal back into [-1,1] range
     float3 normal = 2.0f * normalData.xyz - 1.0f;
     //get specular power, and get it into [0,255] range]
     float specularPower = normalData.a * 255;
-    //get specular intensity from the colorMap
-    float specularIntensity = tex2D(colorSampler, input.TexCoord).a;
-    
-    //read depth
-    float depthVal = tex2D(depthSampler,input.TexCoord).r;
 
-    //compute screen-space position
-    float4 position;
-    position.x = input.TexCoord.x * 2.0f - 1.0f;
-    position.y = -(input.TexCoord.x * 2.0f - 1.0f);
-    position.z = depthVal;
-    position.w = 1.0f;
-    //transform to world space
-    position = mul(position, InvertViewProjection);
-    position /= position.w;
-    
-    //surface-to-light vector
-    float3 lightVector = -normalize(lightDirection);
+    //get color data from the colorMap
+    float4 colorData = tex2D(colorSampler, input.TexCoord);
+    //get specular intensity from the colorData
+    float specularIntensity = colorData.a;
+    //get diffuse color from the colorData
+    float3 diffuseColor = colorData.rgb;
 
-    //compute diffuse light
-    float NdL = max(0,dot(normal,lightVector));
-    float3 diffuseLight = NdL * Color.rgb;
+    //get worldspace position
+    float3 positionWS = CameraPosWS + depthVal * input.FrustumRayWS;
 
-    //reflexion vector
-    float3 reflectionVector = normalize(reflect(-lightVector, normal));
+    // Convert color to grayscale, just beacuse it looks nicer.
+    float diffuseValue = 0.299 * diffuseColor.r + 0.587 * diffuseColor.g + 0.114 * diffuseColor.b;
+    float3 diffuseAlbedo = float3(diffuseValue, diffuseValue, diffuseValue);
+
+    float nDotL = saturate(dot(normal, LightDirection));
+
+    float3 lighting = 0.0f;
+
+    // Add the directional light.
+    lighting += nDotL * (LightColor + float3(0.5f, 0.5f, 0.5f)) * diffuseAlbedo * (1.0f / 3.14159f);
+
+    // Ambient light.
+    lighting += float3(0.2f, 0.2f, 0.2f) * 1.0f * diffuseAlbedo;
+
+    //reflection vector
+    float3 reflectionVector = -(normalize(reflect(LightDirection, normal)));
     //camera-to-surface vector
-    float3 directionToCamera = normalize(cameraPosition - position);
+    float3 directionToCamera = normalize(CameraPosWS - positionWS.xyz);
     //compute specular light
-    float specularLight = specularIntensity * pow( saturate(dot(reflectionVector, directionToCamera)), specularPower);
+    float specularLight = 0; //specularIntensity * (LightColor + float3(0.2f, 0.2f, 0.2f)) * pow(saturate(dot(reflectionVector, directionToCamera)), specularPower);
 
-    //output the two lights
-    return float4(diffuseLight.rgb, specularLight) ;
+    return float4(max(lighting, 0.0001f), specularLight);
 }
 
 technique Technique0

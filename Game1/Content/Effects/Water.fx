@@ -3,91 +3,33 @@
 	#define VS_SHADERMODEL vs_3_0
 	#define PS_SHADERMODEL ps_3_0
 #else
-	#define VS_SHADERMODEL vs_4_0_level_9_3
-	#define PS_SHADERMODEL ps_4_0_level_9_3
-    //#define VS_SHADERMODEL vs_5_0
-	//#define PS_SHADERMODEL ps_5_0
+	//#define VS_SHADERMODEL vs_4_0_level_9_3
+	//#define PS_SHADERMODEL ps_4_0_level_9_3
+    #define VS_SHADERMODEL vs_5_0
+	#define PS_SHADERMODEL ps_5_0
 #endif
 // Water pixel shader
 // Copyright (C) Wojciech Toman 2009
 
-//Matrix World;
-//Matrix View;
-//Matrix Projection;
 Matrix ViewProjection;
 Matrix InvertView;
 
-//Matrix ReflectionView;
-
 float3 FrustumCornersVS[4];
-// Position of the camera
+
 float3 cameraPos;
 
-Texture2D reflectionMap;
-sampler reflectionSampler = sampler_state
-{
-    texture = <ReflectionMap>;
-    magfilter = LINEAR;
-    minfilter = LINEAR;
-    mipfilter = LINEAR;
-    AddressU = mirror;
-    AddressV = mirror;
-};
-
-Texture2D colorMap;
-sampler colorSampler = sampler_state
-{
-    Texture = (colorMap);
-    AddressU = CLAMP;
-    AddressV = CLAMP;
-    MagFilter = LINEAR;
-    MinFilter = LINEAR;
-    Mipfilter = LINEAR;
-};
-
-Texture2D depthMap;
-sampler depthSampler = sampler_state
-{
-    Texture = (depthMap);
-    AddressU = CLAMP;
-    AddressV = CLAMP;
-    MagFilter = POINT;
-    MinFilter = POINT;
-    Mipfilter = POINT;
-};
-
-Texture2D heightMap;
-sampler heightSampler = sampler_state
-{
-    Texture = (heightMap);
-    AddressU = WRAP;
-    AddressV = WRAP;
-    MagFilter = LINEAR;
-    MinFilter = LINEAR;
-    Mipfilter = LINEAR;
-};
-
-Texture2D normalMap;
-sampler normalSampler = sampler_state
-{
-    Texture = (normalMap);
-    AddressU = WRAP;
-    AddressV = WRAP;
-    MagFilter = LINEAR;
-    MinFilter = LINEAR;
-    Mipfilter = LINEAR;
-};
-
-Texture2D foamMap;
-sampler foamSampler = sampler_state
-{
-    Texture = (foamMap);
-    AddressU = WRAP;
-    AddressV = WRAP;
-    MagFilter = LINEAR;
-    MinFilter = LINEAR;
-    Mipfilter = LINEAR;
-};
+Texture2D colorMap : register(t0);
+SamplerState colorSampler : register(s0);
+Texture2D normalMap : register(t1);
+SamplerState normalSampler : register(s1);
+Texture2D depthMap : register(t2);
+SamplerState depthSampler : register(s2);
+Texture2DArray heightMap : register(t3);
+SamplerState heightSampler : register(s3);
+Texture2D reflectionMap : register(t4);
+SamplerState reflectionSampler : register(s4);
+Texture2D foamMap : register(t5);
+SamplerState foamSampler : register(s5);
 
 // Level at which water surface begins
 float waterLevel = 5.0f;
@@ -132,10 +74,10 @@ float refractionStrength = 0.0f;
 float4 normalModifier = { 1.0f, 2.0f, 4.0f, 8.0f };
 
 // Strength of displacement along normal.
-float displace = 1.7f;
+float displace = 0.1f;
 
 // Describes at what depth foam starts to fade out and
-// at what it is completely invisible. The fird value is at
+// at what it is completely invisible. The third value is at
 // what height foam for waves appear (+ waterLevel).
 float3 foamExistence = { 0.65f, 1.35f, 0.7f };
 
@@ -257,7 +199,7 @@ float4 WaterPS(VSOutput input) : COLOR0
         {
             texCoord = (surfacePoint.xz + eyeVecNorm.xz * 0.1f) * scale + timer * 0.000005f * wind;
 			
-            float bias = heightMap.Sample(heightSampler, texCoord).r;
+            float bias = heightMap.Sample(heightSampler, float3(texCoord, timer * 0.005f % 100)).r;
 	
             bias *= 0.1f;
             level += bias * maxAmplitude;
@@ -270,10 +212,10 @@ float4 WaterPS(VSOutput input) : COLOR0
 
         eyeVecNorm = normalize(cameraPos - surfacePoint);
         
-        float normal1 = heightMap.Sample(heightSampler, (texCoord + float2(-1, 0) / 256)).r;
-        float normal2 = heightMap.Sample(heightSampler, (texCoord + float2(1, 0) / 256)).r;
-        float normal3 = heightMap.Sample(heightSampler, (texCoord + float2(0, -1) / 256)).r;
-        float normal4 = heightMap.Sample(heightSampler, (texCoord + float2(0, 1) / 256)).r;
+        float normal1 = heightMap.Sample(heightSampler, float3(texCoord + float2(-1, 0) / 256, timer * 0.005f % 100)).r;
+        float normal2 = heightMap.Sample(heightSampler, float3(texCoord + float2(1, 0) / 256, timer * 0.005f % 100)).r;
+        float normal3 = heightMap.Sample(heightSampler, float3(texCoord + float2(0, -1) / 256, timer * 0.005f % 100)).r;
+        float normal4 = heightMap.Sample(heightSampler, float3(texCoord + float2(0, 1) / 256, timer * 0.005f % 100)).r;
 		
         float3 myNormal = normalize(float3((normal1 - normal2) * maxAmplitude,
 										   normalScale,
@@ -358,15 +300,11 @@ float4 WaterPS(VSOutput input) : COLOR0
         half3 mirrorEye = (2.0f * dot(eyeVecNorm, normal) * normal - eyeVecNorm);
         half dotSpec = saturate(dot(mirrorEye.xyz, lightDir) * 0.5f + 0.5f);
 
-        specular = (1.0f - fresnel) * saturate(lightDir.y) * ((pow(dotSpec, 512.0f)) * (shininess * 1.8f + 0.2f)) * sunColor;
-        specular += specular * 25 * saturate(shininess - 0.05f) * sunColor;
-		/*
         specular = (1.0f - fresnel) * saturate(lightDir.y) * ((pow(dotSpec, 512.0f)) * (shininess * 1.8f + 0.2f)) * min(0.1, sunColor);
 		specular += specular * 25 * saturate(shininess - 0.05f) * min(0.1, sunColor);
-		*/
 
         color = lerp(refraction, reflect, fresnel);
-        color = saturate(color + max(specular, foam * sunColor));
+        color = color + max(specular, foam * sunColor);
 		
         color = lerp(refraction, color, saturate(depth * shoreHardness));
     }

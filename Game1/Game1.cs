@@ -163,8 +163,8 @@ namespace Game1
 
             // Setup frame buffer.
             graphics.SynchronizeWithVerticalRetrace = false; //vsync
-            graphics.PreferredBackBufferWidth = 1920;
-            graphics.PreferredBackBufferHeight = 1080;
+            graphics.PreferredBackBufferWidth = 1280;
+            graphics.PreferredBackBufferHeight = 720;
             graphics.PreferMultiSampling = false;
             graphics.PreferredBackBufferFormat = SurfaceFormat.HdrBlendable;
             graphics.ApplyChanges();
@@ -262,7 +262,7 @@ namespace Game1
             hdrProcessor = new HDRProcessor(GraphicsDevice, Content, quadRenderer);
             hdrProcessor.FlushCache();
 
-            water = new Water(GraphicsDevice, Content, quadRenderer);
+            water = new Water(GraphicsDevice, Content, settings, quadRenderer);
 
             lightManager = new LightManager(this, lightTarget, Content);
             //TestLights();
@@ -741,17 +741,30 @@ namespace Game1
 
         protected override void Draw(GameTime gameTime)
         {
+            base.Draw(gameTime);
+
+            lightDirection = sky.Parameters.LightDirection.ToVector3();
+            if (lightDirection.Y < 0)
+            {
+                lightDirection = Vector3.Negate(lightDirection); //odwrocenie kierunku kiedy zrodlem swiatla jest ksiezyc
+            }
+
+            lightColor = sky.SunColor.ToVector3();
+
+            float skyIntensity = timeOfDay.LogisticTime(2, 4, 2.0f);
+
+            if (settings.DrawWater)
+                water.RenderReflectionMap(gameTime, camera, sky, lightDirection, lightColor, skyIntensity, octree, instancingManager);
+
+
             SetGBuffer();
             ClearGBuffer();
 
             GraphicsDevice.BlendState = BlendState.Opaque;
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
 
             GraphicsDevice.Clear(Color.Transparent);
-            base.Draw(gameTime);
-
-            if(settings.DrawWater)
-                water.RenderReflectionMap(gameTime, camera, sky);
 
             sky.Draw(gameTime, camera.ViewMatrix, camera.Position);
 
@@ -808,17 +821,6 @@ namespace Game1
 
             ResolveGBuffer();
 
-            lightDirection = sky.Parameters.LightDirection.ToVector3();
-            if (lightDirection.Y < 0)
-            {
-                lightDirection = Vector3.Negate(lightDirection); //odwrocenie kierunku kiedy zrodlem swiatla jest ksiezyc
-            }
-
-            lightColor = sky.SunColor.ToVector3();
-            if (lightColor == Vector3.Zero)
-            {
-                //lightColor = new Vector3(0.2f, 0.2f, 0.2f); //ambient w nocy
-            }
             shadowRenderer.RenderShadowMap(GraphicsDevice, camera, lightDirection, Matrix.Identity, octree);
             
             ssao.DrawSSAO();
