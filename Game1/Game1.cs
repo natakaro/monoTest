@@ -40,8 +40,9 @@ namespace Game1
         public RenderTarget2D normalTarget;
         public RenderTarget2D depthTarget;
         public RenderTarget2D lightTarget;
-        public RenderTarget2D waterTarget;
         public RenderTarget2D finalTarget;
+        public RenderTarget2D waterTarget;
+        public RenderTarget2D dofTarget;
         public RenderTarget2D fxaaTarget;
         
         private Effect clearBufferEffect;
@@ -51,8 +52,14 @@ namespace Game1
         private ShadowRenderer shadowRenderer;
         private SSAO ssao;
         private HDRProcessor hdrProcessor;
+        private DepthOfFieldProcessor dofProcessor;
         private Water water;
         public GameSettings settings;
+
+        private float lastFocalDistance;
+        private float lastFocalWidth;
+        private float targetFocalDistance;
+        private float targetFocalWidth;
 
         private Model tileModel;
         private Model hands;
@@ -240,8 +247,10 @@ namespace Game1
             depthTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.Single, DepthFormat.None);
             lightTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.HdrBlendable, DepthFormat.None);
 
-            waterTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.HdrBlendable, DepthFormat.None);
             finalTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.HdrBlendable, DepthFormat.None);
+            waterTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.HdrBlendable, DepthFormat.None);
+            dofTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.HdrBlendable, DepthFormat.None);
+
             fxaaTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.HdrBlendable, DepthFormat.None);
 
             cross = Content.Load<Texture2D>("Hud/cross_cross");
@@ -271,6 +280,9 @@ namespace Game1
 
             hdrProcessor = new HDRProcessor(GraphicsDevice, Content, quadRenderer);
             hdrProcessor.FlushCache();
+
+            dofProcessor = new DepthOfFieldProcessor(GraphicsDevice, Content, quadRenderer);
+            dofProcessor.FlushCache();
 
             water = new Water(GraphicsDevice, Content, settings, quadRenderer);
 
@@ -497,6 +509,20 @@ namespace Game1
             Ray mouseRay = camera.GetMouseRay(graphics.GraphicsDevice.Viewport);
             IntersectionRecord mouse_ir = octree.NearestIntersection(mouseRay);
 
+            //depth of field adaptation
+            lastFocalDistance = settings.FocalDistance;
+            lastFocalWidth = settings.FocalWidth;
+
+            targetFocalDistance = Math.Min(Math.Max((float)mouse_ir.Distance, 50), 2000);
+            targetFocalWidth = targetFocalDistance * 6;
+
+            if (lastFocalDistance < targetFocalDistance)
+                settings.FocalDistance = MathHelper.Lerp(lastFocalDistance, targetFocalDistance, ((targetFocalDistance - lastFocalDistance) / targetFocalDistance) / 20);
+            else
+                settings.FocalDistance = MathHelper.Lerp(lastFocalDistance, targetFocalDistance, ((lastFocalDistance - targetFocalDistance) / lastFocalDistance) / 20);
+            settings.FocalWidth = settings.FocalDistance * 6;
+            //===
+
             if (selected_obj == null)
             {
                 if (mouse_ir.DrawableObjectObject != null)
@@ -641,6 +667,10 @@ namespace Game1
                     settings.SSAORadius.ToString());
                 buffer.AppendFormat(" SSAOPower (F3/F4): {0}\n\n",
                     settings.SSAOPower.ToString());
+                buffer.AppendFormat(" FocalWidth (<-/->): {0}\n",
+                    settings.FocalWidth.ToString());
+                buffer.AppendFormat(" FocalDistance (^/v): {0}\n\n",
+                    settings.FocalDistance.ToString());
                 buffer.AppendLine("Press H to return");
             }
             else
@@ -777,7 +807,7 @@ namespace Game1
 
             FrustumLists();
 
-            if (settings.DrawWater)
+            if (settings.Reflect)
                 water.RenderReflectionMap(gameTime, camera, reflectionCameraPosition, reflectionViewMatrix, reflectionPlane, sky, lightDirection, lightColor, skyIntensity, reflectionObjects, instancingManager);
 
             SetGBuffer();
@@ -843,18 +873,20 @@ namespace Game1
             GraphicsDevice.SetRenderTarget(waterTarget);
             GraphicsDevice.Clear(Color.White);
 
-            if (settings.DrawWater)
-                water.DrawWater(camera, (float)gameTime.TotalGameTime.TotalMilliseconds*5, finalTarget, depthTarget, lightDirection, lightColor);
+            water.DrawWater(camera, (float)gameTime.TotalGameTime.TotalMilliseconds*5, finalTarget, depthTarget, lightDirection, lightColor);
 
             if (settings.DrawFog)
                 DrawFog();
 
+            if (settings.dofType != GameSettings.DOFType.None)
+                dofProcessor.DOF(waterTarget, dofTarget, depthTarget, camera, settings.dofType, settings.FocalDistance, settings.FocalWidth);
+
             if (settings.ToneMap)
             {
-                if(settings.DrawWater)
-                    hdrProcessor.ToneMap(waterTarget, fxaaTarget, (float)gameTime.ElapsedGameTime.TotalMilliseconds / 1000f, false);
+                if(settings.dofType != GameSettings.DOFType.None)
+                    hdrProcessor.ToneMap(dofTarget, fxaaTarget, (float)gameTime.ElapsedGameTime.TotalMilliseconds / 1000f, false);
                 else
-                    hdrProcessor.ToneMap(finalTarget, fxaaTarget, (float)gameTime.ElapsedGameTime.TotalMilliseconds / 1000f, false);
+                    hdrProcessor.ToneMap(waterTarget, fxaaTarget, (float)gameTime.ElapsedGameTime.TotalMilliseconds / 1000f, false);
             }
 
             GraphicsDevice.SetRenderTarget(null);
@@ -874,10 +906,10 @@ namespace Game1
                 spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.DepthRead, RasterizerState.CullCounterClockwise, fxaaEffect);
                 if(settings.ToneMap)
                     spriteBatch.Draw(fxaaTarget, new Rectangle(0, 0, fxaaTarget.Width, fxaaTarget.Height), Color.White);
-                else if(settings.DrawWater)
-                    spriteBatch.Draw(waterTarget, new Rectangle(0, 0, fxaaTarget.Width, fxaaTarget.Height), Color.White);
+                else if (settings.dofType != GameSettings.DOFType.None)
+                    spriteBatch.Draw(dofTarget, new Rectangle(0, 0, fxaaTarget.Width, fxaaTarget.Height), Color.White);
                 else
-                    spriteBatch.Draw(finalTarget, new Rectangle(0, 0, fxaaTarget.Width, fxaaTarget.Height), Color.White);
+                    spriteBatch.Draw(waterTarget, new Rectangle(0, 0, fxaaTarget.Width, fxaaTarget.Height), Color.White);
                 //spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);
                 //DrawText();
                 //DrawGBuffer();
@@ -888,10 +920,10 @@ namespace Game1
                 spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
                 if (settings.ToneMap)
                     spriteBatch.Draw(fxaaTarget, Vector2.Zero, Color.White);
-                else if (settings.DrawWater)
-                    spriteBatch.Draw(waterTarget, Vector2.Zero, Color.White);
+                else if (settings.dofType != GameSettings.DOFType.None)
+                    spriteBatch.Draw(dofTarget, Vector2.Zero, Color.White);
                 else
-                    spriteBatch.Draw(finalTarget, Vector2.Zero, Color.White);
+                    spriteBatch.Draw(waterTarget, Vector2.Zero, Color.White);
                 //spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);
                 //DrawText();
                 //DrawGBuffer();

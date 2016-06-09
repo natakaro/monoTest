@@ -32,7 +32,6 @@ namespace Game1
         public bool DrawFog;
         public bool DrawSSAO;
         public bool ToneMap;
-        public bool DrawWater;
         public bool Reflect;
         public float WaterHeight;
 
@@ -49,6 +48,19 @@ namespace Game1
         }
 
         public FogEffect fog;
+
+        public enum DOFType
+        {
+            None = 0,
+            BlurBuffer = 1,
+            BlurBufferDepthCorrection = 2,
+            DiscBlur = 3
+        }
+
+        public DOFType dofType;
+
+        public float FocalDistance = 7.0f;
+        public float FocalWidth = 2000.0f;
 
         private KeyboardState _prevKeyboardState;
         private KeyboardState _currentKeyboardState;
@@ -80,12 +92,12 @@ namespace Game1
             DrawDebugShapes = false;
 
             fog = FogEffect.FogExp;
+            dofType = DOFType.DiscBlur;
 
             FXAA = true;
             DrawFog = true;
             DrawSSAO = true;
             ToneMap = true;
-            DrawWater = true;
             Reflect = true;
             WaterHeight = 5;
 
@@ -182,6 +194,25 @@ namespace Game1
                     fog = FogEffect.FogLinear;
             }
 
+            if (KeyJustPressed(Keys.D6))
+            {
+                dofType++;
+                if ((int)dofType == 4)
+                    dofType = DOFType.None;
+            }
+
+            if (_currentKeyboardState.IsKeyDown(Keys.Left))
+                FocalWidth -= 0.1f;
+
+            if (_currentKeyboardState.IsKeyDown(Keys.Right))
+                FocalWidth += 0.1f;
+
+            if (_currentKeyboardState.IsKeyDown(Keys.Down))
+                FocalDistance -= 0.1f;
+
+            if (_currentKeyboardState.IsKeyDown(Keys.Up))
+                FocalDistance += 0.1f;
+
             if (KeyJustPressed(Keys.D8))
                 DrawSSAO = !DrawSSAO;
 
@@ -199,9 +230,6 @@ namespace Game1
 
             if (KeyJustPressed(Keys.F5))
                 ToneMap = !ToneMap;
-
-            if (KeyJustPressed(Keys.D9))
-                DrawWater = !DrawWater;
 
             if (KeyJustPressed(Keys.Q))
                 EnemyMove = !EnemyMove;

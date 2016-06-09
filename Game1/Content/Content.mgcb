@@ -4195,3 +4195,9 @@
 /processorParam:TextureFormat=Color
 /build:Textures/waves5/199.png
 
+#begin Effects/HDR/DepthOfField.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/HDR/DepthOfField.fx
+

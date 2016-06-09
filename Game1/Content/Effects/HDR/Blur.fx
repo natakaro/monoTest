@@ -3,8 +3,8 @@
 	#define VS_SHADERMODEL vs_3_0
 	#define PS_SHADERMODEL ps_3_0
 #else
-	#define VS_SHADERMODEL vs_4_0_level_9_1
-	#define PS_SHADERMODEL ps_4_0_level_9_1
+	#define VS_SHADERMODEL vs_4_0_level_9_3
+	#define PS_SHADERMODEL ps_4_0_level_9_3
 #endif
 
 //======================================================================
@@ -69,6 +69,106 @@ float4 fGaussianBlurV(VertexShaderOutput input) : COLOR0
     return vColor;
 }
 
+float4 fGaussianDepthBlurH(VertexShaderOutput input) : COLOR0
+{
+    int iRadius = 6;
+
+    float4 vColor = 0;
+    float2 vTexCoord = input.TexCoord;
+    float4 vCenterColor = tex2D(PointSampler0, input.TexCoord);
+    float fCenterDepth = tex2D(PointSampler1, input.TexCoord).x;
+    if(fCenterDepth == 0)
+        fCenterDepth = 1;
+
+    for (int i = -iRadius; i < 0; i++)
+    {
+        vTexCoord.x = input.TexCoord.x + (i / g_vSourceDimensions.x);
+        float fDepth = tex2D(PointSampler1, vTexCoord).x;
+        if (fDepth == 0)
+            fDepth = 1;
+        float fWeight = CalcGaussianWeight(i);
+    
+        if (fDepth >= fCenterDepth)
+        {
+            float4 vSample = tex2D(PointSampler0, vTexCoord);
+            vColor += vSample * fWeight;
+        }
+        else
+            vColor += vCenterColor * fWeight;
+    }
+    
+    for (int i = 1; i < iRadius; i++)
+    {
+        vTexCoord.x = input.TexCoord.x + (i / g_vSourceDimensions.x);
+        float fDepth = tex2D(PointSampler1, vTexCoord).x;
+        if (fDepth == 0)
+            fDepth = 1;
+        float fWeight = CalcGaussianWeight(i);
+    
+        if (fDepth >= fCenterDepth)
+        {
+            float4 vSample = tex2D(PointSampler0, vTexCoord);
+            vColor += vSample * fWeight;
+        }
+        else
+            vColor += vCenterColor * fWeight;
+    }
+    
+    vColor += vCenterColor * CalcGaussianWeight(0);
+	
+    return vColor;
+}
+
+float4 fGaussianDepthBlurV(VertexShaderOutput input) : COLOR0
+{
+    int iRadius = 6;
+
+    float4 vColor = 0;
+    float2 vTexCoord = input.TexCoord;
+    float4 vCenterColor = tex2D(PointSampler0, input.TexCoord);
+    float fCenterDepth = tex2D(PointSampler1, input.TexCoord).x;
+    if (fCenterDepth == 0)
+        fCenterDepth = 1;
+
+    for (int i = -iRadius; i < 0; i++)
+    {
+        vTexCoord.y = input.TexCoord.y + (i / g_vSourceDimensions.y);
+        float fDepth = tex2D(PointSampler1, vTexCoord).x;
+        if (fDepth == 0)
+            fDepth = 1;
+        float fWeight = CalcGaussianWeight(i);
+		
+        if (fDepth >= fCenterDepth)
+        {
+            float4 vSample = tex2D(PointSampler0, vTexCoord);
+            vColor += vSample * fWeight;
+        }
+        else
+            vColor += vCenterColor * fWeight;
+    }
+    
+    for (int i = 1; i < iRadius; i++)
+    {
+        vTexCoord.y = input.TexCoord.y + (i / g_vSourceDimensions.y);
+        float fDepth = tex2D(PointSampler1, vTexCoord).x;
+        if (fDepth == 0)
+            fDepth = 1;
+        float fWeight = CalcGaussianWeight(i);
+    
+        if (fDepth >= fCenterDepth)
+        {
+            float4 vSample = tex2D(PointSampler0, vTexCoord);
+            vColor += vSample * fWeight;
+        }
+        else
+            vColor += vCenterColor * fWeight;
+    }
+	
+    vColor += vCenterColor * CalcGaussianWeight(0);
+	
+    return vColor;
+}
+
 technique GaussianBlurH
 {
     pass p0
@@ -84,5 +184,23 @@ technique GaussianBlurV
     {
         VertexShader = compile VS_SHADERMODEL PostProcessVS();
         PixelShader = compile PS_SHADERMODEL fGaussianBlurV();
+    }
+}
+
+technique GaussianDepthBlurH
+{
+    pass p0
+    {
+        VertexShader = compile VS_SHADERMODEL PostProcessVS();
+        PixelShader = compile PS_SHADERMODEL fGaussianDepthBlurH();
+    }
+}
+
+technique GaussianDepthBlurV
+{
+    pass p0
+    {
+        VertexShader = compile VS_SHADERMODEL PostProcessVS();
+        PixelShader = compile PS_SHADERMODEL fGaussianDepthBlurV();
     }
 }
