@@ -17,22 +17,17 @@ namespace Game1
         ContentManager content;
         GameSettings settings;
         QuadRenderComponent quadRenderer;
-        const float waterHeight = 5;
         RenderTarget2D reflectionTarget;
         RenderTarget2D colorTarget;
         RenderTarget2D normalTarget;
         RenderTarget2D depthTarget;
         RenderTarget2D lightTarget;
-        Matrix reflectionViewMatrix;
         Effect waterEffect;
         Effect lightEffect;
         Effect finalCombineEffect;
         Texture2D normalMap;
         Texture2D heightMap;
         Texture2D foamMap;
-        Vector3 windDirection = new Vector3(1, 0, 0);
-        List<IntersectionRecord> frustumIntersections;
-        List<IntersectionRecord> frustumInstancedIntersections;
 
         public Water(GraphicsDevice graphicsDevice, ContentManager content, GameSettings settings, QuadRenderComponent quadRenderer)
         {
@@ -64,13 +59,9 @@ namespace Game1
             finalCombineEffect = content.Load<Effect>("Effects/CombineFinal");
         }
 
-        public void RenderReflectionMap(GameTime gameTime, Camera camera, SkyDome sky, Vector3 lightDirection, Vector3 lightColor, float skyIntensity, Octree octree, InstancingManager instancingManager)
+        public void RenderReflectionMap(GameTime gameTime, Camera camera, Vector3 reflectionCameraPosition, Matrix reflectionViewMatrix, Plane reflectionPlane, SkyDome sky, Vector3 lightDirection, Vector3 lightColor, float skyIntensity, FrustumIntersections reflectionObjects, InstancingManager instancingManager)
         {
-            Vector3 reflectionCameraPosition = camera.Position;
-            reflectionCameraPosition.Y = -camera.Position.Y + waterHeight * 2;
-
-            Plane reflectionPlane = new Plane(new Vector3(0, 1, 0), -waterHeight);
-            reflectionViewMatrix = Matrix.CreateReflection(reflectionPlane) * camera.ViewMatrix;
+            
 
             RenderTargetBinding[] prevTargets = graphicsDevice.GetRenderTargets();
 
@@ -84,17 +75,11 @@ namespace Game1
                 graphicsDevice.DepthStencilState = DepthStencilState.Default;
                 graphicsDevice.RasterizerState = RasterizerState.CullNone;
 
-                Vector4 clipPlane = new Vector4(reflectionPlane.Normal, reflectionPlane.D + 0.25f);
+                Vector4 clipPlane = new Vector4(reflectionPlane.Normal, reflectionPlane.D);
 
-                //Renders all visible objects by iterating through the oct tree recursively and testing for intersection 
-                //with the current camera view frustum
-                frustumIntersections = octree.AllIntersections(new BoundingFrustum(reflectionViewMatrix * camera.ProjectionMatrix));
-                frustumInstancedIntersections = frustumIntersections.FindAll(ir => ir.DrawableObjectObject.IsInstanced == true);
-                frustumIntersections.RemoveAll(ir => ir.DrawableObjectObject.IsInstanced == true);
-                instancingManager.DrawModelHardwareInstancing(frustumInstancedIntersections, reflectionViewMatrix, clipPlane);
-                foreach (IntersectionRecord ir in frustumIntersections)
+                instancingManager.DrawModelHardwareInstancing(reflectionObjects.IntersectionsInstanced, reflectionViewMatrix, clipPlane);
+                foreach (IntersectionRecord ir in reflectionObjects.Intersections)
                 {
-                    // ir.DrawableObjectObject.UpdateLOD(camera);
                     ir.DrawableObjectObject.Draw(camera, reflectionViewMatrix, clipPlane);
                 }
 
@@ -163,7 +148,7 @@ namespace Game1
             waterEffect.Parameters["ViewProjection"].SetValue(camera.ViewProjectionMatrix);
             waterEffect.Parameters["InvertView"].SetValue(Matrix.Invert(camera.ViewMatrix));
             waterEffect.Parameters["FrustumCornersVS"].SetValue(camera.FrustumCorners);
-            waterEffect.Parameters["cameraPos"].SetValue(camera.Position);
+            waterEffect.Parameters["CameraPosWS"].SetValue(camera.Position);
 
             waterEffect.Parameters["colorMap"].SetValue(colorTarget);
             waterEffect.Parameters["normalMap"].SetValue(normalMap);
@@ -172,7 +157,7 @@ namespace Game1
             waterEffect.Parameters["reflectionMap"].SetValue(reflectionTarget);
             waterEffect.Parameters["foamMap"].SetValue(foamMap);
 
-            waterEffect.Parameters["waterLevel"].SetValue(waterHeight);
+            waterEffect.Parameters["waterLevel"].SetValue(settings.WaterHeight);
             waterEffect.Parameters["timer"].SetValue(time);
             waterEffect.Parameters["lightDir"].SetValue(lightDirection);
             waterEffect.Parameters["sunColor"].SetValue(lightColor);

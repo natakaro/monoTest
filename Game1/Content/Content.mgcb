@@ -302,6 +302,7 @@
 #begin Models/tile.DAE
 /importer:OpenAssetImporter
 /processor:AnimationProcessor
+/processorParam:NormalMapTexture=tile_n.png
 /processorParam:NormalMapKey=NormalMap
 /processorParam:GenerateTangentFrames=True
 /processorParam:SpecularMapKey=SpecularMap

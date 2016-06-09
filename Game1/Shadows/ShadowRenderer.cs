@@ -208,7 +208,7 @@ namespace Game1.Shadows
                 }
 
                 // Draw the mesh with depth only, using the new shadow camera
-                RenderDepth(graphicsDevice, shadowCamera, worldMatrix, octree.AllObjects());
+                RenderDepth(graphicsDevice, shadowCamera, worldMatrix, octree);
 
                 // Apply the scale/offset matrix, which transforms from [-1,1]
                 // post-projection space to [0,1] UV space
@@ -288,7 +288,7 @@ namespace Game1.Shadows
             return shadowCamera.ViewProjection * texScaleBias;
         }
 
-        private void RenderDepth(GraphicsDevice graphicsDevice, ShadowCamera camera, Matrix worldMatrix, List<DrawableObject> list)
+        private void RenderDepth(GraphicsDevice graphicsDevice, ShadowCamera camera, Matrix worldMatrix, Octree octree)
         {
             graphicsDevice.BlendState = BlendState.Opaque;
             graphicsDevice.DepthStencilState = DepthStencilState.Default;
@@ -297,12 +297,39 @@ namespace Game1.Shadows
 
             var worldViewProjection = worldMatrix * camera.ViewProjection;
 
-            List<DrawableObject> instanceList = list.FindAll(dObject => dObject.IsInstanced == true);
-            list.RemoveAll(dObject => dObject.IsInstanced == true);
-            DrawModelHardwareInstancing(instanceList, instanceList[0].Model, camera.View, camera.Projection); //model na sztywno na razie, zakladamy ze tylko jeden model instancingiem rysujemy
+            //FrustumIntersections shadowMapObjects = octree.AllFrustumIntersections(new BoundingFrustum(camera.ViewProjection));
+
+            //if(shadowMapObjects.IntersectionsInstanced.Count > 0)
+            //    DrawModelHardwareInstancing(shadowMapObjects.IntersectionsInstanced, shadowMapObjects.IntersectionsInstanced[0].DrawableObjectObject.Model, camera.View, camera.Projection); //model na sztywno na razie, zakladamy ze tylko jeden model instancingiem rysujemy
+
+            ////reszta, nie instancowane obiekty z listy
+            //foreach (IntersectionRecord ir in shadowMapObjects.Intersections)
+            //{
+            //    foreach (var mesh in ir.DrawableObjectObject.Model.Meshes)
+            //    {
+            //        foreach (var meshPart in mesh.MeshParts)
+            //            if (meshPart.PrimitiveCount > 0)
+            //            {
+            //                shadowMapEffect.WorldViewProjection = ir.DrawableObjectObject.ModelBones[mesh.ParentBone.Index] * Matrix.CreateTranslation(ir.DrawableObjectObject.Position) * worldViewProjection;
+            //                shadowMapEffect.Apply();
+
+            //                graphicsDevice.SetVertexBuffer(meshPart.VertexBuffer);
+            //                graphicsDevice.Indices = meshPart.IndexBuffer;
+
+            //                graphicsDevice.DrawIndexedPrimitives(
+            //                    PrimitiveType.TriangleList,
+            //                    meshPart.VertexOffset,
+            //                    meshPart.StartIndex, meshPart.PrimitiveCount);
+            //            }
+            //    }
+            //}
+
+            SplitAllObjects shadowMapObjects = octree.AllObjectsSplit();
+
+            DrawModelHardwareInstancing(shadowMapObjects.ObjectsInstanced, shadowMapObjects.ObjectsInstanced[0].Model, camera.View, camera.Projection); //model na sztywno na razie, zakladamy ze tylko jeden model instancingiem rysujemy
 
             //reszta, nie instancowane obiekty z listy
-            foreach (DrawableObject dObject in list)
+            foreach (DrawableObject dObject in shadowMapObjects.Objects)
             {
                 foreach (var mesh in dObject.Model.Meshes)
                 {
@@ -335,7 +362,72 @@ namespace Game1.Shadows
 
             for (int i = 0; i < list.Count; i++)
             {
-                instances[i] = Matrix.CreateTranslation(list[i].Position); //do usuniecia po ogarnieciu modelu tili
+                instances[i] = Matrix.CreateTranslation(list[i].Position);
+            }
+
+            if (instances.Length == 0)
+                return;
+
+            // If we have more instances than room in our vertex buffer, grow it to the neccessary size.
+            if ((instanceVertexBuffer == null) ||
+                (instances.Length > instanceVertexBuffer.VertexCount))
+            {
+                if (instanceVertexBuffer != null)
+                    instanceVertexBuffer.Dispose();
+
+                instanceVertexBuffer = new DynamicVertexBuffer(graphicsDevice, instanceVertexDeclaration,
+                                                               instances.Length, BufferUsage.WriteOnly);
+            }
+
+            // Transfer the latest instance transform matrices into the instanceVertexBuffer.
+            instanceVertexBuffer.SetData(instances, 0, instances.Length, SetDataOptions.Discard);
+
+            foreach (ModelMesh mesh in model.Meshes)
+            {
+                foreach (ModelMeshPart meshPart in mesh.MeshParts)
+                {
+                    // Tell the GPU to read from both the model vertex buffer plus our instanceVertexBuffer.
+                    graphicsDevice.SetVertexBuffers(
+                        new VertexBufferBinding(meshPart.VertexBuffer, meshPart.VertexOffset, 0),
+                        new VertexBufferBinding(instanceVertexBuffer, 0, 1)
+                    );
+
+                    graphicsDevice.Indices = meshPart.IndexBuffer;
+
+                    // Set up the instance rendering effect.
+                    //meshPart.Effect = shadowInstancingEffect;
+
+                    //effect.CurrentTechnique = effect.Techniques["HardwareInstancing"];
+
+                    shadowInstancingEffect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index]);
+                    shadowInstancingEffect.Parameters["View"].SetValue(viewMatrix);
+                    shadowInstancingEffect.Parameters["Projection"].SetValue(projMatrix);
+
+                    // Draw all the instance copies in a single call.
+                    foreach (EffectPass pass in shadowInstancingEffect.CurrentTechnique.Passes)
+                    {
+                        pass.Apply();
+
+                        graphicsDevice.DrawInstancedPrimitives(PrimitiveType.TriangleList, 0, 0,
+                                                               meshPart.NumVertices, meshPart.StartIndex,
+                                                               meshPart.PrimitiveCount, instances.Length);
+                    }
+                }
+            }
+        }
+
+        private void DrawModelHardwareInstancing(List<IntersectionRecord> list, Model model, Matrix viewMatrix, Matrix projMatrix)
+        {
+
+            Matrix[] modelBones = new Matrix[model.Bones.Count];
+            model.CopyAbsoluteBoneTransformsTo(modelBones);
+
+            // Gather instance transform matrices into a single array.
+            Array.Resize(ref instances, list.Count);
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                instances[i] = Matrix.CreateTranslation(list[i].DrawableObjectObject.Position);
             }
 
             if (instances.Length == 0)

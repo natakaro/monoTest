@@ -111,8 +111,6 @@ namespace Game1
 
         public void DrawModelHardwareInstancing(List<IntersectionRecord> insta, Matrix viewMatrix, Vector4 clipPlane)
         {
-
-
             // Gather instance transform matrices into a single array.
             Array.Resize(ref instances, insta.Count);
 

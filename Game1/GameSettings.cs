@@ -34,6 +34,7 @@ namespace Game1
         public bool ToneMap;
         public bool DrawWater;
         public bool Reflect;
+        public float WaterHeight;
 
         public float SSAORadius;
         public float SSAOPower;
@@ -64,8 +65,9 @@ namespace Game1
             LightColor = new Vector3(3, 3, 3);
             Bias = 0.002f;
             OffsetScale = 0.0f;
+            FixedFilterSize = FixedFilterSize.Filter3x3;
 
-            StabilizeCascades = true;
+            StabilizeCascades = false;
             VisualizeCascades = false;
 
             SplitDistance0 = 0.05f;
@@ -85,6 +87,7 @@ namespace Game1
             ToneMap = true;
             DrawWater = true;
             Reflect = true;
+            WaterHeight = 5;
 
             EnemyMove = false;
 
@@ -123,33 +126,33 @@ namespace Game1
             if (KeyJustPressed(Keys.K))
                 FilterAcrossCascades = !FilterAcrossCascades;
 
-            //if (KeyJustPressed(Keys.B))
-            //{
-            //     if (_currentKeyboardState.IsKeyDown(Keys.LeftShift) || _currentKeyboardState.IsKeyDown(Keys.RightShift))
-            //        {
-            //        Bias += 0.001f;
-            //    }
-            //    else
-            //    {
-            //        Bias -= 0.001f;
-            //        Bias = Math.Max(Bias, 0.0f);
-            //    }
-            //    Bias = (float)Math.Round(Bias, 3);
-            //}
-            //
-            //if (KeyJustPressed(Keys.O))
-            //{
-            //    if (_currentKeyboardState.IsKeyDown(Keys.LeftShift) || _currentKeyboardState.IsKeyDown(Keys.RightShift))
-            //        {
-            //        OffsetScale += 0.1f;
-            //    }
-            //    else
-            //    {
-            //        OffsetScale -= 0.1f;
-            //        OffsetScale = Math.Max(OffsetScale, 0.0f);
-            //    }
-            //    OffsetScale = (float)Math.Round(OffsetScale, 1);
-            //}
+            if (KeyJustPressed(Keys.B))
+            {
+                if (_currentKeyboardState.IsKeyDown(Keys.LeftShift) || _currentKeyboardState.IsKeyDown(Keys.RightShift))
+                {
+                    Bias += 0.001f;
+                }
+                else
+                {
+                    Bias -= 0.001f;
+                    Bias = Math.Max(Bias, 0.0f);
+                }
+                Bias = (float)Math.Round(Bias, 3);
+            }
+
+            if (KeyJustPressed(Keys.O))
+            {
+                if (_currentKeyboardState.IsKeyDown(Keys.LeftShift) || _currentKeyboardState.IsKeyDown(Keys.RightShift))
+                {
+                    OffsetScale += 0.1f;
+                }
+                else
+                {
+                    OffsetScale -= 0.1f;
+                    OffsetScale = Math.Max(OffsetScale, 0.0f);
+                }
+                OffsetScale = (float)Math.Round(OffsetScale, 1);
+            }
 
             if (KeyJustPressed(Keys.G))
             {

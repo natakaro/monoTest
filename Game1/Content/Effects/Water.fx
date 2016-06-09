@@ -16,7 +16,7 @@ Matrix InvertView;
 
 float3 FrustumCornersVS[4];
 
-float3 cameraPos;
+float3 CameraPosWS;
 
 Texture2D colorMap : register(t0);
 SamplerState colorSampler : register(s0);
@@ -172,25 +172,25 @@ float4 WaterPS(VSOutput input) : COLOR0
     float depthVal = depthMap.Sample(depthSampler, input.TexCoord);
     if (depthVal == 0)
         depthVal = 1; //horizon hack
-    float3 positionWS = cameraPos + depthVal * input.FrustumRayWS;
+    float3 positionWS = CameraPosWS + depthVal * input.FrustumRayWS;
 
     float level = waterLevel;
     float depth = 0.0f;
 
     // If we are underwater let's leave out complex computations
-    if (level >= cameraPos.y)
+    if (level >= CameraPosWS.y)
         return float4(color2, 1.0f);
 
     if (positionWS.y <= level + maxAmplitude)
     {
-        float3 eyeVec = positionWS - cameraPos;
+        float3 eyeVec = positionWS - CameraPosWS;
         float diff = level - positionWS.y;
-        float cameraDepth = cameraPos.y - positionWS.y;
+        float cameraDepth = CameraPosWS.y - positionWS.y;
 		
 		// Find intersection with water surface
         float3 eyeVecNorm = normalize(eyeVec);
-        float t = (level - cameraPos.y) / eyeVecNorm.y;
-        float3 surfacePoint = cameraPos + eyeVecNorm * t;
+        float t = (level - CameraPosWS.y) / eyeVecNorm.y;
+        float3 surfacePoint = CameraPosWS + eyeVecNorm * t;
 		
         eyeVecNorm = normalize(eyeVecNorm);
 
@@ -203,14 +203,14 @@ float4 WaterPS(VSOutput input) : COLOR0
 	
             bias *= 0.1f;
             level += bias * maxAmplitude;
-            t = (level - cameraPos.y) / eyeVecNorm.y;
-            surfacePoint = cameraPos + eyeVecNorm * t;
+            t = (level - CameraPosWS.y) / eyeVecNorm.y;
+            surfacePoint = CameraPosWS + eyeVecNorm * t;
         }
 
         depth = length(positionWS - surfacePoint);
         float depth2 = surfacePoint.y - positionWS.y;
 
-        eyeVecNorm = normalize(cameraPos - surfacePoint);
+        eyeVecNorm = normalize(CameraPosWS - surfacePoint);
         
         float normal1 = heightMap.Sample(heightSampler, float3(texCoord + float2(-1, 0) / 256, timer * 0.016f % 200)).r;
         float normal2 = heightMap.Sample(heightSampler, float3(texCoord + float2(1, 0)  / 256, timer * 0.016f % 200)).r;
@@ -245,7 +245,7 @@ float4 WaterPS(VSOutput input) : COLOR0
         float3 refraction = colorMap.Sample(colorSampler, texCoord).rgb;
 
         float refractionDepthSample = depthMap.Sample(depthSampler, texCoord);
-        float3 refractionPositionWS = cameraPos + depthVal * input.FrustumRayWS;
+        float3 refractionPositionWS = CameraPosWS + depthVal * input.FrustumRayWS;
 
         if (refractionPositionWS.y > level)
             refraction = color2;

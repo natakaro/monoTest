@@ -10,9 +10,6 @@
 float4 FogColor;
 float FogDensity;
 
-float NearClip;
-float FarClip;
-
 texture depthMap;
 
 sampler depthSampler = sampler_state
@@ -40,16 +37,18 @@ struct VertexShaderOutput
 VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 {
     VertexShaderOutput output;
+
     output.Position = float4(input.Position, 1);
     output.TexCoord = input.TexCoord;
+
     return output;
 }
 
 float4 PixelShaderFunctionLinear(VertexShaderOutput input) : COLOR0
 {
     float depthVal = tex2D(depthSampler, input.TexCoord);
-    //clip(-depthVal + 0.9999f);
     clip(-0.0001f + depthVal);
+
     float mix = depthVal;
 
     return float4(FogColor.rgb, mix);
@@ -60,6 +59,7 @@ float4 PixelShaderFunctionExp(VertexShaderOutput input) : COLOR0
     float depthVal = tex2D(depthSampler, input.TexCoord);
     //clip(-depthVal + 0.9999f);
     clip(-0.0001f + depthVal);
+
     float mix = saturate(1 - exp(-depthVal * FogDensity));
 
     return float4(FogColor.rgb, mix);
@@ -68,9 +68,10 @@ float4 PixelShaderFunctionExp(VertexShaderOutput input) : COLOR0
 float4 PixelShaderFunctionExp2(VertexShaderOutput input) : COLOR0
 {
     float depthVal = tex2D(depthSampler, input.TexCoord);
-    //clip(-depthVal + 0.9999f);
     clip(-0.0001f + depthVal);
+
     float mix = saturate(1 - exp(-(depthVal * FogDensity * depthVal * FogDensity)));
+
     return float4(FogColor.rgb, mix);
 }
 

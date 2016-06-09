@@ -9,6 +9,34 @@ using System.Threading.Tasks;
 
 namespace Game1
 {
+    public class FrustumIntersections
+    {
+        public List<IntersectionRecord> Intersections
+        { get; set; }
+        public List<IntersectionRecord> IntersectionsInstanced
+        { get; set; }
+
+        public FrustumIntersections()
+        {
+            Intersections = new List<IntersectionRecord>();
+            IntersectionsInstanced = new List<IntersectionRecord>();
+        }
+    }
+
+    public class SplitAllObjects
+    {
+        public List<DrawableObject> Objects
+        { get; set; }
+        public List<DrawableObject> ObjectsInstanced
+        { get; set; }
+
+        public SplitAllObjects()
+        {
+            Objects = new List<DrawableObject>();
+            ObjectsInstanced = new List<DrawableObject>();
+        }
+    }
+
     public class Octree
     {
         BoundingBox m_region;
@@ -99,21 +127,24 @@ namespace Game1
         /// Renders the current state of the octTree by drawing the outlines of each bounding region.
         /// </summary>
         /// <param name="pb">The primitive batch being used to draw the OctTree.</param>
-        public void DrawBounds()
+        public void DrawBounds(BoundingFrustum frustum)
         {
             DebugShapeRenderer.AddBoundingBox(m_region, Color.Yellow);
 
-            foreach (DrawableObject dObject in m_objects)
+            if (IsRoot)
             {
-                DebugShapeRenderer.AddBoundingBox(dObject.BoundingBox, Color.Blue);
-                DebugShapeRenderer.AddBoundingSphere(dObject.BoundingSphere, Color.Red);
+                List<IntersectionRecord> list = AllIntersections(frustum);
+                foreach (IntersectionRecord ir in list)
+                {
+                    DebugShapeRenderer.AddBoundingBox(ir.DrawableObjectObject.BoundingBox, Color.Blue);
+                    DebugShapeRenderer.AddBoundingSphere(ir.DrawableObjectObject.BoundingSphere, Color.Red);
+                }
             }
-
 
             for (int a = 0; a < 8; a++)
             {
                 if (m_childNode[a] != null)
-                    m_childNode[a].DrawBounds();
+                    m_childNode[a].DrawBounds(frustum);
             }
         }
 
@@ -469,8 +500,6 @@ namespace Game1
         {
             Vector3 global_min = m_region.Min, global_max = m_region.Max;
 
-
-
             //go through all the objects in the list and find the extremes for their bounding areas.
             foreach (DrawableObject obj in m_objects)
             {
@@ -606,6 +635,47 @@ namespace Game1
         }
 
         /// <summary>
+        /// Returns all objects from the whole octree
+        /// </summary>
+        /// <returns>A list of DrawableObjects</returns>
+        private SplitAllObjects GetAllSplit(DrawableObject.ObjectType type = DrawableObject.ObjectType.ALL)
+        {
+            if (m_objects.Count == 0 && HasChildren == false)   //terminator for any recursion
+                return null;
+
+            SplitAllObjects ret = new SplitAllObjects();
+
+            //test each object in the list
+            foreach (DrawableObject obj in m_objects)
+            {
+                //skip any objects which don't meet our type criteria
+                if ((int)((int)type & (int)obj.Type) == 0)
+                    continue;
+
+                //add the object
+                if (obj.IsInstanced)
+                    ret.ObjectsInstanced.Add(obj);
+                else
+                    ret.Objects.Add(obj);
+            }
+
+            //test each object in the list for intersection
+            for (int a = 0; a < 8; a++)
+            {
+                if (m_childNode[a] != null)
+                {
+                    SplitAllObjects hitList = m_childNode[a].GetAllSplit(type);
+                    if (hitList != null)
+                    {
+                        ret.Objects.AddRange(hitList.Objects);
+                        ret.ObjectsInstanced.AddRange(hitList.ObjectsInstanced);
+                    }
+                }
+            }
+            return ret;
+        }
+
+        /// <summary>
         /// Gives you a list of all intersection records which intersect or are contained within the given frustum area
         /// </summary>
         /// <param name="frustum">The containing frustum to check for intersection/containment with</param>
@@ -640,6 +710,52 @@ namespace Game1
                     {
                         foreach (IntersectionRecord ir in hitList)
                             ret.Add(ir);
+                    }
+                }
+            }
+            return ret;
+        }
+
+        /// <summary>
+        /// Gives you a list of all intersection records which intersect or are contained within the given frustum area
+        /// </summary>
+        /// <param name="frustum">The containing frustum to check for intersection/containment with</param>
+        /// <returns>A list of intersection records with collisions</returns>
+        private FrustumIntersections GetFrustumIntersection(BoundingFrustum frustum, DrawableObject.ObjectType type = DrawableObject.ObjectType.ALL)
+        {
+            if (m_objects.Count == 0 && HasChildren == false)   //terminator for any recursion
+                return null;
+
+            FrustumIntersections ret = new FrustumIntersections();
+
+            //test each object in the list for intersection
+            foreach (DrawableObject obj in m_objects)
+            {
+                //skip any objects which don't meet our type criteria
+                if ((int)((int)type & (int)obj.Type) == 0)
+                    continue;
+
+                //test for intersection
+                IntersectionRecord ir = obj.Intersects(frustum);
+                if (ir != null)
+                {
+                    if (ir.DrawableObjectObject.IsInstanced)
+                        ret.IntersectionsInstanced.Add(ir);
+                    else
+                        ret.Intersections.Add(ir);
+                }
+            }
+
+            //test each object in the list for intersection
+            for (int a = 0; a < 8; a++)
+            {
+                if (m_childNode[a] != null && (frustum.Contains(m_childNode[a].m_region) == ContainmentType.Intersects || frustum.Contains(m_childNode[a].m_region) == ContainmentType.Contains))
+                {
+                    FrustumIntersections hitList = m_childNode[a].GetFrustumIntersection(frustum);
+                    if (hitList != null)
+                    {
+                        ret.Intersections.AddRange(hitList.Intersections);
+                        ret.IntersectionsInstanced.AddRange(hitList.IntersectionsInstanced);
                     }
                 }
             }
@@ -871,6 +987,17 @@ namespace Game1
         }
 
         /// <summary>
+        /// This gives you all objects in the octree, split into two lists: one with instanced objects, and another with the rest
+        /// </summary>
+        public SplitAllObjects AllObjectsSplit(DrawableObject.ObjectType type = DrawableObject.ObjectType.ALL)
+        {
+            if (!m_treeReady)
+                UpdateTree();
+
+            return GetAllSplit(type);
+        }
+
+        /// <summary>
         /// This gives you a list of every intersection record created with the intersection ray
         /// </summary>
         /// <param name="intersectionRay">The ray to use for intersection</param>
@@ -1049,6 +1176,20 @@ namespace Game1
                 UpdateTree();
 
             return GetIntersection(region, type);
+        }
+
+        /// <summary>
+        /// This gives you a list of all objects which [intersect or are contained within] the given frustum and meet the given object type
+        /// </summary>
+        /// <param name="region">The frustum to intersect with</param>
+        /// <param name="type">The type of objects you want to filter</param>
+        /// <returns>A list of intersection records for all objects intersecting with the frustum</returns>
+        public FrustumIntersections AllFrustumIntersections(BoundingFrustum region, DrawableObject.ObjectType type = DrawableObject.ObjectType.ALL)
+        {
+            if (!m_treeReady)
+                UpdateTree();
+
+            return GetFrustumIntersection(region, type);
         }
 
         /// <summary>

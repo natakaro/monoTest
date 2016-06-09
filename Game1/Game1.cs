@@ -10,6 +10,7 @@ using Game1.Shadows;
 using Game1.Lights;
 using Game1.Sky;
 using System.Diagnostics;
+using System.Threading;
 
 namespace Game1
 {
@@ -22,8 +23,15 @@ namespace Game1
         private SpriteFont spriteFont;
         private InstancingManager instancingManager;
         public Octree octree;
-        private List<IntersectionRecord> frustumIntersections;
-        private List<IntersectionRecord> frustumInstancedIntersections;
+
+        #region Object lists
+        private FrustumIntersections reflectionObjects;
+        private FrustumIntersections drawObjects;
+        #endregion
+
+        private Matrix reflectionViewMatrix;
+        private Plane reflectionPlane;
+        private Vector3 reflectionCameraPosition;
 
         private Effect fxaaEffect;
         private Effect fogEffect;
@@ -70,7 +78,7 @@ namespace Game1
 
         private const float CAMERA_FOVX = 90.0f;
         private const float CAMERA_ZNEAR = 1.0f;
-        private const float CAMERA_ZFAR = 10000.0f;
+        private const float CAMERA_ZFAR = 4000.0f;
         private const float CAMERA_PLAYER_EYE_HEIGHT = 30.0f;
         private const float CAMERA_ACCELERATION_X = 800.0f;
         private const float CAMERA_ACCELERATION_Y = 800.0f;
@@ -121,6 +129,7 @@ namespace Game1
 
         SkyStatus stat;
 
+        #region Spells
         public enum SpellType
         {
             MoveTerrain = 1,
@@ -131,7 +140,9 @@ namespace Game1
         private SpellFireball spellFireball;
 
         public SpellType selectedSpell = SpellType.MoveTerrain;
+        #endregion
 
+        #region Diagnostics
         Stopwatch swUpdate;
         Stopwatch swDraw;
         Stopwatch swGPU;
@@ -139,6 +150,7 @@ namespace Game1
         double updateMs = 0;
         double drawMs = 0;
         double gpuMs = 0;
+        #endregion
 
         public Game1()
         {
@@ -252,8 +264,6 @@ namespace Game1
             fxaaEffect = Content.Load<Effect>("Effects/fxaa");
             fogEffect = Content.Load<Effect>("Effects/Fog");
             fogEffect.CurrentTechnique = fogEffect.Techniques["FogExp"];
-            fogEffect.Parameters["NearClip"].SetValue(camera.NearZ);
-            fogEffect.Parameters["FarClip"].SetValue(camera.FarZ);
             fogEffect.Parameters["FogDensity"].SetValue(0.25f);
             fogEffect.Parameters["FogColor"].SetValue(Color.CornflowerBlue.ToVector4());
 
@@ -566,8 +576,6 @@ namespace Game1
                 enemy.Update(gameTime, camera, octree);
             }
             
-
-
             UpdateFrameRate(gameTime);
 
             swUpdate.Stop();
@@ -739,6 +747,15 @@ namespace Game1
             return base.BeginDraw();
         }
 
+        private void FrustumLists()
+        {
+            //reflection
+            reflectionObjects = octree.AllFrustumIntersections(new BoundingFrustum(reflectionViewMatrix * camera.ProjectionMatrix));
+
+            //draw
+            drawObjects = octree.AllFrustumIntersections(camera.Frustum);
+        }
+
         protected override void Draw(GameTime gameTime)
         {
             base.Draw(gameTime);
@@ -753,9 +770,15 @@ namespace Game1
 
             float skyIntensity = timeOfDay.LogisticTime(2, 4, 2.0f);
 
-            if (settings.DrawWater)
-                water.RenderReflectionMap(gameTime, camera, sky, lightDirection, lightColor, skyIntensity, octree, instancingManager);
+            reflectionPlane = new Plane(new Vector3(0, 1, 0), -settings.WaterHeight);
+            reflectionViewMatrix = Matrix.CreateReflection(reflectionPlane) * camera.ViewMatrix;
+            reflectionCameraPosition = camera.Position;
+            reflectionCameraPosition.Y = -camera.Position.Y + settings.WaterHeight * 2;
 
+            FrustumLists();
+
+            if (settings.DrawWater)
+                water.RenderReflectionMap(gameTime, camera, reflectionCameraPosition, reflectionViewMatrix, reflectionPlane, sky, lightDirection, lightColor, skyIntensity, reflectionObjects, instancingManager);
 
             SetGBuffer();
             ClearGBuffer();
@@ -773,35 +796,15 @@ namespace Game1
 
             enemy.Draw(camera);
 
-            //Renders all visible objects by iterating through the oct tree recursively and testing for intersection 
-            //with the current camera view frustum
-            frustumIntersections = octree.AllIntersections(camera.Frustum);
-            if (settings.Instancing)
+            instancingManager.DrawModelHardwareInstancing(drawObjects.IntersectionsInstanced);
+            foreach (IntersectionRecord ir in drawObjects.Intersections)
             {
-                frustumInstancedIntersections = frustumIntersections.FindAll(ir => ir.DrawableObjectObject.IsInstanced == true);
-                frustumIntersections.RemoveAll(ir => ir.DrawableObjectObject.IsInstanced == true);
-                instancingManager.DrawModelHardwareInstancing(frustumInstancedIntersections);
-                modelsDrawnInstanced = frustumInstancedIntersections.Count;
-                foreach (IntersectionRecord ir in frustumIntersections)
-                {
-                    // ir.DrawableObjectObject.UpdateLOD(camera);
-                    ir.DrawableObjectObject.Draw(camera);
-                    modelsDrawn++;
-                }
-            }
-            else
-            {
-                foreach (IntersectionRecord ir in frustumIntersections)
-                {
-                    // ir.DrawableObjectObject.UpdateLOD(camera);
-                    ir.DrawableObjectObject.Draw(camera);
-                    modelsDrawn++;
-                }
+                ir.DrawableObjectObject.Draw(camera);
             }
 
             if (settings.DrawDebugShapes)
             {
-                octree.DrawBounds();
+                octree.DrawBounds(camera.Frustum);
                 DebugShapeRenderer.Draw(gameTime, camera.ViewMatrix, camera.ProjectionMatrix);
             }
 
@@ -822,7 +825,7 @@ namespace Game1
             ResolveGBuffer();
 
             shadowRenderer.RenderShadowMap(GraphicsDevice, camera, lightDirection, Matrix.Identity, octree);
-            
+
             ssao.DrawSSAO();
 
             GraphicsDevice.SetRenderTarget(lightTarget);
@@ -836,14 +839,15 @@ namespace Game1
             GraphicsDevice.SetRenderTarget(finalTarget);
             GraphicsDevice.Clear(Color.White);
             DrawFinal();
-            if (settings.DrawFog)
-                DrawFog();
 
             GraphicsDevice.SetRenderTarget(waterTarget);
             GraphicsDevice.Clear(Color.White);
 
             if (settings.DrawWater)
                 water.DrawWater(camera, (float)gameTime.TotalGameTime.TotalMilliseconds*5, finalTarget, depthTarget, lightDirection, lightColor);
+
+            if (settings.DrawFog)
+                DrawFog();
 
             if (settings.ToneMap)
             {
@@ -894,8 +898,6 @@ namespace Game1
                 spriteBatch.End();
             }
 
-
-
             swDraw.Stop();
 
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
@@ -920,7 +922,7 @@ namespace Game1
             int halfHeight = GraphicsDevice.Viewport.Height / 2;
             GraphicsDevice.Clear(Color.Transparent);
 
-            spriteBatch.Draw(ssao.BlurTarget, new Rectangle(0, 0, halfWidth, halfHeight), Color.White);
+            spriteBatch.Draw(shadowRenderer.ShadowMap, new Rectangle(0, 0, halfWidth, halfHeight), Color.White);
             spriteBatch.Draw(normalTarget, new Rectangle(0, halfHeight, halfWidth, halfHeight), Color.White);
             spriteBatch.Draw(depthTarget, new Rectangle(halfWidth, 0, halfWidth, halfHeight), Color.White);
             spriteBatch.Draw(lightTarget, new Rectangle(halfWidth, halfHeight, halfWidth, halfHeight), Color.White);
