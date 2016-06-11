@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using static Game1.Helpers.HexCoordinates;
 
 namespace Game1.Helpers
 {
@@ -123,7 +124,7 @@ namespace Game1.Helpers
             // travels through the specified node. 
             var predictedDistance = new Dictionary<Tile, float>();
 
-            var straightLine = CubeLerp(Map.pixelToAxialH(start.Position, Map.size).ToCube(), Map.pixelToAxialH(end.Position, Map.size).ToCube());
+            var straightLine = CubeLerp(pixelToAxialH(start.Position, Map.size).ToCube(), pixelToAxialH(end.Position, Map.size).ToCube());
 
             // initialize the start node as having a distance of 0, and an estmated distance 
             // of y-distance + x-distance, which is the optimal path in a square grid that 
@@ -138,7 +139,7 @@ namespace Game1.Helpers
             currentDistance.Add(start, 0);
             predictedDistance.Add(
                 start,
-                CubeDistance(Map.pixelToAxialH(start.Position, Map.size).ToCube(), Map.pixelToAxialH(end.Position, Map.size).ToCube())
+                CubeDistance(pixelToAxialH(start.Position, Map.size).ToCube(), pixelToAxialH(end.Position, Map.size).ToCube())
             );
 
             // if there are any unanalyzed nodes, process them
@@ -228,7 +229,7 @@ namespace Game1.Helpers
             );
         }
 
-        public List<Tile> Pathfind(Tile start, Tile end, Dictionary<AxialCoordinate, Tile> map)
+        public List<Tile> Pathfind(Tile start, Tile end, Dictionary<AxialCoordinate, Tile> map, GameSettings settings)
         {
             // nodes that have already been analyzed and have a path from the start to them
             var closedSet = new List<Tile>();
@@ -244,7 +245,7 @@ namespace Game1.Helpers
             // travels through the specified node. 
             var predictedDistance = new Dictionary<Tile, float>();
 
-            var straightLine = CubeLerp(Map.pixelToAxialH(start.Position, Map.size).ToCube(), Map.pixelToAxialH(end.Position, Map.size).ToCube());
+            var straightLine = CubeLerp(pixelToAxialH(start.Position, Map.size).ToCube(), pixelToAxialH(end.Position, Map.size).ToCube());
 
             // initialize the start node as having a distance of 0, and an estmated distance 
             // of y-distance + x-distance, which is the optimal path in a square grid that 
@@ -259,7 +260,7 @@ namespace Game1.Helpers
             currentDistance.Add(start, 0);
             predictedDistance.Add(
                 start,
-                CubeDistance(Map.pixelToAxialH(start.Position, Map.size).ToCube(), Map.pixelToAxialH(end.Position, Map.size).ToCube())
+                CubeDistance(pixelToAxialH(start.Position, Map.size).ToCube(), pixelToAxialH(end.Position, Map.size).ToCube())
             );
 
             // if there are any unanalyzed nodes, process them
@@ -308,15 +309,27 @@ namespace Game1.Helpers
                             cameFrom.Add(neighbor, current);
                         }
 
-                        var distanceToStraightLine = DistanceToStraightLine(neighbor, straightLine);
+                        if (settings.Instancing)
+                        {
+                            var distanceToStraightLine = DistanceToStraightLine(neighbor, straightLine);
 
-                        currentDistance[neighbor] = tempCurrentDistance;
-                        predictedDistance[neighbor] =
-                            currentDistance[neighbor]
-                            + Math.Abs(neighbor.Position.X - end.Position.X)
-                            + Math.Abs(neighbor.Position.Z - end.Position.Z)
-                            + Math.Abs(neighbor.Position.Y - current.Position.Y)
-                            + distanceToStraightLine;
+                            currentDistance[neighbor] = tempCurrentDistance;
+                            predictedDistance[neighbor] =
+                                currentDistance[neighbor]
+                                + Math.Abs(neighbor.Position.X - end.Position.X)
+                                + Math.Abs(neighbor.Position.Z - end.Position.Z)
+                                + Math.Abs(neighbor.Position.Y - current.Position.Y)
+                                + distanceToStraightLine;
+                        }
+                        else
+                        {
+                            currentDistance[neighbor] = tempCurrentDistance;
+                            predictedDistance[neighbor] =
+                                currentDistance[neighbor]
+                                + Math.Abs(neighbor.Position.X - end.Position.X)
+                                + Math.Abs(neighbor.Position.Z - end.Position.Z)
+                                + Math.Abs(neighbor.Position.Y - current.Position.Y);
+                        }
 
 
                         // if this is a new node, add it to processing
@@ -340,7 +353,7 @@ namespace Game1.Helpers
 
         private float DistanceToStraightLine(Tile tile, List<CubeCoordinateH> line)
         {
-            var tileCubeCoord = Map.pixelToAxialH(tile.Position, Map.size).ToCube();
+            var tileCubeCoord = pixelToAxialH(tile.Position, Map.size).ToCube();
 
             float distance = float.MaxValue;
 
@@ -453,7 +466,7 @@ namespace Game1.Helpers
         {
             var neighbors = new List<Tile>();
 
-            CubeCoordinate coords = Map.pixelToAxialH(node.Position, Map.size).ToCube();
+            CubeCoordinate coords = pixelToAxialH(node.Position, Map.size).ToCube();
             coords = CubeRound(coords);
 
             CubeCoordinate[] directions = 
@@ -465,7 +478,7 @@ namespace Game1.Helpers
             for(int i = 0; i < 6; i++)
             {
                 CubeCoordinate neighborcoords = coords + directions[i];
-                Tile tile = Map.tileFromAxial(neighborcoords.ToAxial(), map);
+                Tile tile = tileFromAxial(neighborcoords.ToAxial(), map);
                 if (tile == null || tile.Position.Y - node.Position.Y > 30 || tile.Position.Y < 5)
                     continue;
                 else

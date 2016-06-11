@@ -52,6 +52,7 @@
     <Compile Include="DrawableObject.cs" />
     <Compile Include="Helpers\ExtensionMethods.cs" />
     <Compile Include="Helpers\FastFrustum.cs" />
+    <Compile Include="Helpers\HexCoordinates.cs" />
     <Compile Include="Helpers\IntermediateTexture.cs" />
     <Compile Include="Helpers\PathFinder.cs" />
     <Compile Include="Helpers\QuadRenderer.cs" />

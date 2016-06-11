@@ -12,6 +12,7 @@ using Game1.Sky;
 using Game1.HUD;
 using System.Diagnostics;
 using System.Threading;
+using static Game1.Helpers.HexCoordinates;
 
 namespace Game1
 {
@@ -439,8 +440,8 @@ namespace Game1
             if (KeyJustPressed(Keys.P))
             {
 
-                path = pathfinder.Pathfind((Tile)octree.HighestIntersection(camera.GetDownwardRay(), DrawableObject.ObjectType.Terrain).DrawableObjectObject, (Tile)octree.HighestIntersection(core, DrawableObject.ObjectType.Terrain).DrawableObjectObject, octree, settings);
-                //path = pathfinder.Pathfind((Tile)octree.HighestIntersection(camera.GetDownwardRay(), DrawableObject.ObjectType.Terrain).DrawableObjectObject, (Tile)octree.HighestIntersection(core, DrawableObject.ObjectType.Terrain).DrawableObjectObject, tileDictionary);
+                //path = pathfinder.Pathfind((Tile)octree.HighestIntersection(camera.GetDownwardRay(), DrawableObject.ObjectType.Terrain).DrawableObjectObject, (Tile)octree.HighestIntersection(core, DrawableObject.ObjectType.Terrain).DrawableObjectObject, octree, settings);
+                path = pathfinder.Pathfind((Tile)octree.HighestIntersection(camera.GetDownwardRay(), DrawableObject.ObjectType.Terrain).DrawableObjectObject, (Tile)octree.HighestIntersection(core, DrawableObject.ObjectType.Terrain).DrawableObjectObject, tileDictionary, settings);
 
                 //lineTest = pathfinder.CubeLerp(Map.pixelToHex(octree.HighestIntersection(camera.GetDownwardRay(), DrawableObject.ObjectType.Terrain).DrawableObjectObject.Position, Map.size).ToCube(), Map.pixelToHex(octree.HighestIntersection(core).DrawableObjectObject.Position, Map.size).ToCube());
                 //lineList.Clear();
@@ -663,6 +664,8 @@ namespace Game1
             {
                 enemy.Update(gameTime, camera, octree);
             }
+
+            path = pathfinder.Pathfind((Tile)octree.HighestIntersection(camera.GetDownwardRay(), DrawableObject.ObjectType.Terrain).DrawableObjectObject, (Tile)octree.HighestIntersection(core, DrawableObject.ObjectType.Terrain).DrawableObjectObject, tileDictionary, settings);
 
             UpdateFrameRate(gameTime);
 
