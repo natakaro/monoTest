@@ -51,6 +51,7 @@ namespace Game1
         protected Effect effect;
         protected Model model;
         protected Matrix[] modelBones;
+        protected Octree octree;
 
         protected bool m_static = true;
         protected bool hasBounds = false;
@@ -60,7 +61,7 @@ namespace Game1
 
         protected bool m_instanced = false;
 
-        public DrawableObject(Game game, Matrix inWorldMatrix, Model inModel) : base(game)
+        public DrawableObject(Game game, Matrix inWorldMatrix, Model inModel, Octree octree) : base(game)
         {
             type = ObjectType.Unknown;
             worldMatrix = inWorldMatrix;
@@ -74,6 +75,8 @@ namespace Game1
             model = inModel;
             modelBones = new Matrix[model.Bones.Count];
             model.CopyAbsoluteBoneTransformsTo(modelBones);
+
+            this.octree = octree;
         }
 
         /// <summary>
@@ -93,12 +96,39 @@ namespace Game1
                 boundingSphere.Center = position;
                 boundingBox.Min += velocity * (float)(gameTime.ElapsedGameTime.TotalSeconds);
                 boundingBox.Max += velocity * (float)(gameTime.ElapsedGameTime.TotalSeconds);
-                //if (lastPosition != position)
-                //    octree
+                if (lastPosition != position)
+                    CheckIntersections();
                 return lastPosition != position;    //lets you know if the object actually moved relative to its last position
             }
 
             return false;
+        }
+
+        public void CheckIntersections()
+        {
+            //List<IntersectionRecord> list = new List<IntersectionRecord>();
+            List<IntersectionRecord> list = octree.AllIntersections(this);
+            //if (boundingSphere != null && boundingSphere.Radius != 0f)
+            //{
+            //    list = octree.AllIntersections(boundingSphere);
+            //}
+            //else if (boundingBox != null && boundingBox.Max != boundingBox.Min)
+            //{
+            //    list = octree.AllIntersections(boundingBox);
+            //}
+            //else
+            //    list = new List<IntersectionRecord>();
+            //List<DrawableObject> temp = new List<DrawableObject>();
+            //temp.Add(this);
+            //list = octree.GetIntersection(temp);
+
+            foreach (IntersectionRecord ir in list)
+            {
+                if (ir.DrawableObjectObject != null)
+                    ir.DrawableObjectObject.HandleIntersection(ir);
+                if (ir.OtherDrawableObjectObject != null)
+                    ir.OtherDrawableObjectObject.HandleIntersection(ir);
+            }
         }
 
         public void Draw(Camera camera)
@@ -219,8 +249,7 @@ namespace Game1
         {
             if (boundingBox != null && boundingBox.Max != boundingBox.Min)
             {
-                ContainmentType ct = boundingBox.Contains(intersectionBox);
-                if (ct != ContainmentType.Disjoint)
+                if (boundingBox.Contains(intersectionBox) != ContainmentType.Disjoint)
                     return new IntersectionRecord(this);
             }
             else if (boundingSphere != null && boundingSphere.Radius != 0f)

@@ -201,6 +201,11 @@ namespace Game1
                     dofType = DOFType.None;
             }
 
+            if (KeyJustPressed(Keys.D9))
+            {
+                Reflect = !Reflect;
+            }
+
             if (_currentKeyboardState.IsKeyDown(Keys.Left))
                 FocalWidth -= 0.1f;
 

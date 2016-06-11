@@ -108,7 +108,7 @@ namespace Game1.Spells
                     }
                     else if (spellReady == true)
                     {
-                        SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel, fireballTexture, lightManager);
+                        SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel, octree, fireballTexture, lightManager);
                         fireball.Position = camera.Position;
                         fireball.Velocity = camera.GetMouseRay(game.GraphicsDevice.Viewport).Direction * 1;
                         fireball.Acceleration = camera.GetMouseRay(game.GraphicsDevice.Viewport).Direction * 10;
@@ -142,7 +142,7 @@ namespace Game1.Spells
                 {
                     if (spellReady == true)
                     {
-                        SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel, fireballTexture, lightManager);
+                        SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel, octree, fireballTexture, lightManager);
                         fireball.Position = camera.Position;
                         fireball.Velocity = camera.ViewDirection * 100;
                         octree.m_objects.Add(fireball);
@@ -172,7 +172,7 @@ namespace Game1.Spells
                         for (int i = 0; i < 16; i++)
                         {
                             Vector3 direction = Vector3.Transform(new Vector3(camera.ViewDirection.X, 0, camera.ViewDirection.Z), Quaternion.CreateFromAxisAngle(Vector3.Up, MathHelper.ToRadians((360 / 16)*i)));
-                            SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel, fireballTexture, lightManager);
+                            SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel, octree, fireballTexture, lightManager);
                             fireball.Position = camera.Position;
                             fireball.Velocity = direction * 100;
                             octree.m_objects.Add(fireball);

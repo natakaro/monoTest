@@ -700,7 +700,7 @@ namespace Game1
             //test each object in the list for intersection
             for (int a = 0; a < 8; a++)
             {
-                if (m_childNode[a] != null && (frustum.Contains(m_childNode[a].m_region) == ContainmentType.Intersects || frustum.Contains(m_childNode[a].m_region) == ContainmentType.Contains))
+                if (m_childNode[a] != null && (frustum.Contains(m_childNode[a].m_region) != ContainmentType.Disjoint))
                 {
                     List<IntersectionRecord> hitList = m_childNode[a].GetIntersection(frustum);
                     if (hitList != null)
@@ -746,7 +746,7 @@ namespace Game1
             //test each object in the list for intersection
             for (int a = 0; a < 8; a++)
             {
-                if (m_childNode[a] != null && (frustum.Contains(m_childNode[a].m_region) == ContainmentType.Intersects || frustum.Contains(m_childNode[a].m_region) == ContainmentType.Contains))
+                if (m_childNode[a] != null && (frustum.Contains(m_childNode[a].m_region) != ContainmentType.Disjoint))
                 {
                     FrustumIntersections hitList = m_childNode[a].GetFrustumIntersection(frustum);
                     if (hitList != null)
@@ -787,7 +787,7 @@ namespace Game1
             //test each object in the list for intersection
             for (int a = 0; a < 8; a++)
             {
-                if (m_childNode[a] != null && (sphere.Contains(m_childNode[a].m_region) == ContainmentType.Intersects || sphere.Contains(m_childNode[a].m_region) == ContainmentType.Contains))
+                if (m_childNode[a] != null && (sphere.Contains(m_childNode[a].m_region) != ContainmentType.Disjoint))
                 {
                     List<IntersectionRecord> hitList = m_childNode[a].GetIntersection(sphere);
                     if (hitList != null)
@@ -824,7 +824,7 @@ namespace Game1
             //test each object in the list for intersection
             for (int a = 0; a < 8; a++)
             {
-                if (m_childNode[a] != null && (box.Contains(m_childNode[a].m_region) == ContainmentType.Intersects || box.Contains(m_childNode[a].m_region) == ContainmentType.Contains))
+                if (m_childNode[a] != null && (box.Contains(m_childNode[a].m_region) != ContainmentType.Disjoint))
                 {
                     List<IntersectionRecord> hitList = m_childNode[a].GetIntersection(box);
                     if (hitList != null)
@@ -880,6 +880,57 @@ namespace Game1
                 }
             }
 
+            return ret;
+        }
+
+        private List<IntersectionRecord> GetIntersection(DrawableObject dObject, DrawableObject.ObjectType type = DrawableObject.ObjectType.ALL)
+        {
+            if (m_objects.Count == 0 && HasChildren == false)   //terminator for any recursion
+                return null;
+
+            List<IntersectionRecord> ret = new List<IntersectionRecord>();
+
+            //test each object in the list for intersection
+            foreach (DrawableObject obj in m_objects)
+            {
+
+                //skip any objects which don't meet our type criteria
+                if ((int)((int)type & (int)obj.Type) == 0)
+                    continue;
+
+                //test for intersection
+                IntersectionRecord ir = obj.Intersects(dObject);
+                if (ir != null) ret.Add(ir);
+            }
+
+            //test each object in the list for intersection
+            for (int a = 0; a < 8; a++)
+            {
+                if (dObject.BoundingSphere != null && dObject.BoundingSphere.Radius != 0f)
+                {
+                    if (m_childNode[a] != null && (dObject.BoundingSphere.Contains(m_childNode[a].m_region) != ContainmentType.Disjoint))
+                    {
+                        List<IntersectionRecord> hitList = m_childNode[a].GetIntersection(dObject);
+                        if (hitList != null)
+                        {
+                            foreach (IntersectionRecord ir in hitList)
+                                ret.Add(ir);
+                        }
+                    }
+                }
+                else if (dObject.BoundingBox != null && dObject.BoundingBox.Min != dObject.BoundingBox.Max)
+                {
+                    if (m_childNode[a] != null && (dObject.BoundingBox.Contains(m_childNode[a].m_region) != ContainmentType.Disjoint))
+                    {
+                        List<IntersectionRecord> hitList = m_childNode[a].GetIntersection(dObject);
+                        if (hitList != null)
+                        {
+                            foreach (IntersectionRecord ir in hitList)
+                                ret.Add(ir);
+                        }
+                    }
+                }
+            }
             return ret;
         }
 
@@ -1210,6 +1261,14 @@ namespace Game1
                 UpdateTree();
 
             return GetIntersection(box, type);
+        }
+
+        public List<IntersectionRecord> AllIntersections(DrawableObject dObject, DrawableObject.ObjectType type = DrawableObject.ObjectType.ALL)
+        {
+            if (!m_treeReady)
+                UpdateTree();
+
+            return GetIntersection(dObject, type);
         }
         #endregion
 

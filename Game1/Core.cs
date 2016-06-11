@@ -11,7 +11,7 @@ namespace Game1
 {
     class Core : DrawableObject
     {
-        public Core(Game game, Matrix inWorldMatrix, Model inModel) : base(game, inWorldMatrix, inModel)
+        public Core(Game game, Matrix inWorldMatrix, Model inModel, Octree octree) : base(game, inWorldMatrix, inModel, octree)
         {
             //boundingSphere = new BoundingSphere(position, Map.scale * 0.75f);
 

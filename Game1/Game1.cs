@@ -302,8 +302,9 @@ namespace Game1
 
             //octree
             //octree = new Octree(Map.CreateMap(this, 30, tileModel));
-            octree = new Octree(Map.CreateMapFromTex(this, mapTex, tileModel));
-            core = new Core(this, Matrix.CreateTranslation(1100, 50, 1700), crystalModel);
+            octree = new Octree();
+            octree.m_objects.AddRange(Map.CreateMapFromTex(this, mapTex, tileModel, octree));
+            core = new Core(this, Matrix.CreateTranslation(1100, 50, 1700), crystalModel, octree);
             octree.m_objects.Add(core);
 
             spellMoveTerrain = new SpellMoveTerrain(octree, stats);
@@ -315,7 +316,7 @@ namespace Game1
 
             sky.LoadContent();
 
-            enemy = new Enemy(this, Matrix.CreateTranslation(300, 100, 1100), tileModel, Content);
+            enemy = new Enemy(this, Matrix.CreateTranslation(300, 100, 1100), tileModel, octree, Content);
         }
 
         protected override void UnloadContent()
@@ -795,7 +796,8 @@ namespace Game1
         private void FrustumLists()
         {
             //reflection
-            reflectionObjects = octree.AllFrustumIntersections(new BoundingFrustum(reflectionViewMatrix * camera.ProjectionMatrix));
+            if(settings.Reflect)
+                reflectionObjects = octree.AllFrustumIntersections(new BoundingFrustum(reflectionViewMatrix * camera.ProjectionMatrix));
 
             //draw
             drawObjects = octree.AllFrustumIntersections(camera.Frustum);

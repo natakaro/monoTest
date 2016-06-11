@@ -25,7 +25,7 @@ namespace Game1
         private AnimatedModel modell = null;
         private AnimatedModel dance = null;
 
-        public Enemy(Game game, Matrix inWorldMatrix, Model inModel, ContentManager Content) : base(game, inWorldMatrix, inModel)
+        public Enemy(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ContentManager Content) : base(game, inWorldMatrix, inModel, octree)
         {
             this.Content = Content;
             m_instanced = true;

@@ -46,7 +46,7 @@ namespace Game1.Spells
             return ret;
         }
 
-        public SpellFireballProjectile(Game game, Matrix inWorldMatrix, Model inModel, Texture2D inTexture, LightManager lightManager) : base(game, inWorldMatrix, inModel)
+        public SpellFireballProjectile(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, Texture2D inTexture, LightManager lightManager) : base(game, inWorldMatrix, inModel, octree)
         {
             this.lightManager = lightManager;
             texture = inTexture;
@@ -61,8 +61,11 @@ namespace Game1.Spells
 
         public override void HandleIntersection(IntersectionRecord ir)
         {
-            if (ir.OtherDrawableObjectObject.Type == ObjectType.Terrain)
-                Destroy();
+            if (ir.DrawableObjectObject != null)
+            {
+                if (ir.DrawableObjectObject.Type == ObjectType.Terrain)
+                    Destroy();
+            }
         }
 
         private void Destroy()

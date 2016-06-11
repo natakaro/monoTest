@@ -29,7 +29,7 @@ namespace Game1
             }
         }
 
-        public Asset(Game game, Matrix inWorldMatrix, Model inModel) : base(game, inWorldMatrix, inModel)
+        public Asset(Game game, Matrix inWorldMatrix, Model inModel, Octree octree) : base(game, inWorldMatrix, inModel, octree)
         {
             m_instanced = true;
             //boundingSphere = new BoundingSphere(position, Map.scale * 0.75f);

@@ -16,7 +16,7 @@ namespace Game1
         public static bool efekt = false;
 
 
-        public static List<DrawableObject> CreateMapFromTex(Game game, Texture2D tex, Model inModel)
+        public static List<DrawableObject> CreateMapFromTex(Game game, Texture2D tex, Model inModel, Octree octree)
         {
             float height = 50f;
             float vert = 0.75f * height;
@@ -35,7 +35,7 @@ namespace Game1
                     Vector3 position = new Vector3(i * vert, temp, (j * horiz) + (i % 2) * horiz / 2);
 
 
-                    tileList.Add(new Tile(game, Matrix.CreateTranslation(position), inModel));
+                    tileList.Add(new Tile(game, Matrix.CreateTranslation(position), inModel, octree));
 
                     //position.Y += 50; // nie wiem czy będzie potrzebne zależy od pivotów
 
@@ -61,7 +61,7 @@ namespace Game1
             return tileList;
         }
 
-        public static List<DrawableObject> CreateMap(Game game, int size, Model inModel)
+        public static List<DrawableObject> CreateMap(Game game, int size, Model inModel, Octree octree)
         {
             float height = 50f;
             float vert = 0.75f * height;
@@ -78,7 +78,7 @@ namespace Game1
                     Vector3 position = new Vector3(i * vert, a.Next(5), (j * horiz) + (i % 2) * horiz / 2);
                     //mapa[i, j] = new Tile(game, new Vector3(i * vert, a.Next(5), (j * width) + (i % 2) * width / 2) , a.Next(1, 2));
                     //mapa[i, j] = new Tile(game, Matrix.CreateScale(scale) * Matrix.CreateTranslation(position) * worldMatrix, a.Next(1, 2));
-                    tileList.Add(new Tile(game, Matrix.CreateTranslation(position), inModel));                   
+                    tileList.Add(new Tile(game, Matrix.CreateTranslation(position), inModel, octree));
                 }
             }
             return tileList;
