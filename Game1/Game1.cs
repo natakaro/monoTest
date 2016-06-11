@@ -25,6 +25,8 @@ namespace Game1
         private InstancingManager instancingManager;
         public Octree octree;
 
+        public Dictionary<AxialCoordinate, Tile> tileDictionary;
+
         #region Object lists
         private FrustumIntersections reflectionObjects;
         private FrustumIntersections drawObjects;
@@ -166,7 +168,7 @@ namespace Game1
 
         PathFinder pathfinder;
         List<Tile> path;
-        List<CubeCoordinate> lineTest;
+        List<CubeCoordinateH> lineTest;
         List<Tile> lineList;
 
         public Game1()
@@ -307,9 +309,18 @@ namespace Game1
             instancingManager = new InstancingManager(this, camera, Content, tileModel, tileTexture);
 
             //octree
-            //octree = new Octree(Map.CreateMap(this, 30, tileModel));
             octree = new Octree();
-            octree.m_objects.AddRange(Map.CreateMapFromTex(this, mapTex, tileModel, octree));
+
+            tileDictionary = Map.CreateMapFromTex(this, mapTex, tileModel, octree);
+
+            List<DrawableObject> tileList = new List<DrawableObject>();
+            foreach(var item in tileDictionary)
+            {
+                tileList.Add(item.Value);
+            }
+
+            octree.m_objects.AddRange(tileList);
+
             core = new Core(this, Matrix.CreateTranslation(1100, 50, 1700), crystalModel, octree);
             octree.m_objects.Add(core);
 
@@ -326,7 +337,7 @@ namespace Game1
             pathfinder = new PathFinder();
             path = new List<Tile>();
 
-            lineTest = new List<CubeCoordinate>();
+            lineTest = new List<CubeCoordinateH>();
             lineList = new List<Tile>();
             /*
             List<DrawableObject> abc = new List<DrawableObject>();
@@ -428,15 +439,17 @@ namespace Game1
             if (KeyJustPressed(Keys.P))
             {
 
-                path = pathfinder.Pathfind((Tile)octree.HighestIntersection(camera.GetDownwardRay(), DrawableObject.ObjectType.Terrain).DrawableObjectObject, (Tile)octree.HighestIntersection(core).DrawableObjectObject, octree);
-                lineTest = pathfinder.CubeLerp(Map.pixelToHex(octree.HighestIntersection(camera.GetDownwardRay(), DrawableObject.ObjectType.Terrain).DrawableObjectObject.Position, Map.size).ToCube(), Map.pixelToHex(octree.HighestIntersection(core).DrawableObjectObject.Position, Map.size).ToCube());
-                lineList.Clear();
-                foreach(CubeCoordinate coord in lineTest)
-                {
-                    Vector3 position = Map.hexToPixel(coord.ToAxial(), Map.size);
-                    lineList.Add(new Tile(this, Matrix.CreateTranslation(position), tileModel, octree));
-                    octree.m_objects.AddRange(lineList);
-                }
+                path = pathfinder.Pathfind((Tile)octree.HighestIntersection(camera.GetDownwardRay(), DrawableObject.ObjectType.Terrain).DrawableObjectObject, (Tile)octree.HighestIntersection(core, DrawableObject.ObjectType.Terrain).DrawableObjectObject, octree, settings);
+                //path = pathfinder.Pathfind((Tile)octree.HighestIntersection(camera.GetDownwardRay(), DrawableObject.ObjectType.Terrain).DrawableObjectObject, (Tile)octree.HighestIntersection(core, DrawableObject.ObjectType.Terrain).DrawableObjectObject, tileDictionary);
+
+                //lineTest = pathfinder.CubeLerp(Map.pixelToHex(octree.HighestIntersection(camera.GetDownwardRay(), DrawableObject.ObjectType.Terrain).DrawableObjectObject.Position, Map.size).ToCube(), Map.pixelToHex(octree.HighestIntersection(core).DrawableObjectObject.Position, Map.size).ToCube());
+                //lineList.Clear();
+                //foreach(CubeCoordinate coord in lineTest)
+                //{
+                //    Vector3 position = Map.hexToPixel(coord.ToAxial(), Map.size);
+                //    lineList.Add(new Tile(this, Matrix.CreateTranslation(position), tileModel, octree));
+                //    octree.m_objects.AddRange(lineList);
+                //}
                 //(Tile)octree.HighestIntersection(new Ray(core.Position, Vector3.Down), DrawableObject.ObjectType.Terrain).DrawableObjectObject
             }
 
@@ -650,7 +663,7 @@ namespace Game1
             {
                 enemy.Update(gameTime, camera, octree);
             }
-            
+
             UpdateFrameRate(gameTime);
 
             swUpdate.Stop();

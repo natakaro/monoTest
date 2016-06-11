@@ -15,11 +15,76 @@ namespace Game1
     {
         public float q;
         public float r;
-        public float height;
+
+        public AxialCoordinate(float q, float r)
+        {
+            this.q = q;
+            this.r = r;
+        }
 
         public CubeCoordinate ToCube()
         {
             CubeCoordinate ret;
+
+            ret.x = q;
+            ret.z = r;
+            ret.y = -ret.x - ret.z;
+
+            return ret;
+        }
+
+        public Vector2 ToVector2()
+        {
+            return new Vector2(q, r);
+        }
+    };
+
+    public struct CubeCoordinate
+    {
+        public float x;
+        public float y;
+        public float z;
+
+        public CubeCoordinate(float x, float y, float z)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+
+        public AxialCoordinate ToAxial()
+        {
+            AxialCoordinate ret;
+
+            ret.q = x;
+            ret.r = z;
+
+            return ret;
+        }
+
+        public static CubeCoordinate operator +(CubeCoordinate a, CubeCoordinate b)
+        {
+            return new CubeCoordinate(a.x + b.x, a.y + b.y, a.z + b.z);
+        }
+    }
+
+    public struct AxialCoordinateH
+    {
+        public float q;
+        public float r;
+        public float height;
+
+        public AxialCoordinateH(float q, float r, float height)
+        {
+            this.q = q;
+            this.r = r;
+
+            this.height = height;
+        }
+
+        public CubeCoordinateH ToCube()
+        {
+            CubeCoordinateH ret;
 
             ret.x = q;
             ret.z = r;
@@ -40,26 +105,20 @@ namespace Game1
             return new Vector3(q, height, r);
         }
 
-        public Vector3 ToOddROffset()
+        public static implicit operator AxialCoordinate(AxialCoordinateH value)
         {
-            Vector3 ret;
-
-            ret.X = q + (r - (r % 2)) / 2;
-            ret.Z = r;
-            ret.Y = height;
-
-            return ret;
+            return new AxialCoordinate(value.q, value.r);
         }
     };
 
-    public struct CubeCoordinate
+    public struct CubeCoordinateH
     {
         public float x;
         public float y;
         public float z;
         public float height;
 
-        public CubeCoordinate(float x, float y, float z, float height)
+        public CubeCoordinateH(float x, float y, float z, float height)
         {
             this.x = x;
             this.y = y;
@@ -67,9 +126,9 @@ namespace Game1
             this.height = height;
         }
 
-        public AxialCoordinate ToAxial()
+        public AxialCoordinateH ToAxial()
         {
-            AxialCoordinate ret;
+            AxialCoordinateH ret;
 
             ret.q = x;
             ret.r = z;
@@ -79,15 +138,9 @@ namespace Game1
             return ret;
         }
 
-        public Vector3 ToOddROffset()
+        public static implicit operator CubeCoordinate(CubeCoordinateH value)
         {
-            Vector3 ret;
-
-            ret.X = x + (z - (z % 2)) / 2;
-            ret.Z = z;
-            ret.Y = height;
-
-            return ret;
+            return new CubeCoordinate(value.x, value.y, value.z);
         }
     }
 
@@ -99,22 +152,21 @@ namespace Game1
         public static int MapHeight;
         public static float size = 25f;
 
-        public static List<DrawableObject> CreateMapFromTex(Game game, Texture2D tex, Model inModel, Octree octree)
+        public static Dictionary<AxialCoordinate, Tile> CreateMapFromTex(Game game, Texture2D tex, Model inModel, Octree octree)
         {
             float height = 2 * size;
             float vert = 0.75f * height;
             float width = (float)Math.Sqrt(3) / 2 * height;
             float horiz = width;
-            List<DrawableObject> tileList = new List<DrawableObject>();
+            Dictionary<AxialCoordinate, Tile> tileDictionary = new Dictionary<AxialCoordinate, Tile>();
 
-            List<AxialCoordinate> map = readMapAxial(tex);
+            List<AxialCoordinateH> map = readMapAxial(tex);
 
-            foreach(AxialCoordinate coord in map)
+            foreach(AxialCoordinateH coord in map)
             {
-                var offset = coord.ToOddROffset();
-                //var position = hexToPixel(coord, size);
-                var position = new Vector3(coord.q * vert, coord.height, (coord.r * horiz) + (coord.q % 2) * horiz / 2);
-                tileList.Add(new Tile(game, Matrix.CreateTranslation(position), inModel, octree));
+                var position = axialHToPixel(coord, size);
+                //var position = new Vector3(coord.q * vert, coord.height, (coord.r * horiz) + (coord.q % 2) * horiz / 2);
+                tileDictionary.Add(coord, new Tile(game, Matrix.CreateTranslation(position), inModel, octree));
             }
 
             //Color[] color = Texture2dHelper.GetPixels(tex);
@@ -154,7 +206,7 @@ namespace Game1
 
 
 
-            return tileList;
+            return tileDictionary;
         }
 
         //public static List<DrawableObject> CreateMap(Game game, int size, Model inModel, Octree octree)
@@ -181,20 +233,20 @@ namespace Game1
         //}
 
         
-        public static List<AxialCoordinate> readMapAxial(Texture2D tex)
+        public static List<AxialCoordinateH> readMapAxial(Texture2D tex)
         {
             Color[] color = Texture2dHelper.GetPixels(tex);
             MapWidth = tex.Width;
             MapHeight = tex.Height;
 
-            var ret = new List<AxialCoordinate>();
+            var ret = new List<AxialCoordinateH>();
 
             for (int i = 0; i < tex.Width; i++)
             {
                 for (int j = 0; j < tex.Height; j++)
                 {
                     float height = Texture2dHelper.GetPixel(color, i, j, tex.Width).R;
-                    AxialCoordinate coord;
+                    AxialCoordinateH coord;
                     coord.q = i;
                     coord.r = j;
                     coord.height = height;
@@ -202,6 +254,14 @@ namespace Game1
                 }
             }
             return ret;
+        }
+
+        public static Tile tileFromAxial(AxialCoordinate axial, Dictionary<AxialCoordinate, Tile> dictionary)
+        {
+            Tile tile;
+            dictionary.TryGetValue(axial, out tile);
+
+            return tile;
         }
 
         public static Vector3 WorldToCube(Tile tile)
@@ -238,7 +298,7 @@ namespace Game1
             return new Vector3(x, y, z);
         }
 
-        public static Vector3 hexToPixel(AxialCoordinate axial, float size)
+        public static Vector3 axialHToPixel(AxialCoordinateH axial, float size)
         {
             Vector3 ret;
 
@@ -253,9 +313,9 @@ namespace Game1
             return ret;
         }
 
-        public static AxialCoordinate pixelToHex(Vector3 pixel, float size)
+        public static AxialCoordinateH pixelToAxialH(Vector3 pixel, float size)
         {
-            AxialCoordinate ret;
+            AxialCoordinateH ret;
 
             //ret.q = (pixel.X * (float)Math.Sqrt(3) / 3 - pixel.Z / 3) / size;
             //ret.r = pixel.Z * 2 / 3 / size;
@@ -267,5 +327,33 @@ namespace Game1
             
             return ret;
         }
+
+        //public static Vector3 axialToPixel(AxialCoordinate axial, float size)
+        //{
+            //Vector3 ret;
+        
+            ////ret.X = size * (float)Math.Sqrt(3) * (axial.q + axial.r / 2);
+            ////ret.Z = size * 3 / 2 * axial.r;
+        
+            //ret.X = size * 3 / 2 * axial.q;
+            //ret.Z = size * (float)Math.Sqrt(3) * (axial.r + axial.q / 2);
+        
+            //ret.Y = axial.height;
+        
+            //return ret;
+        //}
+
+        //public static AxialCoordinate pixelToAxial(Vector3 pixel, float size)
+        //{
+        //    AxialCoordinate ret;
+
+        //    //ret.q = (pixel.X * (float)Math.Sqrt(3) / 3 - pixel.Z / 3) / size;
+        //    //ret.r = pixel.Z * 2 / 3 / size;
+
+        //    ret.q = pixel.X * 2 / 3 / size;
+        //    ret.r = (-pixel.X / 3 + (float)Math.Sqrt(3) / 3 * pixel.Z) / size;
+
+        //    return ret;
+        //}
     }
 }

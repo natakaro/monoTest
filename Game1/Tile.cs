@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Game1
 {
-    class Tile : DrawableObject
+    public class Tile : DrawableObject
     {
         public Tile(Game game, Matrix inWorldMatrix, Model inModel, Octree octree) : base(game, inWorldMatrix, inModel, octree)
         {
