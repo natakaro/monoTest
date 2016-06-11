@@ -163,6 +163,10 @@ namespace Game1
         double gpuMs = 0;
         #endregion
 
+
+        PathFinder pathfinder;
+        List<Tile> path;
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -317,6 +321,20 @@ namespace Game1
             sky.LoadContent();
 
             enemy = new Enemy(this, Matrix.CreateTranslation(300, 100, 1100), tileModel, octree, Content);
+            pathfinder = new PathFinder();
+            path = new List<Tile>();
+            /*
+            List<DrawableObject> abc = new List<DrawableObject>();
+            foreach(Tile tile in path.Pathfind((Tile)octree.AllObjects(DrawableObject.ObjectType.Terrain)[0], (Tile)octree.AllObjects(DrawableObject.ObjectType.Terrain)[846], octree))
+            {
+                Vector3 temp = tile.Position;
+                temp.Y += 50;
+                tile.Position = temp;
+                abc.Add(tile);
+            }
+
+            octree.m_objects.AddRange(abc);
+            */
         }
 
         protected override void UnloadContent()
@@ -401,6 +419,12 @@ namespace Game1
 
                 if (camera.RotationSpeed <= 0.0f)
                     camera.RotationSpeed = 0.01f;
+            }
+            if (KeyJustPressed(Keys.P))
+            {
+
+                path = pathfinder.Pathfind((Tile)octree.HighestIntersection(camera.GetDownwardRay(), DrawableObject.ObjectType.Terrain).DrawableObjectObject, (Tile)octree.HighestIntersection(core).DrawableObjectObject, octree);
+                //(Tile)octree.HighestIntersection(new Ray(core.Position, Vector3.Down), DrawableObject.ObjectType.Terrain).DrawableObjectObject
             }
 
             //if (KeyJustPressed(Keys.F8))
@@ -867,6 +891,13 @@ namespace Game1
                 }
                 mesh.Draw();
             }
+
+            //ścieżka
+            foreach(Tile tile in path)
+            {
+                tile.Draw(camera);
+            }
+
 
             ResolveGBuffer();
 

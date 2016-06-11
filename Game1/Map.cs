@@ -15,6 +15,8 @@ namespace Game1
     {
         public static bool efekt = false;
 
+        public static int MapWidth;
+        public static int MapHeight;
 
         public static List<DrawableObject> CreateMapFromTex(Game game, Texture2D tex, Model inModel, Octree octree)
         {
@@ -26,6 +28,8 @@ namespace Game1
             Color[] color = Texture2dHelper.GetPixels(tex);
 
             //Color[] color2 = Texture2dHelper.GetPixels(tex2); //drzewa i inne
+            MapWidth = tex.Width;
+            MapHeight = tex.Height;
 
             for (int i = 0; i < tex.Width; i++)
             {

@@ -53,6 +53,7 @@
     <Compile Include="Helpers\ExtensionMethods.cs" />
     <Compile Include="Helpers\FastFrustum.cs" />
     <Compile Include="Helpers\IntermediateTexture.cs" />
+    <Compile Include="Helpers\PathFinder.cs" />
     <Compile Include="Helpers\QuadRenderer.cs" />
     <Compile Include="Helpers\RasterizerStateUtility.cs" />
     <Compile Include="Helpers\SamplerStateUtility.cs" />
