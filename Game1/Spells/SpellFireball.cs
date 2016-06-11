@@ -15,8 +15,8 @@ namespace Game1.Spells
         private Game game;
         private Camera camera;
         private Octree octree;
-        private Model fireballModel;
-        private Texture2D fireballTexture;
+        public Model fireballModel;
+        public Texture2D fireballTexture;
         private LightManager lightManager;
         private Stats stats;
 

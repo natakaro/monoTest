@@ -166,6 +166,8 @@ namespace Game1
 
         PathFinder pathfinder;
         List<Tile> path;
+        List<CubeCoordinate> lineTest;
+        List<Tile> lineList;
 
         public Game1()
         {
@@ -323,6 +325,9 @@ namespace Game1
             enemy = new Enemy(this, Matrix.CreateTranslation(300, 100, 1100), tileModel, octree, Content);
             pathfinder = new PathFinder();
             path = new List<Tile>();
+
+            lineTest = new List<CubeCoordinate>();
+            lineList = new List<Tile>();
             /*
             List<DrawableObject> abc = new List<DrawableObject>();
             foreach(Tile tile in path.Pathfind((Tile)octree.AllObjects(DrawableObject.ObjectType.Terrain)[0], (Tile)octree.AllObjects(DrawableObject.ObjectType.Terrain)[846], octree))
@@ -424,6 +429,14 @@ namespace Game1
             {
 
                 path = pathfinder.Pathfind((Tile)octree.HighestIntersection(camera.GetDownwardRay(), DrawableObject.ObjectType.Terrain).DrawableObjectObject, (Tile)octree.HighestIntersection(core).DrawableObjectObject, octree);
+                lineTest = pathfinder.CubeLerp(Map.pixelToHex(octree.HighestIntersection(camera.GetDownwardRay(), DrawableObject.ObjectType.Terrain).DrawableObjectObject.Position, Map.size).ToCube(), Map.pixelToHex(octree.HighestIntersection(core).DrawableObjectObject.Position, Map.size).ToCube());
+                lineList.Clear();
+                foreach(CubeCoordinate coord in lineTest)
+                {
+                    Vector3 position = Map.hexToPixel(coord.ToAxial(), Map.size);
+                    lineList.Add(new Tile(this, Matrix.CreateTranslation(position), tileModel, octree));
+                    octree.m_objects.AddRange(lineList);
+                }
                 //(Tile)octree.HighestIntersection(new Ray(core.Position, Vector3.Down), DrawableObject.ObjectType.Terrain).DrawableObjectObject
             }
 
@@ -750,8 +763,6 @@ namespace Game1
                     stats.currentHealth.ToString());
                 buffer.AppendFormat(" Mana: {0}\n\n",
                     stats.currentMana.ToString());
-
-                buffer.Append("\nPress H to display more");
             }
             spriteBatch.DrawString(spriteFont, buffer.ToString(), fontPos, Color.Yellow);
         }
@@ -898,6 +909,10 @@ namespace Game1
                 tile.Draw(camera);
             }
 
+            foreach(Tile tile in lineList)
+            {
+                tile.Draw(camera);
+            }
 
             ResolveGBuffer();
 

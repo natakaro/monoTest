@@ -31,6 +31,28 @@ namespace Game1.Helpers
                 }
             }*/
 
+        public float CubeDistance(CubeCoordinate a, CubeCoordinate b)
+        {
+            //return (Math.Abs(a.X - b.X) + Math.Abs(a.Y - b.Y) + Math.Abs(a.Z - b.Z)) / 2;
+            return Math.Max(Math.Max(Math.Abs(a.x - b.x), Math.Abs(a.y - b.y)), Math.Abs(a.z - b.z));
+        }
+
+        public List<CubeCoordinate> CubeLerp(CubeCoordinate a, CubeCoordinate b)
+        {
+            var ret = new List<CubeCoordinate>();
+            var distance = CubeDistance(a, b);
+
+            int steps = (int)distance;
+
+            for (int i = 1; i <= steps; i++)
+            {
+                float amount = 1.0f / steps * i;
+                ret.Add(new CubeCoordinate(MathHelper.Lerp(a.x, b.x, amount), MathHelper.Lerp(a.y, b.y, amount), MathHelper.Lerp(a.z, b.z, amount), MathHelper.Lerp(a.height, b.height, amount)));
+            }
+
+            return ret;
+        }
+
         public List<Tile> Pathfind(Tile start, Tile end, Octree octree)
         {
             // nodes that have already been analyzed and have a path from the start to them
@@ -145,12 +167,12 @@ namespace Game1.Helpers
 
             foreach (IntersectionRecord ir in irs)
             {
-                if (ir.Position == node.Position || Math.Abs(ir.Position.Y - node.Position.Y) > 100 || node.Position.Y < 5)//usunięcie "siebie" z listy lub za wysokiego progu
+                if (ir.Position == node.Position || ir.Position.Y - node.Position.Y > 30 || node.Position.Y < 5)//usunięcie "siebie" z listy lub za wysokiego progu
                 {
                     remove.Add(ir);
                 }
             }
-            
+
             foreach (IntersectionRecord ir in remove)
             {
                 irs.Remove(ir);
@@ -177,6 +199,10 @@ namespace Game1.Helpers
             foreach (IntersectionRecord ir in irs)
             {
                 if (ir.Position == node.Position)//usunięcie "siebie" z listy
+                {
+                    irs.Remove(ir);
+                }
+                else if (ir.Position.Y - node.Position.Y > 30)
                 {
                     irs.Remove(ir);
                 }
