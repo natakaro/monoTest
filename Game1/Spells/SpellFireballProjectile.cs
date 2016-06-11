@@ -38,9 +38,11 @@ namespace Game1.Spells
         public override bool Update(GameTime gameTime)
         {
             bool ret = base.Update(gameTime);
+
             pointLight.Position = position;
             BoundingSphere pointLightSphere = pointLight.BoundingSphere;
             pointLightSphere.Center = position;
+
             return ret;
         }
 
@@ -53,7 +55,7 @@ namespace Game1.Spells
             boundingBox = CollisionBox.CreateBoundingBox(model, position, 1);
             type = ObjectType.Projectile;
 
-            pointLight = new PointLight(position, Color.OrangeRed, 25, 1);
+            pointLight = new PointLight(position, Color.OrangeRed, 25, 5);
             lightManager.AddLight(pointLight);
         }
 
@@ -65,8 +67,8 @@ namespace Game1.Spells
 
         private void Destroy()
         {
-            Alive = false;
             lightManager.RemoveLight(pointLight);
+            Alive = false;
         }
     }
 }

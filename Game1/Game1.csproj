@@ -50,6 +50,8 @@
     <Compile Include="Helpers\CollisionBox.cs" />
     <Compile Include="Helpers\DebugShapeRenderer.cs" />
     <Compile Include="DrawableObject.cs" />
+    <Compile Include="Helpers\ExtensionMethods.cs" />
+    <Compile Include="Helpers\FastFrustum.cs" />
     <Compile Include="Helpers\IntermediateTexture.cs" />
     <Compile Include="Helpers\QuadRenderer.cs" />
     <Compile Include="Helpers\RasterizerStateUtility.cs" />
@@ -57,6 +59,9 @@
     <Compile Include="Helpers\Texture2dHelper.cs" />
     <Compile Include="Helpers\Vector4Utility.cs" />
     <Compile Include="Helpers\VertexPositionTextureRayIndex.cs" />
+    <Compile Include="HUD\HUDManager.cs" />
+    <Compile Include="HUD\HUDBar.cs" />
+    <Compile Include="HUD\HUDElement.cs" />
     <Compile Include="InstancingManager.cs" />
     <Compile Include="IntersectionRecord.cs" />
     <Compile Include="Lights\LightManager.cs" />
@@ -78,6 +83,7 @@
     <Compile Include="Spells\SpellMoveTerrain.cs" />
     <Compile Include="SSAO.cs" />
     <Compile Include="Asset.cs" />
+    <Compile Include="Stats.cs" />
     <Compile Include="Tile.cs" />
     <Compile Include="TimeOfDay.cs" />
     <Compile Include="Water.cs" />

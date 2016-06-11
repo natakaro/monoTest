@@ -9,6 +9,7 @@ using Game1.Helpers;
 using Game1.Shadows;
 using Game1.Lights;
 using Game1.Sky;
+using Game1.HUD;
 using System.Diagnostics;
 using System.Threading;
 
@@ -67,6 +68,9 @@ namespace Game1
         private Texture2D handstex;
         private Texture2D tileTexture;
         private Texture2D cross;
+
+        private HUDManager hudManager;
+        private Stats stats;
 
         //map
         private Texture2D mapTex;
@@ -253,6 +257,11 @@ namespace Game1
 
             fxaaTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.HdrBlendable, DepthFormat.None);
 
+            stats = new Stats();
+
+            hudManager = new HUDManager(spriteBatch, GraphicsDevice, Content, stats);
+            hudManager.LoadContent();
+
             cross = Content.Load<Texture2D>("Hud/cross_cross");
             spriteFont = Content.Load<SpriteFont>("Fonts/DemoFont");
 
@@ -297,8 +306,8 @@ namespace Game1
             core = new Core(this, Matrix.CreateTranslation(1100, 50, 1700), crystalModel);
             octree.m_objects.Add(core);
 
-            spellMoveTerrain = new SpellMoveTerrain(octree);
-            spellFireball = new SpellFireball(this, camera, octree, lightManager);
+            spellMoveTerrain = new SpellMoveTerrain(octree, stats);
+            spellFireball = new SpellFireball(this, camera, octree, lightManager, stats);
 
             swDraw = new Stopwatch();
             swUpdate = new Stopwatch();
@@ -472,6 +481,8 @@ namespace Game1
 
             swUpdate.Reset();
             swUpdate.Start();
+
+            stats.Update(gameTime);
 
             sky.Update(gameTime);
             base.Update(gameTime);
@@ -708,8 +719,12 @@ namespace Game1
                     currentMouseState.ScrollWheelValue.ToString("f2"));
                 buffer.AppendFormat("  Selected Spell: {0}\n",
                     selectedSpell.ToString());
-                buffer.AppendFormat("  Selected Spell: {0}\n",
+                buffer.AppendFormat("  Selected Spell: {0}\n\n",
                     camera.GetMouseRay(GraphicsDevice.Viewport).Direction.ToString());
+                buffer.AppendFormat(" Health: {0}\n",
+                    stats.currentHealth.ToString());
+                buffer.AppendFormat(" Mana: {0}\n\n",
+                    stats.currentMana.ToString());
 
                 buffer.Append("\nPress H to display more");
             }
@@ -821,9 +836,6 @@ namespace Game1
 
             sky.Draw(gameTime, camera.ViewMatrix, camera.Position);
 
-            modelsDrawn = 0;
-            modelsDrawnInstanced = 0;
-
             enemy.Draw(camera);
 
             instancingManager.DrawModelHardwareInstancing(drawObjects.IntersectionsInstanced);
@@ -831,6 +843,8 @@ namespace Game1
             {
                 ir.DrawableObjectObject.Draw(camera);
             }
+            modelsDrawn = drawObjects.Intersections.Count;
+            modelsDrawnInstanced = drawObjects.IntersectionsInstanced.Count;
 
             if (settings.DrawDebugShapes)
             {
@@ -938,6 +952,8 @@ namespace Game1
             if(settings.ShowGBuffer)
                 DrawGBuffer();
             spriteBatch.End();
+
+            hudManager.Draw();
 
             IncrementFrameCounter();
 

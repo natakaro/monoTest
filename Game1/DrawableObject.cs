@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Game1.Helpers;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -92,6 +93,8 @@ namespace Game1
                 boundingSphere.Center = position;
                 boundingBox.Min += velocity * (float)(gameTime.ElapsedGameTime.TotalSeconds);
                 boundingBox.Max += velocity * (float)(gameTime.ElapsedGameTime.TotalSeconds);
+                //if (lastPosition != position)
+                //    octree
                 return lastPosition != position;    //lets you know if the object actually moved relative to its last position
             }
 
@@ -158,6 +161,7 @@ namespace Game1
         /// </returns>
         public virtual IntersectionRecord Intersects(BoundingFrustum intersectionFrustum)
         {
+
             if (boundingBox != null && boundingBox.Max - boundingBox.Min != Vector3.Zero)
             {
                 if (intersectionFrustum.Contains(boundingBox) != ContainmentType.Disjoint)
@@ -168,6 +172,17 @@ namespace Game1
                 if (intersectionFrustum.Contains(boundingSphere) != ContainmentType.Disjoint)
                     return new IntersectionRecord(this);
             }
+
+            //if (boundingBox != null && boundingBox.Max - boundingBox.Min != Vector3.Zero)
+            //{
+            //    if (intersectionFrustum.FastIntersectTest(ref boundingBox))
+            //        return new IntersectionRecord(this);
+            //}
+            //else if (boundingSphere != null && boundingSphere.Radius != 0f)
+            //{
+            //    if (intersectionFrustum.FastIntersectTest(ref boundingSphere))
+            //        return new IntersectionRecord(this);
+            //}
 
             return null;
         }

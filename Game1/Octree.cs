@@ -189,8 +189,6 @@ namespace Game1
                 }
 
                 //prune any dead objects from the tree.
-
-                //TODO ALIVE
                 int listSize = m_objects.Count;
                 for (int a = 0; a < listSize; a++)
                 {
@@ -243,24 +241,23 @@ namespace Game1
                         m_activeNodes ^= (byte)(1 << index);       //remove the node from the active nodes flag list
                     }
 
-                //now that all objects have moved and they've been placed into their correct nodes in the octree, we can look for collisions.
-                if (IsRoot == true)
-                {
-                    //This will recursively gather up all collisions and create a list of them.
-                    //this is simply a matter of comparing all objects in the current root node with all objects in all child nodes.
-                    //note: we can assume that every collision will only be between objects which have moved.
-                    //note 2: An explosion can be centered on a point but grow in size over time. In this case, you'll have to override the update method for the explosion.
-                    List<IntersectionRecord> irList = GetIntersection(new List<DrawableObject>());
+                ////now that all objects have moved and they've been placed into their correct nodes in the octree, we can look for collisions.
+                //if (IsRoot == true)
+                //{
+                //    //This will recursively gather up all collisions and create a list of them.
+                //    //this is simply a matter of comparing all objects in the current root node with all objects in all child nodes.
+                //    //note: we can assume that every collision will only be between objects which have moved.
+                //    //note 2: An explosion can be centered on a point but grow in size over time. In this case, you'll have to override the update method for the explosion.
+                //    List<IntersectionRecord> irList = GetIntersection(new List<DrawableObject>());
 
-                    foreach (IntersectionRecord ir in irList)
-                    {
-                        if (ir.DrawableObjectObject != null)
-                            ir.DrawableObjectObject.HandleIntersection(ir);
-                        if (ir.OtherDrawableObjectObject != null)
-                            ir.OtherDrawableObjectObject.HandleIntersection(ir);
-                    }
-                }
-
+                //    foreach (IntersectionRecord ir in irList)
+                //    {
+                //        if (ir.DrawableObjectObject != null)
+                //            ir.DrawableObjectObject.HandleIntersection(ir);
+                //        if (ir.OtherDrawableObjectObject != null)
+                //            ir.OtherDrawableObjectObject.HandleIntersection(ir);
+                //    }
+                //}
             }
             else
             {
