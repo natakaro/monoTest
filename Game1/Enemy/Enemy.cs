@@ -8,12 +8,13 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using AnimationAux;
+using static Game1.Helpers.HexCoordinates;
 
 namespace Game1
 {
     class Enemy : DrawableObject
     {
-        Ray positionray;
+        //Ray positionray;
         float gravity = 100f;
         float distance;
 
@@ -47,10 +48,10 @@ namespace Game1
             boundingBox = CollisionBox.CreateBoundingBox(modell.Model, position, 1);
             a = boundingBox.Max.Y - boundingBox.Min.Y;
             b = position.Y - boundingBox.Min.Y;
-            positionray = new Ray(new Vector3(position.X, boundingBox.Min.Y, position.Z), Vector3.Down);
+            //positionray = new Ray(new Vector3(position.X, boundingBox.Min.Y, position.Z), Vector3.Down);
         }
 
-        public bool Update(GameTime gameTime, Camera camera, Octree octree)
+        public bool Update(GameTime gameTime, Camera camera, Octree octree, Dictionary<AxialCoordinate, Tile> map)
         {
             
             Vector3 temp;
@@ -60,17 +61,25 @@ namespace Game1
             position += speed * temp2 * (float)(gameTime.ElapsedGameTime.TotalSeconds);
             boundingBox.Max += speed * temp2 * (float)(gameTime.ElapsedGameTime.TotalSeconds);
             boundingBox.Min += speed * temp2 * (float)(gameTime.ElapsedGameTime.TotalSeconds);
-            IntersectionRecord ir = octree.HighestIntersection(this, ObjectType.Terrain);
-            
-            if (ir != null && ir.DrawableObjectObject != null)//..ujowy if ale działa
-            {
-                distance = boundingBox.Min.Y - ir.DrawableObjectObject.BoundingBox.Max.Y;
-                boundingBox.Min.Y -= distance * gravity/10 * (float)(gameTime.ElapsedGameTime.TotalSeconds);
-            }
-            if (ir.DrawableObjectObject == null)
-                boundingBox.Min.Y -= gravity*(float)(gameTime.ElapsedGameTime.TotalSeconds);
+            //IntersectionRecord ir = octree.HighestIntersection(this, ObjectType.Terrain);
+            //
+            //if (ir != null && ir.DrawableObjectObject != null)//..ujowy if ale działa
+            //{
+            //    distance = boundingBox.Min.Y - ir.DrawableObjectObject.BoundingBox.Max.Y;
+            //    boundingBox.Min.Y -= distance * gravity/10 * (float)(gameTime.ElapsedGameTime.TotalSeconds);
+            //}
+            //if (ir.DrawableObjectObject == null)
+            //    boundingBox.Min.Y -= gravity*(float)(gameTime.ElapsedGameTime.TotalSeconds);
 
-            
+            Tile tile = tileFromPosition(position, map);
+
+            if (tile != null)
+            {
+                distance = boundingBox.Min.Y - tile.BoundingBox.Max.Y;
+                boundingBox.Min.Y -= distance * gravity / 10 * (float)(gameTime.ElapsedGameTime.TotalSeconds);
+            }
+            if (tile == null)
+                boundingBox.Min.Y -= gravity * (float)(gameTime.ElapsedGameTime.TotalSeconds);
 
             boundingBox.Max.Y = boundingBox.Min.Y + a;
             position.Y = boundingBox.Min.Y + b;

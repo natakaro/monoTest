@@ -439,19 +439,11 @@ namespace Game1
             }
             if (KeyJustPressed(Keys.P))
             {
+                Tile start = tileFromPosition(camera.Position, tileDictionary);
+                Tile end = tileFromPosition(core.Position, tileDictionary);
+                path = pathfinder.Pathfind(start, end, tileDictionary, settings);
 
                 //path = pathfinder.Pathfind((Tile)octree.HighestIntersection(camera.GetDownwardRay(), DrawableObject.ObjectType.Terrain).DrawableObjectObject, (Tile)octree.HighestIntersection(core, DrawableObject.ObjectType.Terrain).DrawableObjectObject, octree, settings);
-                path = pathfinder.Pathfind((Tile)octree.HighestIntersection(camera.GetDownwardRay(), DrawableObject.ObjectType.Terrain).DrawableObjectObject, (Tile)octree.HighestIntersection(core, DrawableObject.ObjectType.Terrain).DrawableObjectObject, tileDictionary, settings);
-
-                //lineTest = pathfinder.CubeLerp(Map.pixelToHex(octree.HighestIntersection(camera.GetDownwardRay(), DrawableObject.ObjectType.Terrain).DrawableObjectObject.Position, Map.size).ToCube(), Map.pixelToHex(octree.HighestIntersection(core).DrawableObjectObject.Position, Map.size).ToCube());
-                //lineList.Clear();
-                //foreach(CubeCoordinate coord in lineTest)
-                //{
-                //    Vector3 position = Map.hexToPixel(coord.ToAxial(), Map.size);
-                //    lineList.Add(new Tile(this, Matrix.CreateTranslation(position), tileModel, octree));
-                //    octree.m_objects.AddRange(lineList);
-                //}
-                //(Tile)octree.HighestIntersection(new Ray(core.Position, Vector3.Down), DrawableObject.ObjectType.Terrain).DrawableObjectObject
             }
 
             //if (KeyJustPressed(Keys.F8))
@@ -543,16 +535,15 @@ namespace Game1
 
             ProcessKeyboard();
 
-            Ray yRay = camera.MovingRay();
-            IntersectionRecord ir = octree.HighestIntersection(yRay);
+            Tile tile = tileFromPosition(camera.Position, tileDictionary);
 
-            if (ir != null && ir.DrawableObjectObject != null)//..ujowy if ale działa
+            if (tile != null)
             {
-                distance = ir.DrawableObjectObject.BoundingBox.Max.Y;
-                tileStandingOn = ir.DrawableObjectObject;
+                tileStandingOn = tile;
+                distance = tileStandingOn.BoundingBox.Max.Y;
             }
 
-            if (ir.DrawableObjectObject == null)
+            if (tile == null)
                 distance = 0;
 
             float eyeHeight = camera.EyeHeightStanding - (CAMERA_PLAYER_EYE_HEIGHT + distance);
@@ -662,10 +653,12 @@ namespace Game1
             //sky.Theta = timeOfDay.TotalMinutes * (float)(Math.PI) / 12.0f / 60.0f;
             if (settings.EnemyMove)
             {
-                enemy.Update(gameTime, camera, octree);
+                enemy.Update(gameTime, camera, octree, tileDictionary);
             }
 
-            path = pathfinder.Pathfind((Tile)octree.HighestIntersection(camera.GetDownwardRay(), DrawableObject.ObjectType.Terrain).DrawableObjectObject, (Tile)octree.HighestIntersection(core, DrawableObject.ObjectType.Terrain).DrawableObjectObject, tileDictionary, settings);
+            Tile start = tileFromPosition(camera.Position, tileDictionary);
+            Tile end = tileFromPosition(core.Position, tileDictionary);
+            path = pathfinder.Pathfind(start, end, tileDictionary, settings);
 
             UpdateFrameRate(gameTime);
 

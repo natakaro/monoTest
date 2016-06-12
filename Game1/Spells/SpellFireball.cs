@@ -110,8 +110,8 @@ namespace Game1.Spells
                     {
                         SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel, octree, fireballTexture, lightManager);
                         fireball.Position = camera.Position;
-                        fireball.Velocity = camera.GetMouseRay(game.GraphicsDevice.Viewport).Direction * 1;
-                        fireball.Acceleration = camera.GetMouseRay(game.GraphicsDevice.Viewport).Direction * 10;
+                        fireball.Velocity = camera.ViewDirection * 1;
+                        fireball.Acceleration = camera.ViewDirection * 10;
                         octree.m_objects.Add(fireball);
 
                         spellReady = false;

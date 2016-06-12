@@ -32,82 +32,6 @@ namespace Game1.Helpers
                 }
             }*/
 
-        public float CubeDistance(CubeCoordinateH a, CubeCoordinateH b)
-        {
-            //return (Math.Abs(a.X - b.X) + Math.Abs(a.Y - b.Y) + Math.Abs(a.Z - b.Z)) / 2;
-            return Math.Max(Math.Max(Math.Max(Math.Abs(a.x - b.x), Math.Abs(a.y - b.y)), Math.Abs(a.z - b.z)), Math.Abs(a.height - b.height));
-        }
-
-        public List<CubeCoordinateH> CubeLerp(CubeCoordinateH a, CubeCoordinateH b)
-        {
-            var ret = new List<CubeCoordinateH>();
-            var distance = CubeDistance(a, b);
-
-            int steps = (int)distance;
-
-            for (int i = 1; i <= steps; i++)
-            {
-                float amount = 1.0f / steps * i;
-                ret.Add(CubeRound(new CubeCoordinateH(MathHelper.Lerp(a.x, b.x, amount), MathHelper.Lerp(a.y, b.y, amount), MathHelper.Lerp(a.z, b.z, amount), MathHelper.Lerp(a.height, b.height, amount))));
-            }
-
-            return ret;
-        }
-
-        public CubeCoordinateH CubeRound(CubeCoordinateH cube)
-        {
-            CubeCoordinateH ret;
-
-            float rx = (float)Math.Round(cube.x);
-            float ry = (float)Math.Round(cube.y);
-            float rz = (float)Math.Round(cube.z);
-            
-            float x_diff = Math.Abs(rx - cube.x);
-            float y_diff = Math.Abs(ry - cube.y);
-            float z_diff = Math.Abs(rz - cube.z);
-
-            if (x_diff > y_diff && x_diff > z_diff)
-                rx = -ry - rz;
-            else if (y_diff > z_diff)
-                ry = -rx - rz;
-            else
-                rz = -rx - ry;
-
-            ret.x = rx;
-            ret.y = ry;
-            ret.z = rz;
-
-            ret.height = cube.height;
-
-            return ret;
-        }
-
-        public CubeCoordinate CubeRound(CubeCoordinate cube)
-        {
-            CubeCoordinate ret;
-
-            float rx = (float)Math.Round(cube.x);
-            float ry = (float)Math.Round(cube.y);
-            float rz = (float)Math.Round(cube.z);
-
-            float x_diff = Math.Abs(rx - cube.x);
-            float y_diff = Math.Abs(ry - cube.y);
-            float z_diff = Math.Abs(rz - cube.z);
-
-            if (x_diff > y_diff && x_diff > z_diff)
-                rx = -ry - rz;
-            else if (y_diff > z_diff)
-                ry = -rx - rz;
-            else
-                rz = -rx - ry;
-
-            ret.x = rx;
-            ret.y = ry;
-            ret.z = rz;
-
-            return ret;
-        }
-
         public List<Tile> Pathfind(Tile start, Tile end, Octree octree, GameSettings settings)
         {
             // nodes that have already been analyzed and have a path from the start to them
@@ -231,124 +155,129 @@ namespace Game1.Helpers
 
         public List<Tile> Pathfind(Tile start, Tile end, Dictionary<AxialCoordinate, Tile> map, GameSettings settings)
         {
-            // nodes that have already been analyzed and have a path from the start to them
-            var closedSet = new List<Tile>();
-            // nodes that have been identified as a neighbor of an analyzed node, but have 
-            // yet to be fully analyzed
-            var openSet = new List<Tile> { start };
-            // a dictionary identifying the optimal origin Tile to each node. this is used 
-            // to back-track from the end to find the optimal path
-            var cameFrom = new Dictionary<Tile, Tile>();
-            // a dictionary indicating how far each analyzed node is from the start
-            var currentDistance = new Dictionary<Tile, int>();
-            // a dictionary indicating how far it is expected to reach the end, if the path 
-            // travels through the specified node. 
-            var predictedDistance = new Dictionary<Tile, float>();
-
-            var straightLine = CubeLerp(pixelToAxialH(start.Position, Map.size).ToCube(), pixelToAxialH(end.Position, Map.size).ToCube());
-
-            // initialize the start node as having a distance of 0, and an estmated distance 
-            // of y-distance + x-distance, which is the optimal path in a square grid that 
-            // doesn't allow for diagonal movement
-            //currentDistance.Add(start, 0);
-            //predictedDistance.Add(
-            //    start,
-            //    0 + +Math.Abs(start.Position.X - end.Position.X) + Math.Abs(start.Position.Z - end.Position.Z)
-            //    + Math.Abs(start.Position.Y - end.Position.Y)
-            //);
-
-            currentDistance.Add(start, 0);
-            predictedDistance.Add(
-                start,
-                CubeDistance(pixelToAxialH(start.Position, Map.size).ToCube(), pixelToAxialH(end.Position, Map.size).ToCube())
-            );
-
-            // if there are any unanalyzed nodes, process them
-            while (openSet.Count > 0)
+            if (start != null && end != null)
             {
-                // get the node with the lowest estimated cost to finish
-                var current = (
-                    from p in openSet orderby predictedDistance[p] ascending select p
-                ).First();
+                // nodes that have already been analyzed and have a path from the start to them
+                var closedSet = new List<Tile>();
+                // nodes that have been identified as a neighbor of an analyzed node, but have 
+                // yet to be fully analyzed
+                var openSet = new List<Tile> { start };
+                // a dictionary identifying the optimal origin Tile to each node. this is used 
+                // to back-track from the end to find the optimal path
+                var cameFrom = new Dictionary<Tile, Tile>();
+                // a dictionary indicating how far each analyzed node is from the start
+                var currentDistance = new Dictionary<Tile, int>();
+                // a dictionary indicating how far it is expected to reach the end, if the path 
+                // travels through the specified node. 
+                var predictedDistance = new Dictionary<Tile, float>();
 
-                // if it is the finish, return the path
-                if (current.Position.X == end.Position.X && current.Position.Z == end.Position.Z && current.Position.Y == end.Position.Y)
+                var straightLine = CubeLerp(pixelToAxialH(start.Position, Map.size).ToCube(), pixelToAxialH(end.Position, Map.size).ToCube());
+
+                // initialize the start node as having a distance of 0, and an estmated distance 
+                // of y-distance + x-distance, which is the optimal path in a square grid that 
+                // doesn't allow for diagonal movement
+                //currentDistance.Add(start, 0);
+                //predictedDistance.Add(
+                //    start,
+                //    0 + +Math.Abs(start.Position.X - end.Position.X) + Math.Abs(start.Position.Z - end.Position.Z)
+                //    + Math.Abs(start.Position.Y - end.Position.Y)
+                //);
+
+                currentDistance.Add(start, 0);
+                predictedDistance.Add(
+                    start,
+                    CubeDistance(pixelToAxialH(start.Position, Map.size).ToCube(), pixelToAxialH(end.Position, Map.size).ToCube())
+                );
+
+                // if there are any unanalyzed nodes, process them
+                while (openSet.Count > 0)
                 {
-                    // generate the found path
-                    return ReconstructPath(cameFrom, end);
-                }
+                    // get the node with the lowest estimated cost to finish
+                    var current = (
+                        from p in openSet orderby predictedDistance[p] ascending select p
+                    ).First();
 
-                // move current node from open to closed
-                openSet.Remove(current);
-                closedSet.Add(current);
-
-                // process each valid node around the current node
-                foreach (var neighbor in GetNeighborNodes(current, map))
-                {
-                    var tempCurrentDistance = currentDistance[current] + 1;
-
-                    // if we already know a faster way to this neighbor, use that route and 
-                    // ignore this one
-                    if (closedSet.Contains(neighbor)
-                        && tempCurrentDistance >= currentDistance[neighbor])
+                    // if it is the finish, return the path
+                    if (current.Position.X == end.Position.X && current.Position.Z == end.Position.Z && current.Position.Y == end.Position.Y)
                     {
-                        continue;
+                        // generate the found path
+                        return ReconstructPath(cameFrom, end);
                     }
 
-                    // if we don't know a route to this neighbor, or if this is faster, 
-                    // store this route
-                    if (!closedSet.Contains(neighbor)
-                        || tempCurrentDistance < currentDistance[neighbor])
+                    // move current node from open to closed
+                    openSet.Remove(current);
+                    closedSet.Add(current);
+
+                    // process each valid node around the current node
+                    foreach (var neighbor in GetNeighborNodes(current, map))
                     {
-                        if (cameFrom.Keys.Contains(neighbor))
-                        {
-                            cameFrom[neighbor] = current;
-                        }
-                        else
-                        {
-                            cameFrom.Add(neighbor, current);
-                        }
+                        var tempCurrentDistance = currentDistance[current] + 1;
 
-                        if (settings.Instancing)
+                        // if we already know a faster way to this neighbor, use that route and 
+                        // ignore this one
+                        if (closedSet.Contains(neighbor)
+                            && tempCurrentDistance >= currentDistance[neighbor])
                         {
-                            var distanceToStraightLine = DistanceToStraightLine(neighbor, straightLine);
-
-                            currentDistance[neighbor] = tempCurrentDistance;
-                            predictedDistance[neighbor] =
-                                currentDistance[neighbor]
-                                + Math.Abs(neighbor.Position.X - end.Position.X)
-                                + Math.Abs(neighbor.Position.Z - end.Position.Z)
-                                + Math.Abs(neighbor.Position.Y - current.Position.Y)
-                                + distanceToStraightLine;
-                        }
-                        else
-                        {
-                            currentDistance[neighbor] = tempCurrentDistance;
-                            predictedDistance[neighbor] =
-                                currentDistance[neighbor]
-                                + Math.Abs(neighbor.Position.X - end.Position.X)
-                                + Math.Abs(neighbor.Position.Z - end.Position.Z)
-                                + Math.Abs(neighbor.Position.Y - current.Position.Y);
+                            continue;
                         }
 
-
-                        // if this is a new node, add it to processing
-                        if (!openSet.Contains(neighbor))
+                        // if we don't know a route to this neighbor, or if this is faster, 
+                        // store this route
+                        if (!closedSet.Contains(neighbor)
+                            || tempCurrentDistance < currentDistance[neighbor])
                         {
-                            openSet.Add(neighbor);
+                            if (cameFrom.Keys.Contains(neighbor))
+                            {
+                                cameFrom[neighbor] = current;
+                            }
+                            else
+                            {
+                                cameFrom.Add(neighbor, current);
+                            }
+
+                            if (settings.Instancing)
+                            {
+                                var distanceToStraightLine = DistanceToStraightLine(neighbor, straightLine);
+
+                                currentDistance[neighbor] = tempCurrentDistance;
+                                predictedDistance[neighbor] =
+                                    currentDistance[neighbor]
+                                    + Math.Abs(neighbor.Position.X - end.Position.X)
+                                    + Math.Abs(neighbor.Position.Z - end.Position.Z)
+                                    + Math.Abs(neighbor.Position.Y - current.Position.Y)
+                                    + distanceToStraightLine;
+                            }
+                            else
+                            {
+                                currentDistance[neighbor] = tempCurrentDistance;
+                                predictedDistance[neighbor] =
+                                    currentDistance[neighbor]
+                                    + Math.Abs(neighbor.Position.X - end.Position.X)
+                                    + Math.Abs(neighbor.Position.Z - end.Position.Z)
+                                    + Math.Abs(neighbor.Position.Y - current.Position.Y);
+                            }
+
+
+                            // if this is a new node, add it to processing
+                            if (!openSet.Contains(neighbor))
+                            {
+                                openSet.Add(neighbor);
+                            }
                         }
                     }
                 }
+
+                // unable to figure out a path, abort.
+                throw new Exception(
+                    string.Format(
+                        "unable to find a path between {0},{1} and {2},{3}",
+                        start.Position.X, start.Position.Z,
+                        end.Position.X, end.Position.Z
+                    )
+                );
             }
-
-            // unable to figure out a path, abort.
-            throw new Exception(
-                string.Format(
-                    "unable to find a path between {0},{1} and {2},{3}",
-                    start.Position.X, start.Position.Z,
-                    end.Position.X, end.Position.Z
-                )
-            );
+            else
+                return new List<Tile>();
         }
 
         private float DistanceToStraightLine(Tile tile, List<CubeCoordinateH> line)

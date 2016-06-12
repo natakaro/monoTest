@@ -363,5 +363,88 @@ namespace Game1.Helpers
 
             return ret;
         }
+
+
+
+        public static float CubeDistance(CubeCoordinateH a, CubeCoordinateH b)
+        {
+            //return (Math.Abs(a.X - b.X) + Math.Abs(a.Y - b.Y) + Math.Abs(a.Z - b.Z)) / 2;
+            return Math.Max(Math.Max(Math.Max(Math.Abs(a.x - b.x), Math.Abs(a.y - b.y)), Math.Abs(a.z - b.z)), Math.Abs(a.height - b.height));
+        }
+
+        public static List<CubeCoordinateH> CubeLerp(CubeCoordinateH a, CubeCoordinateH b)
+        {
+            var ret = new List<CubeCoordinateH>();
+            var distance = CubeDistance(a, b);
+
+            int steps = (int)distance;
+
+            for (int i = 1; i <= steps; i++)
+            {
+                float amount = 1.0f / steps * i;
+                ret.Add(CubeRound(new CubeCoordinateH(MathHelper.Lerp(a.x, b.x, amount), MathHelper.Lerp(a.y, b.y, amount), MathHelper.Lerp(a.z, b.z, amount), MathHelper.Lerp(a.height, b.height, amount))));
+            }
+
+            return ret;
+        }
+
+        public static CubeCoordinateH CubeRound(CubeCoordinateH cube)
+        {
+            CubeCoordinateH ret;
+
+            float rx = (float)Math.Round(cube.x);
+            float ry = (float)Math.Round(cube.y);
+            float rz = (float)Math.Round(cube.z);
+
+            float x_diff = Math.Abs(rx - cube.x);
+            float y_diff = Math.Abs(ry - cube.y);
+            float z_diff = Math.Abs(rz - cube.z);
+
+            if (x_diff > y_diff && x_diff > z_diff)
+                rx = -ry - rz;
+            else if (y_diff > z_diff)
+                ry = -rx - rz;
+            else
+                rz = -rx - ry;
+
+            ret.x = rx;
+            ret.y = ry;
+            ret.z = rz;
+
+            ret.height = cube.height;
+
+            return ret;
+        }
+
+        public static CubeCoordinate CubeRound(CubeCoordinate cube)
+        {
+            CubeCoordinate ret;
+
+            float rx = (float)Math.Round(cube.x);
+            float ry = (float)Math.Round(cube.y);
+            float rz = (float)Math.Round(cube.z);
+
+            float x_diff = Math.Abs(rx - cube.x);
+            float y_diff = Math.Abs(ry - cube.y);
+            float z_diff = Math.Abs(rz - cube.z);
+
+            if (x_diff > y_diff && x_diff > z_diff)
+                rx = -ry - rz;
+            else if (y_diff > z_diff)
+                ry = -rx - rz;
+            else
+                rz = -rx - ry;
+
+            ret.x = rx;
+            ret.y = ry;
+            ret.z = rz;
+
+            return ret;
+        }
+
+        public static Tile tileFromPosition(Vector3 position, Dictionary<AxialCoordinate, Tile> map)
+        {
+            return tileFromAxial(CubeRound(pixelToAxialH(position, Map.size).ToCube()).ToAxial(), map);
+        }
     }
 }

@@ -178,11 +178,6 @@ namespace Game1
 
         }
 
-        public virtual IntersectionRecord Intersects(Ray intersectionRay)
-        {
-            return new IntersectionRecord(this);
-        }
-
         /// <summary>
         /// Tells you if the bounding regions for this object [intersect or are contained within] the bounding frustum
         /// </summary>
