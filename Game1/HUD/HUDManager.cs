@@ -22,6 +22,7 @@ namespace Game1.HUD
 
         private HUDBar healthBar;
         private HUDBar manaBar;
+        private HUDCrosshair crosshair;
 
         public HUDManager(SpriteBatch spriteBatch, GraphicsDevice graphicsDevice, ContentManager content, Stats stats)
         {
@@ -38,8 +39,16 @@ namespace Game1.HUD
         {
             healthBar = new HUDBar(spriteBatch, graphicsDevice, stats.currentHealth, new Vector2(50, backbufferHeight - 100), new Vector2(100, 10), new Color(255, 0, 0, 200), 100);
             manaBar = new HUDBar(spriteBatch, graphicsDevice, stats.currentMana, new Vector2(50, backbufferHeight - 85), new Vector2(200, 10), new Color(0, 0, 255, 200), 200);
+            crosshair = new HUDCrosshair(spriteBatch, graphicsDevice, new Vector2(backbufferWidth / 2 - 32, backbufferHeight / 2 - 32), new Vector2(64, 64), stats);
+
             elements.Add(healthBar);
             elements.Add(manaBar);
+            elements.Add(crosshair);
+
+            foreach(HUDElement element in elements)
+            {
+                element.LoadContent(content);
+            }
         }
 
         public void Draw()

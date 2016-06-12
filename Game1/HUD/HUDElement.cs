@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ namespace Game1.HUD
         protected GraphicsDevice graphicsDevice;
         protected Vector2 position;
         protected Vector2 dimension;
+        protected bool enabled;
 
         public HUDElement(SpriteBatch spriteBatch, GraphicsDevice graphicsDevice, Vector2 position, Vector2 dimension)
         {
@@ -21,9 +23,15 @@ namespace Game1.HUD
             this.graphicsDevice = graphicsDevice;
             this.position = position;
             this.dimension = dimension;
+            this.enabled = false;
         }
 
-        public abstract void Update(float value);
+        public void Show(bool value)
+        {
+            this.enabled = value;
+        }
+
+        public abstract void LoadContent(ContentManager Content);
         public abstract void Draw();
     }
 }

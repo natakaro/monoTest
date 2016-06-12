@@ -53,6 +53,7 @@ namespace Game1.Spells
                 stopwatch.Start();
                 spellReady = false;
                 spellStarted = true;
+                stats.SpellStatus(spellStarted, leftCastSpeed, stopwatch);
                 lastMode = LastMode.Left;
             }
             if (leftButton == false && rightButton == true && stats.currentMana >= rightManaCost)
@@ -62,6 +63,7 @@ namespace Game1.Spells
                 stopwatch.Start();
                 spellReady = false;
                 spellStarted = true;
+                stats.SpellStatus(spellStarted, rightCastSpeed, stopwatch);
                 lastMode = LastMode.Right;
             }
             if (leftButton == true && rightButton == true && stats.currentMana >= dualManaCost)
@@ -71,6 +73,7 @@ namespace Game1.Spells
                 stopwatch.Start();
                 spellReady = false;
                 spellStarted = true;
+                stats.SpellStatus(spellStarted, dualCastSpeed, stopwatch);
                 lastMode = LastMode.Dual;
             }
         }
@@ -154,6 +157,7 @@ namespace Game1.Spells
                         manaDeducted = 0;
                     }
                     spellStarted = false;
+                    stats.SpellStatus(false);
                     stopwatch.Reset();
                 }
                 if (lastMode == LastMode.Right)
@@ -163,6 +167,7 @@ namespace Game1.Spells
                         stats.currentMana = startingMana;
                     }
                     spellStarted = false;
+                    stats.SpellStatus(false);
                     stopwatch.Reset();
                 }
                 if (lastMode == LastMode.Dual) //placeholder chwilowo, trzeba zrobic jakis okrag obszarowy a nie kulki wokol
@@ -185,6 +190,7 @@ namespace Game1.Spells
                         manaDeducted = 0;
                     }
                     spellStarted = false;
+                    stats.SpellStatus(false);
                     stopwatch.Reset();
                 }
             }

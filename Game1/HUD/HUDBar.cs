@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework.Content;
 
 namespace Game1.HUD
 {
@@ -14,8 +15,6 @@ namespace Game1.HUD
         private float valueCurrent;
         private Color barColor;
 
-        private bool enabled;
-
         public HUDBar(SpriteBatch spriteBatch, GraphicsDevice graphicsDevice, float value, Vector2 position, Vector2 dimension, Color color, float valueMax) : base(spriteBatch, graphicsDevice, position, dimension)
         {
             this.valueMax = valueMax;
@@ -24,12 +23,12 @@ namespace Game1.HUD
             this.enabled = true;
         }
 
-        public void Show(bool value)
+        public override void LoadContent(ContentManager Content)
         {
-            this.enabled = value;
+            //nothing yet
         }
 
-        public override void Update(float value)
+        public void Update(float value)
         {
             this.valueCurrent = value;
         }

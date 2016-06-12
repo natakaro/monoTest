@@ -70,6 +70,7 @@ namespace Game1.Spells
                             }
                             average_y = average_y / sphere_list.Count;
                             stopwatch.Start();
+                            stats.SpellStatus(spellStarted, dualCastSpeed, stopwatch);
                         }
                     }
                 }
@@ -87,6 +88,7 @@ namespace Game1.Spells
                         else
                             target.Acceleration = new Vector3(0, -10, 0);
                         stopwatch.Start();
+                        stats.SpellStatus(spellStarted, 0, stopwatch);
                     }
                 }
             }
@@ -169,6 +171,7 @@ namespace Game1.Spells
                 stopwatch.Reset();
             }
             spellStarted = false;
+            stats.SpellStatus(false);
         }
 
         public SpellMoveTerrain(Octree octree, Stats stats)

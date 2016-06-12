@@ -70,7 +70,6 @@ namespace Game1
         private Model crystalModel;
         private Texture2D handstex;
         private Texture2D tileTexture;
-        private Texture2D cross;
 
         private HUDManager hudManager;
         private Stats stats;
@@ -271,7 +270,6 @@ namespace Game1
             hudManager = new HUDManager(spriteBatch, GraphicsDevice, Content, stats);
             hudManager.LoadContent();
 
-            cross = Content.Load<Texture2D>("Hud/cross_cross");
             spriteFont = Content.Load<SpriteFont>("Fonts/DemoFont");
 
             tileModel = Content.Load<Model>("Models/Tile");
@@ -656,9 +654,9 @@ namespace Game1
                 enemy.Update(gameTime, camera, octree, tileDictionary);
             }
 
-            Tile start = tileFromPosition(camera.Position, tileDictionary);
-            Tile end = tileFromPosition(core.Position, tileDictionary);
-            path = pathfinder.Pathfind(start, end, tileDictionary, settings);
+            //Tile start = tileFromPosition(camera.Position, tileDictionary);
+            //Tile end = tileFromPosition(core.Position, tileDictionary);
+            //path = pathfinder.Pathfind(start, end, tileDictionary, settings);
 
             UpdateFrameRate(gameTime);
 
@@ -981,9 +979,6 @@ namespace Game1
                     spriteBatch.Draw(dofTarget, new Rectangle(0, 0, fxaaTarget.Width, fxaaTarget.Height), Color.White);
                 else
                     spriteBatch.Draw(waterTarget, new Rectangle(0, 0, fxaaTarget.Width, fxaaTarget.Height), Color.White);
-                //spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);
-                //DrawText();
-                //DrawGBuffer();
                 spriteBatch.End();
             }
             else
@@ -995,16 +990,12 @@ namespace Game1
                     spriteBatch.Draw(dofTarget, Vector2.Zero, Color.White);
                 else
                     spriteBatch.Draw(waterTarget, Vector2.Zero, Color.White);
-                //spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);
-                //DrawText();
-                //DrawGBuffer();
                 spriteBatch.End();
             }
 
             swDraw.Stop();
 
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
-            spriteBatch.Draw(cross, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 25, graphics.PreferredBackBufferHeight / 2 - 25, 50, 50), Color.Red);
             DrawText();
             if(settings.ShowGBuffer)
                 DrawGBuffer();

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,6 +21,10 @@ namespace Game1
         public float currentMana;
         public float maxMana;
         public float coreHealth;
+
+        public bool spellCharging;
+        public float castSpeed;
+        public Stopwatch castTimer;
 
         int healthRegen;
         int manaRegen;
@@ -43,6 +48,13 @@ namespace Game1
                 currentMana = Math.Min(currentMana + (float)gameTime.ElapsedGameTime.TotalSeconds * manaRegen, maxMana);
             if (currentHealth < maxHealth)
                 currentHealth = Math.Min(currentHealth + (float)gameTime.ElapsedGameTime.TotalSeconds * healthRegen, maxHealth);
+        }
+
+        public void SpellStatus(bool spellCharging, float castSpeed = 0, Stopwatch castTimer = null)
+        {
+            this.spellCharging = spellCharging;
+            this.castSpeed = castSpeed;
+            this.castTimer = castTimer;
         }
     }
 }
