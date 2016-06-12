@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using System.Diagnostics;
 
 namespace Game1.HUD
 {
-    class HUDCrosshair : HUDElement
+    public class HUDCrosshair : HUDElement
     {
         Texture2D crosshairDotTexture;
         Texture2D crosshairChargeTexture;
@@ -17,11 +18,14 @@ namespace Game1.HUD
         Texture2D crosshairCastingTexture;
         Texture2D crosshairHitMarkerTexture;
         Stats stats;
+        Stopwatch hitMarkerStopwatch;
+        bool hitMarker;
 
         public HUDCrosshair(SpriteBatch spriteBatch, GraphicsDevice graphicsDevice, Vector2 position, Vector2 dimension, Stats stats) : base(spriteBatch, graphicsDevice, position, dimension)
         {
             this.stats = stats;
             this.enabled = true;
+            this.hitMarker = false;
         }
         public override void LoadContent(ContentManager Content)
         {
@@ -30,6 +34,8 @@ namespace Game1.HUD
             crosshairChargeFullTexture = Content.Load<Texture2D>("Hud/crosshair/chargefull");
             crosshairCastingTexture = Content.Load<Texture2D>("Hud/crosshair/casting");
             crosshairHitMarkerTexture = Content.Load<Texture2D>("Hud/crosshair/hitmarker");
+
+            hitMarkerStopwatch = new Stopwatch();
         }
 
         public override void Draw()
@@ -62,12 +68,31 @@ namespace Game1.HUD
                 }
 
                 spriteBatch.Draw(crosshairDotTexture, position, new Color(200, 200, 200, 200));
+
+                //hitmarker
+                if(hitMarker == true)
+                {
+                    spriteBatch.Draw(crosshairHitMarkerTexture, position, new Color(200, 200, 200, 200));
+                }
             }
         }
 
         public void Update()
         {
+            if(hitMarker == true)
+            {
+                if(hitMarkerStopwatch.ElapsedMilliseconds >= 250)
+                {
+                    hitMarkerStopwatch.Reset();
+                    hitMarker = false;
+                }
+            }
+        }
 
+        public void HandleHitEvent(object sender, EventArgs eventArgs)
+        {
+            hitMarker = true;
+            hitMarkerStopwatch.Start();
         }
     }
 }

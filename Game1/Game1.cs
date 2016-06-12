@@ -326,7 +326,7 @@ namespace Game1
             octree.m_objects.Add(core);
 
             spellMoveTerrain = new SpellMoveTerrain(octree, stats);
-            spellFireball = new SpellFireball(this, camera, octree, lightManager, stats);
+            spellFireball = new SpellFireball(this, camera, octree, lightManager, hudManager, stats);
             spellCreateTurret = new SpellCreateTurret(this, camera, octree, lightManager, stats);
 
             swDraw = new Stopwatch();

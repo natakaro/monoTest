@@ -55,6 +55,7 @@ namespace Game1.HUD
         {
             healthBar.Update(stats.currentHealth);
             manaBar.Update(stats.currentMana);
+            crosshair.Update();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
             foreach(HUDElement element in elements)
             {
@@ -62,5 +63,20 @@ namespace Game1.HUD
             }
             spriteBatch.End();
         }
+
+        #region Properties
+        public HUDBar HealthBar
+        {
+            get { return healthBar; }
+        }
+        public HUDBar ManaBar
+        {
+            get { return manaBar; }
+        }
+        public HUDCrosshair Crosshair
+        {
+            get { return crosshair; }
+        }
+        #endregion
     }
 }

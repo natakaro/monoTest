@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Content;
 using Game1.Helpers;
 using Game1.Lights;
 using System.Diagnostics;
+using Game1.HUD;
 
 namespace Game1.Spells
 {
@@ -17,7 +18,10 @@ namespace Game1.Spells
         Texture2D texture;
         private PointLight pointLight;
         LightManager lightManager;
+        HUDManager hudManager;
         Stopwatch stopwatch;
+
+        public event EventHandler hitEvent;
 
         public new void Draw(Camera camera)
         {
@@ -51,9 +55,10 @@ namespace Game1.Spells
             return ret;
         }
 
-        public SpellFireballProjectile(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, Texture2D inTexture, LightManager lightManager) : base(game, inWorldMatrix, inModel, octree)
+        public SpellFireballProjectile(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, Texture2D inTexture, LightManager lightManager, HUDManager hudManager) : base(game, inWorldMatrix, inModel, octree)
         {
             this.lightManager = lightManager;
+            this.hudManager = hudManager;
             texture = inTexture;
             m_static = false;
             boundingSphere = new BoundingSphere(position, 1f);
@@ -65,6 +70,8 @@ namespace Game1.Spells
 
             stopwatch = new Stopwatch();
             stopwatch.Start();
+
+            hitEvent += hudManager.Crosshair.HandleHitEvent;
         }
 
         public override void HandleIntersection(IntersectionRecord ir)
@@ -72,14 +79,23 @@ namespace Game1.Spells
             if (ir.DrawableObjectObject != null)
             {
                 if (ir.DrawableObjectObject.Type == ObjectType.Terrain)
+                {
+                    OnHitEvent();
                     Destroy();
+                }
             }
         }
 
         private void Destroy()
         {
+            hitEvent -= hudManager.Crosshair.HandleHitEvent;
             lightManager.RemoveLight(pointLight);
             Alive = false;
+        }
+
+        public void OnHitEvent()
+        {
+            hitEvent?.Invoke(this, EventArgs.Empty);
         }
     }
 }
