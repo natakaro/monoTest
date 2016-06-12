@@ -15,7 +15,7 @@ namespace Game1
         {
             //boundingSphere = new BoundingSphere(position, Map.scale * 0.75f);
 
-            type = ObjectType.Unit;
+            type = ObjectType.Core;
 
             boundingBox = CollisionBox.CreateBoundingBox(model, position, 1);
         }

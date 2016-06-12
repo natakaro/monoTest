@@ -44,7 +44,7 @@ namespace Game1
             AnimationPlayer player = modell.PlayClip(clip);
             player.Looping = true;
 
-            type = ObjectType.Unit;
+            type = ObjectType.Enemy;
             boundingBox = CollisionBox.CreateBoundingBox(modell.Model, position, 1);
             a = boundingBox.Max.Y - boundingBox.Min.Y;
             b = position.Y - boundingBox.Min.Y;

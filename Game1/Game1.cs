@@ -146,11 +146,13 @@ namespace Game1
         public enum SpellType
         {
             MoveTerrain = 1,
-            Fireball = 2
+            Fireball = 2,
+            CreateTurret = 3
         };
 
         private SpellMoveTerrain spellMoveTerrain;
         private SpellFireball spellFireball;
+        private SpellCreateTurret spellCreateTurret;
 
         public SpellType selectedSpell = SpellType.MoveTerrain;
         #endregion
@@ -325,6 +327,7 @@ namespace Game1
 
             spellMoveTerrain = new SpellMoveTerrain(octree, stats);
             spellFireball = new SpellFireball(this, camera, octree, lightManager, stats);
+            spellCreateTurret = new SpellCreateTurret(this, camera, octree, lightManager, stats);
 
             swDraw = new Stopwatch();
             swUpdate = new Stopwatch();
@@ -452,7 +455,7 @@ namespace Game1
 
             if (currentMouseState.ScrollWheelValue < prevMouseState.ScrollWheelValue && currentMouseState.LeftButton == ButtonState.Released && currentMouseState.RightButton == ButtonState.Released)
             {
-                if(selectedSpell != SpellType.Fireball)
+                if(selectedSpell != SpellType.CreateTurret)
                 {
                     selectedSpell++;
                 }
@@ -484,6 +487,9 @@ namespace Game1
                 case SpellType.Fireball:
                     spellFireball.Start(leftButton, rightButton);
                     break;
+                case SpellType.CreateTurret:
+                    spellCreateTurret.Start(leftButton, rightButton, selected_obj);
+                    break;
             }
         }
 
@@ -497,6 +503,9 @@ namespace Game1
                 case SpellType.Fireball:
                     spellFireball.Continue(leftButton, rightButton);
                     break;
+                case SpellType.CreateTurret:
+                    spellCreateTurret.Continue(leftButton, rightButton, selected_obj);
+                    break;
             }
         }
 
@@ -509,6 +518,9 @@ namespace Game1
                     break;
                 case SpellType.Fireball:
                     spellFireball.Stop(leftButton, rightButton);
+                    break;
+                case SpellType.CreateTurret:
+                    spellCreateTurret.Stop(leftButton, rightButton, selected_obj);
                     break;
             }
         }
@@ -1018,7 +1030,7 @@ namespace Game1
             int halfHeight = GraphicsDevice.Viewport.Height / 2;
             GraphicsDevice.Clear(Color.Transparent);
 
-            spriteBatch.Draw(shadowRenderer.ShadowMap, new Rectangle(0, 0, halfWidth, halfHeight), Color.White);
+            spriteBatch.Draw(colorTarget, new Rectangle(0, 0, halfWidth, halfHeight), Color.White);
             spriteBatch.Draw(normalTarget, new Rectangle(0, halfHeight, halfWidth, halfHeight), Color.White);
             spriteBatch.Draw(depthTarget, new Rectangle(halfWidth, 0, halfWidth, halfHeight), Color.White);
             spriteBatch.Draw(lightTarget, new Rectangle(halfWidth, halfHeight, halfWidth, halfHeight), Color.White);

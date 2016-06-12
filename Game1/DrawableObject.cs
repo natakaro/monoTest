@@ -16,12 +16,13 @@ namespace Game1
         {
             Unknown = 1,
             Terrain = 2,
-            Unit = 4,
-            Resource = 8,
-            Item = 16,
+            Core = 4,
+            Turret = 8,
+            Enemy = 16,
             Projectile = 32,
-            Ethereal = 64,      //stuff can go through this, not affected by most forces such as gravity
-            ALL = Unknown | Terrain | Unit | Resource | Item | Projectile | Ethereal
+            Item = 64,
+            Ethereal = 128,      //stuff can go through this, not affected by most forces such as gravity
+            ALL = Unknown | Terrain | Core | Turret | Enemy | Projectile | Item | Ethereal
         };
 
         /// <summary>

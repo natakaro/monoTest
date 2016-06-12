@@ -14,6 +14,8 @@ namespace Game1.HUD
         Texture2D crosshairDotTexture;
         Texture2D crosshairChargeTexture;
         Texture2D crosshairChargeFullTexture;
+        Texture2D crosshairCastingTexture;
+        Texture2D crosshairHitMarkerTexture;
         Stats stats;
 
         public HUDCrosshair(SpriteBatch spriteBatch, GraphicsDevice graphicsDevice, Vector2 position, Vector2 dimension, Stats stats) : base(spriteBatch, graphicsDevice, position, dimension)
@@ -26,33 +28,35 @@ namespace Game1.HUD
             crosshairDotTexture = Content.Load<Texture2D>("Hud/crosshair/dot");
             crosshairChargeTexture = Content.Load<Texture2D>("Hud/crosshair/charge");
             crosshairChargeFullTexture = Content.Load<Texture2D>("Hud/crosshair/chargefull");
+            crosshairCastingTexture = Content.Load<Texture2D>("Hud/crosshair/casting");
+            crosshairHitMarkerTexture = Content.Load<Texture2D>("Hud/crosshair/hitmarker");
         }
 
         public override void Draw()
         {
             if(enabled)
             {
-                Rectangle rectangle = new Rectangle();
-                rectangle.Width = (int)dimension.X;
-                rectangle.Height = (int)dimension.Y;
-                rectangle.X = (int)position.X;
-                rectangle.Y = (int)position.Y;
-
-
                 if (stats.spellCharging)
                 {
-                    float step = stats.castSpeed / 30;
-
-                    if (stats.castTimer.ElapsedMilliseconds < stats.castSpeed)
-                    {
-                        for (int i = 0; i < (int)(Math.Min(stats.castTimer.ElapsedMilliseconds, stats.castSpeed) / step); i++)
-                        {
-                            spriteBatch.Draw(crosshairChargeTexture, position + new Vector2(32, 32), null, new Color(100, 100, 100, 100), MathHelper.ToRadians(180 / 30 * i), dimension / 2, 1f, SpriteEffects.None, 0);
-                        }
+                    if (stats.castSpeed == 0) //moveterrain
+                    {                      
+                        spriteBatch.Draw(crosshairCastingTexture, position + new Vector2(32, 32), null, new Color(200, 200, 200, 200), MathHelper.ToRadians((float)stats.castTimer.ElapsedMilliseconds/(100f/36f)), dimension / 2, 1f, SpriteEffects.None, 0);
                     }
                     else
                     {
-                        spriteBatch.Draw(crosshairChargeFullTexture, position, new Color(200, 200, 200, 200));
+                        float step = stats.castSpeed / 30;
+
+                        if (stats.castTimer.ElapsedMilliseconds < stats.castSpeed)
+                        {
+                            for (int i = 0; i < (int)(Math.Min(stats.castTimer.ElapsedMilliseconds, stats.castSpeed) / step); i++)
+                            {
+                                spriteBatch.Draw(crosshairChargeTexture, position + new Vector2(32, 32), null, new Color(100, 100, 100, 100), MathHelper.ToRadians(180 / 30 * i), dimension / 2, 1f, SpriteEffects.None, 0);
+                            }
+                        }
+                        else
+                        {
+                            spriteBatch.Draw(crosshairChargeFullTexture, position, new Color(200, 200, 200, 200));
+                        }
                     }
 
                 }

@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 using Game1.Helpers;
 using Game1.Lights;
+using System.Diagnostics;
 
 namespace Game1.Spells
 {
@@ -16,6 +17,7 @@ namespace Game1.Spells
         Texture2D texture;
         private PointLight pointLight;
         LightManager lightManager;
+        Stopwatch stopwatch;
 
         public new void Draw(Camera camera)
         {
@@ -43,6 +45,9 @@ namespace Game1.Spells
             BoundingSphere pointLightSphere = pointLight.BoundingSphere;
             pointLightSphere.Center = position;
 
+            if (stopwatch.ElapsedMilliseconds > 5000)
+                Destroy();
+
             return ret;
         }
 
@@ -57,6 +62,9 @@ namespace Game1.Spells
 
             pointLight = new PointLight(position, Color.OrangeRed, 25, 5);
             lightManager.AddLight(pointLight);
+
+            stopwatch = new Stopwatch();
+            stopwatch.Start();
         }
 
         public override void HandleIntersection(IntersectionRecord ir)

@@ -81,6 +81,7 @@
     <Compile Include="Shadows\ShadowRenderer.cs" />
     <Compile Include="Sky\SkyDome.cs" />
     <Compile Include="Sky\SkyDomeParameters.cs" />
+    <Compile Include="Spells\SpellCreateTurret.cs" />
     <Compile Include="Spells\SpellFireball.cs" />
     <Compile Include="Spells\SpellFireballProjectile.cs" />
     <Compile Include="Spells\SpellMoveTerrain.cs" />
@@ -89,6 +90,7 @@
     <Compile Include="Stats.cs" />
     <Compile Include="Tile.cs" />
     <Compile Include="TimeOfDay.cs" />
+    <Compile Include="Turret.cs" />
     <Compile Include="Water.cs" />
   </ItemGroup>
   <ItemGroup>
