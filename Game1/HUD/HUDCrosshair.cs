@@ -42,11 +42,21 @@ namespace Game1.HUD
         {
             if(enabled)
             {
-                if (stats.spellCharging)
+                if (stats.spellCharging > 0)
                 {
+                    //hitmarker
+                    if (hitMarker == true)
+                    {
+                        spriteBatch.Draw(crosshairHitMarkerTexture, position, new Color(200, 200, 200, 200));
+                    }
+
                     if (stats.castSpeed == 0) //moveterrain
                     {                      
-                        spriteBatch.Draw(crosshairCastingTexture, position + new Vector2(32, 32), null, new Color(200, 200, 200, 200), MathHelper.ToRadians((float)stats.castTimer.ElapsedMilliseconds/(100f/36f)), dimension / 2, 1f, SpriteEffects.None, 0);
+                        if(stats.spellCharging == SpellCharging.Left)
+                            spriteBatch.Draw(crosshairCastingTexture, position + new Vector2(32, 32), null, new Color(200, 200, 200, 200), -MathHelper.ToRadians((float)stats.castTimer.ElapsedMilliseconds / (100f / 36f)), dimension / 2, 1f, SpriteEffects.None, 0);
+                        else if (stats.spellCharging == SpellCharging.Right)
+                            spriteBatch.Draw(crosshairCastingTexture, position + new Vector2(32, 32), null, new Color(200, 200, 200, 200), MathHelper.ToRadians((float)stats.castTimer.ElapsedMilliseconds / (100f / 36f)), dimension / 2, 1f, SpriteEffects.FlipHorizontally, 0);
+
                     }
                     else
                     {
@@ -68,12 +78,6 @@ namespace Game1.HUD
                 }
 
                 spriteBatch.Draw(crosshairDotTexture, position, new Color(200, 200, 200, 200));
-
-                //hitmarker
-                if(hitMarker == true)
-                {
-                    spriteBatch.Draw(crosshairHitMarkerTexture, position, new Color(200, 200, 200, 200));
-                }
             }
         }
 

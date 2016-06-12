@@ -30,7 +30,7 @@ namespace Game1.Spells
         private float rightCastSpeed;
         private float dualCastSpeed;
 
-        private bool spellStarted;
+        private SpellCharging spellCharging;
         private bool spellReady;
         private float startingMana;
         private float manaDeducted;
@@ -54,8 +54,8 @@ namespace Game1.Spells
                 manaDeducted = 0;
                 stopwatch.Start();
                 spellReady = false;
-                spellStarted = true;
-                stats.SpellStatus(spellStarted, leftCastSpeed, stopwatch);
+                spellCharging = SpellCharging.Left;
+                stats.SpellStatus(spellCharging, leftCastSpeed, stopwatch);
                 lastMode = LastMode.Left;
             }
             if (leftButton == false && rightButton == true && stats.currentMana >= rightManaCost)
@@ -64,8 +64,8 @@ namespace Game1.Spells
                 manaDeducted = 0;
                 stopwatch.Start();
                 spellReady = false;
-                spellStarted = true;
-                stats.SpellStatus(spellStarted, rightCastSpeed, stopwatch);
+                spellCharging = SpellCharging.Right;
+                stats.SpellStatus(spellCharging, rightCastSpeed, stopwatch);
                 lastMode = LastMode.Right;
             }
             if (leftButton == true && rightButton == true && stats.currentMana >= dualManaCost && dObj.Type == DrawableObject.ObjectType.Turret)
@@ -76,15 +76,15 @@ namespace Game1.Spells
                 manaDeducted = 0;
                 stopwatch.Start();
                 spellReady = false;
-                spellStarted = true;
-                stats.SpellStatus(spellStarted, dualCastSpeed, stopwatch);
+                spellCharging = SpellCharging.Dual;
+                stats.SpellStatus(spellCharging, dualCastSpeed, stopwatch);
                 lastMode = LastMode.Dual;
             }
         }
 
         public void Continue(bool leftButton, bool rightButton, DrawableObject dObj)
         {
-            if (spellStarted == true)
+            if (spellCharging > 0)
             {
                 if (leftButton == true && rightButton == false)
                 {
@@ -131,7 +131,7 @@ namespace Game1.Spells
 
         public void Stop(bool leftButton, bool rightButton, DrawableObject dObj)
         {
-            if (spellStarted == true)
+            if (spellCharging > 0)
             {
                 if (lastMode == LastMode.Left)
                 {
@@ -149,8 +149,8 @@ namespace Game1.Spells
                         stats.currentMana = startingMana;
                         manaDeducted = 0;
                     }
-                    spellStarted = false;
-                    stats.SpellStatus(false);
+                    spellCharging = SpellCharging.None;
+                    stats.SpellStatus(spellCharging);
                     stopwatch.Reset();
                 }
                 if (lastMode == LastMode.Right)
@@ -169,8 +169,8 @@ namespace Game1.Spells
                         stats.currentMana = startingMana;
                         manaDeducted = 0;
                     }
-                    spellStarted = false;
-                    stats.SpellStatus(false);
+                    spellCharging = SpellCharging.None;
+                    stats.SpellStatus(spellCharging);
                     stopwatch.Reset();
                 }
                 if (lastMode == LastMode.Dual) //usuwanie turreta
@@ -195,8 +195,8 @@ namespace Game1.Spells
                     }
 
                     targetedTurret = null;
-                    spellStarted = false;
-                    stats.SpellStatus(false);
+                    spellCharging = SpellCharging.None;
+                    stats.SpellStatus(spellCharging);
                     stopwatch.Reset();
                 }
             }

@@ -14,6 +14,15 @@ namespace Game1
         Mana = 1,
         CoreHealth = 2
     };
+
+    public enum SpellCharging
+    {
+        None = 0,
+        Left = 1,
+        Right = 2,
+        Dual = 3
+    };
+
     public class Stats
     {
         public float currentHealth;
@@ -22,7 +31,7 @@ namespace Game1
         public float maxMana;
         public float coreHealth;
 
-        public bool spellCharging;
+        public SpellCharging spellCharging;
         public float castSpeed;
         public Stopwatch castTimer;
 
@@ -50,7 +59,7 @@ namespace Game1
                 currentHealth = Math.Min(currentHealth + (float)gameTime.ElapsedGameTime.TotalSeconds * healthRegen, maxHealth);
         }
 
-        public void SpellStatus(bool spellCharging, float castSpeed = 0, Stopwatch castTimer = null)
+        public void SpellStatus(SpellCharging spellCharging, float castSpeed = 0, Stopwatch castTimer = null)
         {
             this.spellCharging = spellCharging;
             this.castSpeed = castSpeed;

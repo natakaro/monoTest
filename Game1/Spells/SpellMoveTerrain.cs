@@ -27,7 +27,7 @@ namespace Game1.Spells
         private float castSpeed;
         private float dualCastSpeed;
 
-        private bool spellStarted;
+        private SpellCharging spellCharging;
         private bool spellReady;
         private float startingMana;
         private float manaDeducted;
@@ -57,7 +57,7 @@ namespace Game1.Spells
                                 target.Velocity = Vector3.Zero;
                             }
 
-                            spellStarted = true;
+                            spellCharging = SpellCharging.Dual;
                             //tworzymy sphere duza wokol celu, zbieramy kolizje wszystkich wokol i wyliczyamy srednia pozycje na y
                             areaSphere = new BoundingSphere(dObj.Position, 40f);
                             sphere_list = octree.AllIntersections(areaSphere, DrawableObject.ObjectType.Terrain);
@@ -70,7 +70,7 @@ namespace Game1.Spells
                             }
                             average_y = average_y / sphere_list.Count;
                             stopwatch.Start();
-                            stats.SpellStatus(spellStarted, dualCastSpeed, stopwatch);
+                            stats.SpellStatus(spellCharging, dualCastSpeed, stopwatch);
                         }
                     }
                 }
@@ -79,16 +79,20 @@ namespace Game1.Spells
                 {
                     if (dObj.Type == DrawableObject.ObjectType.Terrain)
                     {
-                        spellStarted = true;
-
                         target = dObj;
                         target.IsStatic = false;
-                        if(leftButton)
+                        if (leftButton)
+                        {
+                            spellCharging = SpellCharging.Left;
                             target.Acceleration = new Vector3(0, 10, 0);
+                        }
                         else
+                        {
+                            spellCharging = SpellCharging.Right;
                             target.Acceleration = new Vector3(0, -10, 0);
+                        }
                         stopwatch.Start();
-                        stats.SpellStatus(spellStarted, 0, stopwatch);
+                        stats.SpellStatus(spellCharging, 0, stopwatch);
                     }
                 }
             }
@@ -96,7 +100,7 @@ namespace Game1.Spells
 
         public void Continue(bool leftButton, bool rightButton)
         {
-            if (spellStarted == true)
+            if (spellCharging > 0)
             {
                 if (leftButton == true && rightButton == true && sphere_list != null) //w wersji obszarowej poruszamy kazdym tilem w odpowiednim kierunku z usredniona predkoscia
                 {
@@ -170,8 +174,8 @@ namespace Game1.Spells
                 sphere_list.Clear();
                 stopwatch.Reset();
             }
-            spellStarted = false;
-            stats.SpellStatus(false);
+            spellCharging = SpellCharging.None;
+            stats.SpellStatus(spellCharging);
         }
 
         public SpellMoveTerrain(Octree octree, Stats stats)
