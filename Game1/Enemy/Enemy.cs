@@ -26,6 +26,9 @@ namespace Game1
         private AnimatedModel modell = null;
         private AnimatedModel dance = null;
 
+        private Tile targetTile;
+        private int tileNumber;
+
         public Enemy(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ContentManager Content) : base(game, inWorldMatrix, inModel, octree)
         {
             this.Content = Content;
@@ -49,44 +52,56 @@ namespace Game1
             a = boundingBox.Max.Y - boundingBox.Min.Y;
             b = position.Y - boundingBox.Min.Y;
             //positionray = new Ray(new Vector3(position.X, boundingBox.Min.Y, position.Z), Vector3.Down);
+
+            tileNumber = 0;
         }
 
-        public bool Update(GameTime gameTime, Camera camera, Octree octree, Dictionary<AxialCoordinate, Tile> map)
+        public bool Update(GameTime gameTime, Camera camera, Octree octree, Dictionary<AxialCoordinate, Tile> map, List <Tile> path)
         {
-            
-            Vector3 temp;
-            temp = Vector3.Normalize(camera.Position - position);
-            Vector3 temp2;
-            temp2 = new Vector3(temp.X, 0, temp.Z);
-            position += speed * temp2 * (float)(gameTime.ElapsedGameTime.TotalSeconds);
-            boundingBox.Max += speed * temp2 * (float)(gameTime.ElapsedGameTime.TotalSeconds);
-            boundingBox.Min += speed * temp2 * (float)(gameTime.ElapsedGameTime.TotalSeconds);
-            //IntersectionRecord ir = octree.HighestIntersection(this, ObjectType.Terrain);
-            //
-            //if (ir != null && ir.DrawableObjectObject != null)//..ujowy if ale działa
-            //{
-            //    distance = boundingBox.Min.Y - ir.DrawableObjectObject.BoundingBox.Max.Y;
-            //    boundingBox.Min.Y -= distance * gravity/10 * (float)(gameTime.ElapsedGameTime.TotalSeconds);
-            //}
-            //if (ir.DrawableObjectObject == null)
-            //    boundingBox.Min.Y -= gravity*(float)(gameTime.ElapsedGameTime.TotalSeconds);
-
-            Tile tile = tileFromPosition(position, map);
-
-            if (tile != null)
+            if (path.Count != 0)
             {
-                distance = boundingBox.Min.Y - tile.BoundingBox.Max.Y;
-                boundingBox.Min.Y -= distance * gravity / 10 * (float)(gameTime.ElapsedGameTime.TotalSeconds);
+                targetTile = path[tileNumber];
+
+                Vector3 temp;
+                temp = Vector3.Normalize(targetTile.Position - position);
+                Vector3 temp2;
+                temp2 = new Vector3(temp.X, 0, temp.Z);
+                position += speed * temp2 * (float)(gameTime.ElapsedGameTime.TotalSeconds);
+                boundingBox.Max += speed * temp2 * (float)(gameTime.ElapsedGameTime.TotalSeconds);
+                boundingBox.Min += speed * temp2 * (float)(gameTime.ElapsedGameTime.TotalSeconds);
+                //IntersectionRecord ir = octree.HighestIntersection(this, ObjectType.Terrain);
+                //
+                //if (ir != null && ir.DrawableObjectObject != null)//..ujowy if ale działa
+                //{
+                //    distance = boundingBox.Min.Y - ir.DrawableObjectObject.BoundingBox.Max.Y;
+                //    boundingBox.Min.Y -= distance * gravity/10 * (float)(gameTime.ElapsedGameTime.TotalSeconds);
+                //}
+                //if (ir.DrawableObjectObject == null)
+                //    boundingBox.Min.Y -= gravity*(float)(gameTime.ElapsedGameTime.TotalSeconds);
+
+                Tile tile = tileFromPosition(position, map);
+
+                if (tile != null)
+                {
+                    distance = boundingBox.Min.Y - tile.BoundingBox.Max.Y;
+                    boundingBox.Min.Y -= distance * gravity / 10 * (float)(gameTime.ElapsedGameTime.TotalSeconds);
+                }
+                if (tile == null)
+                    boundingBox.Min.Y -= gravity * (float)(gameTime.ElapsedGameTime.TotalSeconds);
+
+                boundingBox.Max.Y = boundingBox.Min.Y + a;
+                position.Y = boundingBox.Min.Y + b;
+
+                float targetrotation = (float)Math.Atan2((double)(targetTile.Position.Y - position.Y), (double)(targetTile.Position.X - position.X));
+                worldMatrix = Matrix.CreateRotationY(targetrotation) * Matrix.CreateTranslation(position);
+                modell.Update(gameTime);
+
+                if (Math.Abs(position.X - targetTile.Position.X) < 5 && Math.Abs(position.Z - targetTile.Position.Z) < 5 && tileNumber < path.Count)
+                {
+                    tileNumber++;
+                }
             }
-            if (tile == null)
-                boundingBox.Min.Y -= gravity * (float)(gameTime.ElapsedGameTime.TotalSeconds);
-
-            boundingBox.Max.Y = boundingBox.Min.Y + a;
-            position.Y = boundingBox.Min.Y + b;
-
-            float targetrotation = (float)Math.Atan2((double)(camera.Position.Y - position.Y), (double)(camera.Position.X - position.X));
-            worldMatrix = Matrix.CreateRotationY(targetrotation) * Matrix.CreateTranslation(position);
-            modell.Update(gameTime);
+                
 
             return true;
 

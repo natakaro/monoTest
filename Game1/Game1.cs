@@ -674,12 +674,13 @@ namespace Game1
             //sky.Theta = timeOfDay.TotalMinutes * (float)(Math.PI) / 12.0f / 60.0f;
             if (settings.EnemyMove)
             {
-                enemy.Update(gameTime, camera, octree, tileDictionary);
+                //Tile start = tileFromPosition(enemy.Position, tileDictionary);
+                //Tile end = tileFromPosition(core.Position, tileDictionary);
+                //path = pathfinder.Pathfind(start, end, tileDictionary, settings);
+                enemy.Update(gameTime, camera, octree, tileDictionary, path);
             }
 
-            Tile start = tileFromPosition(camera.Position, tileDictionary);
-            Tile end = tileFromPosition(core.Position, tileDictionary);
-            path = pathfinder.Pathfind(start, end, tileDictionary, settings);
+            
 
             UpdateFrameRate(gameTime);
 
