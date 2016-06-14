@@ -369,7 +369,7 @@ namespace Game1.Helpers
         public static float CubeDistance(CubeCoordinateH a, CubeCoordinateH b)
         {
             //return (Math.Abs(a.X - b.X) + Math.Abs(a.Y - b.Y) + Math.Abs(a.Z - b.Z)) / 2;
-            return Math.Max(Math.Max(Math.Max(Math.Abs(a.x - b.x), Math.Abs(a.y - b.y)), Math.Abs(a.z - b.z)), Math.Abs(a.height - b.height));
+            return Math.Max(Math.Max(Math.Abs(a.x - b.x), Math.Abs(a.y - b.y)), Math.Abs(a.z - b.z));
         }
 
         public static List<CubeCoordinateH> CubeLerp(CubeCoordinateH a, CubeCoordinateH b)

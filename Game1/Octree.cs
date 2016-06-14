@@ -1165,6 +1165,30 @@ namespace Game1
             return highest;
         }
 
+        public IntersectionRecord HighestIntersection(BoundingSphere sphere, DrawableObject.ObjectType type = DrawableObject.ObjectType.ALL)
+        {
+            if (!m_treeReady)
+                UpdateTree();
+
+            List<IntersectionRecord> intersections = GetIntersection(sphere, type);
+
+            IntersectionRecord highest = new IntersectionRecord();
+
+            foreach (IntersectionRecord ir in intersections)
+            {
+                if (highest.HasHit == false)
+                {
+                    highest = ir;
+                    continue;
+                }
+                else if (ir.DrawableObjectObject.BoundingBox.Max.Y > highest.DrawableObjectObject.BoundingBox.Max.Y)
+                {
+                    highest = ir;
+                }
+            }
+            return highest;
+        }
+
         public IntersectionRecord HighestIntersection(DrawableObject obj, DrawableObject.ObjectType type = DrawableObject.ObjectType.ALL)
         {
             if (!m_treeReady)

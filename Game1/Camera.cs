@@ -412,15 +412,15 @@ namespace Game1
         }
         public Ray MovingRay()
         {
-            Vector3 weaponPos = Position;
+            Vector3 position = Position;
             Vector3 temp = currentVelocity/50;
             temp.Z = -temp.Z;
             temp.Y = 0;
-            weaponPos += Vector3.Transform(temp, Matrix.CreateRotationY(MathHelper.ToRadians(HeadingDegrees)));
+            position += Vector3.Transform(temp, Matrix.CreateRotationY(MathHelper.ToRadians(HeadingDegrees)));
            
                     //Matrix.CreateRotationY(MathHelper.ToRadians(HeadingDegrees))
                     //* Matrix.CreateTranslation(weaponPos).;
-            return new Ray(weaponPos, Vector3.Down);
+            return new Ray(position, Vector3.Down);
         }
 
         public void Block()

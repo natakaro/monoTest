@@ -545,15 +545,26 @@ namespace Game1
 
             ProcessKeyboard();
 
-            Tile tile = tileFromPosition(camera.Position, tileDictionary);
+            //Tile tile = tileFromPosition(camera.Position, tileDictionary);
 
-            if (tile != null)
+            //if (tile != null)
+            //{
+            //    tileStandingOn = tile;
+            //    distance = tileStandingOn.BoundingBox.Max.Y;
+            //}
+
+            //if (tile == null)
+            //    distance = 0;
+
+            Ray yRay = camera.MovingRay();
+            IntersectionRecord ir = octree.HighestIntersection(yRay);
+
+            if (ir != null && ir.DrawableObjectObject != null)//..ujowy if ale działa
             {
-                tileStandingOn = tile;
-                distance = tileStandingOn.BoundingBox.Max.Y;
+                distance = ir.DrawableObjectObject.BoundingBox.Max.Y;
+                tileStandingOn = ir.DrawableObjectObject;
             }
-
-            if (tile == null)
+            if (ir.DrawableObjectObject == null)
                 distance = 0;
 
             float eyeHeight = camera.EyeHeightStanding - (CAMERA_PLAYER_EYE_HEIGHT + distance);
@@ -666,9 +677,9 @@ namespace Game1
                 enemy.Update(gameTime, camera, octree, tileDictionary);
             }
 
-            //Tile start = tileFromPosition(camera.Position, tileDictionary);
-            //Tile end = tileFromPosition(core.Position, tileDictionary);
-            //path = pathfinder.Pathfind(start, end, tileDictionary, settings);
+            Tile start = tileFromPosition(camera.Position, tileDictionary);
+            Tile end = tileFromPosition(core.Position, tileDictionary);
+            path = pathfinder.Pathfind(start, end, tileDictionary, settings);
 
             UpdateFrameRate(gameTime);
 

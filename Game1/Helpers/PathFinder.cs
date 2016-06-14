@@ -244,8 +244,9 @@ namespace Game1.Helpers
                                     currentDistance[neighbor]
                                     + Math.Abs(neighbor.Position.X - end.Position.X)
                                     + Math.Abs(neighbor.Position.Z - end.Position.Z)
-                                    + Math.Abs(neighbor.Position.Y - current.Position.Y)
-                                    + distanceToStraightLine;
+                                    + Math.Abs(neighbor.Position.Y - current.Position.Y)*5
+                                    
+                                    +distanceToStraightLine;
                             }
                             else
                             {
@@ -254,7 +255,7 @@ namespace Game1.Helpers
                                     currentDistance[neighbor]
                                     + Math.Abs(neighbor.Position.X - end.Position.X)
                                     + Math.Abs(neighbor.Position.Z - end.Position.Z)
-                                    + Math.Abs(neighbor.Position.Y - current.Position.Y);
+                                    + Math.Abs(neighbor.Position.Y - current.Position.Y)*5;
                             }
 
 
