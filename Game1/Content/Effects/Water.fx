@@ -50,7 +50,7 @@ float normalScale = 1.0f;
 float R0 = 0.5f;
 
 // Maximum waves amplitude
-float maxAmplitude = 2.5f;
+float maxAmplitude = 5.0f;
 
 // Direction of the light
 float3 lightDir;
@@ -79,7 +79,7 @@ float displace = 0.25f;
 // Describes at what depth foam starts to fade out and
 // at what it is completely invisible. The third value is at
 // what height foam for waves appear (+ waterLevel).
-float3 foamExistence = { 0.65f, 1.35f, 1.25f };
+float3 foamExistence = { 0.65f, 1.35f, 2.5f };
 
 float sunScale = 3.0f;
 

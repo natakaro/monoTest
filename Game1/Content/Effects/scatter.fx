@@ -59,8 +59,8 @@ Texture2D StarsTex;
 sampler2D starSampler = sampler_state
 {
 	Texture = <StarsTex>;
-    ADDRESSU = CLAMP;
-	ADDRESSV = CLAMP;
+    ADDRESSU = WRAP;
+	ADDRESSV = WRAP;
 	MAGFILTER = LINEAR;
 	MINFILTER = LINEAR;
 	MIPFILTER = LINEAR;

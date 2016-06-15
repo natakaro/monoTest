@@ -42,14 +42,14 @@ namespace Game1.HUD
         {
             if(enabled)
             {
+                //hitmarker
+                if (hitMarker == true)
+                {
+                    spriteBatch.Draw(crosshairHitMarkerTexture, position, new Color(200, 200, 200, 200));
+                }
+
                 if (stats.spellCharging > 0)
                 {
-                    //hitmarker
-                    if (hitMarker == true)
-                    {
-                        spriteBatch.Draw(crosshairHitMarkerTexture, position, new Color(200, 200, 200, 200));
-                    }
-
                     if (stats.castSpeed == 0) //moveterrain
                     {                      
                         if(stats.spellCharging == SpellCharging.Left)
@@ -96,7 +96,7 @@ namespace Game1.HUD
         public void HandleHitEvent(object sender, EventArgs eventArgs)
         {
             hitMarker = true;
-            hitMarkerStopwatch.Start();
+            hitMarkerStopwatch.Restart();
         }
     }
 }

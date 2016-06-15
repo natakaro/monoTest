@@ -290,6 +290,11 @@ namespace Game1.Helpers
             {
                 return new CubeCoordinate(value.x, value.y, value.z);
             }
+
+            public static implicit operator CubeCoordinateH(CubeCoordinate value)
+            {
+                return new CubeCoordinateH(value.x, value.y, value.z, 0);
+            }
         }
 
         public static Tile tileFromAxial(AxialCoordinate axial, Dictionary<AxialCoordinate, Tile> dictionary)
@@ -298,40 +303,6 @@ namespace Game1.Helpers
             dictionary.TryGetValue(axial, out tile);
 
             return tile;
-        }
-
-        public static Vector3 WorldToCube(Tile tile)
-        {
-            Vector3 tileWorldPosition = tile.Position;
-            float x = tileWorldPosition.X;
-
-
-            return tile.Position;
-        }
-
-        public static Vector3 evenRToCube(Vector2 value)
-        {
-            float col = value.X;
-            float row = value.Y;
-
-            float x = col - (row + (row % 2)) / 2;
-            float z = row;
-            float y = -x - z;
-
-            return new Vector3(x, y, z);
-        }
-
-
-        public static Vector3 oddRToCube(Vector2 value)
-        {
-            float col = value.X;
-            float row = value.Y;
-
-            float x = col - (row - (row % 2)) / 2;
-            float z = row;
-            float y = -x - z;
-
-            return new Vector3(x, y, z);
         }
 
         public static Vector3 axialHToPixel(AxialCoordinateH axial, float size)
@@ -374,8 +345,13 @@ namespace Game1.Helpers
 
         public static List<CubeCoordinateH> CubeLerp(CubeCoordinateH a, CubeCoordinateH b)
         {
+            CubeCoordinate epsilon = new CubeCoordinate(1e-6f, 1e-6f, -2e-6f);
+
             var ret = new List<CubeCoordinateH>();
             var distance = CubeDistance(a, b);
+
+            a += epsilon;
+            b += epsilon;
 
             int steps = (int)distance;
 

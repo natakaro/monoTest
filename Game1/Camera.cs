@@ -92,6 +92,11 @@ namespace Game1
         private KeyboardState previousKeyboardState;
         private Dictionary<Actions, Keys> actionKeys;
 
+        private BoundingSphere boundingSphere;
+        private Ray downwardRay;
+        private Octree octree;
+        private Model debugModel;
+
         #region Public Methods
 
         public Camera(Game game) : base(game)
@@ -151,6 +156,8 @@ namespace Game1
             Rectangle clientBounds = game.Window.ClientBounds;
             float aspect = (float)clientBounds.Width / (float)clientBounds.Height;
             Perspective(fovx, aspect, znear, zfar);
+
+            boundingSphere = new BoundingSphere(Position, 5);
         }
 
         public override void Initialize()
@@ -240,6 +247,25 @@ namespace Game1
             // straight up and down.
 
             Vector3 forwards = Vector3.Normalize(Vector3.Cross(WORLD_Y_AXIS, xAxis));
+
+            Vector3 movement = (xAxis * dx + WORLD_Y_AXIS * dy + forwards * dz);
+
+            //foreach (ModelMesh mesh in debugModel.Meshes)
+            //{
+            //    foreach (Effect effect in mesh.Effects)
+            //    {
+            //        effect.Parameters["World"].SetValue(worldMatrix * Matrix.CreateTranslation(movement.X, movement.Y, movement.Z));
+            //        effect.Parameters["View"].SetValue(viewMatrix);
+            //        effect.Parameters["Projection"].SetValue(projMatrix);
+            //        effect.Parameters["FarClip"].SetValue(FarZ);
+            //        effect.Parameters["Clipping"].SetValue(false);
+            //    }
+            //    mesh.Draw();
+            //}
+
+            dx = octree.CameraIntersection(eye + new Vector3(movement.X, 0, 0), 1) ? 0 : dx;
+            dy = octree.CameraIntersection(eye + new Vector3(0, movement.Y, 0), 1) ? 0 : dy;
+            dz = octree.CameraIntersection(eye + new Vector3(0, 0, movement.Z), 1) ? 0 : dz;
 
             eye += xAxis * dx;
             eye += WORLD_Y_AXIS * dy;
@@ -371,19 +397,19 @@ namespace Game1
         /// <param name="zOffset">How far to position the weapon in front or behind.</param>
         /// <param name="scale">How much to scale the weapon.</param>
         /// <returns>The weapon world transformation matrix.</returns>
-        //public Matrix WeaponWorldMatrix(float xOffset, float yOffset, float zOffset, float scale)
-        //{
-        //    Vector3 weaponPos = eye;
+        public Matrix WeaponWorldMatrix(float xOffset, float yOffset, float zOffset, float scale)
+        {
+            Vector3 weaponPos = eye;
 
-        //    weaponPos += viewDir * zOffset;
-        //    weaponPos += yAxis * yOffset;
-        //    weaponPos += xAxis * xOffset;
+            weaponPos += viewDir * zOffset;
+            weaponPos += yAxis * yOffset;
+            weaponPos += xAxis * xOffset;
 
-        //    return Matrix.CreateScale(scale)
-        //        * Matrix.CreateRotationX(MathHelper.ToRadians(PitchDegrees))
-        //        * Matrix.CreateRotationY(MathHelper.ToRadians(HeadingDegrees))
-        //        * Matrix.CreateTranslation(weaponPos);
-        //}
+            return Matrix.CreateScale(scale)
+                * Matrix.CreateRotationX(MathHelper.ToRadians(PitchDegrees))
+                * Matrix.CreateRotationY(MathHelper.ToRadians(HeadingDegrees))
+                * Matrix.CreateTranslation(weaponPos);
+        }
 
         /// <summary>
         /// Returns a ray starting right from the center of the screen.
@@ -406,9 +432,9 @@ namespace Game1
         /// <summary>
         /// Returns a ray pointing straight down from the camera position.
         /// </summary>
-        public Ray GetDownwardRay()
+        public Ray DownwardRay
         {
-            return new Ray(Position, Vector3.Down);
+            get { return downwardRay; }
         }
         public Ray MovingRay()
         {
@@ -662,6 +688,8 @@ namespace Game1
 
             RotateSmoothly(smoothedMouseMovement.X, smoothedMouseMovement.Y);
             UpdatePosition(ref direction, elapsedTimeSec);
+
+            downwardRay = new Ray(Position, Vector3.Down);
         }
 
         private void UpdateInput()
@@ -1061,6 +1089,17 @@ namespace Game1
             get { return znear; }
         }
 
+        public Octree Octree
+        {
+            get { return octree; }
+            set { octree = value; }
+        }
+
+        public Model DebugModel
+        {
+            get { return debugModel; }
+            set { debugModel = value; }
+        }
         #endregion
     }
 }

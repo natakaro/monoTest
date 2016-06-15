@@ -1019,6 +1019,38 @@ namespace Game1
             return intersections;
         }
 
+        private bool GetCameraIntersection(Vector3 cameraPosition, float radius, DrawableObject.ObjectType type = DrawableObject.ObjectType.ALL)
+        {
+            if (m_objects.Count == 0 && HasChildren == false)   //terminator for any recursion
+                return false;
+
+            BoundingSphere sphere = new BoundingSphere(cameraPosition, radius);
+            //test each object in the list for intersection
+            foreach (DrawableObject obj in m_objects)
+            {
+
+                //skip any objects which don't meet our type criteria
+                if ((int)((int)type & (int)obj.Type) == 0)
+                    continue;
+
+                //test for intersection
+                IntersectionRecord ir = obj.Intersects(sphere);
+                if (ir != null)
+                    return true;
+            }
+
+            //test each object in the list for intersection
+            for (int a = 0; a < 8; a++)
+            {
+                if (m_childNode[a] != null && (sphere.Contains(m_childNode[a].m_region) != ContainmentType.Disjoint))
+                {
+                    if(m_childNode[a].GetCameraIntersection(cameraPosition, radius))
+                        return true;
+                }
+            }
+            return false;
+        }
+
         #endregion
 
         #region Colliders
@@ -1293,6 +1325,14 @@ namespace Game1
                 UpdateTree();
 
             return GetIntersection(dObject, type);
+        }
+
+        public bool CameraIntersection(Vector3 cameraPosition, float radius, DrawableObject.ObjectType type = DrawableObject.ObjectType.ALL)
+        {
+            if (!m_treeReady)
+                UpdateTree();
+
+            return GetCameraIntersection(cameraPosition, radius, type);
         }
         #endregion
 

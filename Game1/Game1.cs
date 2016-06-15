@@ -196,8 +196,8 @@ namespace Game1
 
             // Setup frame buffer.
             graphics.SynchronizeWithVerticalRetrace = false; //vsync
-            graphics.PreferredBackBufferWidth = 1280;
-            graphics.PreferredBackBufferHeight = 720;
+            graphics.PreferredBackBufferWidth = 1920;
+            graphics.PreferredBackBufferHeight = 1080;
             graphics.PreferMultiSampling = false;
             graphics.PreferredBackBufferFormat = SurfaceFormat.HdrBlendable;
             graphics.ApplyChanges();
@@ -325,9 +325,14 @@ namespace Game1
             core = new Core(this, Matrix.CreateTranslation(1100, 50, 1700), crystalModel, octree);
             octree.m_objects.Add(core);
 
+            camera.Octree = octree;
+            
+
             spellMoveTerrain = new SpellMoveTerrain(octree, stats);
             spellFireball = new SpellFireball(this, camera, octree, lightManager, hudManager, stats);
             spellCreateTurret = new SpellCreateTurret(this, camera, octree, lightManager, stats);
+
+            camera.DebugModel = spellFireball.fireballModel;
 
             swDraw = new Stopwatch();
             swUpdate = new Stopwatch();
@@ -556,7 +561,7 @@ namespace Game1
             //if (tile == null)
             //    distance = 0;
 
-            Ray yRay = camera.MovingRay();
+            Ray yRay = camera.DownwardRay;
             IntersectionRecord ir = octree.HighestIntersection(yRay);
 
             if (ir != null && ir.DrawableObjectObject != null)//..ujowy if ale działa
@@ -569,9 +574,9 @@ namespace Game1
 
             float eyeHeight = camera.EyeHeightStanding - (CAMERA_PLAYER_EYE_HEIGHT + distance);
 
-            if (-eyeHeight > 30)
-                camera.Block();
-            else if (eyeHeight > 30)
+            //if (-eyeHeight > 30)
+            //    camera.Block();
+            if (eyeHeight > 30)
                 camera.EyeHeightStanding += -Math.Sign(eyeHeight) * acceleration * 2 * (float)(gameTime.ElapsedGameTime.TotalSeconds);
             else if (Math.Truncate(eyeHeight) == 0)
                 camera.EyeHeightStanding = CAMERA_PLAYER_EYE_HEIGHT + distance;
@@ -1016,6 +1021,8 @@ namespace Game1
                     spriteBatch.Draw(waterTarget, Vector2.Zero, Color.White);
                 spriteBatch.End();
             }
+
+            //camera.Update(gameTime);
 
             swDraw.Stop();
 

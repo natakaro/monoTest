@@ -51,7 +51,7 @@ namespace Game1
             for(int i = 0; i < 200; i++)
             {
                 Texture2D layer = content.Load<Texture2D>("Textures/waves5/" + i.ToString("D3"));
-                heightMap.SetData(0, i, null, layer.GetPixels(), 0, 262144);
+                heightMap.SetData(0, i, null, layer.GetPixels(), 0, 512*512);
             }
             foamMap = content.Load<Texture2D>("Textures/waterfoam2");
 
