@@ -26,7 +26,7 @@ namespace Game1
         private InstancingManager instancingManager;
         public Octree octree;
 
-        public Dictionary<AxialCoordinate, Tile> tileDictionary;
+        public static Dictionary<AxialCoordinate, Tile> tileDictionary;
 
         #region Object lists
         private FrustumIntersections reflectionObjects;
@@ -445,10 +445,14 @@ namespace Game1
             }
             if (KeyJustPressed(Keys.P))
             {
+                /*
                 Tile start = tileFromPosition(camera.Position, tileDictionary);
                 Tile end = tileFromPosition(core.Position, tileDictionary);
-                path = pathfinder.Pathfind(start, end, tileDictionary, settings);
-
+                path = pathfinder.Pathfind(start, end, tileDictionary, settings.Instancing);
+                */
+                //IntersectionRecord ir = octree.NearestIntersection(camera.GetMouseRay(graphics.GraphicsDevice.Viewport));
+                Spawn temp = new Spawn(this, Matrix.CreateTranslation(camera.Position+Vector3.Normalize(core.Position - camera.Position)*100), crystalModel, octree, Content, core.Position);
+                
                 //path = pathfinder.Pathfind((Tile)octree.HighestIntersection(camera.GetDownwardRay(), DrawableObject.ObjectType.Terrain).DrawableObjectObject, (Tile)octree.HighestIntersection(core, DrawableObject.ObjectType.Terrain).DrawableObjectObject, octree, settings);
             }
 
@@ -682,7 +686,7 @@ namespace Game1
                 //Tile start = tileFromPosition(enemy.Position, tileDictionary);
                 //Tile end = tileFromPosition(core.Position, tileDictionary);
                 //path = pathfinder.Pathfind(start, end, tileDictionary, settings);
-                enemy.Update(gameTime, camera, octree, tileDictionary, path);
+                enemy.Update(gameTime, octree, path);
             }
 
             

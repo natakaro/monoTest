@@ -132,7 +132,7 @@ namespace Game1
             }
         }
 
-        public void Draw(Camera camera)
+        public virtual void Draw(Camera camera)
         {
             foreach (ModelMesh mesh in model.Meshes)
             {
@@ -149,7 +149,7 @@ namespace Game1
             }
         }
 
-        public void Draw(Camera camera, Matrix viewMatrix, Vector4 clipPlane)
+        public virtual void Draw(Camera camera, Matrix viewMatrix, Vector4 clipPlane)
         {
             foreach (ModelMesh mesh in model.Meshes)
             {

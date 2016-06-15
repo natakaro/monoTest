@@ -45,6 +45,7 @@
     <Compile Include="Core.cs" />
     <Compile Include="DepthOfFieldProcessor.cs" />
     <Compile Include="Enemy\Enemy.cs" />
+    <Compile Include="Enemy\Spawn.cs" />
     <Compile Include="GameSettings.cs" />
     <Compile Include="HDRProcessor.cs" />
     <Compile Include="Helpers\CollisionBox.cs" />

@@ -1077,6 +1077,16 @@ namespace Game1
             return GetAllSplit(type);
         }
 
+        public bool AddObject (DrawableObject obj)
+        {
+            if (!m_treeReady)
+                UpdateTree();
+
+            m_objects.Add(obj);
+            return true;
+        }
+
+
         /// <summary>
         /// This gives you a list of every intersection record created with the intersection ray
         /// </summary>

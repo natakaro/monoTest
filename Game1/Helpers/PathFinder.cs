@@ -153,7 +153,7 @@ namespace Game1.Helpers
             );
         }
 
-        public List<Tile> Pathfind(Tile start, Tile end, Dictionary<AxialCoordinate, Tile> map, GameSettings settings)
+        public List<Tile> Pathfind(Tile start, Tile end, Dictionary<AxialCoordinate, Tile> map, bool settings)
         {
             if (start != null && end != null)
             {
@@ -235,7 +235,7 @@ namespace Game1.Helpers
                                 cameFrom.Add(neighbor, current);
                             }
 
-                            if (settings.Instancing)
+                            if (settings)
                             {
                                 var distanceToStraightLine = DistanceToStraightLine(neighbor, straightLine);
 
