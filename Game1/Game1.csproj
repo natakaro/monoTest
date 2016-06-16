@@ -66,6 +66,7 @@
     <Compile Include="HUD\HUDManager.cs" />
     <Compile Include="HUD\HUDBar.cs" />
     <Compile Include="HUD\HUDElement.cs" />
+    <Compile Include="HUD\HUDPhaseMessage.cs" />
     <Compile Include="InstancingManager.cs" />
     <Compile Include="IntersectionRecord.cs" />
     <Compile Include="Lights\LightManager.cs" />
@@ -74,6 +75,7 @@
     <Compile Include="Game1.cs" />
     <Compile Include="ObjectManager.cs" />
     <Compile Include="Octree.cs" />
+    <Compile Include="PhaseManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Shadows\ShadowCamera.cs" />

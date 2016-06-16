@@ -139,7 +139,7 @@ namespace Game1.Spells
                 {
                     if (spellReady == true && dObj != null)
                     {
-                        if (dObj.Type == DrawableObject.ObjectType.Terrain)
+                        if (dObj.Type == DrawableObject.ObjectType.Tile)
                         {
                             Turret turret = new Turret(game, Matrix.CreateTranslation(dObj.Position), turretModel, octree, objectManager, turretTexture, lightManager);
                             octree.m_objects.Add(turret);
@@ -159,7 +159,7 @@ namespace Game1.Spells
                 {
                     if (spellReady == true && dObj != null)
                     {
-                        if (dObj.Type == DrawableObject.ObjectType.Terrain)
+                        if (dObj.Type == DrawableObject.ObjectType.Tile)
                         {
                             Turret turret = new Turret(game, Matrix.CreateTranslation(dObj.Position), turretModel, octree, objectManager, turretTexture, lightManager);
                             octree.m_objects.Add(turret);

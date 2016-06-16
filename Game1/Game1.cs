@@ -26,8 +26,9 @@ namespace Game1
         private InstancingManager instancingManager;
         public Octree octree;
         public ObjectManager objectManager;
+        public PhaseManager phaseManager;
 
-        public static Dictionary<AxialCoordinate, Tile> tileDictionary;
+        public static Dictionary<AxialCoordinate, Tile> map;
 
         #region Object lists
         private FrustumIntersections reflectionObjects;
@@ -171,8 +172,6 @@ namespace Game1
 
         PathFinder pathfinder;
         List<Tile> path;
-        List<CubeCoordinateH> lineTest;
-        List<Tile> lineList;
 
         public Game1()
         {
@@ -237,12 +236,12 @@ namespace Game1
 
             stat = SkyStatus.Automatic;
 
-            timeOfDay = new TimeOfDay(8, 30, 0);
+            timeOfDay = new TimeOfDay(15, 00, 0);
 
             sky = new SkyDome(this, ref camera);
             // Set skydome parameters here
             //sky.Theta = 2.4f;// (float)Math.PI / 2.0f - 0.3f;
-            sky.Theta = timeOfDay.TotalMinutes * (float)(Math.PI) / 12.0f / 60.0f;
+            sky.Theta = timeOfDay.TotalSeconds * (float)(Math.PI) / 12.0f / 60.0f / 60.0f;
             sky.Parameters.NumSamples = 10;
             sky.Initialize();
 
@@ -274,6 +273,8 @@ namespace Game1
 
             hudManager = new HUDManager(spriteBatch, GraphicsDevice, Content, stats);
             hudManager.LoadContent();
+
+            phaseManager = new PhaseManager(this, timeOfDay, hudManager);
 
             spriteFont = Content.Load<SpriteFont>("Fonts/DemoFont");
 
@@ -315,10 +316,10 @@ namespace Game1
             //octree
             octree = new Octree();
 
-            tileDictionary = Map.CreateMapFromTex(this, mapTex, tileModel, octree);
+            map = Map.CreateMapFromTex(this, mapTex, tileModel, octree);
 
             List<DrawableObject> tileList = new List<DrawableObject>();
-            foreach(var item in tileDictionary)
+            foreach(var item in map)
             {
                 tileList.Add(item.Value);
             }
@@ -329,9 +330,8 @@ namespace Game1
             octree.m_objects.Add(core);
 
             camera.Octree = octree;
-            
 
-            spellMoveTerrain = new SpellMoveTerrain(octree, stats);
+            spellMoveTerrain = new SpellMoveTerrain(octree, stats, phaseManager, map);
             spellFireball = new SpellFireball(this, camera, octree, objectManager, lightManager, hudManager, stats);
             spellCreateTurret = new SpellCreateTurret(this, camera, octree, objectManager, lightManager, stats);
 
@@ -347,8 +347,8 @@ namespace Game1
             pathfinder = new PathFinder();
             path = new List<Tile>();
 
-            lineTest = new List<CubeCoordinateH>();
-            lineList = new List<Tile>();
+            
+
             /*
             List<DrawableObject> abc = new List<DrawableObject>();
             foreach(Tile tile in path.Pathfind((Tile)octree.AllObjects(DrawableObject.ObjectType.Terrain)[0], (Tile)octree.AllObjects(DrawableObject.ObjectType.Terrain)[846], octree))
@@ -454,7 +454,7 @@ namespace Game1
                 path = pathfinder.Pathfind(start, end, tileDictionary, settings.Instancing);
                 */
                 //IntersectionRecord ir = octree.NearestIntersection(camera.GetMouseRay(graphics.GraphicsDevice.Viewport));
-                Spawn temp = new Spawn(this, Matrix.CreateTranslation(camera.Position+Vector3.Normalize(core.Position - camera.Position)*100), crystalModel, octree, Content, core.Position);
+                Spawn temp = new Spawn(this, Matrix.CreateTranslation(camera.Position+Vector3.Normalize(core.Position - camera.Position)*100), crystalModel, octree, Content, core.Position, phaseManager);
                 
                 //path = pathfinder.Pathfind((Tile)octree.HighestIntersection(camera.GetDownwardRay(), DrawableObject.ObjectType.Terrain).DrawableObjectObject, (Tile)octree.HighestIntersection(core, DrawableObject.ObjectType.Terrain).DrawableObjectObject, octree, settings);
             }
@@ -554,6 +554,7 @@ namespace Game1
             base.Update(gameTime);
 
             timeOfDay.Update((float)gameTime.ElapsedGameTime.TotalSeconds, 100);
+            phaseManager.Update(gameTime);
 
             ProcessKeyboard();
 
@@ -954,11 +955,6 @@ namespace Game1
 
             //ścieżka
             foreach(Tile tile in path)
-            {
-                tile.Draw(camera);
-            }
-
-            foreach(Tile tile in lineList)
             {
                 tile.Draw(camera);
             }

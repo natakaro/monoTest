@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,6 +24,7 @@ namespace Game1.HUD
         private HUDBar healthBar;
         private HUDBar manaBar;
         private HUDCrosshair crosshair;
+        private HUDPhaseMessage phaseMessage;
 
         public HUDManager(SpriteBatch spriteBatch, GraphicsDevice graphicsDevice, ContentManager content, Stats stats)
         {
@@ -40,10 +42,12 @@ namespace Game1.HUD
             healthBar = new HUDBar(spriteBatch, graphicsDevice, stats.currentHealth, new Vector2(50, backbufferHeight - 100), new Vector2(100, 10), new Color(255, 0, 0, 200), 100);
             manaBar = new HUDBar(spriteBatch, graphicsDevice, stats.currentMana, new Vector2(50, backbufferHeight - 85), new Vector2(200, 10), new Color(0, 0, 255, 200), 200);
             crosshair = new HUDCrosshair(spriteBatch, graphicsDevice, new Vector2(backbufferWidth / 2 - 32, backbufferHeight / 2 - 32), new Vector2(64, 64), stats);
+            phaseMessage = new HUDPhaseMessage(spriteBatch, graphicsDevice, new Vector2(backbufferWidth / 2 - 740 / 2, backbufferHeight / 4 - 100 / 2), new Vector2(740, 100));
 
             elements.Add(healthBar);
             elements.Add(manaBar);
             elements.Add(crosshair);
+            elements.Add(phaseMessage);
 
             foreach(HUDElement element in elements)
             {
@@ -56,6 +60,8 @@ namespace Game1.HUD
             healthBar.Update(stats.currentHealth);
             manaBar.Update(stats.currentMana);
             crosshair.Update();
+            phaseMessage.Update();
+
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
             foreach(HUDElement element in elements)
             {
@@ -76,6 +82,11 @@ namespace Game1.HUD
         public HUDCrosshair Crosshair
         {
             get { return crosshair; }
+        }
+
+        public HUDPhaseMessage PhaseMessage
+        {
+            get { return phaseMessage; }
         }
         #endregion
     }

@@ -319,9 +319,9 @@ namespace Game1.Helpers
         private IEnumerable<Tile> GetNeighborNodes(Tile node, Octree octree)
         {
             var nodes = new List<Tile>();
-            List<DrawableObject> map = octree.AllObjects(DrawableObject.ObjectType.Terrain);
+            List<DrawableObject> map = octree.AllObjects(DrawableObject.ObjectType.Tile);
             BoundingSphere sphere = new BoundingSphere(node.Position, 30);
-            List <IntersectionRecord> irs = octree.AllIntersections(sphere, DrawableObject.ObjectType.Terrain);
+            List <IntersectionRecord> irs = octree.AllIntersections(sphere, DrawableObject.ObjectType.Tile);
 
             List <IntersectionRecord> remove = new List <IntersectionRecord>();
 
@@ -352,9 +352,9 @@ namespace Game1.Helpers
         private IEnumerable<Tile> GetNeighborNodesSimple(Tile node, Octree octree)
         {
             var nodes = new List<Tile>();
-            List<DrawableObject> map = octree.AllObjects(DrawableObject.ObjectType.Terrain);
+            List<DrawableObject> map = octree.AllObjects(DrawableObject.ObjectType.Tile);
             BoundingSphere sphere = new BoundingSphere(node.Position, 30);
-            List<IntersectionRecord> irs = octree.AllIntersections(sphere, DrawableObject.ObjectType.Terrain);
+            List<IntersectionRecord> irs = octree.AllIntersections(sphere, DrawableObject.ObjectType.Tile);
 
             foreach (IntersectionRecord ir in irs)
             {
@@ -423,7 +423,7 @@ namespace Game1.Helpers
             {
                 CubeCoordinate neighborcoords = coords + directions[i];
                 Tile tile = tileFromAxial(neighborcoords.ToAxial(), map);
-                if (tile == null || tile.Position.Y - node.Position.Y > 30 || tile.Position.Y < 5)
+                if (tile == null || tile.Position.Y - node.Position.Y > 20 || tile.Position.Y < 5)
                     continue;
                 else
                     neighbors.Add(tile);

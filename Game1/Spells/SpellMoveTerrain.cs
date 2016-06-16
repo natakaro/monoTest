@@ -6,18 +6,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Game1.Helpers;
+using static Game1.Helpers.HexCoordinates;
 
 namespace Game1.Spells
 {
     public class SpellMoveTerrain
     {
+        private PhaseManager phaseManager;
         
         private DrawableObject target; 
-        private BoundingSphere areaSphere;
         private Octree octree;
-        private List<IntersectionRecord> sphere_list;
         private float average_y;
         private Stats stats;
+        private Dictionary<AxialCoordinate, Tile> map;
 
         private Stopwatch stopwatch = new Stopwatch();
 
@@ -32,14 +33,18 @@ namespace Game1.Spells
         private float startingMana;
         private float manaDeducted;
 
+        bool tooHigh = false;
+        bool tooLow = false;
+        List<Tile> neighbors;
+
         public void Start(bool leftButton, bool rightButton, DrawableObject dObj)
         {
-            if (dObj != null)
+            if (dObj != null && phaseManager.Phase == Phase.Day)
             {
                 startingMana = stats.currentMana;
                 manaDeducted = 0;
 
-                if (target != null && target.Type == DrawableObject.ObjectType.Terrain) //fix jesli uzywajac na jednym klikniemy na drugim
+                if (target != null && target.Type == DrawableObject.ObjectType.Tile) //fix jesli uzywajac na jednym klikniemy na drugim
                 {
                     target.Acceleration = Vector3.Zero;
                     target.Velocity = Vector3.Zero;
@@ -49,7 +54,7 @@ namespace Game1.Spells
                 {
                     if (startingMana >= dualManaCost)
                     {
-                        if (dObj.Type == DrawableObject.ObjectType.Terrain)
+                        if (dObj.Type == DrawableObject.ObjectType.Tile)
                         {
                             if (target != null)
                             {
@@ -58,17 +63,33 @@ namespace Game1.Spells
                             }
 
                             spellCharging = SpellCharging.Dual;
-                            //tworzymy sphere duza wokol celu, zbieramy kolizje wszystkich wokol i wyliczyamy srednia pozycje na y
-                            areaSphere = new BoundingSphere(dObj.Position, 40f);
-                            sphere_list = octree.AllIntersections(areaSphere, DrawableObject.ObjectType.Terrain);
-                            average_y = 0;
+                            ////tworzymy sphere duza wokol celu, zbieramy kolizje wszystkich wokol i wyliczyamy srednia pozycje na y
+                            //areaSphere = new BoundingSphere(dObj.Position, 40f);
+                            //sphere_list = octree.AllIntersections(areaSphere, DrawableObject.ObjectType.Tile);
 
-                            foreach (IntersectionRecord ir in sphere_list)
+                            //average_y = 0;
+
+                            //foreach (IntersectionRecord ir in sphere_list)
+                            //{
+                            //    ir.DrawableObjectObject.IsStatic = false;
+                            //    average_y += ir.DrawableObjectObject.Position.Y;
+                            //}
+                            //average_y = average_y / sphere_list.Count;
+
+                            target = dObj;
+                            target.IsStatic = false;
+
+                            neighbors = GetNeighborTiles((Tile)target, map);
+
+                            average_y = dObj.Position.Y;
+
+                            foreach (Tile neighbor in neighbors)
                             {
-                                ir.DrawableObjectObject.IsStatic = false;
-                                average_y += ir.DrawableObjectObject.Position.Y;
+                                neighbor.IsStatic = false;
+                                average_y += neighbor.Position.Y;
                             }
-                            average_y = average_y / sphere_list.Count;
+                            average_y = average_y / neighbors.Count + 1;
+
                             stopwatch.Start();
                             stats.SpellStatus(spellCharging, dualCastSpeed, stopwatch);
                         }
@@ -77,19 +98,36 @@ namespace Game1.Spells
 
                 else if ((leftButton || rightButton) && startingMana >= manaCost)
                 {
-                    if (dObj.Type == DrawableObject.ObjectType.Terrain)
+                    if (dObj.Type == DrawableObject.ObjectType.Tile)
                     {
                         target = dObj;
+
+                        neighbors = GetNeighborTiles((Tile)target, map);
+
+                        foreach (Tile neighbor in neighbors)
+                        {
+                            if (target.Position.Y - neighbor.Position.Y > 100)
+                                tooHigh = true;
+                            else if (target.Position.Y - neighbor.Position.Y < -100)
+                                tooLow = true;
+                        }
+
                         target.IsStatic = false;
                         if (leftButton)
                         {
-                            spellCharging = SpellCharging.Left;
-                            target.Acceleration = new Vector3(0, 10, 0);
+                            if (tooHigh == false)
+                            {
+                                spellCharging = SpellCharging.Left;
+                                target.Acceleration = new Vector3(0, 10, 0);
+                            }
                         }
                         else
                         {
-                            spellCharging = SpellCharging.Right;
-                            target.Acceleration = new Vector3(0, -10, 0);
+                            if (tooLow == false)
+                            {
+                                spellCharging = SpellCharging.Right;
+                                target.Acceleration = new Vector3(0, -10, 0);
+                            }
                         }
                         stopwatch.Start();
                         stats.SpellStatus(spellCharging, 0, stopwatch);
@@ -102,36 +140,59 @@ namespace Game1.Spells
         {
             if (spellCharging > 0)
             {
-                if (leftButton == true && rightButton == true && sphere_list != null) //w wersji obszarowej poruszamy kazdym tilem w odpowiednim kierunku z usredniona predkoscia
+                if (leftButton == true && rightButton == true && neighbors != null) //w wersji obszarowej poruszamy kazdym tilem w odpowiednim kierunku z usredniona predkoscia
                 {
                     //DebugShapeRenderer.AddBoundingSphere(areaSphere, Color.White);
-                    foreach (IntersectionRecord ir in sphere_list)
-                    {
-                        //if (ir.DrawableObjectObject.Position.Y == average_y)
-                        //{
-                        //    ir.DrawableObjectObject.Velocity = Vector3.Zero;  //jesli osiagnelismy cel to stop
-                        //}
-                        //else if (ir.DrawableObjectObject.Position.Y > average_y)
-                        //    ir.DrawableObjectObject.Velocity = new Vector3(0, average_y - ir.DrawableObjectObject.Position.Y - 0.1f, 0); //dzieki temu kazdy tile trafia na miejsce w dokladnie tym samym momencie
-                        //else if (ir.DrawableObjectObject.Position.Y < average_y)
-                        //    ir.DrawableObjectObject.Velocity = new Vector3(0, average_y - ir.DrawableObjectObject.Position.Y + 0.1f, 0); //dodanie wyzej lub tutaj odjecie 0.1f przyspiesza zblizenie sie do celu, bo predkosc maleje wraz z odlegloscia
+                    //foreach (IntersectionRecord ir in sphere_list)
+                    //{
+                    //    //if (ir.DrawableObjectObject.Position.Y == average_y)
+                    //    //{
+                    //    //    ir.DrawableObjectObject.Velocity = Vector3.Zero;  //jesli osiagnelismy cel to stop
+                    //    //}
+                    //    //else if (ir.DrawableObjectObject.Position.Y > average_y)
+                    //    //    ir.DrawableObjectObject.Velocity = new Vector3(0, average_y - ir.DrawableObjectObject.Position.Y - 0.1f, 0); //dzieki temu kazdy tile trafia na miejsce w dokladnie tym samym momencie
+                    //    //else if (ir.DrawableObjectObject.Position.Y < average_y)
+                    //    //    ir.DrawableObjectObject.Velocity = new Vector3(0, average_y - ir.DrawableObjectObject.Position.Y + 0.1f, 0); //dodanie wyzej lub tutaj odjecie 0.1f przyspiesza zblizenie sie do celu, bo predkosc maleje wraz z odlegloscia
 
-                        //if (stopwatch.ElapsedMilliseconds < dualCastSpeed)
-                        if (ir.DrawableObjectObject.Position.Y != average_y)
+                    //    //if (stopwatch.ElapsedMilliseconds < dualCastSpeed)
+                    //    if (ir.DrawableObjectObject.Position.Y != average_y)
+                    //    {
+                    //        manaDeducted = Math.Min((stopwatch.ElapsedMilliseconds / dualCastSpeed) * dualManaCost, dualManaCost);
+                    //        stats.currentMana = startingMana - manaDeducted;
+                    //        ir.DrawableObjectObject.Velocity = new Vector3(0, MathHelper.Lerp(0, average_y - ir.DrawableObjectObject.Position.Y, stopwatch.ElapsedMilliseconds / dualCastSpeed), 0);
+                    //    }
+                    //    else
+                    //    {
+                    //        ir.DrawableObjectObject.Velocity = Vector3.Zero;
+                    //    }
+                    //}
+                    foreach (Tile neighbor in neighbors)
+                    {
+                        if (neighbor.Position.Y != average_y)
                         {
                             manaDeducted = Math.Min((stopwatch.ElapsedMilliseconds / dualCastSpeed) * dualManaCost, dualManaCost);
                             stats.currentMana = startingMana - manaDeducted;
-                            ir.DrawableObjectObject.Velocity = new Vector3(0, MathHelper.Lerp(0, average_y - ir.DrawableObjectObject.Position.Y, stopwatch.ElapsedMilliseconds / dualCastSpeed), 0);
+                            neighbor.Velocity = new Vector3(0, MathHelper.Lerp(0, average_y - neighbor.Position.Y, stopwatch.ElapsedMilliseconds / dualCastSpeed), 0);
                         }
                         else
                         {
-                            ir.DrawableObjectObject.Velocity = Vector3.Zero;
+                            neighbor.Velocity = Vector3.Zero;
                         }
+                    }
+                    if (target.Position.Y != average_y)
+                    {
+                        manaDeducted = Math.Min((stopwatch.ElapsedMilliseconds / dualCastSpeed) * dualManaCost, dualManaCost);
+                        stats.currentMana = startingMana - manaDeducted;
+                        target.Velocity = new Vector3(0, MathHelper.Lerp(0, average_y - target.Position.Y, stopwatch.ElapsedMilliseconds / dualCastSpeed), 0);
+                    }
+                    else
+                    {
+                        target.Velocity = Vector3.Zero;
                     }
                 }
                 else if (target != null)
                 {
-                    if (stats.currentMana > 0)
+                    if (stats.currentMana > 0 && phaseManager.Phase == Phase.Day)
                     {
                         manaDeducted = (stopwatch.ElapsedMilliseconds / castSpeed) * manaCost;
                         stats.currentMana = startingMana - manaDeducted;
@@ -139,9 +200,23 @@ namespace Game1.Spells
                         if (stopwatch.ElapsedMilliseconds > castSpeed) //zwiekszanie predkosci + zabawa timerem
                         {
                             if (leftButton == true)
-                                target.Acceleration += new Vector3(0, 1, 0);
+                            {
+                                if (tooHigh == false)
+                                    target.Acceleration += new Vector3(0, 1, 0);
+                                else
+                                {
+                                    Stop(false, false);
+                                }
+                            }
                             else if (rightButton == true)
-                                target.Acceleration += new Vector3(0, -1, 0);
+                            {
+                                if (tooLow == false)
+                                    target.Acceleration += new Vector3(0, -1, 0);
+                                else
+                                {
+                                    Stop(false, false);
+                                }
+                            }
                             startingMana -= manaDeducted;
                             stopwatch.Restart();
                         }
@@ -163,25 +238,27 @@ namespace Game1.Spells
                 stopwatch.Reset();
             }
 
-            if (sphere_list != null && sphere_list.Count != 0)
+            if (neighbors != null && neighbors.Count != 0)
             {
-                foreach (IntersectionRecord ir in sphere_list)
+                foreach (Tile neighbor in neighbors)
                 {
-                    ir.DrawableObjectObject.Acceleration = Vector3.Zero;
-                    ir.DrawableObjectObject.Velocity = Vector3.Zero;
-                    ir.DrawableObjectObject.IsStatic = true;
+                    neighbor.Acceleration = Vector3.Zero;
+                    neighbor.Velocity = Vector3.Zero;
+                    neighbor.IsStatic = true;
                 }
-                sphere_list.Clear();
+                neighbors.Clear();
                 stopwatch.Reset();
             }
             spellCharging = SpellCharging.None;
             stats.SpellStatus(spellCharging);
         }
 
-        public SpellMoveTerrain(Octree octree, Stats stats)
+        public SpellMoveTerrain(Octree octree, Stats stats, PhaseManager phaseManager, Dictionary<AxialCoordinate, Tile> map)
         {
             this.octree = octree;
             this.stats = stats;
+            this.phaseManager = phaseManager;
+            this.map = map;
 
             manaCost = 10;
             dualManaCost = 150;

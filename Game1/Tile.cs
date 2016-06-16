@@ -17,7 +17,7 @@ namespace Game1
             m_instanced = true;
             //boundingSphere = new BoundingSphere(position, Map.scale * 0.75f);
             
-            type = ObjectType.Terrain;
+            type = ObjectType.Tile;
 
             boundingBox = CollisionBox.CreateBoundingBox(model, position, 1);
         }

@@ -80,7 +80,7 @@ namespace Game1.Spells
         {
             if (ir.DrawableObjectObject != null)
             {
-                if (ir.DrawableObjectObject.Type == ObjectType.Terrain)
+                if (ir.DrawableObjectObject.Type == ObjectType.Tile)
                 {
                     OnHitEvent();
                     Destroy();

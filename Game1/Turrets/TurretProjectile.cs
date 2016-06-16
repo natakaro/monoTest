@@ -75,7 +75,7 @@ namespace Game1.Turrets
                 {
                     Destroy();
                 }
-                else if (ir.DrawableObjectObject.Type == ObjectType.Terrain)
+                else if (ir.DrawableObjectObject.Type == ObjectType.Tile)
                 {
                     Destroy();
                 }

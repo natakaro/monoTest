@@ -422,5 +422,31 @@ namespace Game1.Helpers
         {
             return tileFromAxial(CubeRound(pixelToAxialH(position, Map.size).ToCube()).ToAxial(), map);
         }
+
+        public static List<Tile> GetNeighborTiles(Tile node, Dictionary<AxialCoordinate, Tile> map)
+        {
+            var neighbors = new List<Tile>();
+
+            CubeCoordinate coords = pixelToAxialH(node.Position, Map.size).ToCube();
+            coords = CubeRound(coords);
+
+            CubeCoordinate[] directions =
+            {
+                new CubeCoordinate(+1, -1, 0), new CubeCoordinate(+1, 0, -1), new CubeCoordinate(0, +1, -1),
+                new CubeCoordinate(-1, +1, 0), new CubeCoordinate(-1, 0, +1), new CubeCoordinate(0, -1, +1)
+            };
+
+            for (int i = 0; i < 6; i++)
+            {
+                CubeCoordinate neighborcoords = coords + directions[i];
+                Tile tile = tileFromAxial(neighborcoords.ToAxial(), map);
+                if (tile == null)
+                    continue;
+                else
+                    neighbors.Add(tile);
+            }
+
+            return neighbors;
+        }
     }
 }

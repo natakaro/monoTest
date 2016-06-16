@@ -58,7 +58,7 @@ namespace Game1
 
         public bool Update(GameTime gameTime, Octree octree, List<Tile> path)
         {
-            Dictionary<AxialCoordinate, Tile> map = Game1.tileDictionary;
+            Dictionary<AxialCoordinate, Tile> map = Game1.map;
 
             if (path.Count != 0)
             {
@@ -112,7 +112,7 @@ namespace Game1
         {
             bool ret = base.Update(gameTime);
 
-            Dictionary<AxialCoordinate, Tile> map = Game1.tileDictionary;
+            Dictionary<AxialCoordinate, Tile> map = Game1.map;
 
             if (path.Count != 0)
             {

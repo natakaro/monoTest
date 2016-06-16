@@ -126,7 +126,7 @@ namespace Game1.Turrets
                 if (shootStopwatch.ElapsedMilliseconds > rateOfFire)
                 {
                     //Vector3 interception = currentTarget.Position + new Vector3(0, 20, 30);
-                    Vector3 interception = iterative_approximation(currentTarget.Position + new Vector3(0, 20, 0), currentTarget.Velocity, projectileSpeed);
+                    Vector3 interception = iterative_approximation(currentTarget.Position + new Vector3(0, 20, 0), currentTarget.Velocity, projectileSpeed / 2);
                     //Vector3 interception = direct_solution(currentTarget.Position + new Vector3(0, 20, 0), currentTarget.Velocity, projectileSpeed);
                     Vector3 direction = Vector3.Normalize(interception - shootStartPosition);
 

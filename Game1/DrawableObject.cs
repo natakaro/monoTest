@@ -15,7 +15,7 @@ namespace Game1
         public enum ObjectType
         {
             Unknown = 1,
-            Terrain = 2,
+            Tile = 2,
             Core = 4,
             Turret = 8,
             Enemy = 16,
@@ -23,7 +23,7 @@ namespace Game1
             Projectile = 64,
             Item = 128,
             Ethereal = 256,      //stuff can go through this, not affected by most forces such as gravity
-            ALL = Unknown | Terrain | Core | Turret | Enemy | Spawn | Projectile | Item | Ethereal
+            ALL = Unknown | Tile | Core | Turret | Enemy | Spawn | Projectile | Item | Ethereal
         };
 
         /// <summary>
