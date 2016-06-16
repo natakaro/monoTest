@@ -16,6 +16,7 @@ namespace Game1.Spells
         private Game game;
         private Camera camera;
         private Octree octree;
+        private ObjectManager objectManager;
         public Model fireballModel;
         public Texture2D fireballTexture;
         private LightManager lightManager;
@@ -113,11 +114,12 @@ namespace Game1.Spells
                     }
                     else if (spellReady == true)
                     {
-                        SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel, octree, fireballTexture, lightManager, hudManager);
+                        SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel, octree, objectManager, fireballTexture, lightManager, hudManager);
                         fireball.Position = camera.Position;
                         fireball.Velocity = camera.ViewDirection * 1;
                         fireball.Acceleration = camera.ViewDirection * 10;
-                        octree.m_objects.Add(fireball);
+                        objectManager.Add(fireball);
+                        //octree.m_objects.Add(fireball);
 
                         spellReady = false;
                         startingMana -= manaDeducted;
@@ -147,10 +149,11 @@ namespace Game1.Spells
                 {
                     if (spellReady == true)
                     {
-                        SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel, octree, fireballTexture, lightManager, hudManager);
+                        SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel, octree, objectManager, fireballTexture, lightManager, hudManager);
                         fireball.Position = camera.Position;
                         fireball.Velocity = camera.ViewDirection * 100;
-                        octree.m_objects.Add(fireball);
+                        objectManager.Add(fireball);
+                        //octree.m_objects.Add(fireball);
                         spellReady = false;
                     }
                     else if (spellReady == false)
@@ -179,10 +182,11 @@ namespace Game1.Spells
                         for (int i = 0; i < 16; i++)
                         {
                             Vector3 direction = Vector3.Transform(new Vector3(camera.ViewDirection.X, 0, camera.ViewDirection.Z), Quaternion.CreateFromAxisAngle(Vector3.Up, MathHelper.ToRadians((360 / 16)*i)));
-                            SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel, octree, fireballTexture, lightManager, hudManager);
+                            SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel, octree, objectManager, fireballTexture, lightManager, hudManager);
                             fireball.Position = camera.Position;
                             fireball.Velocity = direction * 100;
-                            octree.m_objects.Add(fireball);
+                            objectManager.Add(fireball);
+                            //octree.m_objects.Add(fireball);
                             spellReady = false;
                         }
                     }
@@ -198,11 +202,12 @@ namespace Game1.Spells
             }
         }
 
-        public SpellFireball(Game game, Camera camera, Octree octree, LightManager lightManager, HUDManager hudManager, Stats stats)
+        public SpellFireball(Game game, Camera camera, Octree octree, ObjectManager objectManager, LightManager lightManager, HUDManager hudManager, Stats stats)
         {
             this.game = game;
             this.camera = camera;
             this.octree = octree;
+            this.objectManager = objectManager;
             this.lightManager = lightManager;
             this.hudManager = hudManager;
             this.stats = stats;

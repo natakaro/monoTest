@@ -1,4 +1,5 @@
 ﻿using Game1.Lights;
+using Game1.Turrets;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -15,6 +16,7 @@ namespace Game1.Spells
         private Game game;
         private Camera camera;
         private Octree octree;
+        private ObjectManager objectManager;
         public Model turretModel;
         public Texture2D turretTexture;
         private LightManager lightManager;
@@ -139,7 +141,7 @@ namespace Game1.Spells
                     {
                         if (dObj.Type == DrawableObject.ObjectType.Terrain)
                         {
-                            Turret turret = new Turret(game, Matrix.CreateTranslation(dObj.Position), turretModel, octree, turretTexture, lightManager);
+                            Turret turret = new Turret(game, Matrix.CreateTranslation(dObj.Position), turretModel, octree, objectManager, turretTexture, lightManager);
                             octree.m_objects.Add(turret);
                             spellReady = false;
                         }
@@ -159,7 +161,7 @@ namespace Game1.Spells
                     {
                         if (dObj.Type == DrawableObject.ObjectType.Terrain)
                         {
-                            Turret turret = new Turret(game, Matrix.CreateTranslation(dObj.Position), turretModel, octree, turretTexture, lightManager);
+                            Turret turret = new Turret(game, Matrix.CreateTranslation(dObj.Position), turretModel, octree, objectManager, turretTexture, lightManager);
                             octree.m_objects.Add(turret);
                             spellReady = false;
                         }
@@ -202,11 +204,12 @@ namespace Game1.Spells
             }
         }
 
-        public SpellCreateTurret(Game game, Camera camera, Octree octree, LightManager lightManager, Stats stats)
+        public SpellCreateTurret(Game game, Camera camera, Octree octree, ObjectManager objectManager, LightManager lightManager, Stats stats)
         {
             this.game = game;
             this.camera = camera;
             this.octree = octree;
+            this.objectManager = objectManager;
             this.lightManager = lightManager;
             this.stats = stats;
 

@@ -280,6 +280,21 @@ namespace Game1.Helpers
                 return new List<Tile>();
         }
 
+        public List<Vector3> PathfindMiddle(List<Tile> tileList)
+        {
+            List<Vector3> ret = new List<Vector3>();
+            Tile previous = tileList[0];
+
+            foreach(Tile current in tileList)
+            {
+                Vector3 distance = (current.Position - previous.Position) / 2;
+                ret.Add(previous.Position + distance);
+                previous = current;
+            }
+
+            return ret;
+        }
+
         private float DistanceToStraightLine(Tile tile, List<CubeCoordinateH> line)
         {
             var tileCubeCoord = pixelToAxialH(tile.Position, Map.size).ToCube();

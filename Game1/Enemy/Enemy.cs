@@ -18,10 +18,10 @@ namespace Game1
         float gravity = 100f;
         float distance;
 
-        float speed = 70;
+        float speed = 35;
         float a;
         float b;
-        public float feetheight;
+
         ContentManager Content;
         private AnimatedModel modell = null;
         private AnimatedModel dance = null;
@@ -32,7 +32,7 @@ namespace Game1
         public Enemy(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ContentManager Content) : base(game, inWorldMatrix, inModel, octree)
         {
             this.Content = Content;
-            m_static = true;
+            m_static = false;
             //boundingSphere = new BoundingSphere(position, Map.scale * 0.75f);
            
 
@@ -56,30 +56,18 @@ namespace Game1
             tileNumber = 0;
         }
 
-        public bool Update(GameTime gameTime, Octree octree, List <Tile> path)
+        public bool Update(GameTime gameTime, Octree octree, List<Tile> path)
         {
             Dictionary<AxialCoordinate, Tile> map = Game1.tileDictionary;
+
             if (path.Count != 0)
             {
                 try
                 {
                     targetTile = path[tileNumber];
-                    Vector3 temp;
-                    temp = Vector3.Normalize(targetTile.Position - position);
-                    Vector3 temp2;
-                    temp2 = new Vector3(temp.X, 0, temp.Z);
-                    position += speed * temp2 * (float)(gameTime.ElapsedGameTime.TotalSeconds);
-                    boundingBox.Max += speed * temp2 * (float)(gameTime.ElapsedGameTime.TotalSeconds);
-                    boundingBox.Min += speed * temp2 * (float)(gameTime.ElapsedGameTime.TotalSeconds);
-                    //IntersectionRecord ir = octree.HighestIntersection(this, ObjectType.Terrain);
-                    //
-                    //if (ir != null && ir.DrawableObjectObject != null)//..ujowy if ale działa
-                    //{
-                    //    distance = boundingBox.Min.Y - ir.DrawableObjectObject.BoundingBox.Max.Y;
-                    //    boundingBox.Min.Y -= distance * gravity/10 * (float)(gameTime.ElapsedGameTime.TotalSeconds);
-                    //}
-                    //if (ir.DrawableObjectObject == null)
-                    //    boundingBox.Min.Y -= gravity*(float)(gameTime.ElapsedGameTime.TotalSeconds);
+                    Vector3 direction = Vector3.Normalize(targetTile.Position - position);
+                    Vector3 directionXZ = Vector3.Normalize(new Vector3(targetTile.Position.X, 0, targetTile.Position.Z) - new Vector3(position.X, 0, position.Z));
+                    velocity = speed * directionXZ;
 
                     Tile tile = tileFromPosition(position, map);
 
@@ -94,14 +82,20 @@ namespace Game1
                     boundingBox.Max.Y = boundingBox.Min.Y + a;
                     position.Y = boundingBox.Min.Y + b;
 
-                    float targetrotation = (float)Math.Atan2((double)(targetTile.Position.Y - position.Y), (double)(targetTile.Position.X - position.X));
-                    worldMatrix = Matrix.CreateRotationY(targetrotation) * Matrix.CreateTranslation(position);
+                    orientation = Quaternion.CreateFromRotationMatrix(Matrix.CreateRotationY((float)Math.Atan2(targetTile.Position.Z - position.Z, targetTile.Position.X - position.X)));
+                    worldMatrix = Matrix.CreateFromQuaternion(orientation) * Matrix.CreateTranslation(position);
                     modell.Update(gameTime);
 
-                    if (Math.Abs(position.X - targetTile.Position.X) < 5 && Math.Abs(position.Z - targetTile.Position.Z) < 5 && tileNumber < path.Count)
+                    while(Vector3.Distance(position, targetTile.Position) < 25 && tileNumber < path.Count)
                     {
                         tileNumber++;
+                        targetTile = path[tileNumber];
                     }
+
+                    //if (Vector3.Distance(position, targetTile.Position) < 25 && tileNumber < path.Count)
+                    //{
+                    //    tileNumber++;
+                    //}
                 }
                 catch
                 {
@@ -109,13 +103,62 @@ namespace Game1
                 }
 
             }
-                
+            bool ret = base.Update(gameTime);
 
-            return true;
-
+            return ret;
         }
 
+        public bool Update(GameTime gameTime, Octree octree, List<Vector3> path)
+        {
+            bool ret = base.Update(gameTime);
 
+            Dictionary<AxialCoordinate, Tile> map = Game1.tileDictionary;
+
+            if (path.Count != 0)
+            {
+                try
+                {
+                    Vector3 targetPosition = path[tileNumber];
+                    Vector3 direction = Vector3.Normalize(targetPosition - position);
+                    Vector3 directionXZ = Vector3.Normalize(new Vector3(targetPosition.X, 0, targetPosition.Z) - new Vector3(position.X, 0, position.Z));
+                    velocity = speed * direction;
+
+                    //Tile tile = tileFromPosition(position, map);
+
+                    //if (tile != null)
+                    //{
+                    //    distance = boundingBox.Min.Y - tile.BoundingBox.Max.Y;
+                    //    boundingBox.Min.Y -= distance * gravity / 10 * (float)(gameTime.ElapsedGameTime.TotalSeconds);
+                    //}
+                    //if (tile == null)
+                    //    boundingBox.Min.Y -= gravity * (float)(gameTime.ElapsedGameTime.TotalSeconds);
+
+                    //boundingBox.Max.Y = boundingBox.Min.Y + a;
+                    //position.Y = boundingBox.Min.Y + b;
+
+                    orientation = Quaternion.CreateFromRotationMatrix(Matrix.CreateRotationY((float)Math.Atan2(targetPosition.Z - position.Z, targetPosition.X - position.X)));
+                    worldMatrix = Matrix.CreateFromQuaternion(orientation) * Matrix.CreateTranslation(position);
+                    modell.Update(gameTime);
+
+                    while (Vector3.Distance(position, targetPosition) < 25 && tileNumber < path.Count)
+                    {
+                        tileNumber++;
+                        targetPosition = path[tileNumber];
+                    }
+
+                    //if (Vector3.Distance(position, targetTile.Position) < 25 && tileNumber < path.Count)
+                    //{
+                    //    tileNumber++;
+                    //}
+                }
+                catch
+                {
+                    alive = false;
+                }
+
+            }
+            return ret;
+        }
 
         public override void Draw(Camera camera)
         {

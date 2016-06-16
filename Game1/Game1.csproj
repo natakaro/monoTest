@@ -72,6 +72,7 @@
     <Compile Include="Lights\PointLight.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="Game1.cs" />
+    <Compile Include="ObjectManager.cs" />
     <Compile Include="Octree.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -91,7 +92,8 @@
     <Compile Include="Stats.cs" />
     <Compile Include="Tile.cs" />
     <Compile Include="TimeOfDay.cs" />
-    <Compile Include="Turret.cs" />
+    <Compile Include="Turrets\Turret.cs" />
+    <Compile Include="Turrets\TurretProjectile.cs" />
     <Compile Include="Water.cs" />
   </ItemGroup>
   <ItemGroup>

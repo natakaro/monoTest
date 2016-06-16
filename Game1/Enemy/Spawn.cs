@@ -15,6 +15,7 @@ namespace Game1
     {
         List <Enemy> enemies;
         List <Tile> path;
+        List<Vector3> pathMiddle;
         ContentManager Content;
         Vector3 corePosition;
         PathFinder pathfinder;
@@ -24,7 +25,7 @@ namespace Game1
 
         public Spawn(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ContentManager Content, Vector3 corePosition) : base(game, inWorldMatrix, inModel, octree)
         {
-            type = ObjectType.Enemy;
+            type = ObjectType.Spawn;
 
             boundingBox = CollisionBox.CreateBoundingBox(model, position, 1);
             enemies = new List<Enemy>();
@@ -37,6 +38,7 @@ namespace Game1
             Tile start = HexCoordinates.tileFromPosition(position, Game1.tileDictionary);
             Tile end = HexCoordinates.tileFromPosition(corePosition, Game1.tileDictionary);
             path = pathfinder.Pathfind(start, end, Game1.tileDictionary, true);
+            pathMiddle = pathfinder.PathfindMiddle(path);
             octree.AddObject(this); //dodanie siebie do octree
 
             //test
@@ -48,7 +50,7 @@ namespace Game1
             List<Enemy> removes = new List<Enemy>();
             foreach(Enemy enemy in enemies)
             {
-                enemy.Update(gameTime, octree, path);
+                enemy.Update(gameTime, octree, pathMiddle);
                 if(enemy.Alive == false)
                 {
                     removes.Add(enemy);

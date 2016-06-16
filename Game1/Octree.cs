@@ -608,8 +608,11 @@ namespace Game1
             {
 
                 //skip any objects which don't meet our type criteria
-                if ((int)((int)type & (int)obj.Type) == 0)
-                    continue;
+                if (type != DrawableObject.ObjectType.ALL)
+                {
+                    if (type != obj.Type)
+                        continue;
+                }
 
                 //add the object
                 ret.Add(obj);
@@ -646,8 +649,11 @@ namespace Game1
             foreach (DrawableObject obj in m_objects)
             {
                 //skip any objects which don't meet our type criteria
-                if ((int)((int)type & (int)obj.Type) == 0)
-                    continue;
+                if (type != DrawableObject.ObjectType.ALL)
+                {
+                    if (type != obj.Type)
+                        continue;
+                }
 
                 //add the object
                 if (obj.IsInstanced)
@@ -689,8 +695,11 @@ namespace Game1
             {
 
                 //skip any objects which don't meet our type criteria
-                if ((int)((int)type & (int)obj.Type) == 0)
-                    continue;
+                if (type != DrawableObject.ObjectType.ALL)
+                {
+                    if (type != obj.Type)
+                        continue;
+                }
 
                 //test for intersection
                 IntersectionRecord ir = obj.Intersects(frustum);
@@ -702,7 +711,7 @@ namespace Game1
             {
                 if (m_childNode[a] != null && (frustum.Contains(m_childNode[a].m_region) != ContainmentType.Disjoint))
                 {
-                    List<IntersectionRecord> hitList = m_childNode[a].GetIntersection(frustum);
+                    List<IntersectionRecord> hitList = m_childNode[a].GetIntersection(frustum, type);
                     if (hitList != null)
                     {
                         foreach (IntersectionRecord ir in hitList)
@@ -729,8 +738,11 @@ namespace Game1
             foreach (DrawableObject obj in m_objects)
             {
                 //skip any objects which don't meet our type criteria
-                if ((int)((int)type & (int)obj.Type) == 0)
-                    continue;
+                if (type != DrawableObject.ObjectType.ALL)
+                {
+                    if (type != obj.Type)
+                        continue;
+                }
 
                 //test for intersection
                 IntersectionRecord ir = obj.Intersects(frustum);
@@ -748,7 +760,7 @@ namespace Game1
             {
                 if (m_childNode[a] != null && (frustum.Contains(m_childNode[a].m_region) != ContainmentType.Disjoint))
                 {
-                    FrustumIntersections hitList = m_childNode[a].GetFrustumIntersection(frustum);
+                    FrustumIntersections hitList = m_childNode[a].GetFrustumIntersection(frustum, type);
                     if (hitList != null)
                     {
                         ret.Intersections.AddRange(hitList.Intersections);
@@ -776,8 +788,11 @@ namespace Game1
             {
 
                 //skip any objects which don't meet our type criteria
-                if ((int)((int)type & (int)obj.Type) == 0)
-                    continue;
+                if (type != DrawableObject.ObjectType.ALL)
+                {
+                    if (type != obj.Type)
+                        continue;
+                }
 
                 //test for intersection
                 IntersectionRecord ir = obj.Intersects(sphere);
@@ -789,7 +804,7 @@ namespace Game1
             {
                 if (m_childNode[a] != null && (sphere.Contains(m_childNode[a].m_region) != ContainmentType.Disjoint))
                 {
-                    List<IntersectionRecord> hitList = m_childNode[a].GetIntersection(sphere);
+                    List<IntersectionRecord> hitList = m_childNode[a].GetIntersection(sphere, type);
                     if (hitList != null)
                     {
                         foreach (IntersectionRecord ir in hitList)
@@ -813,8 +828,11 @@ namespace Game1
             {
 
                 //skip any objects which don't meet our type criteria
-                if ((int)((int)type & (int)obj.Type) == 0)
-                    continue;
+                if (type != DrawableObject.ObjectType.ALL)
+                {
+                    if (type != obj.Type)
+                        continue;
+                }
 
                 //test for intersection
                 IntersectionRecord ir = obj.Intersects(box);
@@ -826,7 +844,7 @@ namespace Game1
             {
                 if (m_childNode[a] != null && (box.Contains(m_childNode[a].m_region) != ContainmentType.Disjoint))
                 {
-                    List<IntersectionRecord> hitList = m_childNode[a].GetIntersection(box);
+                    List<IntersectionRecord> hitList = m_childNode[a].GetIntersection(box, type);
                     if (hitList != null)
                     {
                         foreach (IntersectionRecord ir in hitList)
@@ -855,8 +873,11 @@ namespace Game1
             foreach (DrawableObject obj in m_objects)
             {
                 //skip any objects which don't meet our type criteria
-                if ((int)((int)type & (int)obj.Type) == 0)
-                    continue;
+                if (type != DrawableObject.ObjectType.ALL)
+                {
+                    if (type != obj.Type)
+                        continue;
+                }
 
                 if (obj.BoundingBox.Intersects(intersectRay) != null)
                 {
@@ -895,8 +916,11 @@ namespace Game1
             {
 
                 //skip any objects which don't meet our type criteria
-                if ((int)((int)type & (int)obj.Type) == 0)
-                    continue;
+                if (type != DrawableObject.ObjectType.ALL)
+                {
+                    if (type != obj.Type)
+                        continue;
+                }
 
                 //test for intersection
                 IntersectionRecord ir = obj.Intersects(dObject);
@@ -910,7 +934,7 @@ namespace Game1
                 {
                     if (m_childNode[a] != null && (dObject.BoundingSphere.Contains(m_childNode[a].m_region) != ContainmentType.Disjoint))
                     {
-                        List<IntersectionRecord> hitList = m_childNode[a].GetIntersection(dObject);
+                        List<IntersectionRecord> hitList = m_childNode[a].GetIntersection(dObject, type);
                         if (hitList != null)
                         {
                             foreach (IntersectionRecord ir in hitList)
@@ -922,7 +946,7 @@ namespace Game1
                 {
                     if (m_childNode[a] != null && (dObject.BoundingBox.Contains(m_childNode[a].m_region) != ContainmentType.Disjoint))
                     {
-                        List<IntersectionRecord> hitList = m_childNode[a].GetIntersection(dObject);
+                        List<IntersectionRecord> hitList = m_childNode[a].GetIntersection(dObject, type);
                         if (hitList != null)
                         {
                             foreach (IntersectionRecord ir in hitList)
@@ -1030,8 +1054,11 @@ namespace Game1
             {
 
                 //skip any objects which don't meet our type criteria
-                if ((int)((int)type & (int)obj.Type) == 0)
-                    continue;
+                if (type != DrawableObject.ObjectType.ALL)
+                {
+                    if (type != obj.Type)
+                        continue;
+                }
 
                 //test for intersection
                 IntersectionRecord ir = obj.Intersects(sphere);
@@ -1044,7 +1071,7 @@ namespace Game1
             {
                 if (m_childNode[a] != null && (sphere.Contains(m_childNode[a].m_region) != ContainmentType.Disjoint))
                 {
-                    if(m_childNode[a].GetCameraIntersection(cameraPosition, radius))
+                    if(m_childNode[a].GetCameraIntersection(cameraPosition, radius, type))
                         return true;
                 }
             }

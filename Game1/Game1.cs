@@ -25,6 +25,7 @@ namespace Game1
         private SpriteFont spriteFont;
         private InstancingManager instancingManager;
         public Octree octree;
+        public ObjectManager objectManager;
 
         public static Dictionary<AxialCoordinate, Tile> tileDictionary;
 
@@ -245,6 +246,8 @@ namespace Game1
             sky.Parameters.NumSamples = 10;
             sky.Initialize();
 
+            objectManager = new ObjectManager();
+
             base.Initialize();
             
         }
@@ -329,8 +332,8 @@ namespace Game1
             
 
             spellMoveTerrain = new SpellMoveTerrain(octree, stats);
-            spellFireball = new SpellFireball(this, camera, octree, lightManager, hudManager, stats);
-            spellCreateTurret = new SpellCreateTurret(this, camera, octree, lightManager, stats);
+            spellFireball = new SpellFireball(this, camera, octree, objectManager, lightManager, hudManager, stats);
+            spellCreateTurret = new SpellCreateTurret(this, camera, octree, objectManager, lightManager, stats);
 
             camera.DebugModel = spellFireball.fireballModel;
 
@@ -628,6 +631,7 @@ namespace Game1
             }
 
             octree.Update(gameTime);
+            objectManager.Update(gameTime);
 
             float step = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
@@ -793,6 +797,9 @@ namespace Game1
                 buffer.AppendFormat(" Time of day Logistic: {0}\n\n",
                     timeOfDay.LogisticTime(0.1f, 0.8f, 2.0f).ToString("f2"));
 
+                buffer.AppendFormat(" Non-octree objects: {0}\n\n",
+                    objectManager.List.Count);
+
                 buffer.AppendFormat(" MouseWheel: {0}\n",
                     currentMouseState.ScrollWheelValue.ToString("f2"));
                 buffer.AppendFormat("  Selected Spell: {0}\n",
@@ -923,11 +930,13 @@ namespace Game1
             modelsDrawn = drawObjects.Intersections.Count;
             modelsDrawnInstanced = drawObjects.IntersectionsInstanced.Count;
 
+            objectManager.Draw(camera);
+
             if (settings.DrawDebugShapes)
             {
-                octree.DrawBounds(camera.Frustum);
-                DebugShapeRenderer.Draw(gameTime, camera.ViewMatrix, camera.ProjectionMatrix);
+                octree.DrawBounds(camera.Frustum);                
             }
+            DebugShapeRenderer.Draw(gameTime, camera.ViewMatrix, camera.ProjectionMatrix);
 
             //rączki na razie tutaj
             foreach (ModelMesh mesh in hands.Meshes)

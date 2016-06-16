@@ -19,10 +19,11 @@ namespace Game1
             Core = 4,
             Turret = 8,
             Enemy = 16,
-            Projectile = 32,
-            Item = 64,
-            Ethereal = 128,      //stuff can go through this, not affected by most forces such as gravity
-            ALL = Unknown | Terrain | Core | Turret | Enemy | Projectile | Item | Ethereal
+            Spawn = 32,
+            Projectile = 64,
+            Item = 128,
+            Ethereal = 256,      //stuff can go through this, not affected by most forces such as gravity
+            ALL = Unknown | Terrain | Core | Turret | Enemy | Spawn | Projectile | Item | Ethereal
         };
 
         /// <summary>
@@ -86,7 +87,7 @@ namespace Game1
         /// <param name="gameTime">The change in game time</param>
         /// <returns>True - the object was moved.
         /// False - The object did not move.</returns>
-        public virtual bool Update(GameTime gameTime)
+        public new virtual bool Update(GameTime gameTime)
         {
             if (!m_static)
             {
