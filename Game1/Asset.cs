@@ -12,31 +12,33 @@ namespace Game1
 {
     class Asset : DrawableObject
     {
-        public new void Draw(Camera camera)
+        Texture2D texture;
+        public Asset(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, Texture2D inTexture) : base(game, inWorldMatrix, inModel, octree)
+        {
+            //boundingSphere = new BoundingSphere(position, Map.scale * 0.75f);
+            texture = inTexture;
+
+            type = ObjectType.Core;
+
+            boundingBox = CollisionBox.CreateBoundingBox(model, position, 1);
+        }
+
+        public override void Draw(Camera camera)
         {
             foreach (ModelMesh mesh in model.Meshes)
             {
                 foreach (Effect effect in mesh.Effects)
                 {
-                    effect.CurrentTechnique = effect.Techniques["Technique1"];
                     effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index] * worldMatrix);
                     effect.Parameters["View"].SetValue(camera.ViewMatrix);
                     effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
                     effect.Parameters["FarClip"].SetValue(camera.FarZ);
+                    effect.Parameters["Texture"].SetValue(texture);
                     effect.Parameters["Clipping"].SetValue(false);
                 }
                 mesh.Draw();
             }
         }
-
-        public Asset(Game game, Matrix inWorldMatrix, Model inModel, Octree octree) : base(game, inWorldMatrix, inModel, octree)
-        {
-            m_instanced = true;
-            //boundingSphere = new BoundingSphere(position, Map.scale * 0.75f);
-            
-            type = ObjectType.Core;
-
-            boundingBox = CollisionBox.CreateBoundingBox(model, position, 1);
-        }
     }
 }
+

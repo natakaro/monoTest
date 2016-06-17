@@ -31,6 +31,7 @@ namespace Game1
         public PhaseManager phaseManager;
 
         public static Dictionary<AxialCoordinate, Tile> map;
+        public static Dictionary<AxialCoordinate, DrawableObject> mapAsset;
 
         #region Object lists
         private FrustumIntersections reflectionObjects;
@@ -81,6 +82,7 @@ namespace Game1
 
         //map
         private Texture2D mapTex;
+        private Texture2D mapTexAsset;
 
         private Core core;
 
@@ -292,6 +294,7 @@ namespace Game1
 
             //map
             mapTex = Content.Load<Texture2D>("Textures/map");
+            mapTexAsset = Content.Load<Texture2D>("Textures/mapAssets");
 
             clearBufferEffect = Content.Load<Effect>("Effects/ClearGBuffer");
             finalCombineEffect = Content.Load<Effect>("Effects/CombineFinal");
@@ -353,6 +356,17 @@ namespace Game1
             path = new List<Tile>();
 
             itemManager = new ItemManager(this, Content, octree, objectManager, lightManager, stats);
+
+
+            mapAsset = Map.CreateAssetMapFromTex(this, mapTexAsset, Content, octree, itemManager, core.Position, phaseManager);
+
+            List<DrawableObject> assetList = new List<DrawableObject>();
+            foreach (var item in mapAsset)
+            {
+                assetList.Add(item.Value);
+            }
+            //if(assetList.Count == 0){ throw new Exception("lolll"); }
+            octree.m_objects.AddRange(assetList);
 
             /*
             List<DrawableObject> abc = new List<DrawableObject>();

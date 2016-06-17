@@ -28,6 +28,8 @@ namespace Game1
         private AnimatedModel modell = null;
         private AnimatedModel dance = null;
 
+        List<Vector3> path;
+
         private Tile targetTile;
         private int tileNumber;
 
@@ -45,19 +47,20 @@ namespace Game1
             set { currentHealth = value; }
         }
 
-        public Enemy(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ItemManager itemManager, ContentManager Content) : base(game, inWorldMatrix, inModel, octree)
+        public Enemy(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ItemManager itemManager, ContentManager Content, List<Vector3> path) : base(game, inWorldMatrix, inModel, octree)
         {
             this.Content = Content;
             this.itemManager = itemManager;
+            this.path = path;
             m_static = false;
             //boundingSphere = new BoundingSphere(position, Map.scale * 0.75f);
            
 
-            modell = new AnimatedModel("Models/dude");
+            modell = new AnimatedModel("Models/h");
             modell.LoadContent(Content);
 
 
-            dance = new AnimatedModel("Models/dude");
+            dance = new AnimatedModel("Models/h_walk");
             dance.LoadContent(Content);
             AnimationClip clip = dance.Clips[0];
 
@@ -76,6 +79,9 @@ namespace Game1
             currentHealth = 100;
         }
 
+
+
+        //ten ble stary
         public bool Update(GameTime gameTime, Octree octree, List<Tile> path)
         {
             Dictionary<AxialCoordinate, Tile> map = Game1.map;
@@ -102,8 +108,9 @@ namespace Game1
                     boundingBox.Max.Y = boundingBox.Min.Y + a;
                     position.Y = boundingBox.Min.Y + b;
 
-                    orientation = Quaternion.CreateFromRotationMatrix(Matrix.CreateRotationY((float)Math.Atan2(targetTile.Position.Z - position.Z, targetTile.Position.X - position.X)));
-                    worldMatrix = Matrix.CreateFromQuaternion(orientation) * Matrix.CreateTranslation(position);
+                    float targetrotation = (float)Math.Atan2((double)(targetTile.Position.X - position.X), (double)(targetTile.Position.Z - position.Z));
+
+                    worldMatrix = Matrix.CreateRotationY(targetrotation) * Matrix.CreateTranslation(position);
                     modell.Update(gameTime);
 
                     while(Vector3.Distance(position, targetTile.Position) < 25 && tileNumber < path.Count)
@@ -128,7 +135,7 @@ namespace Game1
             return ret;
         }
 
-        public bool Update(GameTime gameTime, Octree octree, List<Vector3> path)
+        public override bool Update(GameTime gameTime)
         {
             bool ret = base.Update(gameTime);
 
@@ -160,8 +167,9 @@ namespace Game1
                     //boundingBox.Max.Y = boundingBox.Min.Y + a;
                     //position.Y = boundingBox.Min.Y + b;
 
-                    orientation = Quaternion.CreateFromRotationMatrix(Matrix.CreateRotationY((float)Math.Atan2(targetPosition.Z - position.Z, targetPosition.X - position.X)));
-                    worldMatrix = Matrix.CreateFromQuaternion(orientation) * Matrix.CreateTranslation(position);
+                    float targetrotation = (float)Math.Atan2((double)(targetPosition.X - position.X), (double)(targetPosition.Z - position.Z));
+                    worldMatrix = Matrix.CreateRotationY(targetrotation) * Matrix.CreateTranslation(position);
+
                     modell.Update(gameTime);
 
                     while (Vector3.Distance(position, targetPosition) < 25 && tileNumber < path.Count - 1)
@@ -178,6 +186,7 @@ namespace Game1
                 else
                     Alive = false;
             }
+            
             return ret;
         }
 

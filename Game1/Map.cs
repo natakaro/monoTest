@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Content;
 using Game1.Helpers;
 using static Game1.Helpers.HexCoordinates;
+using Game1.Items;
 
 namespace Game1
 {
@@ -87,6 +88,106 @@ namespace Game1
             return tileDictionary;
         }
 
+
+        public static Dictionary<AxialCoordinate, DrawableObject> CreateAssetMapFromTex(Game game, Texture2D tex, ContentManager Content, Octree octree, ItemManager itemManager, Vector3 corePosition, PhaseManager phaseManager)
+        {
+            float height = 2 * size;
+            float vert = 0.75f * height;
+            float width = (float)Math.Sqrt(3) / 2 * height;
+            float horiz = width;
+            Dictionary<AxialCoordinate, DrawableObject> assetDictionary = new Dictionary<AxialCoordinate, DrawableObject>();
+            List<HexOffsetH> map = readMapOffset(tex);
+            foreach (HexOffsetH coord in map)
+            {
+                //if (coord.height != 255) { throw new Exception(coord.height.ToString() + " " + coord.x.ToString() + " " + coord.y.ToString()); }
+                var axial = coord.oddQ_toCube().ToAxial();
+                var position = tileFromAxial(axial, Game1.map).Position;
+                Model model;
+                Texture2D texture;
+                if (coord.height == 10)
+                {
+                   model  = Content.Load<Model>("Models/drzewa/choinka");
+                   texture = Content.Load<Texture2D>("Textures/choinka");
+                   assetDictionary.Add(axial, new Asset(game, Matrix.CreateTranslation(position), model, octree, texture));
+                }
+                else if (coord.height == 20)
+                {
+                    model = Content.Load<Model>("Models/drzewa/dzewko 1");
+                    texture = Content.Load<Texture2D>("Textures/drzewko 1");
+                    assetDictionary.Add(axial, new Asset(game, Matrix.CreateTranslation(position), model, octree, texture));
+                }
+                else if (coord.height == 30)
+                {
+                    model = Content.Load<Model>("Models/drzewa/drzewko 2");
+                    texture = Content.Load<Texture2D>("Textures/drzewko 2");
+                    assetDictionary.Add(axial, new Asset(game, Matrix.CreateTranslation(position), model, octree, texture));
+                }
+                else if (coord.height == 40)
+                {
+                    model = Content.Load<Model>("Models/drzewa/pien");
+                    texture = Content.Load<Texture2D>("Textures/pien");
+                    assetDictionary.Add(axial, new Asset(game, Matrix.CreateTranslation(position), model, octree, texture));
+                }
+                else if (coord.height == 50)
+                {
+                    model = Content.Load<Model>("Models/kamienie/kamien");
+                    texture = Content.Load<Texture2D>("Textures/rock");
+                    assetDictionary.Add(axial, new Asset(game, Matrix.CreateTranslation(position), model, octree, texture));
+                }
+                else if (coord.height == 60)
+                {
+                    model = Content.Load<Model>("Models/kamienie/kamien1");
+                    texture = Content.Load<Texture2D>("Textures/rock");
+                    assetDictionary.Add(axial, new Asset(game, Matrix.CreateTranslation(position), model, octree, texture));
+                }
+                else if (coord.height == 70)
+                {
+                    model = Content.Load<Model>("Models/kamienie/kamien2");
+                    texture = Content.Load<Texture2D>("Textures/rock");
+                    assetDictionary.Add(axial, new Asset(game, Matrix.CreateTranslation(position), model, octree, texture));
+                }
+                else if (coord.height == 80)
+                {
+                    model = Content.Load<Model>("Models/kamienie/kamien3");
+                    texture = Content.Load<Texture2D>("Textures/rock");
+                    assetDictionary.Add(axial, new Asset(game, Matrix.CreateTranslation(position), model, octree, texture));
+                }
+                else if (coord.height == 90)
+                {
+                    model = Content.Load<Model>("Models/kamienie/kamien4");
+                    texture = Content.Load<Texture2D>("Textures/rock");
+                    assetDictionary.Add(axial, new Asset(game, Matrix.CreateTranslation(position), model, octree, texture));
+                }
+                else if (coord.height == 100)
+                {
+                    model = Content.Load<Model>("Models/kamienie/kamien5");
+                    texture = Content.Load<Texture2D>("Textures/rock");
+                    assetDictionary.Add(axial, new Asset(game, Matrix.CreateTranslation(position), model, octree, texture));
+                }
+                else if (coord.height == 110)
+                {
+                    model = Content.Load<Model>("Models/kamienie/kamien6");
+                    texture = Content.Load<Texture2D>("Textures/rock");
+                    assetDictionary.Add(axial, new Asset(game, Matrix.CreateTranslation(position), model, octree, texture));
+                }
+                else if (coord.height == 120)
+                {
+                    model = Content.Load<Model>("Models/kamienie/kamien7");
+                    texture = Content.Load<Texture2D>("Textures/rock");
+                    assetDictionary.Add(axial, new Asset(game, Matrix.CreateTranslation(position), model, octree, texture));
+                }
+                else if (coord.height == 130)
+                {
+                    model = Content.Load<Model>("Models/core");
+                    //texture = Content.Load<Texture2D>("Textures/core");
+                    assetDictionary.Add(axial, new Spawn(game, Matrix.CreateTranslation(position), model, octree, itemManager, Content, corePosition, phaseManager));
+                }
+            }
+
+            return assetDictionary;
+        }
+
+
         //public static List<DrawableObject> CreateMap(Game game, int size, Model inModel, Octree octree)
         //{
         //    float height = 50f;
@@ -110,7 +211,7 @@ namespace Game1
         //    return tileList;
         //}
 
-        
+
         public static List<AxialCoordinateH> readMapAxial(Texture2D tex)
         {
             Color[] color = Texture2dHelper.GetPixels(tex);

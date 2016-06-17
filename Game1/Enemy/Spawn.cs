@@ -55,7 +55,7 @@ namespace Game1
 
             foreach(Enemy enemy in enemies)
             {
-                enemy.Update(gameTime, octree, pathMiddle);
+                //enemy.Update(gameTime, octree, pathMiddle);
                 if(enemy.Alive == false)
                 {
                     toRemove.Add(enemy);
@@ -87,7 +87,7 @@ namespace Game1
 
         public bool SpawnEnemy()
         {
-            Enemy temp = new Enemy(Game, worldMatrix, model, octree, itemManager, Content);
+            Enemy temp = new Enemy(Game, worldMatrix, model, octree, itemManager, Content, pathMiddle);
             enemies.Add(temp);
             octree.AddObject(temp);
             return true;
