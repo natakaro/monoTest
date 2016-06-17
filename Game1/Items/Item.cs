@@ -54,8 +54,11 @@ namespace Game1.Items
 
         public void PickUp()
         {
-            stats.currentEssence = Math.Min(stats.currentEssence + 10, stats.maxEssence);
-            Destroy();
+            if (stats.currentEssence < stats.maxEssence)
+            {
+                stats.currentEssence = Math.Min(stats.currentEssence + 10, stats.maxEssence);
+                Destroy();
+            }
         }
 
         private void Destroy()

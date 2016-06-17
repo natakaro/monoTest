@@ -34,11 +34,11 @@ namespace Game1.HUD
 
                 if (phase == Phase.Day)
                 {
-                    spriteBatch.Draw(dayMessage, position, new Color(200, 200, 200, 200) * alpha);
+                    spriteBatch.Draw(dayMessage, position, Color.White * ALPHA * alpha);
                 }
                 else if (phase == Phase.Night)
                 {
-                    spriteBatch.Draw(nightMessage, position, new Color(200, 200, 200, 200) * alpha);
+                    spriteBatch.Draw(nightMessage, position, Color.White * ALPHA * alpha);
                 }
             }
         }

@@ -63,6 +63,7 @@
     <Compile Include="Helpers\Vector4Utility.cs" />
     <Compile Include="Helpers\VertexPositionTextureRayIndex.cs" />
     <Compile Include="HUD\HUDCrosshair.cs" />
+    <Compile Include="HUD\HUDIcons.cs" />
     <Compile Include="HUD\HUDManager.cs" />
     <Compile Include="HUD\HUDBar.cs" />
     <Compile Include="HUD\HUDElement.cs" />
