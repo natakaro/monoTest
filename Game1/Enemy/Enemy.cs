@@ -9,29 +9,46 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using AnimationAux;
 using static Game1.Helpers.HexCoordinates;
+using Game1.Items;
 
 namespace Game1
 {
-    class Enemy : DrawableObject
+    public class Enemy : DrawableObject
     {
         //Ray positionray;
-        float gravity = 100f;
-        float distance;
+        private float gravity = 100f;
+        private float distance;
 
-        float speed = 35;
-        float a;
-        float b;
+        private float speed = 35;
+        private float a;
+        private float b;
 
-        ContentManager Content;
+        private ContentManager Content;
+        private ItemManager itemManager;
         private AnimatedModel modell = null;
         private AnimatedModel dance = null;
 
         private Tile targetTile;
         private int tileNumber;
 
-        public Enemy(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ContentManager Content) : base(game, inWorldMatrix, inModel, octree)
+        private float maxHealth;
+        private float currentHealth;
+
+        public float MaxHealth
+        {
+            get { return maxHealth; }
+            set { maxHealth = value; }
+        }
+        public float CurrentHealth
+        {
+            get { return currentHealth; }
+            set { currentHealth = value; }
+        }
+
+        public Enemy(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ItemManager itemManager, ContentManager Content) : base(game, inWorldMatrix, inModel, octree)
         {
             this.Content = Content;
+            this.itemManager = itemManager;
             m_static = false;
             //boundingSphere = new BoundingSphere(position, Map.scale * 0.75f);
            
@@ -54,6 +71,9 @@ namespace Game1
             //positionray = new Ray(new Vector3(position.X, boundingBox.Min.Y, position.Z), Vector3.Down);
 
             tileNumber = 0;
+
+            maxHealth = 100;
+            currentHealth = 100;
         }
 
         public bool Update(GameTime gameTime, Octree octree, List<Tile> path)
@@ -112,11 +132,15 @@ namespace Game1
         {
             bool ret = base.Update(gameTime);
 
-            Dictionary<AxialCoordinate, Tile> map = Game1.map;
-
-            if (path.Count != 0)
+            if (CurrentHealth <= 0)
             {
-                try
+                Die();
+            }
+            else
+            {
+                Dictionary<AxialCoordinate, Tile> map = Game1.map;
+
+                if (path.Count - tileNumber > 0)
                 {
                     Vector3 targetPosition = path[tileNumber];
                     Vector3 direction = Vector3.Normalize(targetPosition - position);
@@ -140,7 +164,7 @@ namespace Game1
                     worldMatrix = Matrix.CreateFromQuaternion(orientation) * Matrix.CreateTranslation(position);
                     modell.Update(gameTime);
 
-                    while (Vector3.Distance(position, targetPosition) < 25 && tileNumber < path.Count)
+                    while (Vector3.Distance(position, targetPosition) < 25 && tileNumber < path.Count - 1)
                     {
                         tileNumber++;
                         targetPosition = path[tileNumber];
@@ -151,11 +175,8 @@ namespace Game1
                     //    tileNumber++;
                     //}
                 }
-                catch
-                {
-                    alive = false;
-                }
-
+                else
+                    Alive = false;
             }
             return ret;
         }
@@ -177,6 +198,17 @@ namespace Game1
             }
             */
             modell.Draw(GraphicsDevice, camera, worldMatrix, Content);
+        }
+
+        public void Damage(float value)
+        {
+            CurrentHealth -= value;
+        }
+
+        public void Die()
+        {
+            itemManager.Spawn(position);
+            Alive = false;
         }
     }
 }

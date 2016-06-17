@@ -22,6 +22,8 @@ namespace Game1.Spells
         Stopwatch stopwatch;
         ObjectManager objectManager;
 
+        float damage;
+
         public event EventHandler hitEvent;
 
         public override void Draw(Camera camera)
@@ -56,7 +58,7 @@ namespace Game1.Spells
             return ret;
         }
 
-        public SpellFireballProjectile(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ObjectManager objectManager, Texture2D inTexture, LightManager lightManager, HUDManager hudManager) : base(game, inWorldMatrix, inModel, octree)
+        public SpellFireballProjectile(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ObjectManager objectManager, Texture2D inTexture, LightManager lightManager, HUDManager hudManager, float damage) : base(game, inWorldMatrix, inModel, octree)
         {
             this.lightManager = lightManager;
             this.hudManager = hudManager;
@@ -73,6 +75,8 @@ namespace Game1.Spells
             stopwatch = new Stopwatch();
             stopwatch.Start();
 
+            this.damage = damage;
+
             hitEvent += hudManager.Crosshair.HandleHitEvent;
         }
 
@@ -80,11 +84,18 @@ namespace Game1.Spells
         {
             if (ir.DrawableObjectObject != null)
             {
-                if (ir.DrawableObjectObject.Type == ObjectType.Tile)
+                if (ir.DrawableObjectObject.Type == ObjectType.Enemy)
                 {
                     OnHitEvent();
+                    Enemy hitEnemy = (Enemy)ir.DrawableObjectObject;
+                    hitEnemy.Damage(damage);
                     Destroy();
                 }
+
+                else if (ir.DrawableObjectObject.Type == ObjectType.Tile)
+                {
+                    Destroy();
+                }                
             }
         }
 

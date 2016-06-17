@@ -28,14 +28,21 @@ namespace Game1.Spells
         private float rightManaCost;
         private float dualManaCost;
 
+        private float leftEssenceCost;
+        private float rightEssenceCost;
+
         private float leftCastSpeed;
         private float rightCastSpeed;
         private float dualCastSpeed;
 
         private SpellCharging spellCharging;
         private bool spellReady;
+
         private float startingMana;
         private float manaDeducted;
+
+        private float startingEssence;
+        private float essenceDeducted;
 
         private Turret targetedTurret;
 
@@ -50,20 +57,26 @@ namespace Game1.Spells
 
         public void Start(bool leftButton, bool rightButton, DrawableObject dObj)
         {
-            if (leftButton == true && rightButton == false && stats.currentMana >= leftManaCost)
+            if (leftButton == true && rightButton == false && stats.currentMana >= leftManaCost && stats.currentEssence >= leftEssenceCost)
             {
                 startingMana = stats.currentMana;
                 manaDeducted = 0;
+                startingEssence = stats.currentEssence;
+                essenceDeducted = 0;
+
                 stopwatch.Start();
                 spellReady = false;
                 spellCharging = SpellCharging.Left;
                 stats.SpellStatus(spellCharging, leftCastSpeed, stopwatch);
                 lastMode = LastMode.Left;
             }
-            if (leftButton == false && rightButton == true && stats.currentMana >= rightManaCost)
+            if (leftButton == false && rightButton == true && stats.currentMana >= rightManaCost && stats.currentEssence >= rightEssenceCost)
             {
                 startingMana = stats.currentMana;
                 manaDeducted = 0;
+                startingEssence = stats.currentEssence;
+                essenceDeducted = 0;
+
                 stopwatch.Start();
                 spellReady = false;
                 spellCharging = SpellCharging.Right;
@@ -76,6 +89,7 @@ namespace Game1.Spells
 
                 startingMana = stats.currentMana;
                 manaDeducted = 0;
+
                 stopwatch.Start();
                 spellReady = false;
                 spellCharging = SpellCharging.Dual;
@@ -93,10 +107,12 @@ namespace Game1.Spells
                     if (spellReady == false)
                     {
                         manaDeducted = Math.Min((stopwatch.ElapsedMilliseconds / leftCastSpeed) * leftManaCost, leftManaCost);
+                        essenceDeducted = Math.Min((stopwatch.ElapsedMilliseconds / leftCastSpeed) * leftEssenceCost, leftEssenceCost);
                         if (stopwatch.ElapsedMilliseconds >= leftCastSpeed)
                             spellReady = true;
                     }
                     stats.currentMana = startingMana - manaDeducted;
+                    stats.currentEssence = startingEssence - essenceDeducted;
                 }
 
                 else if (leftButton == false && rightButton == true)  //?
@@ -104,10 +120,12 @@ namespace Game1.Spells
                     if (spellReady == false)
                     {
                         manaDeducted = Math.Min((stopwatch.ElapsedMilliseconds / rightCastSpeed) * rightManaCost, rightManaCost);
+                        essenceDeducted = Math.Min((stopwatch.ElapsedMilliseconds / rightCastSpeed) * rightEssenceCost, rightEssenceCost);
                         if (stopwatch.ElapsedMilliseconds >= rightCastSpeed)
                             spellReady = true;
                     }
                     stats.currentMana = startingMana - manaDeducted;
+                    stats.currentEssence = startingEssence - essenceDeducted;
                 }
 
                 else if (leftButton == true && rightButton == true) //usuwanie turreta
@@ -150,6 +168,8 @@ namespace Game1.Spells
                     {
                         stats.currentMana = startingMana;
                         manaDeducted = 0;
+                        stats.currentEssence = startingEssence;
+                        essenceDeducted = 0;
                     }
                     spellCharging = SpellCharging.None;
                     stats.SpellStatus(spellCharging);
@@ -170,6 +190,8 @@ namespace Game1.Spells
                     {
                         stats.currentMana = startingMana;
                         manaDeducted = 0;
+                        stats.currentEssence = startingEssence;
+                        essenceDeducted = 0;
                     }
                     spellCharging = SpellCharging.None;
                     stats.SpellStatus(spellCharging);
@@ -184,7 +206,7 @@ namespace Game1.Spells
                             if (spellReady == true)
                             {
                                 targetedTurret.Destroy();
-                                //TODO: add resources back
+                                stats.currentEssence += leftEssenceCost / 2;
 
                                 spellReady = false;
                             }
@@ -216,6 +238,9 @@ namespace Game1.Spells
             leftManaCost = 150;
             rightManaCost = 150;
             dualManaCost = 10;
+
+            leftEssenceCost = 100;
+            rightEssenceCost = 100;
 
             //in milliseconds
             leftCastSpeed = 1000;

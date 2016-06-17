@@ -1,4 +1,5 @@
 ﻿using Game1.Helpers;
+using Game1.Items;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -20,11 +21,12 @@ namespace Game1
         Vector3 corePosition;
         PathFinder pathfinder;
         PhaseManager phaseManager;
+        ItemManager itemManager;
 
         //do testów
         private Stopwatch stopwatch = new Stopwatch();
 
-        public Spawn(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ContentManager Content, Vector3 corePosition, PhaseManager phaseManager) : base(game, inWorldMatrix, inModel, octree)
+        public Spawn(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ItemManager itemManager, ContentManager Content, Vector3 corePosition, PhaseManager phaseManager) : base(game, inWorldMatrix, inModel, octree)
         {
             type = ObjectType.Spawn;
 
@@ -36,6 +38,7 @@ namespace Game1
             this.Content = Content;
             this.corePosition = corePosition;
             this.phaseManager = phaseManager;
+            this.itemManager = itemManager;
 
             Tile start = HexCoordinates.tileFromPosition(position, Game1.map);
             Tile end = HexCoordinates.tileFromPosition(corePosition, Game1.map);
@@ -84,7 +87,7 @@ namespace Game1
 
         public bool SpawnEnemy()
         {
-            Enemy temp = new Enemy(Game, worldMatrix, model, octree, Content);
+            Enemy temp = new Enemy(Game, worldMatrix, model, octree, itemManager, Content);
             enemies.Add(temp);
             octree.AddObject(temp);
             return true;

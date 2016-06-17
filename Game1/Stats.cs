@@ -29,7 +29,13 @@ namespace Game1
         public float maxHealth;
         public float currentMana;
         public float maxMana;
-        public float coreHealth;
+        public float currentCoreHealth;
+        public float maxCoreHealth;
+        public float currentEssence;
+        public float maxEssence;
+
+        public Enemy lastTargetedEnemy;
+        public Enemy currentTargetedEnemy;
 
         public SpellCharging spellCharging;
         public float castSpeed;
@@ -37,18 +43,28 @@ namespace Game1
 
         int healthRegen;
         int manaRegen;
+        int essenceRegen;
+        int coreRegen;
 
         public Stats()
         {
-            maxHealth = 100;
-            maxMana = 200;
+            maxHealth = 250;
+            maxMana = 250;
+            maxEssence = 250;
+            maxCoreHealth = 1000;
+            
             currentHealth = maxHealth;
             currentMana = maxMana;
-
-            coreHealth = 1000;
-
+            currentEssence = maxEssence;
+            currentCoreHealth = maxCoreHealth;
+            
             healthRegen = 1;
             manaRegen = 25;
+            essenceRegen = 0;
+            coreRegen = 0;
+
+            lastTargetedEnemy = null;
+            currentTargetedEnemy = null;
         }
 
         public void Update(GameTime gameTime)
@@ -57,6 +73,10 @@ namespace Game1
                 currentMana = Math.Min(currentMana + (float)gameTime.ElapsedGameTime.TotalSeconds * manaRegen, maxMana);
             if (currentHealth < maxHealth)
                 currentHealth = Math.Min(currentHealth + (float)gameTime.ElapsedGameTime.TotalSeconds * healthRegen, maxHealth);
+            if (currentEssence < maxEssence)
+                currentEssence = Math.Min(currentEssence + (float)gameTime.ElapsedGameTime.TotalSeconds * essenceRegen, maxEssence);
+            if (currentCoreHealth < maxCoreHealth)
+                currentCoreHealth = Math.Min(currentCoreHealth + (float)gameTime.ElapsedGameTime.TotalSeconds * coreRegen, maxCoreHealth);
         }
 
         public void SpellStatus(SpellCharging spellCharging, float castSpeed = 0, Stopwatch castTimer = null)

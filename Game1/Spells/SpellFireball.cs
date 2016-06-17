@@ -38,6 +38,9 @@ namespace Game1.Spells
         private float startingMana;
         private float manaDeducted;
 
+        private float damage;
+        private float projectileSpeed;
+
         private enum LastMode
         {
             Left = 0,
@@ -114,7 +117,7 @@ namespace Game1.Spells
                     }
                     else if (spellReady == true)
                     {
-                        SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel, octree, objectManager, fireballTexture, lightManager, hudManager);
+                        SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel, octree, objectManager, fireballTexture, lightManager, hudManager, damage);
                         fireball.Position = camera.Position;
                         fireball.Velocity = camera.ViewDirection * 1;
                         fireball.Acceleration = camera.ViewDirection * 10;
@@ -149,9 +152,9 @@ namespace Game1.Spells
                 {
                     if (spellReady == true)
                     {
-                        SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel, octree, objectManager, fireballTexture, lightManager, hudManager);
+                        SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel, octree, objectManager, fireballTexture, lightManager, hudManager, damage);
                         fireball.Position = camera.Position;
-                        fireball.Velocity = camera.ViewDirection * 100;
+                        fireball.Velocity = camera.ViewDirection * projectileSpeed;
                         objectManager.Add(fireball);
                         //octree.m_objects.Add(fireball);
                         spellReady = false;
@@ -182,7 +185,7 @@ namespace Game1.Spells
                         for (int i = 0; i < 16; i++)
                         {
                             Vector3 direction = Vector3.Transform(new Vector3(camera.ViewDirection.X, 0, camera.ViewDirection.Z), Quaternion.CreateFromAxisAngle(Vector3.Up, MathHelper.ToRadians((360 / 16)*i)));
-                            SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel, octree, objectManager, fireballTexture, lightManager, hudManager);
+                            SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel, octree, objectManager, fireballTexture, lightManager, hudManager, damage);
                             fireball.Position = camera.Position;
                             fireball.Velocity = direction * 100;
                             objectManager.Add(fireball);
@@ -220,6 +223,9 @@ namespace Game1.Spells
             leftCastSpeed = 1000;
             rightCastSpeed = 250;
             dualCastSpeed = 1000;
+
+            damage = 50;
+            projectileSpeed = 250;
 
             fireballModel = game.Content.Load<Model>("Models/fireball");
             fireballTexture = game.Content.Load<Texture2D>("Textures/firedot");

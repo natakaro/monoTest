@@ -13,6 +13,7 @@ using Game1.HUD;
 using System.Diagnostics;
 using System.Threading;
 using static Game1.Helpers.HexCoordinates;
+using Game1.Items;
 
 namespace Game1
 {
@@ -26,6 +27,7 @@ namespace Game1
         private InstancingManager instancingManager;
         public Octree octree;
         public ObjectManager objectManager;
+        public ItemManager itemManager;
         public PhaseManager phaseManager;
 
         public static Dictionary<AxialCoordinate, Tile> map;
@@ -69,17 +71,16 @@ namespace Game1
 
         private Model tileModel;
         private Model hands;
-        private Model crystalModel;
+        private Model coreModel;
         private Texture2D handstex;
         private Texture2D tileTexture;
+        private Texture2D coreTexture;
 
         private HUDManager hudManager;
         private Stats stats;
 
         //map
         private Texture2D mapTex;
-        //enemy
-        Enemy enemy;
 
         private Core core;
 
@@ -134,7 +135,8 @@ namespace Game1
         private float distance;
         private DrawableObject tileStandingOn;
 
-        public DrawableObject selected_obj = null;
+        public DrawableObject selectedObject = null;
+        private Stopwatch stopwatchLastTargetedEnemy;
 
         private enum SkyStatus
         {
@@ -241,7 +243,7 @@ namespace Game1
             sky = new SkyDome(this, ref camera);
             // Set skydome parameters here
             //sky.Theta = 2.4f;// (float)Math.PI / 2.0f - 0.3f;
-            sky.Theta = timeOfDay.TotalSeconds * (float)(Math.PI) / 12.0f / 60.0f / 60.0f;
+            sky.Theta = timeOfDay.TimeFloat * (float)(Math.PI) / 12.0f;
             sky.Parameters.NumSamples = 10;
             sky.Initialize();
 
@@ -267,9 +269,11 @@ namespace Game1
             waterTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.HdrBlendable, DepthFormat.None);
             dofTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.HdrBlendable, DepthFormat.None);
 
-            fxaaTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.HdrBlendable, DepthFormat.None);
+            fxaaTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.HdrBlendable, DepthFormat.Depth24Stencil8);
 
             stats = new Stats();
+
+            stopwatchLastTargetedEnemy = new Stopwatch();
 
             hudManager = new HUDManager(spriteBatch, GraphicsDevice, Content, stats);
             hudManager.LoadContent();
@@ -282,7 +286,9 @@ namespace Game1
             tileTexture = Content.Load<Texture2D>("Textures/gradient");
             hands = Content.Load<Model>("Models/hands");
             handstex = Content.Load<Texture2D>("Textures/handstex");
-            crystalModel = Content.Load<Model>("Models/crystal");
+            coreModel = Content.Load<Model>("Models/core");
+
+            coreTexture = Content.Load<Texture2D>("Textures/core");
 
             //map
             mapTex = Content.Load<Texture2D>("Textures/map");
@@ -326,7 +332,7 @@ namespace Game1
 
             octree.m_objects.AddRange(tileList);
 
-            core = new Core(this, Matrix.CreateTranslation(1100, 50, 1700), crystalModel, octree);
+            core = new Core(this, Matrix.CreateTranslation(1100, 50, 1700), coreModel, octree, coreTexture);
             octree.m_objects.Add(core);
 
             camera.Octree = octree;
@@ -343,11 +349,10 @@ namespace Game1
 
             sky.LoadContent();
 
-            enemy = new Enemy(this, Matrix.CreateTranslation(300, 100, 1100), tileModel, octree, Content);
             pathfinder = new PathFinder();
             path = new List<Tile>();
 
-            
+            itemManager = new ItemManager(this, Content, octree, objectManager, lightManager, stats);
 
             /*
             List<DrawableObject> abc = new List<DrawableObject>();
@@ -454,7 +459,7 @@ namespace Game1
                 path = pathfinder.Pathfind(start, end, tileDictionary, settings.Instancing);
                 */
                 //IntersectionRecord ir = octree.NearestIntersection(camera.GetMouseRay(graphics.GraphicsDevice.Viewport));
-                Spawn temp = new Spawn(this, Matrix.CreateTranslation(camera.Position+Vector3.Normalize(core.Position - camera.Position)*100), crystalModel, octree, Content, core.Position, phaseManager);
+                Spawn temp = new Spawn(this, Matrix.CreateTranslation(camera.Position+Vector3.Normalize(core.Position - camera.Position)*100), coreModel, octree, itemManager, Content, core.Position, phaseManager);
                 
                 //path = pathfinder.Pathfind((Tile)octree.HighestIntersection(camera.GetDownwardRay(), DrawableObject.ObjectType.Terrain).DrawableObjectObject, (Tile)octree.HighestIntersection(core, DrawableObject.ObjectType.Terrain).DrawableObjectObject, octree, settings);
             }
@@ -494,13 +499,13 @@ namespace Game1
             switch (selectedSpell)
             {
                 case SpellType.MoveTerrain:
-                    spellMoveTerrain.Start(leftButton, rightButton, selected_obj);
+                    spellMoveTerrain.Start(leftButton, rightButton, selectedObject);
                     break;
                 case SpellType.Fireball:
                     spellFireball.Start(leftButton, rightButton);
                     break;
                 case SpellType.CreateTurret:
-                    spellCreateTurret.Start(leftButton, rightButton, selected_obj);
+                    spellCreateTurret.Start(leftButton, rightButton, selectedObject);
                     break;
             }
         }
@@ -516,7 +521,7 @@ namespace Game1
                     spellFireball.Continue(leftButton, rightButton);
                     break;
                 case SpellType.CreateTurret:
-                    spellCreateTurret.Continue(leftButton, rightButton, selected_obj);
+                    spellCreateTurret.Continue(leftButton, rightButton, selectedObject);
                     break;
             }
         }
@@ -532,7 +537,7 @@ namespace Game1
                     spellFireball.Stop(leftButton, rightButton);
                     break;
                 case SpellType.CreateTurret:
-                    spellCreateTurret.Stop(leftButton, rightButton, selected_obj);
+                    spellCreateTurret.Stop(leftButton, rightButton, selectedObject);
                     break;
             }
         }
@@ -611,28 +616,56 @@ namespace Game1
             settings.FocalWidth = settings.FocalDistance * 6;
             //===
 
-            if (selected_obj == null)
+            if (selectedObject == null)
             {
                 if (mouse_ir.DrawableObjectObject != null)
-                    selected_obj = mouse_ir.DrawableObjectObject;
+                {
+                    selectedObject = mouse_ir.DrawableObjectObject;
+                }
             }
             else
             {
                 if (mouse_ir.DrawableObjectObject == null)
                 {
-                    selected_obj.Selected = false;
-                    selected_obj = null;
+                    selectedObject.Selected = false;
+                    selectedObject = null;
                 }
-                else if (mouse_ir.DrawableObjectObject != selected_obj)
+                else if (mouse_ir.DrawableObjectObject != selectedObject)
                 {
-                    selected_obj.Selected = false;
-                    selected_obj = mouse_ir.DrawableObjectObject;
-                    selected_obj.Selected = true;
+                    selectedObject.Selected = false;
+                    selectedObject = mouse_ir.DrawableObjectObject;
+                    selectedObject.Selected = true;
                 }
             }
 
+            if (selectedObject != null)
+            {
+                if (selectedObject.Type == DrawableObject.ObjectType.Enemy)
+                {
+                    stopwatchLastTargetedEnemy.Reset();
+                    stats.currentTargetedEnemy = (Enemy)selectedObject;
+                }
+            }
+
+            if (stats.currentTargetedEnemy != null)
+            {
+                if (selectedObject == null || selectedObject != null && selectedObject.Type != DrawableObject.ObjectType.Enemy)
+                {
+                    stopwatchLastTargetedEnemy.Start();
+                    stats.lastTargetedEnemy = stats.currentTargetedEnemy;
+                    stats.currentTargetedEnemy = null;
+                }
+
+                if (stopwatchLastTargetedEnemy.ElapsedMilliseconds > 2000)
+                {
+                    stats.lastTargetedEnemy = null;
+                    stopwatchLastTargetedEnemy.Reset();
+                }
+            }
+         
             octree.Update(gameTime);
             objectManager.Update(gameTime);
+            itemManager.Update(gameTime, camera.Position);
 
             float step = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
@@ -670,7 +703,7 @@ namespace Game1
                     if (currentKeyboardState.IsKeyDown(Keys.Right))
                         sky.Phi += 0.4f * step;
 
-                    sky.Theta = timeOfDay.TotalMinutes * (float)(Math.PI) / 12.0f / 60.0f;
+                    sky.Theta = timeOfDay.TimeFloat * (float)(Math.PI) / 12.0f;
 
                     if (sky.Phi > (float)Math.PI * 2.0f)
                         sky.Phi = sky.Phi - (float)Math.PI * 2.0f;
@@ -678,23 +711,14 @@ namespace Game1
                         sky.Phi = (float)Math.PI * 2.0f + sky.Phi;
                     break;
                 case SkyStatus.Automatic:
-                    sky.Theta = timeOfDay.TotalMinutes * (float)(Math.PI) / 12.0f / 60.0f;
+                    sky.Theta = timeOfDay.TimeFloat * (float)(Math.PI) / 12.0f; 
                     break;
             }
 
             hdrProcessor.ToneMapKey = timeOfDay.LogisticTime(0.05f, 0.8f, 2.0f);
             //hdrProcessor.MaxLuminance = 512.0f * timeOfDay.LogisticTime(0f, 1f, 1f);
 
-            //sky.Theta = timeOfDay.TotalMinutes * (float)(Math.PI) / 12.0f / 60.0f;
-            if (settings.EnemyMove)
-            {
-                //Tile start = tileFromPosition(enemy.Position, tileDictionary);
-                //Tile end = tileFromPosition(core.Position, tileDictionary);
-                //path = pathfinder.Pathfind(start, end, tileDictionary, settings);
-                enemy.Update(gameTime, octree, path);
-            }
-
-            
+            //sky.Theta = timeOfDay.TotalMinutes * (float)(Math.PI) / 12.0f / 60.0f;       
 
             UpdateFrameRate(gameTime);
 
@@ -890,6 +914,8 @@ namespace Game1
         {
             base.Draw(gameTime);
 
+            
+
             lightDirection = sky.Parameters.LightDirection.ToVector3();
             if (lightDirection.Y < 0)
             {
@@ -921,8 +947,6 @@ namespace Game1
 
             sky.Draw(gameTime, camera.ViewMatrix, camera.Position);
 
-            enemy.Draw(camera);
-
             instancingManager.DrawModelHardwareInstancing(drawObjects.IntersectionsInstanced);
             foreach (IntersectionRecord ir in drawObjects.Intersections)
             {
@@ -932,6 +956,7 @@ namespace Game1
             modelsDrawnInstanced = drawObjects.IntersectionsInstanced.Count;
 
             objectManager.Draw(camera);
+            itemManager.Draw(camera);
 
             if (settings.DrawDebugShapes)
             {
@@ -998,6 +1023,8 @@ namespace Game1
 
             GraphicsDevice.SetRenderTarget(null);
 
+            hudManager.DrawMask();
+
             if (settings.FXAA)
             {
                 float w = fxaaTarget.Width;
@@ -1040,7 +1067,7 @@ namespace Game1
             if(settings.ShowGBuffer)
                 DrawGBuffer();
             spriteBatch.End();
-
+            
             hudManager.Draw();
 
             IncrementFrameCounter();

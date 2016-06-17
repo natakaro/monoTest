@@ -236,9 +236,6 @@ namespace Game1
             if (KeyJustPressed(Keys.F5))
                 ToneMap = !ToneMap;
 
-            if (KeyJustPressed(Keys.Q))
-                EnemyMove = !EnemyMove;
-
             if (KeyJustPressed(Keys.R))
                 Reflect = !Reflect;
         }

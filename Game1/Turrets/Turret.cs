@@ -27,6 +27,7 @@ namespace Game1.Turrets
         float range;
         float projectileSpeed;
         float rateOfFire;
+        float damage;
 
         BoundingSphere rangeSphere;
         List<DrawableObject> enemiesInRange;
@@ -55,6 +56,7 @@ namespace Game1.Turrets
             range = 250;
             projectileSpeed = 100;
             rateOfFire = 500;
+            damage = 10;
             rangeSphere = new BoundingSphere(shootStartPosition, range);
 
             enemiesInRange = new List<DrawableObject>();
@@ -79,7 +81,7 @@ namespace Game1.Turrets
                 mesh.Draw();
             }
 
-            DebugShapeRenderer.AddBoundingSphere(rangeSphere, Color.Red);
+            //DebugShapeRenderer.AddBoundingSphere(rangeSphere, Color.Red);
         }
 
         public override bool Update(GameTime gameTime)
@@ -130,7 +132,7 @@ namespace Game1.Turrets
                     //Vector3 interception = direct_solution(currentTarget.Position + new Vector3(0, 20, 0), currentTarget.Velocity, projectileSpeed);
                     Vector3 direction = Vector3.Normalize(interception - shootStartPosition);
 
-                    TurretProjectile projectile = new TurretProjectile(game, Matrix.CreateTranslation(shootStartPosition), fireballModel, octree, objectManager, fireballTexture, lightManager);
+                    TurretProjectile projectile = new TurretProjectile(game, Matrix.CreateTranslation(shootStartPosition), fireballModel, octree, objectManager, fireballTexture, lightManager, damage);
                     
                     projectile.Position = shootStartPosition;
                     projectile.Velocity = direction * projectileSpeed;

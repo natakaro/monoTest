@@ -92,7 +92,6 @@ namespace Game1
         private KeyboardState previousKeyboardState;
         private Dictionary<Actions, Keys> actionKeys;
 
-        private BoundingSphere boundingSphere;
         private Ray downwardRay;
         private Octree octree;
         private Model debugModel;
@@ -156,8 +155,6 @@ namespace Game1
             Rectangle clientBounds = game.Window.ClientBounds;
             float aspect = (float)clientBounds.Width / (float)clientBounds.Height;
             Perspective(fovx, aspect, znear, zfar);
-
-            boundingSphere = new BoundingSphere(Position, 5);
         }
 
         public override void Initialize()

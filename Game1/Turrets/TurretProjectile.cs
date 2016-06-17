@@ -13,11 +13,12 @@ namespace Game1.Turrets
 {
     class TurretProjectile : DrawableObject
     {
-        Texture2D texture;
+        private Texture2D texture;
         private PointLight pointLight;
-        LightManager lightManager;
-        ObjectManager objectManager;
-        Stopwatch stopwatch;
+        private LightManager lightManager;
+        private ObjectManager objectManager;
+        private Stopwatch stopwatch;
+        private float damage;
 
         public override void Draw(Camera camera)
         {
@@ -50,7 +51,7 @@ namespace Game1.Turrets
             return ret;
         }
 
-        public TurretProjectile(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ObjectManager objectManager, Texture2D inTexture, LightManager lightManager) : base(game, inWorldMatrix, inModel, octree)
+        public TurretProjectile(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ObjectManager objectManager, Texture2D inTexture, LightManager lightManager, float damage) : base(game, inWorldMatrix, inModel, octree)
         {
             this.lightManager = lightManager;
             this.objectManager = objectManager;
@@ -65,6 +66,8 @@ namespace Game1.Turrets
 
             stopwatch = new Stopwatch();
             stopwatch.Start();
+
+            this.damage = damage;
         }
 
         public override void HandleIntersection(IntersectionRecord ir)
@@ -73,8 +76,11 @@ namespace Game1.Turrets
             {
                 if (ir.DrawableObjectObject.Type == ObjectType.Enemy)
                 {
+                    Enemy hitEnemy = (Enemy)ir.DrawableObjectObject;
+                    hitEnemy.Damage(damage);
                     Destroy();
                 }
+
                 else if (ir.DrawableObjectObject.Type == ObjectType.Tile)
                 {
                     Destroy();
