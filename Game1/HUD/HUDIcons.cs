@@ -17,7 +17,7 @@ namespace Game1.HUD
 
         HUDManager hudManager;
 
-        //private new const float ALPHA = 100f / 255f;
+        private new const float ALPHA = 100f / 255f;
 
         public HUDIcons(SpriteBatch spriteBatch, GraphicsDevice graphicsDevice, Vector2 position, Vector2 dimension, HUDManager hudManager) : base(spriteBatch, graphicsDevice, position, dimension)
         {
@@ -29,9 +29,10 @@ namespace Game1.HUD
         {
             if(enabled)
             {
-                spriteBatch.Draw(healthIcon, hudManager.HealthBar.Position + new Vector2(-14, -6), Color.White * ALPHA);
-                spriteBatch.Draw(manaIcon, hudManager.ManaBar.Position + new Vector2(-14, -6), Color.White * ALPHA);
-                spriteBatch.Draw(essenceIcon, hudManager.EssenceBar.Position + new Vector2(-14, -6), Color.White * ALPHA);
+                Vector2 offset = new Vector2(-34, -6);
+                spriteBatch.Draw(healthIcon, hudManager.HealthBar.Position + offset, Color.White * ALPHA);
+                spriteBatch.Draw(manaIcon, hudManager.ManaBar.Position + offset, Color.White * ALPHA);
+                spriteBatch.Draw(essenceIcon, hudManager.EssenceBar.Position + offset, Color.White * ALPHA);
             }
         }
 

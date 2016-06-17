@@ -53,12 +53,6 @@ namespace Game1.HUD
                 rectangle.X = (int)position.X;
                 rectangle.Y = (int)position.Y;
 
-                Rectangle backgroundRectangle = new Rectangle();
-                backgroundRectangle.Width = 260;
-                backgroundRectangle.Height = 30;
-                backgroundRectangle.X = (int)position.X - 5;
-                backgroundRectangle.Y = (int)position.Y - 5;
-
                 Texture2D dummyTexture = new Texture2D(graphicsDevice, 1, 1);
                 dummyTexture.SetData(new Color[] { Color.Black });
 
@@ -69,8 +63,18 @@ namespace Game1.HUD
                 dummyTexture.SetData(new Color[] { barColor });
 
                 spriteBatch.Draw(dummyTexture, rectangle, barColor * alpha);
-                spriteBatch.Draw(barBackground, backgroundRectangle, Color.White * alpha);
             }
+        }
+
+        public void DrawBackground()
+        {
+            Rectangle backgroundRectangle = new Rectangle();
+            backgroundRectangle.Width = 260;
+            backgroundRectangle.Height = 30;
+            backgroundRectangle.X = (int)position.X - 5;
+            backgroundRectangle.Y = (int)position.Y - 5;
+
+            spriteBatch.Draw(barBackground, backgroundRectangle, Color.White * alpha);
         }
 
         public void DrawMask()
@@ -80,9 +84,9 @@ namespace Game1.HUD
                 Rectangle maskRectangle = new Rectangle();
                 maskRectangle.Width = 10;
                 maskRectangle.Height = 20;
-                //maskRectangle.X = (int)position.X;
-                //maskRectangle.Y = (int)position.Y;
-                //spriteBatch.Draw(cornerMask, maskRectangle, Color.White);
+                maskRectangle.X = (int)position.X;
+                maskRectangle.Y = (int)position.Y;
+                spriteBatch.Draw(cornerMask, maskRectangle, Color.White);
                 maskRectangle.X = (int)position.X + (int)dimension.X - maskRectangle.Width;
                 maskRectangle.Y = (int)position.Y;
                 spriteBatch.Draw(cornerMask, maskRectangle, null, Color.White, 0, Vector2.Zero, SpriteEffects.FlipHorizontally, 0);

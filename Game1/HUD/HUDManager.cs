@@ -34,6 +34,7 @@ namespace Game1.HUD
         private AlphaTestEffect a;
         private DepthStencilState s1;
         private DepthStencilState s2;
+        private DepthStencilState s3;
 
         public HUDManager(SpriteBatch spriteBatch, GraphicsDevice graphicsDevice, ContentManager content, Stats stats)
         {
@@ -108,11 +109,27 @@ namespace Game1.HUD
             crosshair.Update();
             phaseMessage.Update();
 
-            //spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+            //special case for bars
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, s2, null);
             foreach (HUDElement element in elements)
             {
-                element.Draw();
+                if (element is HUDBar)
+                {
+                    element.Draw();
+                }
+            }
+            spriteBatch.End();
+
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+            foreach (HUDElement element in elements)
+            {
+                if(element is HUDBar)
+                {
+                    HUDBar bar = element as HUDBar;
+                    bar.DrawBackground();
+                }
+                else
+                    element.Draw();
             }
             spriteBatch.End();
         }
