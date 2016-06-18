@@ -11,7 +11,7 @@ float4x4 World;
 float4x4 View;
 float4x4 Projection;
 
-float FarClip = 2000;
+float FarClip;
 
 //color of the light 
 float3 Color; 

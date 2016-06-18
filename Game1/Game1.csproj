@@ -102,6 +102,16 @@
     <Compile Include="Game1.cs" />
     <Compile Include="ObjectManager.cs" />
     <Compile Include="Octree.cs" />
+    <Compile Include="Particles\ParticleEmitter.cs" />
+    <Compile Include="Particles\ParticleManager.cs" />
+    <Compile Include="Particles\ParticleSettings.cs" />
+    <Compile Include="Particles\ParticleSystem.cs" />
+    <Compile Include="Particles\ParticleSystems\ExplosionParticleSystem.cs" />
+    <Compile Include="Particles\ParticleSystems\ExplosionSmokeParticleSystem.cs" />
+    <Compile Include="Particles\ParticleSystems\FireParticleSystem.cs" />
+    <Compile Include="Particles\ParticleSystems\ProjectileTrailParticleSystem.cs" />
+    <Compile Include="Particles\ParticleSystems\SmokePlumeParticleSystem.cs" />
+    <Compile Include="Particles\ParticleVertex.cs" />
     <Compile Include="PhaseManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -10,6 +10,7 @@ using Game1.Helpers;
 using Game1.Lights;
 using System.Diagnostics;
 using Game1.HUD;
+using Game1.Particles;
 
 namespace Game1.Spells
 {
@@ -19,10 +20,19 @@ namespace Game1.Spells
         private PointLight pointLight;
         LightManager lightManager;
         HUDManager hudManager;
-        Stopwatch stopwatch;
         ObjectManager objectManager;
 
+        ParticleSystem explosionParticles;
+        ParticleSystem explosionSmokeParticles;
+        ParticleEmitter trailEmitter;
+
         float damage;
+        float age;
+
+        const float lifespan = 5f;
+        const float trailParticlesPerSecond = 200;
+        const int numExplosionParticles = 30;
+        const int numExplosionSmokeParticles = 50;
 
         public event EventHandler hitEvent;
 
@@ -48,17 +58,26 @@ namespace Game1.Spells
         {
             bool ret = base.Update(gameTime);
 
+            trailEmitter.Update(gameTime, position);
+
             pointLight.Position = position;
             BoundingSphere pointLightSphere = pointLight.BoundingSphere;
             pointLightSphere.Center = position;
 
-            if (stopwatch.ElapsedMilliseconds > 5000)
+            float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            age += elapsedTime;
+
+            if (age > lifespan)
                 Destroy();
 
             return ret;
         }
 
-        public SpellFireballProjectile(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ObjectManager objectManager, Texture2D inTexture, LightManager lightManager, HUDManager hudManager, float damage) : base(game, inWorldMatrix, inModel, octree)
+        public SpellFireballProjectile(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ObjectManager objectManager, 
+                                       Texture2D inTexture, LightManager lightManager, HUDManager hudManager, float damage,
+                                       ParticleSystem explosionParticles,
+                                       ParticleSystem explosionSmokeParticles,
+                                       ParticleSystem projectileTrailParticles) : base(game, inWorldMatrix, inModel, octree)
         {
             this.lightManager = lightManager;
             this.hudManager = hudManager;
@@ -72,12 +91,14 @@ namespace Game1.Spells
             pointLight = new PointLight(position, Color.OrangeRed, 25, 5);
             lightManager.AddLight(pointLight);
 
-            stopwatch = new Stopwatch();
-            stopwatch.Start();
-
             this.damage = damage;
 
             hitEvent += hudManager.Crosshair.HandleHitEvent;
+
+            this.explosionParticles = explosionParticles;
+            this.explosionSmokeParticles = explosionSmokeParticles;
+            trailEmitter = new ParticleEmitter(projectileTrailParticles,
+                                               trailParticlesPerSecond, position);
         }
 
         public override void HandleIntersection(IntersectionRecord ir)
@@ -101,6 +122,12 @@ namespace Game1.Spells
 
         private void Destroy()
         {
+            for (int i = 0; i < numExplosionParticles; i++)
+                explosionParticles.AddParticle(position, -velocity * 0.1f);
+
+            for (int i = 0; i < numExplosionSmokeParticles; i++)
+                explosionSmokeParticles.AddParticle(position, -velocity * 0.1f);
+
             hitEvent -= hudManager.Crosshair.HandleHitEvent;
             lightManager.RemoveLight(pointLight);
             Alive = false;

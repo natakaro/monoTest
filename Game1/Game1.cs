@@ -14,6 +14,7 @@ using System.Diagnostics;
 using System.Threading;
 using static Game1.Helpers.HexCoordinates;
 using Game1.Items;
+using Game1.Particles;
 
 namespace Game1
 {
@@ -29,6 +30,7 @@ namespace Game1
         public ObjectManager objectManager;
         public ItemManager itemManager;
         public PhaseManager phaseManager;
+        private ParticleManager particleManager;
         public static AssetContentContainer assetContentContainer;
 
         public static Dictionary<AxialCoordinate, Tile> map;
@@ -241,7 +243,7 @@ namespace Game1
 
             stat = SkyStatus.Automatic;
 
-            timeOfDay = new TimeOfDay(17, 30, 0);
+            timeOfDay = new TimeOfDay(14, 30, 0);
 
             sky = new SkyDome(this, ref camera);
             // Set skydome parameters here
@@ -252,8 +254,9 @@ namespace Game1
 
             objectManager = new ObjectManager();
 
+            particleManager = new ParticleManager(this, Content);
+
             base.Initialize();
-            
         }
 
         protected override void LoadContent()
@@ -342,7 +345,7 @@ namespace Game1
             camera.Octree = octree;
 
             spellMoveTerrain = new SpellMoveTerrain(octree, stats, phaseManager, map);
-            spellFireball = new SpellFireball(this, camera, octree, objectManager, lightManager, hudManager, stats);
+            spellFireball = new SpellFireball(this, camera, octree, objectManager, lightManager, particleManager, hudManager, stats);
             spellCreateTurret = new SpellCreateTurret(this, camera, octree, objectManager, lightManager, stats);
 
             camera.DebugModel = spellFireball.fireballModel;
@@ -380,6 +383,8 @@ namespace Game1
 
             octree.m_objects.AddRange(abc);
             */
+
+            base.LoadContent();
         }
 
         protected override void UnloadContent()
@@ -926,10 +931,6 @@ namespace Game1
 
         protected override void Draw(GameTime gameTime)
         {
-            base.Draw(gameTime);
-
-            
-
             lightDirection = sky.Parameters.LightDirection.ToVector3();
             if (lightDirection.Y < 0)
             {
@@ -1016,10 +1017,16 @@ namespace Game1
             GraphicsDevice.Clear(Color.White);
             DrawFinal();
 
+            
+
             GraphicsDevice.SetRenderTarget(waterTarget);
             GraphicsDevice.Clear(Color.White);
 
             water.DrawWater(camera, (float)gameTime.TotalGameTime.TotalMilliseconds*5, finalTarget, depthTarget, lightDirection, lightColor);
+
+            particleManager.Draw(camera, camera.FarZ, depthTarget);
+            base.Draw(gameTime);
+            GraphicsDevice.BlendState = BlendState.AlphaBlend;
 
             if (settings.DrawFog)
                 DrawFog();
