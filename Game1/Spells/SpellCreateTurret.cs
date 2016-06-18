@@ -17,8 +17,11 @@ namespace Game1.Spells
         private Camera camera;
         private Octree octree;
         private ObjectManager objectManager;
-        public Model turretModel;
-        public Texture2D turretTexture;
+        public Model smallTurretModel;
+        public Texture2D smallTurretTexture;
+        public Model bigTurretModel;
+        public Texture2D bigTurretTexture;
+
         private LightManager lightManager;
         private Stats stats;
 
@@ -159,7 +162,7 @@ namespace Game1.Spells
                     {
                         if (dObj.Type == DrawableObject.ObjectType.Tile)
                         {
-                            Turret turret = new Turret(game, Matrix.CreateTranslation(dObj.Position), turretModel, octree, objectManager, turretTexture, lightManager);
+                            Turret turret = new Turret(game, Matrix.CreateTranslation(dObj.Position), smallTurretModel, octree, objectManager, smallTurretTexture, lightManager);
                             octree.m_objects.Add(turret);
                             spellReady = false;
                         }
@@ -181,7 +184,7 @@ namespace Game1.Spells
                     {
                         if (dObj.Type == DrawableObject.ObjectType.Tile)
                         {
-                            Turret turret = new Turret(game, Matrix.CreateTranslation(dObj.Position), turretModel, octree, objectManager, turretTexture, lightManager);
+                            Turret turret = new Turret(game, Matrix.CreateTranslation(dObj.Position), bigTurretModel, octree, objectManager, bigTurretTexture, lightManager);
                             octree.m_objects.Add(turret);
                             spellReady = false;
                         }
@@ -247,8 +250,10 @@ namespace Game1.Spells
             rightCastSpeed = 2000;
             dualCastSpeed = 2000;
 
-            turretModel = game.Content.Load<Model>("Models/turret");
-            turretTexture = game.Content.Load<Texture2D>("Textures/turret");
+            smallTurretModel = game.Content.Load<Model>("Models/turret");
+            smallTurretTexture = game.Content.Load<Texture2D>("Textures/turret");
+            bigTurretModel = game.Content.Load<Model>("Models/big_turret/big_turret");
+            bigTurretTexture = game.Content.Load<Texture2D>("Textures/big_turret_FIRE");
         }
     }
 }
