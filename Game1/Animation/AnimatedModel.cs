@@ -43,6 +43,9 @@ namespace Game1
         /// </summary>
         private AnimationPlayer player = null;
 
+        private Matrix[] boneTransforms;
+        private Matrix[] skeleton;
+
         #endregion
 
         #region Properties
@@ -64,6 +67,9 @@ namespace Game1
         /// The model animation clips
         /// </summary>
         public List<AnimationClip> Clips { get { return modelExtra.Clips; } }
+
+        public Matrix[] BoneTransforms { get { return boneTransforms; } }
+        public Matrix[] Skeleton { get { return skeleton; } }
 
         #endregion
 
@@ -181,7 +187,7 @@ namespace Game1
             // Compute all of the bone absolute transforms
             //
 
-            Matrix[] boneTransforms = new Matrix[bones.Count];
+            boneTransforms = new Matrix[bones.Count];
 
             for (int i = 0; i < bones.Count; i++)
             {
@@ -195,7 +201,7 @@ namespace Game1
             // Determine the skin transforms from the skeleton
             //
 
-            Matrix[] skeleton = new Matrix[modelExtra.Skeleton.Count];
+            skeleton = new Matrix[modelExtra.Skeleton.Count];
             for (int s = 0; s < modelExtra.Skeleton.Count; s++)
             {
                 Bone bone = bones[modelExtra.Skeleton[s]];
@@ -203,26 +209,53 @@ namespace Game1
             }
 
             // Draw the model.
-            foreach (ModelMesh modelMesh in model.Meshes)
+            foreach (ModelMesh mesh in Model.Meshes)
             {
-
-                foreach (ModelMesh mesh in Model.Meshes)
+                foreach (Effect effect in mesh.Effects)
                 {
-                    foreach (Effect effect in mesh.Effects)
+                    foreach (ModelMeshPart part in mesh.MeshParts)
                     {
-                        foreach (ModelMeshPart part in mesh.MeshParts)
-                        {
-                            part.Effect.Parameters["Bones"].SetValue(skeleton);
-                            part.Effect.Parameters["World"].SetValue(boneTransforms[modelMesh.ParentBone.Index] * world);
-                            part.Effect.Parameters["View"].SetValue(camera.viewMatrix);
-                            part.Effect.Parameters["Projection"].SetValue(camera.projMatrix);
-                            part.Effect.Parameters["FarClip"].SetValue(camera.FarZ);
-                        }
+                        part.Effect.Parameters["Bones"].SetValue(skeleton);
+                        part.Effect.Parameters["World"].SetValue(boneTransforms[mesh.ParentBone.Index] * world);
+                        part.Effect.Parameters["View"].SetValue(camera.viewMatrix);
+                        part.Effect.Parameters["Projection"].SetValue(camera.projMatrix);
+                        part.Effect.Parameters["FarClip"].SetValue(camera.FarZ);
+                    }
                 }
                 mesh.Draw();
             }
         }
-    }
+
+        public void BoneAdjust()
+        {
+            if (model == null)
+                return;
+
+            //
+            // Compute all of the bone absolute transforms
+            //
+
+            boneTransforms = new Matrix[bones.Count];
+
+            for (int i = 0; i < bones.Count; i++)
+            {
+                Bone bone = bones[i];
+                bone.ComputeAbsoluteTransform();
+
+                boneTransforms[i] = bone.AbsoluteTransform;
+            }
+
+            //
+            // Determine the skin transforms from the skeleton
+            //
+
+            skeleton = new Matrix[modelExtra.Skeleton.Count];
+            for (int s = 0; s < modelExtra.Skeleton.Count; s++)
+            {
+                Bone bone = bones[modelExtra.Skeleton[s]];
+                skeleton[s] = bone.SkinTransform * bone.AbsoluteTransform;
+            }
+        }
 
 
         #endregion

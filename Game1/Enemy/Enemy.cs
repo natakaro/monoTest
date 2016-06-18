@@ -25,10 +25,12 @@ namespace Game1
 
         private ContentManager Content;
         private ItemManager itemManager;
-        private AnimatedModel modell = null;
+        private AnimatedModel animatedModel = null;
         private AnimatedModel dance = null;
 
         List<Vector3> path;
+
+        float targetRotation;
 
         private Tile targetTile;
         private int tileNumber;
@@ -56,24 +58,26 @@ namespace Game1
             //boundingSphere = new BoundingSphere(position, Map.scale * 0.75f);
            
 
-            modell = new AnimatedModel("Models/h");
-            modell.LoadContent(Content);
+            animatedModel = new AnimatedModel("Models/h");
+            animatedModel.LoadContent(Content);
 
 
             dance = new AnimatedModel("Models/h_walk");
             dance.LoadContent(Content);
             AnimationClip clip = dance.Clips[0];
 
-            AnimationPlayer player = modell.PlayClip(clip);
+            AnimationPlayer player = animatedModel.PlayClip(clip);
             player.Looping = true;
 
             type = ObjectType.Enemy;
-            boundingBox = CollisionBox.CreateBoundingBox(modell.Model, position, 1);
+            boundingBox = CollisionBox.CreateBoundingBox(animatedModel.Model, position, 1);
             a = boundingBox.Max.Y - boundingBox.Min.Y;
             b = position.Y - boundingBox.Min.Y;
             //positionray = new Ray(new Vector3(position.X, boundingBox.Min.Y, position.Z), Vector3.Down);
 
             tileNumber = 0;
+
+            targetRotation = 0;
 
             maxHealth = 100;
             currentHealth = 100;
@@ -108,10 +112,10 @@ namespace Game1
                     boundingBox.Max.Y = boundingBox.Min.Y + a;
                     position.Y = boundingBox.Min.Y + b;
 
-                    float targetrotation = (float)Math.Atan2((double)(targetTile.Position.X - position.X), (double)(targetTile.Position.Z - position.Z));
+                    targetRotation = (float)Math.Atan2((double)(targetTile.Position.X - position.X), (double)(targetTile.Position.Z - position.Z));
 
-                    worldMatrix = Matrix.CreateRotationY(targetrotation) * Matrix.CreateTranslation(position);
-                    modell.Update(gameTime);
+                    worldMatrix = Matrix.CreateRotationY(targetRotation) * Matrix.CreateTranslation(position);
+                    animatedModel.Update(gameTime);
 
                     while(Vector3.Distance(position, targetTile.Position) < 25 && tileNumber < path.Count)
                     {
@@ -167,10 +171,10 @@ namespace Game1
                     //boundingBox.Max.Y = boundingBox.Min.Y + a;
                     //position.Y = boundingBox.Min.Y + b;
 
-                    float targetrotation = (float)Math.Atan2((double)(targetPosition.X - position.X), (double)(targetPosition.Z - position.Z));
-                    worldMatrix = Matrix.CreateRotationY(targetrotation) * Matrix.CreateTranslation(position);
+                    targetRotation = (float)Math.Atan2((double)(targetPosition.X - position.X), (double)(targetPosition.Z - position.Z));
+                    worldMatrix = Matrix.CreateRotationY(targetRotation) * Matrix.CreateTranslation(position);
 
-                    modell.Update(gameTime);
+                    animatedModel.Update(gameTime);
 
                     while (Vector3.Distance(position, targetPosition) < 25 && tileNumber < path.Count - 1)
                     {
@@ -206,7 +210,7 @@ namespace Game1
                 mesh.Draw();
             }
             */
-            modell.Draw(GraphicsDevice, camera, worldMatrix, Content);
+            animatedModel.Draw(GraphicsDevice, camera, worldMatrix, Content);
         }
 
         public void Damage(float value)
@@ -218,6 +222,16 @@ namespace Game1
         {
             itemManager.Spawn(position);
             Alive = false;
+        }
+
+        public AnimatedModel AnimatedModel
+        {
+            get { return animatedModel; }
+        }
+
+        public float Rotation
+        {
+            get { return targetRotation; }
         }
     }
 }

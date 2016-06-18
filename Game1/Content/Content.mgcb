@@ -4861,3 +4861,9 @@
 /processorParam:TextureFormat=Color
 /build:Hud/icons/mana.png
 
+#begin Effects/ShadowMapAnimated.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/ShadowMapAnimated.fx
+

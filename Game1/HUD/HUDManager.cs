@@ -34,7 +34,6 @@ namespace Game1.HUD
         private AlphaTestEffect a;
         private DepthStencilState s1;
         private DepthStencilState s2;
-        private DepthStencilState s3;
 
         public HUDManager(SpriteBatch spriteBatch, GraphicsDevice graphicsDevice, ContentManager content, Stats stats)
         {
@@ -113,7 +112,7 @@ namespace Game1.HUD
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, s2, null);
             foreach (HUDElement element in elements)
             {
-                if (element is HUDBar)
+                if (element is HUDBar || element is HUDTargetBar)
                 {
                     element.Draw();
                 }
@@ -127,6 +126,11 @@ namespace Game1.HUD
                 {
                     HUDBar bar = element as HUDBar;
                     bar.DrawBackground();
+                }
+                else if (element is HUDTargetBar)
+                {
+                    HUDTargetBar targetBar = element as HUDTargetBar;
+                    targetBar.DrawBackground();
                 }
                 else
                     element.Draw();

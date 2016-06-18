@@ -68,13 +68,16 @@ namespace Game1.HUD
 
         public void DrawBackground()
         {
-            Rectangle backgroundRectangle = new Rectangle();
-            backgroundRectangle.Width = 260;
-            backgroundRectangle.Height = 30;
-            backgroundRectangle.X = (int)position.X - 5;
-            backgroundRectangle.Y = (int)position.Y - 5;
+            if (enabled)
+            {
+                Rectangle backgroundRectangle = new Rectangle();
+                backgroundRectangle.Width = (int)dimension.X + 10;
+                backgroundRectangle.Height = (int)dimension.Y + 10;
+                backgroundRectangle.X = (int)position.X - 5;
+                backgroundRectangle.Y = (int)position.Y - 5;
 
-            spriteBatch.Draw(barBackground, backgroundRectangle, Color.White * alpha);
+                spriteBatch.Draw(barBackground, backgroundRectangle, Color.White * alpha);
+            }
         }
 
         public void DrawMask()

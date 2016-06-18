@@ -34,6 +34,9 @@ namespace Game1.Turrets
         Enemy currentTarget;
         Stopwatch shootStopwatch;
 
+        Stopwatch scaleStopwatch;
+        bool fullSize;
+
         public Turret(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ObjectManager objectManager, Texture2D inTexture, LightManager lightManager) : base(game, inWorldMatrix, inModel, octree)
         {
             this.game = game;
@@ -63,22 +66,58 @@ namespace Game1.Turrets
             currentTarget = null;
 
             shootStopwatch = new Stopwatch();
+
+            scaleStopwatch = new Stopwatch();
+            scaleStopwatch.Start();
+            fullSize = false;
         }
 
         public override void Draw(Camera camera)
         {
-            foreach (ModelMesh mesh in model.Meshes)
+            if (fullSize == false)
             {
-                foreach (Effect effect in mesh.Effects)
+                scale = 0;
+                if (scaleStopwatch.ElapsedMilliseconds < 750)
                 {
-                    effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index] * worldMatrix);
-                    effect.Parameters["View"].SetValue(camera.ViewMatrix);
-                    effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
-                    effect.Parameters["FarClip"].SetValue(camera.FarZ);
-                    effect.Parameters["Texture"].SetValue(texture);
-                    effect.Parameters["Clipping"].SetValue(false);
+                    scale = MathHelper.Lerp(0, 1, scaleStopwatch.ElapsedMilliseconds / 750f);
                 }
-                mesh.Draw();
+                else
+                {
+                    scale = 1;
+                    fullSize = true;
+                    scaleStopwatch.Stop();
+                }
+                Matrix scaleMatrix = Matrix.CreateScale(scale);
+
+                foreach (ModelMesh mesh in model.Meshes)
+                {
+                    foreach (Effect effect in mesh.Effects)
+                    {
+                        effect.Parameters["World"].SetValue(scaleMatrix * modelBones[mesh.ParentBone.Index] * worldMatrix);
+                        effect.Parameters["View"].SetValue(camera.ViewMatrix);
+                        effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
+                        effect.Parameters["FarClip"].SetValue(camera.FarZ);
+                        effect.Parameters["Texture"].SetValue(texture);
+                        effect.Parameters["Clipping"].SetValue(false);
+                    }
+                    mesh.Draw();
+                }
+            }
+            else
+            {
+                foreach (ModelMesh mesh in model.Meshes)
+                {
+                    foreach (Effect effect in mesh.Effects)
+                    {
+                        effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index] * worldMatrix);
+                        effect.Parameters["View"].SetValue(camera.ViewMatrix);
+                        effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
+                        effect.Parameters["FarClip"].SetValue(camera.FarZ);
+                        effect.Parameters["Texture"].SetValue(texture);
+                        effect.Parameters["Clipping"].SetValue(false);
+                    }
+                    mesh.Draw();
+                }
             }
 
             //DebugShapeRenderer.AddBoundingSphere(rangeSphere, Color.Red);

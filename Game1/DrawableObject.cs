@@ -63,6 +63,8 @@ namespace Game1
 
         protected bool m_instanced = false;
 
+        protected float scale;
+
         public DrawableObject(Game game, Matrix inWorldMatrix, Model inModel, Octree octree) : base(game)
         {
             type = ObjectType.Player;
@@ -77,6 +79,8 @@ namespace Game1
             model = inModel;
             modelBones = new Matrix[model.Bones.Count];
             model.CopyAbsoluteBoneTransformsTo(modelBones);
+
+            scale = 1;
 
             this.octree = octree;
         }
@@ -140,7 +144,7 @@ namespace Game1
                 foreach (Effect effect in mesh.Effects)
                 {
                     effect.CurrentTechnique = effect.Techniques["Technique1"];
-                    effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index] * worldMatrix);
+                    effect.Parameters["World"].SetValue(Matrix.CreateScale(scale) * modelBones[mesh.ParentBone.Index] * worldMatrix);
                     effect.Parameters["View"].SetValue(camera.ViewMatrix);
                     effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
                     effect.Parameters["FarClip"].SetValue(camera.FarZ);
@@ -151,12 +155,12 @@ namespace Game1
         }
 
         public virtual void Draw(Camera camera, Matrix viewMatrix, Vector4 clipPlane)
-        {
+        { 
             foreach (ModelMesh mesh in model.Meshes)
             {
                 foreach (Effect effect in mesh.Effects)
                 {
-                    effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index] * worldMatrix);
+                    effect.Parameters["World"].SetValue(Matrix.CreateScale(scale) * modelBones[mesh.ParentBone.Index] * worldMatrix);
                     effect.Parameters["View"].SetValue(viewMatrix);
                     effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
                     effect.Parameters["FarClip"].SetValue(camera.FarZ);
@@ -412,6 +416,12 @@ namespace Game1
                 velocity.Normalize();
                 velocity *= value;
             }
+        }
+
+        public float Scale
+        {
+            get { return scale; }
+            set { scale = value; }
         }
 
         /// <summary>

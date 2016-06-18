@@ -85,16 +85,24 @@ namespace Game1.HUD
                 rectangle.X = (int)position.X;
                 rectangle.Y = (int)position.Y;
 
-                Rectangle backgroundRectangle = new Rectangle();
-                backgroundRectangle.Width = (int)dimension.X + 10;
-                backgroundRectangle.Height = (int)dimension.Y + 10 ;
-                backgroundRectangle.X = (int)position.X - 5;
-                backgroundRectangle.Y = (int)position.Y - 5;
-
                 Texture2D dummyTexture = new Texture2D(graphicsDevice, 1, 1);
                 dummyTexture.SetData(new Color[] { barColor });
 
                 spriteBatch.Draw(dummyTexture, rectangle, barColor * alpha);
+                
+            }
+        }
+
+        public void DrawBackground()
+        {
+            if (enabled)
+            {
+                Rectangle backgroundRectangle = new Rectangle();
+                backgroundRectangle.Width = (int)dimension.X + 10;
+                backgroundRectangle.Height = (int)dimension.Y + 10;
+                backgroundRectangle.X = (int)position.X - 5;
+                backgroundRectangle.Y = (int)position.Y - 5;
+
                 spriteBatch.Draw(barBackground, backgroundRectangle, Color.White * alpha);
             }
         }

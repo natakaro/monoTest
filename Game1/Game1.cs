@@ -240,7 +240,7 @@ namespace Game1
 
             stat = SkyStatus.Automatic;
 
-            timeOfDay = new TimeOfDay(15, 00, 0);
+            timeOfDay = new TimeOfDay(17, 30, 0);
 
             sky = new SkyDome(this, ref camera);
             // Set skydome parameters here

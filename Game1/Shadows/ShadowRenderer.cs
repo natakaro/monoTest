@@ -21,6 +21,7 @@ namespace Game1.Shadows
 
         private ShadowEffect shadowEffect;
         private ShadowMapEffect shadowMapEffect;
+        private ShadowMapAnimatedEffect shadowMapAnimatedEffect;
         private RenderTarget2D shadowMap;
 
         private Effect shadowInstancingEffect;
@@ -58,6 +59,7 @@ namespace Game1.Shadows
 
             shadowEffect = new ShadowEffect(graphicsDevice, contentManager.Load<Effect>("Effects/Shadow"));
             shadowMapEffect = new ShadowMapEffect(graphicsDevice, contentManager.Load<Effect>("Effects/ShadowMap"));
+            shadowMapAnimatedEffect = new ShadowMapAnimatedEffect(graphicsDevice, contentManager.Load<Effect>("Effects/ShadowMapAnimated"));
             shadowInstancingEffect = contentManager.Load<Effect>("Effects/ShadowInstancing");
 
             CreateShadowMaps();
@@ -331,22 +333,50 @@ namespace Game1.Shadows
             //reszta, nie instancowane obiekty z listy
             foreach (DrawableObject dObject in shadowMapObjects.Objects)
             {
-                foreach (var mesh in dObject.Model.Meshes)
+                if (dObject is Enemy)
                 {
-                    foreach (var meshPart in mesh.MeshParts)
-                        if (meshPart.PrimitiveCount > 0)
+                    Enemy enemy = dObject as Enemy;
+                    enemy.AnimatedModel.BoneAdjust();
+                    foreach (var mesh in enemy.AnimatedModel.Model.Meshes)
+                    {
+                        foreach (var meshPart in mesh.MeshParts)
                         {
-                            shadowMapEffect.WorldViewProjection = dObject.ModelBones[mesh.ParentBone.Index] * Matrix.CreateTranslation(dObject.Position) * worldViewProjection;
-                            shadowMapEffect.Apply();
+                            if (meshPart.PrimitiveCount > 0)
+                            {
+                                shadowMapAnimatedEffect.WorldViewProjection = Matrix.CreateScale(enemy.Scale) * enemy.AnimatedModel.BoneTransforms[mesh.ParentBone.Index] * Matrix.CreateRotationY(enemy.Rotation) * Matrix.CreateTranslation(enemy.Position) * worldViewProjection;
+                                shadowMapAnimatedEffect.Bones = enemy.AnimatedModel.Skeleton;
+                                shadowMapAnimatedEffect.Apply();
 
-                            graphicsDevice.SetVertexBuffer(meshPart.VertexBuffer);
-                            graphicsDevice.Indices = meshPart.IndexBuffer;
+                                graphicsDevice.SetVertexBuffer(meshPart.VertexBuffer);
+                                graphicsDevice.Indices = meshPart.IndexBuffer;
 
-                            graphicsDevice.DrawIndexedPrimitives(
-                                PrimitiveType.TriangleList,
-                                meshPart.VertexOffset,
-                                meshPart.StartIndex, meshPart.PrimitiveCount);
+                                graphicsDevice.DrawIndexedPrimitives(
+                                    PrimitiveType.TriangleList,
+                                    meshPart.VertexOffset,
+                                    meshPart.StartIndex, meshPart.PrimitiveCount);
+                            }
                         }
+                    }
+                }
+                else
+                {
+                    foreach (var mesh in dObject.Model.Meshes)
+                    {
+                        foreach (var meshPart in mesh.MeshParts)
+                            if (meshPart.PrimitiveCount > 0)
+                            {
+                                shadowMapEffect.WorldViewProjection = Matrix.CreateScale(dObject.Scale) * dObject.ModelBones[mesh.ParentBone.Index] * Matrix.CreateTranslation(dObject.Position) * worldViewProjection;
+                                shadowMapEffect.Apply();
+
+                                graphicsDevice.SetVertexBuffer(meshPart.VertexBuffer);
+                                graphicsDevice.Indices = meshPart.IndexBuffer;
+
+                                graphicsDevice.DrawIndexedPrimitives(
+                                    PrimitiveType.TriangleList,
+                                    meshPart.VertexOffset,
+                                    meshPart.StartIndex, meshPart.PrimitiveCount);
+                            }
+                    }
                 }
             }
         }
