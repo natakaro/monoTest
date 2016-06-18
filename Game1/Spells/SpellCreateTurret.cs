@@ -253,7 +253,7 @@ namespace Game1.Spells
             smallTurretModel = game.Content.Load<Model>("Models/turret");
             smallTurretTexture = game.Content.Load<Texture2D>("Textures/turret");
             bigTurretModel = game.Content.Load<Model>("Models/big_turret/big_turret");
-            bigTurretTexture = game.Content.Load<Texture2D>("Textures/big_turret_FIRE");
+            bigTurretTexture = game.Content.Load<Texture2D>("Textures/big_turret/big_turret_FIRE");
         }
     }
 }

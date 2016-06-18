@@ -48,6 +48,7 @@
     <Compile Include="Enemy\Spawn.cs" />
     <Compile Include="GameSettings.cs" />
     <Compile Include="HDRProcessor.cs" />
+    <Compile Include="Helpers\AssetContentContainer.cs" />
     <Compile Include="Helpers\CollisionBox.cs" />
     <Compile Include="Helpers\DebugShapeRenderer.cs" />
     <Compile Include="DrawableObject.cs" />

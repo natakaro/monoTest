@@ -29,6 +29,7 @@ namespace Game1
         public ObjectManager objectManager;
         public ItemManager itemManager;
         public PhaseManager phaseManager;
+        public AssetContentContainer assetContentContainer;
 
         public static Dictionary<AxialCoordinate, Tile> map;
         public static Dictionary<AxialCoordinate, DrawableObject> mapAsset;
@@ -280,6 +281,9 @@ namespace Game1
             hudManager = new HUDManager(spriteBatch, GraphicsDevice, Content, stats);
             hudManager.LoadContent();
 
+            assetContentContainer = new AssetContentContainer();
+            assetContentContainer.LoadContent(Content);
+
             phaseManager = new PhaseManager(this, timeOfDay, hudManager);
 
             spriteFont = Content.Load<SpriteFont>("Fonts/DemoFont");
@@ -358,7 +362,7 @@ namespace Game1
             itemManager = new ItemManager(this, Content, octree, objectManager, lightManager, stats);
 
 
-            mapAsset = Map.CreateAssetMapFromTex(this, mapTexAsset, Content, octree, itemManager, core.Position, phaseManager);
+            mapAsset = Map.CreateAssetMapFromTex(this, mapTexAsset, Content, octree, itemManager, core.Position, phaseManager, assetContentContainer);
 
             List<DrawableObject> assetList = new List<DrawableObject>();
             foreach (var item in mapAsset)
