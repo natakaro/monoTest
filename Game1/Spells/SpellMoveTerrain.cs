@@ -88,7 +88,7 @@ namespace Game1.Spells
                                 neighbor.IsStatic = false;
                                 average_y += neighbor.Position.Y;
                             }
-                            average_y = average_y / neighbors.Count + 1;
+                            average_y = average_y / (neighbors.Count + 1);
 
                             stopwatch.Start();
                             stats.SpellStatus(spellCharging, dualCastSpeed, stopwatch);
