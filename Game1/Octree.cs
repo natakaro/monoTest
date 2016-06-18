@@ -41,7 +41,7 @@ namespace Game1
     {
         BoundingBox m_region;
 
-        public List<DrawableObject> m_objects; //public do testowania
+        List<DrawableObject> m_objects; //public do testowania
 
         /// <summary>
         /// These are items which we're waiting to insert into the data structure. 
@@ -148,8 +148,20 @@ namespace Game1
             }
         }
 
+        public static void AddObject(DrawableObject dObject)
+        {
+            m_pendingInsertion.Enqueue(dObject);
+            m_treeReady = false;
+        }
+
         public void Update(GameTime gameTime)
         {
+            //if (m_pendingInsertion.Count > 0)
+            //    m_treeReady = false;
+
+            //if (!m_treeReady)
+            //    UpdateTree();
+
             if (m_treeBuilt == true)
             {
                 //Start a count down death timer for any leaf nodes which don't have objects or children.
@@ -179,8 +191,20 @@ namespace Game1
                 List<DrawableObject> movedObjects = new List<DrawableObject>(m_objects.Count);
 
                 //go through and update every object in the current tree node
-                foreach (DrawableObject gameObj in m_objects)
+
+                //foreach (DrawableObject gameObj in m_objects)
+                //{
+                //    //we should figure out if an object actually moved so that we know whether we need to update this node in the tree.
+                //    if (gameObj.Update(gameTime))
+                //    {
+                //        movedObjects.Add(gameObj);
+                //    }
+                //}
+
+                //reverse iteration
+                for (int i = m_objects.Count - 1; i >= 0; i--)
                 {
+                    DrawableObject gameObj = m_objects[i];
                     //we should figure out if an object actually moved so that we know whether we need to update this node in the tree.
                     if (gameObj.Update(gameTime))
                     {
@@ -261,7 +285,7 @@ namespace Game1
             }
             else
             {
-
+                BuildTree();
             }
         }
 
@@ -1103,16 +1127,6 @@ namespace Game1
 
             return GetAllSplit(type);
         }
-
-        public bool AddObject (DrawableObject obj)
-        {
-            if (!m_treeReady)
-                UpdateTree();
-
-            m_objects.Add(obj);
-            return true;
-        }
-
 
         /// <summary>
         /// This gives you a list of every intersection record created with the intersection ray

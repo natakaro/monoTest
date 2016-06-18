@@ -331,16 +331,13 @@ namespace Game1
 
             map = Map.CreateMapFromTex(this, mapTex, tileModel, octree);
 
-            List<DrawableObject> tileList = new List<DrawableObject>();
             foreach(var item in map)
             {
-                tileList.Add(item.Value);
+                Octree.AddObject(item.Value);
             }
 
-            octree.m_objects.AddRange(tileList);
-
             core = new Core(this, Matrix.CreateTranslation(1100, 50, 1700), coreModel, octree, coreTexture);
-            octree.m_objects.Add(core);
+            Octree.AddObject(core);
 
             camera.Octree = octree;
 
@@ -367,10 +364,9 @@ namespace Game1
             List<DrawableObject> assetList = new List<DrawableObject>();
             foreach (var item in mapAsset)
             {
-                assetList.Add(item.Value);
+                Octree.AddObject(item.Value);
             }
             //if(assetList.Count == 0){ throw new Exception("lolll"); }
-            octree.m_objects.AddRange(assetList);
 
             /*
             List<DrawableObject> abc = new List<DrawableObject>();
@@ -477,8 +473,8 @@ namespace Game1
                 path = pathfinder.Pathfind(start, end, tileDictionary, settings.Instancing);
                 */
                 //IntersectionRecord ir = octree.NearestIntersection(camera.GetMouseRay(graphics.GraphicsDevice.Viewport));
-                Spawn temp = new Spawn(this, Matrix.CreateTranslation(camera.Position+Vector3.Normalize(core.Position - camera.Position)*100), coreModel, octree, itemManager, Content, core.Position, phaseManager);
-                
+                Spawn spawn = new Spawn(this, Matrix.CreateTranslation(camera.Position+Vector3.Normalize(core.Position - camera.Position)*100), coreModel, octree, itemManager, Content, core.Position, phaseManager);
+                Octree.AddObject(spawn);
                 //path = pathfinder.Pathfind((Tile)octree.HighestIntersection(camera.GetDownwardRay(), DrawableObject.ObjectType.Terrain).DrawableObjectObject, (Tile)octree.HighestIntersection(core, DrawableObject.ObjectType.Terrain).DrawableObjectObject, octree, settings);
             }
 

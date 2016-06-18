@@ -186,7 +186,7 @@ namespace Game1.Turrets
 
         private Vector3 iterative_approximation(Vector3 target_position, Vector3 target_velocity, float projectile_speed)
         {
-            int MAX_ITERATIONS = 10;
+            int MAX_ITERATIONS = 5;
             float EPSILON = 0.1f;
 
             float t = 0.0f;

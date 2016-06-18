@@ -176,16 +176,17 @@ namespace Game1
 
                     animatedModel.Update(gameTime);
 
-                    while (Vector3.Distance(position, targetPosition) < 25 && tileNumber < path.Count - 1)
+                    //while (Vector3.Distance(position, targetPosition) < 25 && tileNumber < path.Count - 1)
+                    //{
+                        //tileNumber++;
+                        //targetPosition = path[tileNumber];
+                    //}
+
+                    if (Vector3.Distance(position, targetPosition) < 25 && tileNumber < path.Count - 1)
                     {
                         tileNumber++;
                         targetPosition = path[tileNumber];
                     }
-
-                    //if (Vector3.Distance(position, targetTile.Position) < 25 && tileNumber < path.Count)
-                    //{
-                    //    tileNumber++;
-                    //}
                 }
                 else
                     Alive = false;

@@ -44,13 +44,12 @@ namespace Game1
             Tile end = HexCoordinates.tileFromPosition(corePosition, Game1.map);
             path = pathfinder.Pathfind(start, end, Game1.map, true);
             pathMiddle = pathfinder.PathfindMiddle(path);
-            octree.AddObject(this); //dodanie siebie do octree
-
-            
         }
 
         public override bool Update(GameTime gameTime)
         {
+            bool ret = base.Update(gameTime);
+
             List<Enemy> toRemove = new List<Enemy>();
 
             foreach(Enemy enemy in enemies)
@@ -82,14 +81,14 @@ namespace Game1
                 }
             }
 
-            return true;
+            return ret;
         }
 
         public bool SpawnEnemy()
         {
-            Enemy temp = new Enemy(Game, worldMatrix, model, octree, itemManager, Content, pathMiddle);
-            enemies.Add(temp);
-            octree.AddObject(temp);
+            Enemy enemy = new Enemy(Game, worldMatrix, model, octree, itemManager, Content, pathMiddle);
+            enemies.Add(enemy);
+            Octree.AddObject(enemy);
             return true;
         }
 
