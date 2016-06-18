@@ -17,6 +17,8 @@ namespace Game1.HUD
         protected Vector2 dimension;
         protected bool enabled;
 
+        protected const float ALPHA = 200f / 255f;
+
         public HUDElement(SpriteBatch spriteBatch, GraphicsDevice graphicsDevice, Vector2 position, Vector2 dimension)
         {
             this.spriteBatch = spriteBatch;
@@ -33,5 +35,15 @@ namespace Game1.HUD
 
         public abstract void LoadContent(ContentManager Content);
         public abstract void Draw();
+
+        public Vector2 Position
+        {
+            get { return position; }
+        }
+
+        public Vector2 Dimension
+        {
+            get { return dimension; }
+        }
     }
 }

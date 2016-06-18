@@ -45,7 +45,7 @@ namespace Game1.HUD
                 //hitmarker
                 if (hitMarker == true)
                 {
-                    spriteBatch.Draw(crosshairHitMarkerTexture, position, new Color(200, 200, 200, 200));
+                    spriteBatch.Draw(crosshairHitMarkerTexture, position, Color.White * ALPHA);
                 }
 
                 if (stats.spellCharging > 0)
@@ -53,9 +53,9 @@ namespace Game1.HUD
                     if (stats.castSpeed == 0) //moveterrain
                     {                      
                         if(stats.spellCharging == SpellCharging.Left)
-                            spriteBatch.Draw(crosshairCastingTexture, position + new Vector2(32, 32), null, new Color(200, 200, 200, 200), -MathHelper.ToRadians((float)stats.castTimer.ElapsedMilliseconds / (100f / 36f)), dimension / 2, 1f, SpriteEffects.None, 0);
+                            spriteBatch.Draw(crosshairCastingTexture, position + new Vector2(32, 32), null, Color.White * ALPHA, -MathHelper.ToRadians((float)stats.castTimer.ElapsedMilliseconds / (100f / 36f)), dimension / 2, 1f, SpriteEffects.None, 0);
                         else if (stats.spellCharging == SpellCharging.Right)
-                            spriteBatch.Draw(crosshairCastingTexture, position + new Vector2(32, 32), null, new Color(200, 200, 200, 200), MathHelper.ToRadians((float)stats.castTimer.ElapsedMilliseconds / (100f / 36f)), dimension / 2, 1f, SpriteEffects.FlipHorizontally, 0);
+                            spriteBatch.Draw(crosshairCastingTexture, position + new Vector2(32, 32), null, Color.White * ALPHA, MathHelper.ToRadians((float)stats.castTimer.ElapsedMilliseconds / (100f / 36f)), dimension / 2, 1f, SpriteEffects.FlipHorizontally, 0);
 
                     }
                     else
@@ -66,18 +66,18 @@ namespace Game1.HUD
                         {
                             for (int i = 0; i < (int)(Math.Min(stats.castTimer.ElapsedMilliseconds, stats.castSpeed) / step); i++)
                             {
-                                spriteBatch.Draw(crosshairChargeTexture, position + new Vector2(32, 32), null, new Color(100, 100, 100, 100), MathHelper.ToRadians(180 / 30 * i), dimension / 2, 1f, SpriteEffects.None, 0);
+                                spriteBatch.Draw(crosshairChargeTexture, position + new Vector2(32, 32), null, Color.White * ALPHA * 0.5f, MathHelper.ToRadians(180 / 30 * i), dimension / 2, 1f, SpriteEffects.None, 0);
                             }
                         }
                         else
                         {
-                            spriteBatch.Draw(crosshairChargeFullTexture, position, new Color(200, 200, 200, 200));
+                            spriteBatch.Draw(crosshairChargeFullTexture, position, Color.White * ALPHA);
                         }
                     }
 
                 }
 
-                spriteBatch.Draw(crosshairDotTexture, position, new Color(200, 200, 200, 200));
+                spriteBatch.Draw(crosshairDotTexture, position, Color.White * ALPHA);
             }
         }
 

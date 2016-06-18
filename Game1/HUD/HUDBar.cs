@@ -18,7 +18,7 @@ namespace Game1.HUD
         private Texture2D barBackground;
         private Texture2D cornerMask;
 
-        private const float ALPHA = 100f / 255f;
+        private new const float ALPHA = 100f / 255f;
 
         public HUDBar(SpriteBatch spriteBatch, GraphicsDevice graphicsDevice, float value, Vector2 position, Vector2 dimension, Color color, float valueMax) : base(spriteBatch, graphicsDevice, position, dimension)
         {
@@ -53,12 +53,6 @@ namespace Game1.HUD
                 rectangle.X = (int)position.X;
                 rectangle.Y = (int)position.Y;
 
-                Rectangle backgroundRectangle = new Rectangle();
-                backgroundRectangle.Width = 260;
-                backgroundRectangle.Height = 30;
-                backgroundRectangle.X = (int)position.X - 5;
-                backgroundRectangle.Y = (int)position.Y - 5;
-
                 Texture2D dummyTexture = new Texture2D(graphicsDevice, 1, 1);
                 dummyTexture.SetData(new Color[] { Color.Black });
 
@@ -69,8 +63,18 @@ namespace Game1.HUD
                 dummyTexture.SetData(new Color[] { barColor });
 
                 spriteBatch.Draw(dummyTexture, rectangle, barColor * alpha);
-                spriteBatch.Draw(barBackground, backgroundRectangle, Color.White * alpha);
             }
+        }
+
+        public void DrawBackground()
+        {
+            Rectangle backgroundRectangle = new Rectangle();
+            backgroundRectangle.Width = 260;
+            backgroundRectangle.Height = 30;
+            backgroundRectangle.X = (int)position.X - 5;
+            backgroundRectangle.Y = (int)position.Y - 5;
+
+            spriteBatch.Draw(barBackground, backgroundRectangle, Color.White * alpha);
         }
 
         public void DrawMask()

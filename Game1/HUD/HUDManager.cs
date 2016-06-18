@@ -28,11 +28,13 @@ namespace Game1.HUD
         private HUDTargetBar targetHealthBar;
         private HUDCrosshair crosshair;
         private HUDPhaseMessage phaseMessage;
+        private HUDIcons hudIcons;
 
         private Matrix m;
         private AlphaTestEffect a;
         private DepthStencilState s1;
         private DepthStencilState s2;
+        private DepthStencilState s3;
 
         public HUDManager(SpriteBatch spriteBatch, GraphicsDevice graphicsDevice, ContentManager content, Stats stats)
         {
@@ -77,6 +79,7 @@ namespace Game1.HUD
             targetHealthBar = new HUDTargetBar(spriteBatch, graphicsDevice, 100, new Vector2(backbufferWidth / 2 - 125, backbufferHeight / 6), new Vector2(250, 20), new Color(192, 57, 43), 100);
             crosshair = new HUDCrosshair(spriteBatch, graphicsDevice, new Vector2(backbufferWidth / 2 - 32, backbufferHeight / 2 - 32), new Vector2(64, 64), stats);
             phaseMessage = new HUDPhaseMessage(spriteBatch, graphicsDevice, new Vector2(backbufferWidth / 2 - 740 / 2, backbufferHeight / 4 - 100 / 2), new Vector2(740, 100));
+            hudIcons = new HUDIcons(spriteBatch, graphicsDevice, new Vector2(0, 0), new Vector2(0, 0), this);
 
             elements.Add(healthBar);
             elements.Add(manaBar);
@@ -84,6 +87,7 @@ namespace Game1.HUD
             elements.Add(targetHealthBar);
             elements.Add(crosshair);
             elements.Add(phaseMessage);
+            elements.Add(hudIcons);
 
             foreach(HUDElement element in elements)
             {
@@ -105,11 +109,27 @@ namespace Game1.HUD
             crosshair.Update();
             phaseMessage.Update();
 
-            //spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+            //special case for bars
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, s2, null);
             foreach (HUDElement element in elements)
             {
-                element.Draw();
+                if (element is HUDBar)
+                {
+                    element.Draw();
+                }
+            }
+            spriteBatch.End();
+
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+            foreach (HUDElement element in elements)
+            {
+                if(element is HUDBar)
+                {
+                    HUDBar bar = element as HUDBar;
+                    bar.DrawBackground();
+                }
+                else
+                    element.Draw();
             }
             spriteBatch.End();
         }
@@ -134,6 +154,10 @@ namespace Game1.HUD
         public HUDBar ManaBar
         {
             get { return manaBar; }
+        }
+        public HUDBar EssenceBar
+        {
+            get { return essenceBar; }
         }
         public HUDTargetBar TargetHealthBar
         {

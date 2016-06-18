@@ -20,8 +20,6 @@ namespace Game1.HUD
         private float alpha;
         private Stopwatch stopwatch;
 
-        private const float ALPHA = 200f / 255f;
-
         public HUDTargetBar(SpriteBatch spriteBatch, GraphicsDevice graphicsDevice, float value, Vector2 position, Vector2 dimension, Color color, float valueMax) : base(spriteBatch, graphicsDevice, position, dimension)
         {
             this.valueMax = valueMax;
