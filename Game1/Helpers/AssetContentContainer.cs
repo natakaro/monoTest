@@ -30,6 +30,9 @@ namespace Game1.Helpers
         public Model spawnModel;
         public Texture2D spawnTexture;
 
+        public Model enemyFly;
+        public Texture2D enemyFlyTexture;
+
         public AssetContentContainer()
         {
 
@@ -56,6 +59,9 @@ namespace Game1.Helpers
             rock7Model = Content.Load<Model>("Models/rocks/rock7");
             spawnModel = Content.Load<Model>("Models/core");
             spawnTexture = Content.Load<Texture2D>("Textures/core");
+            enemyFly = Content.Load<Model>("Models/ship/enemy_ship");
+            enemyFlyTexture = Content.Load<Texture2D>("Textures/ship/enemy_ship");
+
         }
     }
 }

@@ -333,9 +333,9 @@ namespace Game1.Shadows
             //reszta, nie instancowane obiekty z listy
             foreach (DrawableObject dObject in shadowMapObjects.Objects)
             {
-                if (dObject is Enemy)
+                if (dObject is EnemyWalk)
                 {
-                    Enemy enemy = dObject as Enemy;
+                    EnemyWalk enemy = dObject as EnemyWalk;
                     enemy.AnimatedModel.BoneAdjust();
                     foreach (var mesh in enemy.AnimatedModel.Model.Meshes)
                     {

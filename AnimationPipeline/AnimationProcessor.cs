@@ -46,7 +46,6 @@ namespace AnimationPipeline
         /// <returns></returns>
         public override ModelContent Process(NodeContent input, ContentProcessorContext context)
         {
-            
             if (input == null)
             {
                 throw new ArgumentNullException("input");
@@ -643,10 +642,12 @@ namespace AnimationPipeline
                     //if the NormalMapTexture Property was not used, and the key was not found in the model, than normalMapPath would have the value null.
                     if (normalMapPath == null)
                     {
-                        //If a key with the required name is not found, we make a final attempt, 
-                        //and search, in the same directory as the model, for a texture named 
-                        //meshname_n.tga, where meshname is the name of a mesh inside the model.
-                        normalMapPath = Path.Combine(directory, mesh.Name + "Textures/_n.tga");
+                    //If a key with the required name is not found, we make a final attempt, 
+                    //and search, in the same directory as the model, for a texture named 
+                    //meshname_n.tga, where meshname is the name of a mesh inside the model.
+
+
+                        normalMapPath = Path.Combine(directory, "normal.tga");
                         if (!File.Exists(normalMapPath))
                         {
                             //if this fails also (that texture does not exist), 
@@ -677,9 +678,10 @@ namespace AnimationPipeline
 
                     if (specularMapPath == null)
                     {
-                        //we search, in the same directory as the model, for a texture named 
-                        //meshname_s.tga
-                        specularMapPath = Path.Combine(directory, mesh.Name + "Textures/_s.tga");
+                    //we search, in the same directory as the model, for a texture named 
+                    //meshname_s.tga
+                    
+                    specularMapPath = Path.Combine(directory, "specular.tga");
                         if (!File.Exists(specularMapPath))
                         {
                             //if this fails also (that texture does not exist), 

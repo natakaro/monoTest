@@ -13,60 +13,34 @@ using Game1.Items;
 
 namespace Game1
 {
-    public class Enemy : DrawableObject
+    public class EnemyWalk : Enemy
     {
-        //Ray positionray;
-        protected float gravity = 100f;
-        protected float distance;
 
-        protected float speed = 35;
-        protected float a;
-        protected float b;
+        private AnimatedModel animatedModel = null;
+        private AnimatedModel dance = null;
 
-        protected ContentManager Content;
-        protected ItemManager itemManager;
 
-        public List<Vector3> path;
-
-        protected float targetRotation;
-
-        protected Tile targetTile;
-        protected int tileNumber;
-
-        protected float maxHealth;
-        protected float currentHealth;
-
-        public float MaxHealth
+        public EnemyWalk(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ItemManager itemManager, ContentManager Content, List<Vector3> path) : base(game, inWorldMatrix, inModel, octree, itemManager, Content, path)
         {
-            get { return maxHealth; }
-            set { maxHealth = value; }
-        }
-        public float CurrentHealth
-        {
-            get { return currentHealth; }
-            set { currentHealth = value; }
-        }
-
-        public Enemy(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ItemManager itemManager, ContentManager Content, List<Vector3> path) : base(game, inWorldMatrix, inModel, octree)
-        {
-            this.Content = Content;
-            this.itemManager = itemManager;
-            this.path = path;
-            m_static = false;
-            //boundingSphere = new BoundingSphere(position, Map.scale * 0.75f);
+            animatedModel = new AnimatedModel("Models/h");
+            animatedModel.LoadContent(Content);
 
 
+            dance = new AnimatedModel("Models/h_walk");
+            dance.LoadContent(Content);
+            AnimationClip clip = dance.Clips[0];
+
+            AnimationPlayer player = animatedModel.PlayClip(clip);
+            player.Looping = true;
 
             type = ObjectType.Enemy;
-            boundingBox = CollisionBox.CreateBoundingBox(model, position, 1);
+            boundingBox = CollisionBox.CreateBoundingBox(animatedModel.Model, position, 1);
             a = boundingBox.Max.Y - boundingBox.Min.Y;
             b = position.Y - boundingBox.Min.Y;
             //positionray = new Ray(new Vector3(position.X, boundingBox.Min.Y, position.Z), Vector3.Down);
 
-            tileNumber = 0;
-
             targetRotation = 0;
-
+            speed = 45;
             maxHealth = 100;
             currentHealth = 100;
         }
@@ -74,7 +48,7 @@ namespace Game1
 
 
         //ten ble stary
-        public bool Update(GameTime gameTime, Octree octree, List<Tile> path)
+        public new bool Update(GameTime gameTime, Octree octree, List<Tile> path)
         {
             Dictionary<AxialCoordinate, Tile> map = Game1.map;
 
@@ -103,8 +77,9 @@ namespace Game1
                     targetRotation = (float)Math.Atan2((double)(targetTile.Position.X - position.X), (double)(targetTile.Position.Z - position.Z));
 
                     worldMatrix = Matrix.CreateRotationY(targetRotation) * Matrix.CreateTranslation(position);
+                    animatedModel.Update(gameTime);
 
-                    while (Vector3.Distance(position, targetTile.Position) < 25 && tileNumber < path.Count)
+                    while(Vector3.Distance(position, targetTile.Position) < 25 && tileNumber < path.Count)
                     {
                         tileNumber++;
                         targetTile = path[tileNumber];
@@ -161,11 +136,12 @@ namespace Game1
                     targetRotation = (float)Math.Atan2((double)(targetPosition.X - position.X), (double)(targetPosition.Z - position.Z));
                     worldMatrix = Matrix.CreateRotationY(targetRotation) * Matrix.CreateTranslation(position);
 
+                    animatedModel.Update(gameTime);
 
                     //while (Vector3.Distance(position, targetPosition) < 25 && tileNumber < path.Count - 1)
                     //{
-                    //tileNumber++;
-                    //targetPosition = path[tileNumber];
+                        //tileNumber++;
+                        //targetPosition = path[tileNumber];
                     //}
 
                     if (Vector3.Distance(position, targetPosition) < 25 && tileNumber < path.Count)
@@ -176,13 +152,13 @@ namespace Game1
                 else
                     alive = false;
             }
-
+            
             return ret;
         }
 
-        /*public override void Draw(Camera camera)
+        public override void Draw(Camera camera)
         {
-            
+            /*
             foreach (ModelMesh mesh in model.Meshes)
             {
                 foreach (Effect effect in mesh.Effects)
@@ -195,24 +171,15 @@ namespace Game1
                 }
                 mesh.Draw();
             }
-            
-        }*/
-
-        public void Damage(float value)
-        {
-            CurrentHealth -= value;
-        }
-
-        public void Die()
-        {
-            itemManager.Spawn(position);
-            Alive = false;
+            */
+            animatedModel.Draw(GraphicsDevice, camera, worldMatrix, Content);
         }
 
 
-        public float Rotation
+        public AnimatedModel AnimatedModel
         {
-            get { return targetRotation; }
+            get { return animatedModel; }
         }
+
     }
 }

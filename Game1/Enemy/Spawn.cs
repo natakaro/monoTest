@@ -14,7 +14,7 @@ namespace Game1
 {
     public class Spawn : DrawableObject
     {
-        List <Enemy> enemies;
+        List <DrawableObject> enemies;
         List <Tile> path;
         List<Vector3> pathMiddle;
         ContentManager Content;
@@ -22,16 +22,17 @@ namespace Game1
         PathFinder pathfinder;
         PhaseManager phaseManager;
         ItemManager itemManager;
+        int enemyType = 0;
 
         //do testów
         private Stopwatch stopwatch = new Stopwatch();
 
-        public Spawn(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ItemManager itemManager, ContentManager Content, Vector3 corePosition, PhaseManager phaseManager) : base(game, inWorldMatrix, inModel, octree)
+        public Spawn(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ItemManager itemManager, ContentManager Content, Vector3 corePosition, PhaseManager phaseManager, int enemyType) : base(game, inWorldMatrix, inModel, octree)
         {
             type = ObjectType.Spawn;
 
             boundingBox = CollisionBox.CreateBoundingBox(model, position, 1);
-            enemies = new List<Enemy>();
+            enemies = new List<DrawableObject>();
             pathfinder = new PathFinder();
 
             this.octree = octree;
@@ -39,6 +40,8 @@ namespace Game1
             this.corePosition = corePosition;
             this.phaseManager = phaseManager;
             this.itemManager = itemManager;
+
+            this.enemyType = enemyType;
 
             Tile start = HexCoordinates.tileFromPosition(position, Game1.map);
             Tile end = HexCoordinates.tileFromPosition(corePosition, Game1.map);
@@ -50,9 +53,9 @@ namespace Game1
         {
             bool ret = base.Update(gameTime);
 
-            List<Enemy> toRemove = new List<Enemy>();
+            List<DrawableObject> toRemove = new List<DrawableObject>();
 
-            foreach(Enemy enemy in enemies)
+            foreach(DrawableObject enemy in enemies)
             {
                 //enemy.Update(gameTime, octree, pathMiddle);
                 if(enemy.Alive == false)
@@ -61,7 +64,7 @@ namespace Game1
                 }
             }
 
-            foreach (Enemy enemy in toRemove)
+            foreach (DrawableObject enemy in toRemove)
             {
                 enemies.Remove(enemy);
             }
@@ -74,9 +77,16 @@ namespace Game1
             if (phaseManager.Phase == Phase.Night)
             {
                 stopwatch.Start();
-                if (stopwatch.ElapsedMilliseconds > 3000)
+                if (stopwatch.ElapsedMilliseconds > 6000)
                 {
-                    SpawnEnemy();
+                    if(enemyType == 1)
+                    {
+                        SpawnEnemy();
+                    }
+                    else
+                    {
+                        SpawnFlyEnemy();
+                    }
                     stopwatch.Restart();
                 }
             }
@@ -86,7 +96,14 @@ namespace Game1
 
         public bool SpawnEnemy()
         {
-            Enemy enemy = new Enemy(Game, worldMatrix, model, octree, itemManager, Content, pathMiddle);
+            Enemy enemy = new EnemyWalk(Game, worldMatrix, model, octree, itemManager, Content, pathMiddle);
+            enemies.Add(enemy);
+            Octree.AddObject(enemy);
+            return true;
+        }
+        public bool SpawnFlyEnemy()
+        {
+            Enemy enemy = new EnemyFly(Game, Matrix.CreateTranslation(0, 30, 0)*worldMatrix, Game1.assetContentContainer.enemyFly, octree, itemManager, Content, pathMiddle);
             enemies.Add(enemy);
             Octree.AddObject(enemy);
             return true;

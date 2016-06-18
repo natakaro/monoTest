@@ -97,64 +97,72 @@ namespace Game1
             float horiz = width;
             Dictionary<AxialCoordinate, DrawableObject> assetDictionary = new Dictionary<AxialCoordinate, DrawableObject>();
             List<HexOffsetH> map = readMapOffset(tex);
+            Random rand = new Random();
             foreach (HexOffsetH coord in map)
             {
                 //if (coord.height != 255) { throw new Exception(coord.height.ToString() + " " + coord.x.ToString() + " " + coord.y.ToString()); }
                 var axial = coord.oddQ_toCube().ToAxial();
                 var position = tileFromAxial(axial, Game1.map).Position;
+                
+                float temp = rand.Next(0, 359);
                 Model model;
                 Texture2D texture;
+                Matrix worldm = Matrix.CreateRotationY((float)temp) * Matrix.CreateTranslation(position);
                 if (coord.height == 10)
                 {
-                   assetDictionary.Add(axial, new Asset(game, Matrix.CreateTranslation(position), assetContainer.pinetreeModel, octree, assetContainer.pinetreeTexture));
+                   assetDictionary.Add(axial, new Asset(game, worldm, assetContainer.pinetreeModel, octree, assetContainer.pinetreeTexture));
                 }
                 else if (coord.height == 20)
                 {
-                    assetDictionary.Add(axial, new Asset(game, Matrix.CreateTranslation(position), assetContainer.tree1Model, octree, assetContainer.tree1Texture));
+                    assetDictionary.Add(axial, new Asset(game, worldm, assetContainer.tree1Model, octree, assetContainer.tree1Texture));
                 }
                 else if (coord.height == 30)
                 {
-                    assetDictionary.Add(axial, new Asset(game, Matrix.CreateTranslation(position), assetContainer.tree2Model, octree, assetContainer.tree2Texture));
+                    assetDictionary.Add(axial, new Asset(game, worldm, assetContainer.tree2Model, octree, assetContainer.tree2Texture));
                 }
                 else if (coord.height == 40)
                 {
-                    assetDictionary.Add(axial, new Asset(game, Matrix.CreateTranslation(position), assetContainer.treetrunkModel, octree, assetContainer.treetrunkTexture));
+                    assetDictionary.Add(axial, new Asset(game, worldm, assetContainer.treetrunkModel, octree, assetContainer.treetrunkTexture));
                 }
                 else if (coord.height == 50)
                 {
-                    assetDictionary.Add(axial, new Asset(game, Matrix.CreateTranslation(position), assetContainer.rockModel, octree, assetContainer.rockTexture));
+                    assetDictionary.Add(axial, new Asset(game, worldm, assetContainer.rockModel, octree, assetContainer.rockTexture));
                 }
                 else if (coord.height == 60)
                 {
-                    assetDictionary.Add(axial, new Asset(game, Matrix.CreateTranslation(position), assetContainer.rock1Model, octree, assetContainer.rockTexture));
+                    assetDictionary.Add(axial, new Asset(game, worldm, assetContainer.rock1Model, octree, assetContainer.rockTexture));
                 }
                 else if (coord.height == 70)
                 {
-                    assetDictionary.Add(axial, new Asset(game, Matrix.CreateTranslation(position), assetContainer.rock2Model, octree, assetContainer.rockTexture));
+                    assetDictionary.Add(axial, new Asset(game, worldm, assetContainer.rock2Model, octree, assetContainer.rockTexture));
                 }
                 else if (coord.height == 80)
                 {
-                    assetDictionary.Add(axial, new Asset(game, Matrix.CreateTranslation(position), assetContainer.rock3Model, octree, assetContainer.rockTexture));
+                    assetDictionary.Add(axial, new Asset(game, worldm, assetContainer.rock3Model, octree, assetContainer.rockTexture));
                 }
                 else if (coord.height == 90)
                 {
-                    assetDictionary.Add(axial, new Asset(game, Matrix.CreateTranslation(position), assetContainer.rock4Model, octree, assetContainer.rockTexture));
+                    assetDictionary.Add(axial, new Asset(game, worldm, assetContainer.rock4Model, octree, assetContainer.rockTexture));
                 }
                 else if (coord.height == 100)
                 {
-                    assetDictionary.Add(axial, new Asset(game, Matrix.CreateTranslation(position), assetContainer.rock5Model, octree, assetContainer.rockTexture));
+                    assetDictionary.Add(axial, new Asset(game, worldm, assetContainer.rock5Model, octree, assetContainer.rockTexture));
                 }
                 else if (coord.height == 110)
                 {
-                    assetDictionary.Add(axial, new Asset(game, Matrix.CreateTranslation(position), assetContainer.rock6Model, octree, assetContainer.rockTexture));
+                    assetDictionary.Add(axial, new Asset(game, worldm, assetContainer.rock6Model, octree, assetContainer.rockTexture));
                 }
                 else if (coord.height == 120)
                 {
-                    assetDictionary.Add(axial, new Asset(game, Matrix.CreateTranslation(position), assetContainer.rock7Model, octree, assetContainer.rockTexture));
+                    assetDictionary.Add(axial, new Asset(game, worldm, assetContainer.rock7Model, octree, assetContainer.rockTexture));
                 }
                 else if (coord.height == 130)
                 {
-                    assetDictionary.Add(axial, new Spawn(game, Matrix.CreateTranslation(position), assetContainer.spawnModel, octree, itemManager, Content, corePosition, phaseManager));
+                    assetDictionary.Add(axial, new Spawn(game, worldm, assetContainer.spawnModel, octree, itemManager, Content, corePosition, phaseManager, 1));
+                }
+                else if (coord.height == 140)
+                {
+                    assetDictionary.Add(axial, new Spawn(game, worldm, assetContainer.spawnModel, octree, itemManager, Content, corePosition, phaseManager, 2));
                 }
             }
 

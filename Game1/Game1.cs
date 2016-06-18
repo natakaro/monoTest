@@ -29,7 +29,7 @@ namespace Game1
         public ObjectManager objectManager;
         public ItemManager itemManager;
         public PhaseManager phaseManager;
-        public AssetContentContainer assetContentContainer;
+        public static AssetContentContainer assetContentContainer;
 
         public static Dictionary<AxialCoordinate, Tile> map;
         public static Dictionary<AxialCoordinate, DrawableObject> mapAsset;
@@ -473,7 +473,7 @@ namespace Game1
                 path = pathfinder.Pathfind(start, end, tileDictionary, settings.Instancing);
                 */
                 //IntersectionRecord ir = octree.NearestIntersection(camera.GetMouseRay(graphics.GraphicsDevice.Viewport));
-                Spawn spawn = new Spawn(this, Matrix.CreateTranslation(camera.Position+Vector3.Normalize(core.Position - camera.Position)*100), coreModel, octree, itemManager, Content, core.Position, phaseManager);
+                Spawn spawn = new Spawn(this, Matrix.CreateTranslation(camera.Position+Vector3.Normalize(core.Position - camera.Position)*100), coreModel, octree, itemManager, Content, core.Position, phaseManager, 2);
                 Octree.AddObject(spawn);
                 //path = pathfinder.Pathfind((Tile)octree.HighestIntersection(camera.GetDownwardRay(), DrawableObject.ObjectType.Terrain).DrawableObjectObject, (Tile)octree.HighestIntersection(core, DrawableObject.ObjectType.Terrain).DrawableObjectObject, octree, settings);
             }
@@ -1077,7 +1077,7 @@ namespace Game1
             swDraw.Stop();
 
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
-            DrawText();
+            //DrawText();
             if(settings.ShowGBuffer)
                 DrawGBuffer();
             spriteBatch.End();
