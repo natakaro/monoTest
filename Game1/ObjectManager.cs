@@ -46,7 +46,16 @@ namespace Game1
         {
             foreach (DrawableObject dObject in list)
             {
-                dObject.Draw(camera);
+                if (dObject.BoundingBox != null && dObject.BoundingBox.Max - dObject.BoundingBox.Min != Vector3.Zero)
+                {
+                    if (camera.Frustum.Contains(dObject.BoundingBox) != ContainmentType.Disjoint)
+                        dObject.Draw(camera);
+                }
+                else if (dObject.BoundingSphere != null && dObject.BoundingSphere.Radius != 0f)
+                {
+                    if (camera.Frustum.Contains(dObject.BoundingSphere) != ContainmentType.Disjoint)
+                        dObject.Draw(camera);
+                }
             }
         }
 

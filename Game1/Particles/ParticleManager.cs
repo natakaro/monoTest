@@ -21,6 +21,7 @@ namespace Game1.Particles
         public ParticleSystem smokePlumeParticles;
         public ParticleSystem fireParticles;
         public ParticleSystem fireProjectileTrailParticles;
+        public ParticleSystem projectileTrailHeadParticles;
 
         public ParticleManager(Game game, ContentManager Content)
         {
@@ -34,11 +35,13 @@ namespace Game1.Particles
             smokePlumeParticles = new SmokePlumeParticleSystem(game, Content);
             fireParticles = new FireParticleSystem(game, Content);
             fireProjectileTrailParticles = new FireProjectileTrailParticleSystem(game, Content);
+            projectileTrailHeadParticles = new ProjectileTrailHeadParticleSystem(game, Content);
 
             // Set the draw order so the explosions and fire
             // will appear over the top of the smoke.
             smokePlumeParticles.DrawOrder = 100;
             explosionSmokeParticles.DrawOrder = 200;
+            projectileTrailHeadParticles.DrawOrder = 250;
             smokeProjectileTrailParticles.DrawOrder = 300;
             fireProjectileTrailParticles.DrawOrder = 300;
             explosionParticles.DrawOrder = 400;
@@ -51,6 +54,7 @@ namespace Game1.Particles
             game.Components.Add(smokePlumeParticles);
             game.Components.Add(fireParticles);
             game.Components.Add(fireProjectileTrailParticles);
+            game.Components.Add(projectileTrailHeadParticles);
         }
 
         public void Draw(Camera camera, float farClip, RenderTarget2D depthTarget)
@@ -62,6 +66,7 @@ namespace Game1.Particles
             smokePlumeParticles.SetCamera(camera.ViewMatrix, camera.ProjectionMatrix, farClip, depthTarget);
             fireParticles.SetCamera(camera.ViewMatrix, camera.ProjectionMatrix, farClip, depthTarget);
             fireProjectileTrailParticles.SetCamera(camera.ViewMatrix, camera.ProjectionMatrix, farClip, depthTarget);
+            projectileTrailHeadParticles.SetCamera(camera.ViewMatrix, camera.ProjectionMatrix, farClip, depthTarget);
         }
     }
 }

@@ -17,21 +17,23 @@ namespace Game1.Spells
     class SpellFireballProjectile : DrawableObject
     {
         private PointLight pointLight;
-        LightManager lightManager;
-        HUDManager hudManager;
-        ObjectManager objectManager;
+        private LightManager lightManager;
+        private HUDManager hudManager;
+        private ObjectManager objectManager;
 
-        ParticleSystem explosionParticles;
-        ParticleSystem explosionSmokeParticles;
-        ParticleEmitter trailEmitter;
+        private ParticleSystem explosionParticles;
+        private ParticleSystem explosionSmokeParticles;
+        private ParticleEmitter trailEmitter;
+        private ParticleEmitter trailHeadEmitter;
 
-        float damage;
-        float age;
+        private float damage;
+        private float age;
 
-        const float lifespan = 5f;
-        const float trailParticlesPerSecond = 200;
-        const int numExplosionParticles = 10;
-        const int numExplosionSmokeParticles = 20;
+        private const float lifespan = 5f;
+        private const float trailParticlesPerSecond = 200;
+        private const float trailHeadParticlesPerSecond = 50;
+        private const int numExplosionParticles = 10;
+        private const int numExplosionSmokeParticles = 20;
 
         public event EventHandler hitEvent;
 
@@ -58,6 +60,7 @@ namespace Game1.Spells
             bool ret = base.Update(gameTime);
 
             trailEmitter.Update(gameTime, position);
+            trailHeadEmitter.Update(gameTime, position);
 
             pointLight.Position = position;
             BoundingSphere pointLightSphere = pointLight.BoundingSphere;
@@ -76,18 +79,19 @@ namespace Game1.Spells
                                        LightManager lightManager, HUDManager hudManager, float damage,
                                        ParticleSystem explosionParticles,
                                        ParticleSystem explosionSmokeParticles,
-                                       ParticleSystem fireProjectileTrailParticles) : base(game, inWorldMatrix, inModel, octree)
+                                       ParticleSystem fireProjectileTrailParticles,
+                                       ParticleSystem projectileTrailHeadParticles) : base(game, inWorldMatrix, inModel, octree)
         {
             this.lightManager = lightManager;
             this.hudManager = hudManager;
             this.objectManager = objectManager;
 
             m_static = false;
-            boundingSphere = new BoundingSphere(position, 1f);
-            boundingBox = CollisionBox.CreateBoundingBox(model, position, 1);
+            boundingSphere = new BoundingSphere(position, 2f);
+            boundingBox = CollisionBox.CreateBoundingBox(model, position, 2);
             type = ObjectType.Projectile;
 
-            pointLight = new PointLight(position, Color.OrangeRed, 10, 5);
+            pointLight = new PointLight(position, Color.OrangeRed, 15, 5);
             lightManager.AddLight(pointLight);
 
             this.damage = damage;
@@ -98,6 +102,8 @@ namespace Game1.Spells
             this.explosionSmokeParticles = explosionSmokeParticles;
             trailEmitter = new ParticleEmitter(fireProjectileTrailParticles,
                                                trailParticlesPerSecond, position);
+            trailHeadEmitter = new ParticleEmitter(projectileTrailHeadParticles,
+                                                   trailHeadParticlesPerSecond, position);
         }
 
         public override void HandleIntersection(IntersectionRecord ir)
@@ -122,10 +128,10 @@ namespace Game1.Spells
         private void Destroy()
         {
             for (int i = 0; i < numExplosionParticles; i++)
-                explosionParticles.AddParticle(position, -velocity * 0.1f);
+                explosionParticles.AddParticle(position, -velocity * 0.05f);
 
             for (int i = 0; i < numExplosionSmokeParticles; i++)
-                explosionSmokeParticles.AddParticle(position, -velocity * 0.1f);
+                explosionSmokeParticles.AddParticle(position, -velocity * 0.05f);
 
             hitEvent -= hudManager.Crosshair.HandleHitEvent;
             lightManager.RemoveLight(pointLight);

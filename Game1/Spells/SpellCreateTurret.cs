@@ -1,4 +1,5 @@
 ﻿using Game1.Lights;
+using Game1.Particles;
 using Game1.Turrets;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -17,6 +18,7 @@ namespace Game1.Spells
         private Camera camera;
         private Octree octree;
         private ObjectManager objectManager;
+        private ParticleManager particleManager;
         public Model smallTurretModel;
         public Texture2D smallTurretTexture;
         public Model bigTurretModel;
@@ -162,7 +164,7 @@ namespace Game1.Spells
                     {
                         if (dObj.Type == DrawableObject.ObjectType.Tile)
                         {
-                            Turret turret = new Turret(game, Matrix.CreateTranslation(dObj.Position), smallTurretModel, octree, objectManager, smallTurretTexture, lightManager);
+                            Turret turret = new Turret(game, Matrix.CreateTranslation(dObj.Position), smallTurretModel, octree, objectManager, smallTurretTexture, lightManager, particleManager);
                             Octree.AddObject(turret);
                             spellReady = false;
                         }
@@ -184,7 +186,7 @@ namespace Game1.Spells
                     {
                         if (dObj.Type == DrawableObject.ObjectType.Tile)
                         {
-                            Turret turret = new Turret(game, Matrix.CreateTranslation(dObj.Position), bigTurretModel, octree, objectManager, bigTurretTexture, lightManager);
+                            Turret turret = new Turret(game, Matrix.CreateTranslation(dObj.Position), bigTurretModel, octree, objectManager, bigTurretTexture, lightManager, particleManager);
                             Octree.AddObject(turret);
                             spellReady = false;
                         }
@@ -229,13 +231,14 @@ namespace Game1.Spells
             }
         }
 
-        public SpellCreateTurret(Game game, Camera camera, Octree octree, ObjectManager objectManager, LightManager lightManager, Stats stats)
+        public SpellCreateTurret(Game game, Camera camera, Octree octree, ObjectManager objectManager, LightManager lightManager, ParticleManager particleManager, Stats stats)
         {
             this.game = game;
             this.camera = camera;
             this.octree = octree;
             this.objectManager = objectManager;
             this.lightManager = lightManager;
+            this.particleManager = particleManager;
             this.stats = stats;
 
             leftManaCost = 150;

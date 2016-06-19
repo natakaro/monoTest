@@ -36,8 +36,8 @@ namespace Game1.Particles.ParticleSystems
 
             settings.EndVelocity = 0;
 
-            settings.MinColor = Color.DarkGray;
-            settings.MaxColor = Color.Gray;
+            settings.MinColor = Color.LightGray;
+            settings.MaxColor = Color.White;
 
             settings.MinRotateSpeed = -1;
             settings.MaxRotateSpeed = 1;

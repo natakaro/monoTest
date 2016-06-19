@@ -1,5 +1,6 @@
 ﻿using Game1.Helpers;
 using Game1.Lights;
+using Game1.Particles;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -18,6 +19,7 @@ namespace Game1.Turrets
         private PointLight pointLight;
         LightManager lightManager;
         ObjectManager objectManager;
+        ParticleManager particleManager;
 
         public Model fireballModel;
         public Texture2D fireballTexture;
@@ -37,11 +39,12 @@ namespace Game1.Turrets
         Stopwatch scaleStopwatch;
         bool fullSize;
 
-        public Turret(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ObjectManager objectManager, Texture2D inTexture, LightManager lightManager) : base(game, inWorldMatrix, inModel, octree)
+        public Turret(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ObjectManager objectManager, Texture2D inTexture, LightManager lightManager, ParticleManager particleManager) : base(game, inWorldMatrix, inModel, octree)
         {
             this.game = game;
             this.lightManager = lightManager;
             this.objectManager = objectManager;
+            this.particleManager = particleManager;
             texture = inTexture;
 
             type = ObjectType.Turret;
@@ -171,7 +174,7 @@ namespace Game1.Turrets
                     //Vector3 interception = direct_solution(currentTarget.Position + new Vector3(0, 20, 0), currentTarget.Velocity, projectileSpeed);
                     Vector3 direction = Vector3.Normalize(interception - shootStartPosition);
 
-                    TurretProjectile projectile = new TurretProjectile(game, Matrix.CreateTranslation(shootStartPosition), fireballModel, octree, objectManager, fireballTexture, lightManager, damage);
+                    TurretProjectile projectile = new TurretProjectile(game, Matrix.CreateTranslation(shootStartPosition), fireballModel, octree, objectManager, lightManager, damage, particleManager.explosionParticles, particleManager.explosionSmokeParticles, particleManager.fireProjectileTrailParticles, particleManager.projectileTrailHeadParticles);
                     
                     projectile.Position = shootStartPosition;
                     projectile.Velocity = direction * projectileSpeed;

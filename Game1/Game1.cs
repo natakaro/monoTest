@@ -346,7 +346,7 @@ namespace Game1
 
             spellMoveTerrain = new SpellMoveTerrain(octree, stats, phaseManager, map);
             spellFireball = new SpellFireball(this, camera, octree, objectManager, lightManager, particleManager, hudManager, stats);
-            spellCreateTurret = new SpellCreateTurret(this, camera, octree, objectManager, lightManager, stats);
+            spellCreateTurret = new SpellCreateTurret(this, camera, octree, objectManager, lightManager, particleManager, stats);
 
             camera.DebugModel = spellFireball.fireballModel;
 
@@ -1082,7 +1082,7 @@ namespace Game1
             swDraw.Stop();
 
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
-            //DrawText();
+            DrawText();
             if(settings.ShowGBuffer)
                 DrawGBuffer();
             spriteBatch.End();

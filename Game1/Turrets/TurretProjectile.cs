@@ -1,5 +1,6 @@
 ﻿using Game1.Helpers;
 using Game1.Lights;
+using Game1.Particles;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -13,61 +14,86 @@ namespace Game1.Turrets
 {
     class TurretProjectile : DrawableObject
     {
-        private Texture2D texture;
         private PointLight pointLight;
         private LightManager lightManager;
         private ObjectManager objectManager;
-        private Stopwatch stopwatch;
+
+        private ParticleSystem explosionParticles;
+        private ParticleSystem explosionSmokeParticles;
+        private ParticleEmitter trailEmitter;
+        private ParticleEmitter trailHeadEmitter;
+
         private float damage;
+        private float age;
+
+        private const float lifespan = 5f;
+        private const float trailParticlesPerSecond = 200;
+        private const float trailHeadParticlesPerSecond = 50;
+        private const int numExplosionParticles = 10;
+        private const int numExplosionSmokeParticles = 20;
 
         public override void Draw(Camera camera)
         {
-            foreach (ModelMesh mesh in model.Meshes)
-            {
-                foreach (Effect effect in mesh.Effects)
-                {
-                    effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index] * worldMatrix);
-                    effect.Parameters["View"].SetValue(camera.ViewMatrix);
-                    effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
-                    effect.Parameters["FarClip"].SetValue(camera.FarZ);
-                    effect.Parameters["Texture"].SetValue(texture);
-                    effect.Parameters["Clipping"].SetValue(false);
-                }
-                mesh.Draw();
-            }
+            //foreach (ModelMesh mesh in model.Meshes)
+            //{
+            //    foreach (Effect effect in mesh.Effects)
+            //    {
+            //        effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index] * worldMatrix);
+            //        effect.Parameters["View"].SetValue(camera.ViewMatrix);
+            //        effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
+            //        effect.Parameters["FarClip"].SetValue(camera.FarZ);
+            //        effect.Parameters["Texture"].SetValue(texture);
+            //        effect.Parameters["Clipping"].SetValue(false);
+            //    }
+            //    mesh.Draw();
+            //}
         }
 
         public override bool Update(GameTime gameTime)
         {
             bool ret = base.Update(gameTime);
 
+            trailEmitter.Update(gameTime, position);
+            trailHeadEmitter.Update(gameTime, position);
+
             pointLight.Position = position;
             BoundingSphere pointLightSphere = pointLight.BoundingSphere;
             pointLightSphere.Center = position;
 
-            if (stopwatch.ElapsedMilliseconds > 5000)
+            float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            age += elapsedTime;
+
+            if (age > lifespan)
                 Destroy();
 
             return ret;
         }
 
-        public TurretProjectile(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ObjectManager objectManager, Texture2D inTexture, LightManager lightManager, float damage) : base(game, inWorldMatrix, inModel, octree)
+        public TurretProjectile(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ObjectManager objectManager, LightManager lightManager, float damage,
+                                ParticleSystem explosionParticles,
+                                ParticleSystem explosionSmokeParticles,
+                                ParticleSystem fireProjectileTrailParticles,
+                                ParticleSystem projectileTrailHeadParticles) : base(game, inWorldMatrix, inModel, octree)
         {
             this.lightManager = lightManager;
             this.objectManager = objectManager;
-            texture = inTexture;
+
             m_static = false;
-            boundingSphere = new BoundingSphere(position, 1f);
-            boundingBox = CollisionBox.CreateBoundingBox(model, position, 1);
+            boundingSphere = new BoundingSphere(position, 2f);
+            boundingBox = CollisionBox.CreateBoundingBox(model, position, 2);
             type = ObjectType.Projectile;
 
-            pointLight = new PointLight(position, Color.OrangeRed, 25, 5);
+            pointLight = new PointLight(position, Color.OrangeRed, 15, 5);
             lightManager.AddLight(pointLight);
 
-            stopwatch = new Stopwatch();
-            stopwatch.Start();
-
             this.damage = damage;
+
+            this.explosionParticles = explosionParticles;
+            this.explosionSmokeParticles = explosionSmokeParticles;
+            trailEmitter = new ParticleEmitter(fireProjectileTrailParticles,
+                                               trailParticlesPerSecond, position);
+            trailHeadEmitter = new ParticleEmitter(projectileTrailHeadParticles,
+                                                   trailHeadParticlesPerSecond, position);
         }
 
         public override void HandleIntersection(IntersectionRecord ir)
@@ -90,6 +116,12 @@ namespace Game1.Turrets
 
         private void Destroy()
         {
+            for (int i = 0; i < numExplosionParticles; i++)
+                explosionParticles.AddParticle(position, -velocity * 0.05f);
+
+            for (int i = 0; i < numExplosionSmokeParticles; i++)
+                explosionSmokeParticles.AddParticle(position, -velocity * 0.05f);
+
             lightManager.RemoveLight(pointLight);
             Alive = false;
             objectManager.Remove(this);
