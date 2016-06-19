@@ -105,8 +105,6 @@ namespace Game1
                 var position = tileFromAxial(axial, Game1.map).Position;
                 
                 float temp = rand.Next(0, 359);
-                Model model;
-                Texture2D texture;
                 Matrix worldm = Matrix.CreateRotationY((float)temp) * Matrix.CreateTranslation(position);
                 if (coord.height == 10)
                 {

@@ -984,7 +984,7 @@ namespace Game1
             {
                 foreach (Effect effect in mesh.Effects)
                 {
-                    effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * Matrix.CreateScale(0.03f) * camera.WeaponWorldMatrix(0, -0.7f, 2.5f));
+                    effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * camera.WeaponWorldMatrix(0, -0.7f, 2.5f, 0.03f));
                     effect.Parameters["View"].SetValue(camera.ViewMatrix);
                     effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
                     effect.Parameters["FarClip"].SetValue(camera.FarZ);
@@ -1016,8 +1016,6 @@ namespace Game1
             GraphicsDevice.SetRenderTarget(finalTarget);
             GraphicsDevice.Clear(Color.White);
             DrawFinal();
-
-            
 
             GraphicsDevice.SetRenderTarget(waterTarget);
             GraphicsDevice.Clear(Color.White);

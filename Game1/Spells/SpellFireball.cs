@@ -19,7 +19,6 @@ namespace Game1.Spells
         private Octree octree;
         private ObjectManager objectManager;
         public Model fireballModel;
-        public Texture2D fireballTexture;
         private LightManager lightManager;
         private ParticleManager particleManager;
         private HUDManager hudManager;
@@ -119,7 +118,7 @@ namespace Game1.Spells
                     }
                     else if (spellReady == true)
                     {
-                        SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel, octree, objectManager, fireballTexture, lightManager, hudManager, damage, particleManager.explosionParticles, particleManager.explosionSmokeParticles, particleManager.projectileTrailParticles);
+                        SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel, octree, objectManager, lightManager, hudManager, damage, particleManager.explosionParticles, particleManager.explosionSmokeParticles, particleManager.fireProjectileTrailParticles);
                         fireball.Position = camera.Position;
                         fireball.Velocity = camera.ViewDirection * 1;
                         fireball.Acceleration = camera.ViewDirection * 10;
@@ -154,8 +153,8 @@ namespace Game1.Spells
                 {
                     if (spellReady == true)
                     {
-                        SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel, octree, objectManager, fireballTexture, lightManager, hudManager, damage, particleManager.explosionParticles, particleManager.explosionSmokeParticles, particleManager.projectileTrailParticles);
-                        fireball.Position = camera.Position;
+                        SpellFireballProjectile fireball = new SpellFireballProjectile(game, camera.WeaponWorldMatrix(2, -2, 2, 1) /*Matrix.CreateTranslation(camera.Position)*/, fireballModel, octree, objectManager, lightManager, hudManager, damage, particleManager.explosionParticles, particleManager.explosionSmokeParticles, particleManager.fireProjectileTrailParticles);
+                        //fireball.Position = camera.Position;
                         fireball.Velocity = camera.ViewDirection * projectileSpeed;
                         objectManager.Add(fireball);
                         //octree.m_objects.Add(fireball);
@@ -187,7 +186,7 @@ namespace Game1.Spells
                         for (int i = 0; i < 16; i++)
                         {
                             Vector3 direction = Vector3.Transform(new Vector3(camera.ViewDirection.X, 0, camera.ViewDirection.Z), Quaternion.CreateFromAxisAngle(Vector3.Up, MathHelper.ToRadians((360 / 16)*i)));
-                            SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel, octree, objectManager, fireballTexture, lightManager, hudManager, damage, particleManager.explosionParticles, particleManager.explosionSmokeParticles, particleManager.projectileTrailParticles);
+                            SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel, octree, objectManager, lightManager, hudManager, damage, particleManager.explosionParticles, particleManager.explosionSmokeParticles, particleManager.fireProjectileTrailParticles);
                             fireball.Position = camera.Position;
                             fireball.Velocity = direction * 100;
                             objectManager.Add(fireball);
@@ -231,7 +230,6 @@ namespace Game1.Spells
             projectileSpeed = 250;
 
             fireballModel = game.Content.Load<Model>("Models/fireball");
-            fireballTexture = game.Content.Load<Texture2D>("Textures/firedot");
         }
     }
 }

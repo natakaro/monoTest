@@ -58,7 +58,7 @@ struct VertexShaderOutput
     float4 Position : POSITION0;
     float2 TexCoord : TEXCOORD0;
     float Depth : TEXCOORD1;
-    float3x3 tangentToWorld : TEXCOORD2;
+    nointerpolation float3x3 tangentToWorld : TEXCOORD2;
 	float4x4 instanceTransform : BLENDWEIGHT;
 
     float4 Clip : SV_ClipDistance0;

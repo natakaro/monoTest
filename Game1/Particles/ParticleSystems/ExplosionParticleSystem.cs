@@ -28,11 +28,11 @@ namespace Game1.Particles.ParticleSystems
             settings.Duration = TimeSpan.FromSeconds(2);
             settings.DurationRandomness = 1;
 
-            settings.MinHorizontalVelocity = 20;
-            settings.MaxHorizontalVelocity = 30;
+            settings.MinHorizontalVelocity = 5;
+            settings.MaxHorizontalVelocity = 7.5f;
 
-            settings.MinVerticalVelocity = -20;
-            settings.MaxVerticalVelocity = 20;
+            settings.MinVerticalVelocity = -5;
+            settings.MaxVerticalVelocity = 5;
 
             settings.EndVelocity = 0;
 
@@ -42,11 +42,11 @@ namespace Game1.Particles.ParticleSystems
             settings.MinRotateSpeed = -1;
             settings.MaxRotateSpeed = 1;
 
-            settings.MinStartSize = 7;
-            settings.MaxStartSize = 7;
+            settings.MinStartSize = 3;
+            settings.MaxStartSize = 3;
 
-            settings.MinEndSize = 70;
-            settings.MaxEndSize = 140;
+            settings.MinEndSize = 20;
+            settings.MaxEndSize = 30;
 
             // Use additive blending.
             settings.BlendState = BlendState.Additive;

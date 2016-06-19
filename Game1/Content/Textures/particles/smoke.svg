@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 744.09448819 1052.3622047"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="smoke.svg"
+   inkscape:export-filename="C:\Users\ershi\Documents\monoTest\Game1\Content\Textures\particles\smoke.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.979899"
+     inkscape:cx="242.25468"
+     inkscape:cy="855.04029"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1366"
+     inkscape:window-height="715"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <circle
+       style="opacity:1;fill:#b3b3b3;fill-opacity:1;fill-rule:evenodd;stroke:none"
+       id="path4138"
+       cx="-250.75754"
+       cy="302.11902"
+       r="38.890873"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       transform="matrix(0,-1,1,0,0,0)" />
+    <ellipse
+       cy="257.12653"
+       cx="241.31596"
+       id="circle4148"
+       style="opacity:1;fill:#b3b3b3;fill-opacity:1;fill-rule:evenodd;stroke:none"
+       transform="matrix(0.98429341,-0.17654034,0.16231758,0.98673857,0,0)"
+       rx="24.279379"
+       ry="25.289371"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <ellipse
+       ry="30.305166"
+       rx="29.954187"
+       transform="matrix(0.53467667,0.84505672,-0.84388921,0.53651748,0,0)"
+       style="opacity:1;fill:#b3b3b3;fill-opacity:1;fill-rule:evenodd;stroke:none"
+       id="ellipse4152"
+       cx="335.48615"
+       cy="-166.2124"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <ellipse
+       cy="-372.21408"
+       cx="196.68175"
+       id="ellipse4156"
+       style="opacity:1;fill:#b3b3b3;fill-opacity:1;fill-rule:evenodd;stroke:none"
+       transform="matrix(-0.05914813,0.99824922,-0.99837578,-0.05697197,0,0)"
+       rx="37.421562"
+       ry="37.860039"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <ellipse
+       ry="27.381216"
+       rx="29.840797"
+       transform="matrix(-0.99988875,-0.01491583,0.01573105,-0.99987626,0,0)"
+       style="opacity:1;fill:#b3b3b3;fill-opacity:1;fill-rule:evenodd;stroke:none"
+       id="ellipse4160"
+       cx="-355.42627"
+       cy="-258.20764"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <ellipse
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       cy="302.56299"
+       cx="-247.05638"
+       id="circle8586"
+       style="opacity:1;fill:#cccccc;fill-opacity:1;fill-rule:evenodd;stroke:none"
+       transform="matrix(0,-1,1,0,0,0)"
+       rx="32.649666"
+       ry="35.427586" />
+    <ellipse
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       ry="23.870375"
+       rx="22.917053"
+       transform="matrix(0.98429341,-0.17654034,0.16231758,0.98673857,0,0)"
+       style="opacity:1;fill:#cccccc;fill-opacity:1;fill-rule:evenodd;stroke:none"
+       id="ellipse8588"
+       cx="246.22446"
+       cy="259.43079" />
+    <ellipse
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       cy="-164.09984"
+       cx="340.16556"
+       id="ellipse8590"
+       style="opacity:1;fill:#cccccc;fill-opacity:1;fill-rule:evenodd;stroke:none"
+       transform="matrix(0.53467667,0.84505672,-0.84388921,0.53651748,0,0)"
+       rx="28.990381"
+       ry="29.330067" />
+    <ellipse
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       ry="33.505173"
+       rx="33.117134"
+       transform="matrix(-0.05914813,0.99824922,-0.99837578,-0.05697197,0,0)"
+       style="opacity:1;fill:#cccccc;fill-opacity:1;fill-rule:evenodd;stroke:none"
+       id="ellipse8592"
+       cx="194.86653"
+       cy="-370.33667" />
+    <ellipse
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       cy="-245.60207"
+       cx="-353.15689"
+       id="ellipse8594"
+       style="opacity:1;fill:#cccccc;fill-opacity:1;fill-rule:evenodd;stroke:none"
+       transform="matrix(-0.99988932,-0.01487809,0.01577095,-0.99987563,0,0)"
+       rx="26.475325"
+       ry="24.231697" />
+    <ellipse
+       ry="29.330067"
+       rx="28.990381"
+       transform="matrix(0.53467667,0.84505672,-0.84388921,0.53651748,0,0)"
+       style="opacity:1;fill:#cccccc;fill-opacity:1;fill-rule:evenodd;stroke:none"
+       id="ellipse8596"
+       cx="368.51059"
+       cy="-160.17937"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+  </g>
+</svg>

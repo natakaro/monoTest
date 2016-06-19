@@ -11,9 +11,9 @@ namespace Game1.Particles.ParticleSystems
     /// <summary>
     /// Custom particle system for leaving smoke trails behind the rocket projectiles.
     /// </summary>
-    class ProjectileTrailParticleSystem : ParticleSystem
+    class SmokeProjectileTrailParticleSystem : ParticleSystem
     {
-        public ProjectileTrailParticleSystem(Game game, ContentManager content)
+        public SmokeProjectileTrailParticleSystem(Game game, ContentManager content)
             : base(game, content)
         { }
 
@@ -36,8 +36,8 @@ namespace Game1.Particles.ParticleSystems
             settings.MinVerticalVelocity = -1;
             settings.MaxVerticalVelocity = 1;
 
-            settings.MinColor = new Color(64, 96, 128, 255);
-            settings.MaxColor = new Color(255, 255, 255, 128);
+            settings.MinColor = new Color(64, 96, 128, 128);
+            settings.MaxColor = new Color(255, 255, 255, 64);
 
             settings.MinRotateSpeed = -4;
             settings.MaxRotateSpeed = 4;

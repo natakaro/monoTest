@@ -109,7 +109,8 @@
     <Compile Include="Particles\ParticleSystems\ExplosionParticleSystem.cs" />
     <Compile Include="Particles\ParticleSystems\ExplosionSmokeParticleSystem.cs" />
     <Compile Include="Particles\ParticleSystems\FireParticleSystem.cs" />
-    <Compile Include="Particles\ParticleSystems\ProjectileTrailParticleSystem.cs" />
+    <Compile Include="Particles\ParticleSystems\FireProjectileTrailParticleSystem.cs" />
+    <Compile Include="Particles\ParticleSystems\SmokeProjectileTrailParticleSystem.cs" />
     <Compile Include="Particles\ParticleSystems\SmokePlumeParticleSystem.cs" />
     <Compile Include="Particles\ParticleVertex.cs" />
     <Compile Include="PhaseManager.cs" />

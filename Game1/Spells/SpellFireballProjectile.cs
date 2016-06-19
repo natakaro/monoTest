@@ -16,7 +16,6 @@ namespace Game1.Spells
 {
     class SpellFireballProjectile : DrawableObject
     {
-        Texture2D texture;
         private PointLight pointLight;
         LightManager lightManager;
         HUDManager hudManager;
@@ -31,27 +30,27 @@ namespace Game1.Spells
 
         const float lifespan = 5f;
         const float trailParticlesPerSecond = 200;
-        const int numExplosionParticles = 30;
-        const int numExplosionSmokeParticles = 50;
+        const int numExplosionParticles = 10;
+        const int numExplosionSmokeParticles = 20;
 
         public event EventHandler hitEvent;
 
         public override void Draw(Camera camera)
         {
             //model.Draw(camera.worldMatrix * Matrix.CreateTranslation(position), camera.viewMatrix, camera.projMatrix);
-            foreach (ModelMesh mesh in model.Meshes)
-            {
-                foreach (Effect effect in mesh.Effects)
-                {
-                    effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index] * worldMatrix);
-                    effect.Parameters["View"].SetValue(camera.ViewMatrix);
-                    effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
-                    effect.Parameters["FarClip"].SetValue(camera.FarZ);
-                    effect.Parameters["Texture"].SetValue(texture);
-                    effect.Parameters["Clipping"].SetValue(false);
-                }
-                mesh.Draw();
-            }
+            //foreach (ModelMesh mesh in model.Meshes)
+            //{
+                //foreach (Effect effect in mesh.Effects)
+                //{
+                    //effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index] * worldMatrix);
+                    //effect.Parameters["View"].SetValue(camera.ViewMatrix);
+                    //effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
+                    //effect.Parameters["FarClip"].SetValue(camera.FarZ);
+                    //effect.Parameters["Texture"].SetValue(texture);
+                    //effect.Parameters["Clipping"].SetValue(false);
+                //}
+                //mesh.Draw();
+            //}
         }
 
         public override bool Update(GameTime gameTime)
@@ -74,21 +73,21 @@ namespace Game1.Spells
         }
 
         public SpellFireballProjectile(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ObjectManager objectManager, 
-                                       Texture2D inTexture, LightManager lightManager, HUDManager hudManager, float damage,
+                                       LightManager lightManager, HUDManager hudManager, float damage,
                                        ParticleSystem explosionParticles,
                                        ParticleSystem explosionSmokeParticles,
-                                       ParticleSystem projectileTrailParticles) : base(game, inWorldMatrix, inModel, octree)
+                                       ParticleSystem fireProjectileTrailParticles) : base(game, inWorldMatrix, inModel, octree)
         {
             this.lightManager = lightManager;
             this.hudManager = hudManager;
             this.objectManager = objectManager;
-            texture = inTexture;
+
             m_static = false;
             boundingSphere = new BoundingSphere(position, 1f);
             boundingBox = CollisionBox.CreateBoundingBox(model, position, 1);
             type = ObjectType.Projectile;
 
-            pointLight = new PointLight(position, Color.OrangeRed, 25, 5);
+            pointLight = new PointLight(position, Color.OrangeRed, 10, 5);
             lightManager.AddLight(pointLight);
 
             this.damage = damage;
@@ -97,7 +96,7 @@ namespace Game1.Spells
 
             this.explosionParticles = explosionParticles;
             this.explosionSmokeParticles = explosionSmokeParticles;
-            trailEmitter = new ParticleEmitter(projectileTrailParticles,
+            trailEmitter = new ParticleEmitter(fireProjectileTrailParticles,
                                                trailParticlesPerSecond, position);
         }
 
