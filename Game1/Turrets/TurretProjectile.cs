@@ -30,7 +30,7 @@ namespace Game1.Turrets
         private const float trailParticlesPerSecond = 200;
         private const float trailHeadParticlesPerSecond = 50;
         private const int numExplosionParticles = 10;
-        private const int numExplosionSmokeParticles = 20;
+        private const int numExplosionSmokeParticles = 40;
 
         public override void Draw(Camera camera)
         {

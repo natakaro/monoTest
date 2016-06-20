@@ -47,8 +47,8 @@ namespace Game1.Particles.ParticleSystems
             settings.MinStartSize = 3;
             settings.MaxStartSize = 3;
 
-            settings.MinEndSize = 10;
-            settings.MaxEndSize = 20;
+            settings.MinEndSize = 5;
+            settings.MaxEndSize = 10;
         }
     }
 }

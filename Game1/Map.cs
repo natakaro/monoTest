@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework.Content;
 using Game1.Helpers;
 using static Game1.Helpers.HexCoordinates;
 using Game1.Items;
+using Game1.Screens;
 
 namespace Game1
 {
@@ -102,7 +103,7 @@ namespace Game1
             {
                 //if (coord.height != 255) { throw new Exception(coord.height.ToString() + " " + coord.x.ToString() + " " + coord.y.ToString()); }
                 var axial = coord.oddQ_toCube().ToAxial();
-                var position = tileFromAxial(axial, Game1.map).Position;
+                var position = tileFromAxial(axial, GameplayScreen.map).Position;
                 
                 float temp = rand.Next(0, 359);
                 Matrix worldm = Matrix.CreateRotationY((float)temp) * Matrix.CreateTranslation(position);

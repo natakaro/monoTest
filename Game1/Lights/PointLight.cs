@@ -37,7 +37,7 @@ namespace Game1.Lights
             boundingSphere = new BoundingSphere(position, radius);
         }
 
-        public void Draw(Game1 game, Camera camera, Effect pointLightEffect, RenderTarget2D colorTarget, RenderTarget2D normalTarget, RenderTarget2D depthTarget, Model pointLightGeometry)
+        public void Draw(Game game, Camera camera, Effect pointLightEffect, RenderTarget2D colorTarget, RenderTarget2D normalTarget, RenderTarget2D depthTarget, Model pointLightGeometry)
         {
             //set the G-Buffer parameters
             pointLightEffect.Parameters["colorMap"].SetValue(colorTarget);

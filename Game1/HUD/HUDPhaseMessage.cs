@@ -45,8 +45,8 @@ namespace Game1.HUD
 
         public override void LoadContent(ContentManager Content)
         {
-            dayMessage = Content.Load<Texture2D>("Hud/day_message");
-            nightMessage = Content.Load<Texture2D>("Hud/night_message");
+            dayMessage = Content.Load<Texture2D>("Interface/HUD/day_message");
+            nightMessage = Content.Load<Texture2D>("Interface/HUD/night_message");
 
             messageStopwatch = new Stopwatch();
         }

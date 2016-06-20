@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Game1.Input;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Game1
 {
-    public class Camera : GameComponent
+    public class Camera
     {
         public enum Actions
         {
@@ -29,6 +30,8 @@ namespace Game1
             Rising,
             Jumping
         };
+
+        private Game Game;
 
         public const float DEFAULT_FOVX = 90.0f;
         public const float DEFAULT_ZNEAR = 0.1f;
@@ -86,22 +89,15 @@ namespace Game1
         private Vector2[] mouseMovement;
         private Vector2[] mouseSmoothingCache;
         private Vector2 smoothedMouseMovement;
-        private MouseState currentMouseState;
-        private MouseState previousMouseState;
-        private KeyboardState currentKeyboardState;
-        private KeyboardState previousKeyboardState;
-        private Dictionary<Actions, Keys> actionKeys;
 
         private Ray downwardRay;
         private Octree octree;
-        private Model debugModel;
 
         #region Public Methods
 
-        public Camera(Game game) : base(game)
+        public Camera(Game game)
         {
-            UpdateOrder = 1;
-
+            this.Game = game;
             // Initialize camera state.
             fovx = DEFAULT_FOVX;
             znear = DEFAULT_ZNEAR;
@@ -137,29 +133,14 @@ namespace Game1
             mouseMovement[1].X = 0.0f;
             mouseMovement[1].Y = 0.0f;
 
-            // Setup default action key bindings.
-            actionKeys = new Dictionary<Actions, Keys>();
-            actionKeys.Add(Actions.Crouch, Keys.LeftControl);
-            actionKeys.Add(Actions.Jump, Keys.Space);
-            actionKeys.Add(Actions.MoveForwards, Keys.W);
-            actionKeys.Add(Actions.MoveBackwards, Keys.S);
-            actionKeys.Add(Actions.StrafeRight, Keys.D);
-            actionKeys.Add(Actions.StrafeLeft, Keys.A);
-            actionKeys.Add(Actions.Run, Keys.LeftShift);
-
-            // Get initial keyboard and mouse states.
-            currentKeyboardState = Keyboard.GetState();
-            currentMouseState = Mouse.GetState();
-
             // Setup perspective projection matrix.
             Rectangle clientBounds = game.Window.ClientBounds;
             float aspect = (float)clientBounds.Width / (float)clientBounds.Height;
             Perspective(fovx, aspect, znear, zfar);
         }
 
-        public override void Initialize()
+        public void Initialize()
         {
-            base.Initialize();
 
             Rectangle clientBounds = Game.Window.ClientBounds;
             Mouse.SetPosition(clientBounds.Width / 2, clientBounds.Height / 2);
@@ -219,16 +200,6 @@ namespace Game1
         }
 
         /// <summary>
-        /// Binds an action to a keyboard key.
-        /// </summary>
-        /// <param name="action">The action to bind.</param>
-        /// <param name="key">The key to map the action to.</param>
-        public void MapActionToKey(Actions action, Keys key)
-        {
-            actionKeys[action] = key;
-        }
-
-        /// <summary>
         /// Moves the camera by dx world units to the left or right; dy
         /// world units upwards or downwards; and dz world units forwards
         /// or backwards.
@@ -246,19 +217,6 @@ namespace Game1
             Vector3 forwards = Vector3.Normalize(Vector3.Cross(WORLD_Y_AXIS, xAxis));
 
             Vector3 movement = (xAxis * dx + WORLD_Y_AXIS * dy + forwards * dz);
-
-            //foreach (ModelMesh mesh in debugModel.Meshes)
-            //{
-            //    foreach (Effect effect in mesh.Effects)
-            //    {
-            //        effect.Parameters["World"].SetValue(worldMatrix * Matrix.CreateTranslation(movement.X, movement.Y, movement.Z));
-            //        effect.Parameters["View"].SetValue(viewMatrix);
-            //        effect.Parameters["Projection"].SetValue(projMatrix);
-            //        effect.Parameters["FarClip"].SetValue(FarZ);
-            //        effect.Parameters["Clipping"].SetValue(false);
-            //    }
-            //    mesh.Draw();
-            //}
 
             dx = octree.CameraIntersection(eye + new Vector3(movement.X, 0, 0), 1) ? 0 : dx;
             dy = octree.CameraIntersection(eye + new Vector3(0, movement.Y, 0), 1) ? 0 : dy;
@@ -353,11 +311,10 @@ namespace Game1
             UpdateViewMatrix();
         }
 
-        public override void Update(GameTime gameTime)
+        public void Update(GameTime gameTime, InputState state)
         {
-            base.Update(gameTime);
-            UpdateInput();
-            UpdateCamera(gameTime);
+            UpdateInput(state);
+            UpdateCamera(gameTime, state);
         }
 
         /// <summary>
@@ -459,13 +416,13 @@ namespace Game1
         /// The returned values are in the range [-1,1].
         /// </summary>
         /// <param name="direction">The movement direction.</param>
-        private void GetMovementDirection(out Vector3 direction)
+        private void GetMovementDirection(out Vector3 direction, InputState state)
         {
             direction.X = 0.0f;
             direction.Y = 0.0f;
             direction.Z = 0.0f;
 
-            if (currentKeyboardState.IsKeyDown(actionKeys[Actions.MoveForwards]))
+            if (state.IsKeyPressed(Keys.W))
             {
                 if (!forwardsPressed)
                 {
@@ -480,7 +437,7 @@ namespace Game1
                 forwardsPressed = false;
             }
 
-            if (currentKeyboardState.IsKeyDown(actionKeys[Actions.MoveBackwards]))
+            if (state.IsKeyPressed(Keys.S))
             {
                 if (!backwardsPressed)
                 {
@@ -495,7 +452,7 @@ namespace Game1
                 backwardsPressed = false;
             }
 
-            if (currentKeyboardState.IsKeyDown(actionKeys[Actions.StrafeRight]))
+            if (state.IsKeyPressed(Keys.D))
             {
                 if (!strafeRightPressed)
                 {
@@ -510,7 +467,7 @@ namespace Game1
                 strafeRightPressed = false;
             }
 
-            if (currentKeyboardState.IsKeyDown(actionKeys[Actions.StrafeLeft]))
+            if (state.IsKeyPressed(Keys.A))
             {
                 if (!strafeLeftPressed)
                 {
@@ -525,7 +482,7 @@ namespace Game1
                 strafeLeftPressed = false;
             }
 
-            if (currentKeyboardState.IsKeyDown(actionKeys[Actions.Crouch]))
+            if (state.IsKeyPressed(Keys.LeftControl))
             {
                 switch (posture)
                 {
@@ -567,8 +524,7 @@ namespace Game1
                 }
             }
 
-            if (currentKeyboardState.IsKeyDown(actionKeys[Actions.Jump]) &&
-                previousKeyboardState.IsKeyUp(actionKeys[Actions.Jump]))
+            if (state.IsNewKeyPress(Keys.Space))
             {
                 switch (posture)
                 {
@@ -671,17 +627,17 @@ namespace Game1
             Rotate(headingDegrees, pitchDegrees);
         }
 
-        private void UpdateCamera(GameTime gameTime)
+        private void UpdateCamera(GameTime gameTime, InputState state)
         {
             float elapsedTimeSec = (float)gameTime.ElapsedGameTime.TotalSeconds;
             Vector3 direction = new Vector3();
 
-            if (currentKeyboardState.IsKeyDown(actionKeys[Actions.Run]))
+            if (state.IsKeyPressed(Keys.LeftShift))
                 velocity = velocityRunning;
             else
                 velocity = velocityWalking;
 
-            GetMovementDirection(out direction);
+            GetMovementDirection(out direction, state);
 
             RotateSmoothly(smoothedMouseMovement.X, smoothedMouseMovement.Y);
             UpdatePosition(ref direction, elapsedTimeSec);
@@ -689,20 +645,14 @@ namespace Game1
             downwardRay = new Ray(Position, Vector3.Down);
         }
 
-        private void UpdateInput()
+        private void UpdateInput(InputState state)
         {
-            previousKeyboardState = currentKeyboardState;
-            currentKeyboardState = Keyboard.GetState();
-
-            previousMouseState = currentMouseState;
-            currentMouseState = Mouse.GetState();
-
             Rectangle clientBounds = Game.Window.ClientBounds;
 
             int centerX = clientBounds.Width / 2;
             int centerY = clientBounds.Height / 2;
-            int deltaX = centerX - currentMouseState.X;
-            int deltaY = centerY - currentMouseState.Y;
+            int deltaX = centerX - state.CurrentMouseState.X;
+            int deltaY = centerY - state.CurrentMouseState.Y;
 
             Mouse.SetPosition(centerX, centerY);
 
@@ -1090,12 +1040,6 @@ namespace Game1
         {
             get { return octree; }
             set { octree = value; }
-        }
-
-        public Model DebugModel
-        {
-            get { return debugModel; }
-            set { debugModel = value; }
         }
         #endregion
     }

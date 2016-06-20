@@ -75,7 +75,7 @@ float4 PixelShaderFunctionExp2(VertexShaderOutput input) : COLOR0
     return float4(FogColor.rgb, mix);
 }
 
-technique FogLinear
+technique Linear
 {
     pass P0
     {
@@ -84,7 +84,7 @@ technique FogLinear
     }
 };
 
-technique FogExp
+technique Exponential
 {
 	pass P0
 	{
@@ -93,7 +93,7 @@ technique FogExp
     }
 };
 
-technique FogExp2
+technique Exponential2
 {
     pass P0
     {

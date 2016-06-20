@@ -23,10 +23,14 @@ namespace Game1.Particles
         public ParticleSystem fireProjectileTrailParticles;
         public ParticleSystem projectileTrailHeadParticles;
 
+        List<ParticleSystem> particleSystems;
+
         public ParticleManager(Game game, ContentManager Content)
         {
             this.game = game;
             this.Content = Content;
+
+            particleSystems = new List<ParticleSystem>();
 
             // Construct our particle system components.
             explosionParticles = new ExplosionParticleSystem(game, Content);
@@ -37,27 +41,41 @@ namespace Game1.Particles
             fireProjectileTrailParticles = new FireProjectileTrailParticleSystem(game, Content);
             projectileTrailHeadParticles = new ProjectileTrailHeadParticleSystem(game, Content);
 
-            // Set the draw order so the explosions and fire
-            // will appear over the top of the smoke.
-            smokePlumeParticles.DrawOrder = 100;
-            explosionSmokeParticles.DrawOrder = 200;
-            projectileTrailHeadParticles.DrawOrder = 250;
-            smokeProjectileTrailParticles.DrawOrder = 300;
-            fireProjectileTrailParticles.DrawOrder = 300;
-            explosionParticles.DrawOrder = 400;
-            fireParticles.DrawOrder = 500;
+            //// Set the draw order so the explosions and fire
+            //// will appear over the top of the smoke.
+            //smokePlumeParticles.DrawOrder = 100;
+            //explosionSmokeParticles.DrawOrder = 200;
+            //projectileTrailHeadParticles.DrawOrder = 250;
+            //smokeProjectileTrailParticles.DrawOrder = 300;
+            //fireProjectileTrailParticles.DrawOrder = 300;
+            //explosionParticles.DrawOrder = 400;
+            //fireParticles.DrawOrder = 500;
 
             // Register the particle system components.
-            game.Components.Add(explosionParticles);
-            game.Components.Add(explosionSmokeParticles);
-            game.Components.Add(smokeProjectileTrailParticles);
-            game.Components.Add(smokePlumeParticles);
-            game.Components.Add(fireParticles);
-            game.Components.Add(fireProjectileTrailParticles);
-            game.Components.Add(projectileTrailHeadParticles);
+            particleSystems.Add(explosionParticles);
+            particleSystems.Add(explosionSmokeParticles);
+            particleSystems.Add(smokeProjectileTrailParticles);
+            particleSystems.Add(smokePlumeParticles);
+            particleSystems.Add(fireParticles);
+            particleSystems.Add(fireProjectileTrailParticles);
+            particleSystems.Add(projectileTrailHeadParticles);
+
+            foreach (ParticleSystem system in particleSystems)
+            {
+                system.Initialize();
+                system.LoadContent();
+            }
         }
 
-        public void Draw(Camera camera, float farClip, RenderTarget2D depthTarget)
+        public void Update(GameTime gameTime)
+        {
+            foreach(ParticleSystem system in particleSystems)
+            {
+                system.Update(gameTime);
+            }
+        }
+
+        public void Draw(GameTime gameTime, Camera camera, float farClip, RenderTarget2D depthTarget)
         {
             // Pass camera matrices through to the particle system components.
             explosionParticles.SetCamera(camera.ViewMatrix, camera.ProjectionMatrix, farClip, depthTarget);
@@ -67,6 +85,12 @@ namespace Game1.Particles
             fireParticles.SetCamera(camera.ViewMatrix, camera.ProjectionMatrix, farClip, depthTarget);
             fireProjectileTrailParticles.SetCamera(camera.ViewMatrix, camera.ProjectionMatrix, farClip, depthTarget);
             projectileTrailHeadParticles.SetCamera(camera.ViewMatrix, camera.ProjectionMatrix, farClip, depthTarget);
+
+            foreach (ParticleSystem system in particleSystems)
+            {
+                system.SetCamera(camera.ViewMatrix, camera.ProjectionMatrix, farClip, depthTarget);
+                system.Draw(gameTime);
+            }
         }
     }
 }

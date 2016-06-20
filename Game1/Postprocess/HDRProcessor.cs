@@ -7,42 +7,45 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static Game1.GameSettings;
 
-namespace Game1
+namespace Game1.Postprocess
 {
-    /// <summary>
-	/// Handles rendering of various post-processing techniques,
-    /// including blurring, downscaling, and DOF blending
-	/// </summary>
-    public class DepthOfFieldProcessor
+    public class HDRProcessor
     {
         protected GraphicsDevice graphicsDevice;
         protected ContentManager contentManager;
+        protected QuadRenderComponent quadRenderer;
         protected List<IntermediateTexture> intermediateTextures = new List<IntermediateTexture>();
 
-        protected QuadRenderComponent quadRenderer;
-
         protected Effect blurEffect;
+        protected Effect thresholdEffect;
         protected Effect scalingEffect;
-        protected Effect dofEffect;
+        protected Effect HDREffect;
 
+        protected RenderTarget2D currentFrameLuminance;
+        protected RenderTarget2D currentFrameAdaptedLuminance;
+        protected RenderTarget2D lastFrameAdaptedLuminance;
+        protected RenderTarget2D[] luminanceChain;
+
+        protected float toneMapKey = 0.8f;
+        protected float maxLuminance = 512.0f;
+        protected float bloomThreshold = 0.85f;
+        protected float bloomMultiplier = 1.0f;
         protected float blurSigma = 2.5f;
 
-        protected Vector3[] frustumCornersWS = new Vector3[8];
-        protected Vector3[] frustumCornersVS = new Vector3[8];
-        protected Vector3[] farFrustumCornersVS = new Vector3[4];
-        protected RenderTarget2D[] singleSourceArray = new RenderTarget2D[1];
-        protected RenderTarget2D[] doubleSourceArray = new RenderTarget2D[2];
-        protected RenderTarget2D[] tripleSourceArray = new RenderTarget2D[3];
+        public float ToneMapKey
+        {
+            get { return toneMapKey; }
+            set { toneMapKey = value; }
+        }
 
-        /// <summary>
-        /// The class constructor
-        /// </summary>
-        /// <param name="graphicsDevice">The GraphicsDevice to use for rendering</param>
-        /// <param name="contentManager">The ContentManager from which to load Effects</param>
-        /// <param name="quadRenderer">The QuadRenderComponent to use for drawing fullscreen quads</param>
-        public DepthOfFieldProcessor(GraphicsDevice graphicsDevice, ContentManager contentManager, QuadRenderComponent quadRenderer)
+        public float MaxLuminance
+        {
+            get { return maxLuminance; }
+            set { maxLuminance = value; }
+        }
+
+        public HDRProcessor(GraphicsDevice graphicsDevice, ContentManager contentManager, QuadRenderComponent quadRenderer)
         {
             this.contentManager = contentManager;
             this.graphicsDevice = graphicsDevice;
@@ -50,17 +53,45 @@ namespace Game1
 
             // Load the effects
             blurEffect = contentManager.Load<Effect>("Effects/HDR/Blur");
+            thresholdEffect = contentManager.Load<Effect>("Effects/HDR/Threshold");
             scalingEffect = contentManager.Load<Effect>("Effects/HDR/Scale");
-            dofEffect = contentManager.Load<Effect>("Effects/HDR/DepthOfField");
+            HDREffect = contentManager.Load<Effect>("Effects/HDR/HDR");
+
+            // Initialize our buffers
+            int width = graphicsDevice.PresentationParameters.BackBufferWidth;
+            int height = graphicsDevice.PresentationParameters.BackBufferHeight;
+
+            // Two buffers we'll swap between, so we can adapt the luminance     
+            currentFrameLuminance = new RenderTarget2D(graphicsDevice, 1, 1, false, SurfaceFormat.Single, DepthFormat.None);
+            currentFrameAdaptedLuminance = new RenderTarget2D(graphicsDevice, 1, 1, false, SurfaceFormat.Single, DepthFormat.None);
+            lastFrameAdaptedLuminance = new RenderTarget2D(graphicsDevice, 1, 1, false, SurfaceFormat.Single, DepthFormat.None);
+            graphicsDevice.SetRenderTarget(lastFrameAdaptedLuminance);
+            graphicsDevice.Clear(Color.White);
+            graphicsDevice.SetRenderTarget(null);
+
+            // We need a luminance chain
+            int chainLength = 1;
+            int startSize = (int)MathHelper.Min(width / 16, height / 16);
+            int size = 16;
+            for (size = 16; size < startSize; size *= 4)
+                chainLength++;
+
+            luminanceChain = new RenderTarget2D[chainLength];
+            size /= 4;
+            for (int i = 0; i < chainLength; i++)
+            {
+                luminanceChain[i] = new RenderTarget2D(graphicsDevice, size, size, false, SurfaceFormat.Single, DepthFormat.None);
+                size /= 4;
+            }
         }
 
         /// <summary>
 		/// Applies a blur to the specified render target, writes the result
 		/// to the specified render target.
 		/// </summary>
-		/// <param name="source">The render target to use as the source</param>
-        /// <param name="result">The render target to use as the result</param>
+		/// <param name="source">The render target to use as the source and result</param>
 		/// <param name="sigma">The standard deviation used for gaussian weights</param>
+        /// <param name="encoded">If true, blurs using LogLuv encoding/decoding</param>
 		public void Blur(RenderTarget2D source,
                             RenderTarget2D result,
                             float sigma)
@@ -69,7 +100,7 @@ namespace Game1
                                                                 source.Height,
                                                                 source.Format);
 
-            String baseTechniqueName = "GaussianBlur";
+            string baseTechniqueName = "GaussianBlur";
 
             // Do horizontal pass first
             blurEffect.CurrentTechnique = blurEffect.Techniques[baseTechniqueName + "H"];
@@ -86,51 +117,14 @@ namespace Game1
         }
 
         /// <summary>
-        /// Applies a blur to the specified render target, using a depth texture
-        /// to prevent pixels from blurring with pixels that are "in front"
-        /// </summary>
-        /// <param name="source">The render target to use as the source</param>
-        /// <param name="result">The render target to use as the result</param>
-        /// <param name="depthTexture">The depth texture to use</param>
-        /// <param name="sigma">The standard deviation used for gaussian weights</param>
-        public void DepthBlur(RenderTarget2D source,
-                            RenderTarget2D result,
-                            RenderTarget2D depthTexture,
-                            float sigma)
-        {
-            IntermediateTexture blurH = GetIntermediateTexture(source.Width,
-                                                                source.Height,
-                                                                source.Format);
-
-            String baseTechniqueName = "GaussianDepthBlur";
-
-            // Do horizontal pass first
-            blurEffect.CurrentTechnique = blurEffect.Techniques[baseTechniqueName + "H"];
-            blurEffect.Parameters["g_fSigma"].SetValue(sigma);
-
-            RenderTarget2D[] sources = doubleSourceArray;
-            sources[0] = source;
-            sources[1] = depthTexture;
-            PostProcess(sources, blurH.RenderTarget, blurEffect);
-
-            // Now the vertical pass 
-            blurEffect.CurrentTechnique = blurEffect.Techniques[baseTechniqueName + "V"];
-
-            sources[0] = blurH.RenderTarget;
-            sources[1] = depthTexture;
-            PostProcess(blurH.RenderTarget, result, blurEffect);
-
-            blurH.InUse = false;
-        }
-
-        /// <summary>
         /// Downscales the source to 1/16th size, using software(shader) filtering
         /// </summary>
         /// <param name="source">The source to be downscaled</param>
         /// <param name="result">The RT in which to store the result</param>
+        /// <param name="encoded">If true, the source is encoded in LogLuv format</param>
         protected void GenerateDownscaleTargetSW(RenderTarget2D source, RenderTarget2D result)
         {
-            String techniqueName = "Downscale4";
+            string techniqueName = "Downscale4";
 
             IntermediateTexture downscale1 = GetIntermediateTexture(source.Width / 4, source.Height / 4, source.Format);
             scalingEffect.CurrentTechnique = scalingEffect.Techniques[techniqueName];
@@ -168,90 +162,103 @@ namespace Game1
         }
 
         /// <summary>
+        /// Calculates the average luminance of the scene
+        /// </summary>
+        /// <param name="downscaleBuffer">The scene texure, downscaled to 1/16th size</param>
+        /// <param name="dt">The time delta</param>
+        /// <param name="encoded">If true, the image is encoded in LogLuv format</param>
+        protected void CalculateAverageLuminance(RenderTarget2D downscaleBuffer, float dt)
+        {
+            // Calculate the initial luminance
+            HDREffect.CurrentTechnique = HDREffect.Techniques["Luminance"];
+            PostProcess(downscaleBuffer, luminanceChain[0], HDREffect);
+
+            // Repeatedly downscale            
+            scalingEffect.CurrentTechnique = scalingEffect.Techniques["Downscale4"];
+            for (int i = 1; i < luminanceChain.Length; i++)
+                PostProcess(luminanceChain[i - 1], luminanceChain[i], scalingEffect);
+
+            // Final downscale            
+            scalingEffect.CurrentTechnique = scalingEffect.Techniques["Downscale4Luminance"];
+            PostProcess(luminanceChain[luminanceChain.Length - 1], currentFrameLuminance, scalingEffect);
+
+            // Adapt the luminance, to simulate slowly adjust exposure
+            HDREffect.Parameters["g_fDT"].SetValue(dt);
+            HDREffect.CurrentTechnique = HDREffect.Techniques["CalcAdaptedLuminance"];
+            RenderTarget2D[] sources = new RenderTarget2D[2];
+            sources[0] = currentFrameLuminance;
+            sources[1] = lastFrameAdaptedLuminance;
+            PostProcess(sources, currentFrameAdaptedLuminance, HDREffect);
+
+        }
+
+        /// <summary>
         /// Performs tone mapping on the specified render target
         /// </summary>
         /// <param name="source">The source render target</param>
         /// <param name="result">The render target to which the result will be output</param>
-        /// <param name="depthTexture">The render target containing scene depth</param>
-        /// <param name="camera">The camera used to render the scene</param>
-        /// <param name="dofType">The type of DOF effect to apply</param>
-        /// <param name="focalDistance">The distance to the camera focal point</param>
-        /// <param name="focalWidth">The width of the camera focal point</param>
-        public void DOF(RenderTarget2D source,
-                            RenderTarget2D result,
-                            RenderTarget2D depthTexture,
-                            Camera camera,
-                            DOFType dofType,
-                            float focalDistance,
-                            float focalWidth)
+        /// <param name="dt">The time elapsed since the last frame</param>
+        /// <param name="encoded">If true, use LogLuv encoding</param>
+        /// <param name="preferHWScaling">If true, will attempt to use hardware filtering</param>
+        public void ToneMap(RenderTarget2D source, RenderTarget2D result, float dt, bool preferHWScaling)
         {
-            if (dofType == DOFType.DiscBlur)
-            {
-                // Scale tap offsets based on render target size
-                float dx = 0.5f / (float)source.Width;
-                float dy = 0.5f / (float)source.Height;
+            // Downscale to 1/16 size
+            IntermediateTexture downscaleTarget = GetIntermediateTexture(source.Width / 16, source.Height / 16, source.Format);
+            //if (preferHWScaling && encoded)
+                //GenerateDownscaleTargetHW(source, downscaleTarget.RenderTarget);
+            //else
+            //GenerateDownscaleTargetSW(source, downscaleTarget.RenderTarget);
+            GenerateDownscaleTargetHW(source, downscaleTarget.RenderTarget);
 
-                // Generate the texture coordinate offsets for our disc
-                Vector2[] discOffsets = new Vector2[12];
-                discOffsets[0] = new Vector2(-0.326212f * dx, -0.40581f * dy);
-                discOffsets[1] = new Vector2(-0.840144f * dx, -0.07358f * dy);
-                discOffsets[2] = new Vector2(-0.840144f * dx, 0.457137f * dy);
-                discOffsets[3] = new Vector2(-0.203345f * dx, 0.620716f * dy);
-                discOffsets[4] = new Vector2(0.96234f * dx, -0.194983f * dy);
-                discOffsets[5] = new Vector2(0.473434f * dx, -0.480026f * dy);
-                discOffsets[6] = new Vector2(0.519456f * dx, 0.767022f * dy);
-                discOffsets[7] = new Vector2(0.185461f * dx, -0.893124f * dy);
-                discOffsets[8] = new Vector2(0.507431f * dx, 0.064425f * dy);
-                discOffsets[9] = new Vector2(0.89642f * dx, 0.412458f * dy);
-                discOffsets[10] = new Vector2(-0.32194f * dx, -0.932615f * dy);
-                discOffsets[11] = new Vector2(-0.791559f * dx, -0.59771f * dy);
+            // Get the luminance
+            CalculateAverageLuminance(downscaleTarget.RenderTarget, dt);
 
-                // Set array of offsets
-                dofEffect.Parameters["g_vFilterTaps"].SetValue(discOffsets);
+            // Do the bloom first
+            IntermediateTexture threshold = GetIntermediateTexture(downscaleTarget.RenderTarget.Width, downscaleTarget.RenderTarget.Height, source.Format);
+            thresholdEffect.Parameters["g_fThreshold"].SetValue(bloomThreshold);
+            thresholdEffect.Parameters["g_fMiddleGrey"].SetValue(toneMapKey);
+            thresholdEffect.Parameters["g_fMaxLuminance"].SetValue(maxLuminance);
+            thresholdEffect.CurrentTechnique = thresholdEffect.Techniques["Threshold"];
+            RenderTarget2D[] sources2 = new RenderTarget2D[2];
+            sources2[0] = downscaleTarget.RenderTarget;
+            sources2[1] = currentFrameAdaptedLuminance;
+            PostProcess(sources2, threshold.RenderTarget, thresholdEffect);
 
-                dofEffect.CurrentTechnique = dofEffect.Techniques["DOFDiscBlur"];
+            IntermediateTexture postBlur = GetIntermediateTexture(downscaleTarget.RenderTarget.Width, downscaleTarget.RenderTarget.Height, SurfaceFormat.Color);
+            Blur(threshold.RenderTarget, postBlur.RenderTarget, blurSigma);
+            threshold.InUse = false;
 
-                dofEffect.Parameters["g_fFocalDistance"].SetValue(focalDistance);
-                dofEffect.Parameters["g_fFocalWidth"].SetValue(focalWidth / 2.0f);
-                dofEffect.Parameters["g_fFarClip"].SetValue(camera.FarZ);
-                dofEffect.Parameters["g_fAttenuation"].SetValue(1.0f);
+            // Scale it back to half of full size (will do the final scaling step when sampling
+            // the bloom texture during tone mapping).
+            IntermediateTexture upscale1 = GetIntermediateTexture(source.Width / 8, source.Height / 8, SurfaceFormat.Color);
+            scalingEffect.CurrentTechnique = scalingEffect.Techniques["ScaleHW"];
+            PostProcess(postBlur.RenderTarget, upscale1.RenderTarget, scalingEffect);
+            postBlur.InUse = false;
 
-                RenderTarget2D[] sources = doubleSourceArray;
-                sources[0] = source;
-                sources[1] = depthTexture;
+            IntermediateTexture upscale2 = GetIntermediateTexture(source.Width / 4, source.Height / 4, SurfaceFormat.Color);
+            PostProcess(upscale1.RenderTarget, upscale2.RenderTarget, scalingEffect);
+            upscale1.InUse = false;
 
-                PostProcess(sources, result, dofEffect);
-            }
-            else
-            {
-                // Downscale to 1/16th size and blur
-                IntermediateTexture downscaleTexture = GetIntermediateTexture(source.Width / 4, source.Height / 4, SurfaceFormat.Color);
-                GenerateDownscaleTargetSW(source, downscaleTexture.RenderTarget);
+            IntermediateTexture bloom = GetIntermediateTexture(source.Width / 2, source.Height / 2, SurfaceFormat.Color);
+            PostProcess(upscale2.RenderTarget, bloom.RenderTarget, scalingEffect);
+            upscale2.InUse = false;
 
-                // For the "dumb" DOF type just do a blur, otherwise use a special blur
-                // that takes depth into account
-                if (dofType == DOFType.BlurBuffer)
-                    Blur(downscaleTexture.RenderTarget, downscaleTexture.RenderTarget, 2.5f);
-                else if (dofType == DOFType.BlurBufferDepthCorrection)
-                    DepthBlur(downscaleTexture.RenderTarget, downscaleTexture.RenderTarget, depthTexture, 2.5f);
+            // Now do tone mapping on the main source image, and add in the bloom
+            HDREffect.Parameters["g_fMiddleGrey"].SetValue(toneMapKey);
+            HDREffect.Parameters["g_fMaxLuminance"].SetValue(maxLuminance);
+            HDREffect.Parameters["g_fBloomMultiplier"].SetValue(bloomMultiplier);
+            RenderTarget2D[] sources3 = new RenderTarget2D[3];
+            sources3[0] = source;
+            sources3[1] = currentFrameAdaptedLuminance;
+            sources3[2] = bloom.RenderTarget;
+            HDREffect.CurrentTechnique = HDREffect.Techniques["ToneMap"];
+            PostProcess(sources3, result, HDREffect);
 
+            // Flip the luminance textures
+            Swap(ref currentFrameAdaptedLuminance, ref lastFrameAdaptedLuminance);
 
-                dofEffect.CurrentTechnique = dofEffect.Techniques["DOFBlurBuffer"];
-
-                dofEffect.Parameters["g_fFocalDistance"].SetValue(focalDistance);
-                dofEffect.Parameters["g_fFocalWidth"].SetValue(focalWidth / 2.0f);
-                dofEffect.Parameters["g_fFarClip"].SetValue(camera.FarZ);
-                dofEffect.Parameters["g_fAttenuation"].SetValue(1.0f);
-
-                RenderTarget2D[] sources = tripleSourceArray;
-                sources[0] = source;
-                sources[1] = downscaleTexture.RenderTarget;
-                sources[2] = depthTexture;
-
-                PostProcess(sources, result, dofEffect);
-
-                downscaleTexture.InUse = false;
-            }
+            bloom.InUse = false;
+            downscaleTarget.InUse = false;
         }
 
         /// <summary>
@@ -272,7 +279,7 @@ namespace Game1
         /// <param name="effect">The effect to use</param>
 		protected void PostProcess(RenderTarget2D source, RenderTarget2D result, Effect effect)
         {
-            RenderTarget2D[] sources = singleSourceArray;
+            RenderTarget2D[] sources = new RenderTarget2D[1];
             sources[0] = source;
             PostProcess(sources, result, effect);
         }
@@ -299,7 +306,7 @@ namespace Game1
             // Begin effect
             effect.CurrentTechnique.Passes[0].Apply();
 
-            // Draw the quad
+            // Draw primitives
             quadRenderer.Render();
         }
 
@@ -342,18 +349,16 @@ namespace Game1
             return newTexture;
         }
 
-
         /// <summary>
         /// Swaps two RenderTarget's
         /// </summary>
         /// <param name="rt1">The first RT</param>
         /// <param name="rt2">The second RT</param>
-        protected static void Swap(ref RenderTarget2D rt1, ref RenderTarget2D rt2)
+        protected void Swap(ref RenderTarget2D rt1, ref RenderTarget2D rt2)
         {
             RenderTarget2D temp = rt1;
             rt1 = rt2;
             rt2 = temp;
         }
     }
-
 }

@@ -29,11 +29,11 @@ namespace Game1.HUD
         }
         public override void LoadContent(ContentManager Content)
         {
-            crosshairDotTexture = Content.Load<Texture2D>("Hud/crosshair/dot");
-            crosshairChargeTexture = Content.Load<Texture2D>("Hud/crosshair/charge");
-            crosshairChargeFullTexture = Content.Load<Texture2D>("Hud/crosshair/chargefull");
-            crosshairCastingTexture = Content.Load<Texture2D>("Hud/crosshair/casting");
-            crosshairHitMarkerTexture = Content.Load<Texture2D>("Hud/crosshair/hitmarker");
+            crosshairDotTexture = Content.Load<Texture2D>("Interface/HUD/crosshair/dot");
+            crosshairChargeTexture = Content.Load<Texture2D>("Interface/HUD/crosshair/charge");
+            crosshairChargeFullTexture = Content.Load<Texture2D>("Interface/HUD/crosshair/chargefull");
+            crosshairCastingTexture = Content.Load<Texture2D>("Interface/HUD/crosshair/casting");
+            crosshairHitMarkerTexture = Content.Load<Texture2D>("Interface/HUD/crosshair/hitmarker");
 
             hitMarkerStopwatch = new Stopwatch();
         }

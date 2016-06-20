@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework.Graphics;
 using AnimationAux;
 using static Game1.Helpers.HexCoordinates;
 using Game1.Items;
+using Game1.Screens;
 
 namespace Game1
 {
@@ -76,7 +77,7 @@ namespace Game1
         //ten ble stary
         public bool Update(GameTime gameTime, Octree octree, List<Tile> path)
         {
-            Dictionary<AxialCoordinate, Tile> map = Game1.map;
+            Dictionary<AxialCoordinate, Tile> map = GameplayScreen.map;
 
             if (path.Count != 0)
             {
@@ -136,7 +137,7 @@ namespace Game1
             }
             else
             {
-                Dictionary<AxialCoordinate, Tile> map = Game1.map;
+                Dictionary<AxialCoordinate, Tile> map = GameplayScreen.map;
 
                 if (path.Count - tileNumber > 0)
                 {

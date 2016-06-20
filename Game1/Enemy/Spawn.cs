@@ -1,5 +1,6 @@
 ﻿using Game1.Helpers;
 using Game1.Items;
+using Game1.Screens;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -43,9 +44,9 @@ namespace Game1
 
             this.enemyType = enemyType;
 
-            Tile start = HexCoordinates.tileFromPosition(position, Game1.map);
-            Tile end = HexCoordinates.tileFromPosition(corePosition, Game1.map);
-            path = pathfinder.Pathfind(start, end, Game1.map, true);
+            Tile start = HexCoordinates.tileFromPosition(position, GameplayScreen.map);
+            Tile end = HexCoordinates.tileFromPosition(corePosition, GameplayScreen.map);
+            path = pathfinder.Pathfind(start, end, GameplayScreen.map, true);
             pathMiddle = pathfinder.PathfindMiddle(path);
         }
 
@@ -103,7 +104,7 @@ namespace Game1
         }
         public bool SpawnFlyEnemy()
         {
-            Enemy enemy = new EnemyFly(Game, Matrix.CreateTranslation(0, 30, 0)*worldMatrix, Game1.assetContentContainer.enemyFly, octree, itemManager, Content, pathMiddle);
+            Enemy enemy = new EnemyFly(Game, Matrix.CreateTranslation(0, 30, 0)*worldMatrix, GameplayScreen.assetContentContainer.enemyFly, octree, itemManager, Content, pathMiddle);
             enemies.Add(enemy);
             Octree.AddObject(enemy);
             return true;
@@ -111,9 +112,9 @@ namespace Game1
 
         public void UpdatePath()
         {
-            Tile start = HexCoordinates.tileFromPosition(position, Game1.map);
-            Tile end = HexCoordinates.tileFromPosition(corePosition, Game1.map);
-            path = pathfinder.Pathfind(start, end, Game1.map, true);
+            Tile start = HexCoordinates.tileFromPosition(position, GameplayScreen.map);
+            Tile end = HexCoordinates.tileFromPosition(corePosition, GameplayScreen.map);
+            path = pathfinder.Pathfind(start, end, GameplayScreen.map, true);
         }
     }
 }

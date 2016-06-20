@@ -38,9 +38,9 @@ namespace Game1.HUD
 
         public override void LoadContent(ContentManager Content)
         {
-            healthIcon = Content.Load<Texture2D>("Hud/icons/health");
-            manaIcon = Content.Load<Texture2D>("Hud/icons/mana");
-            essenceIcon = Content.Load<Texture2D>("Hud/icons/essence");
+            healthIcon = Content.Load<Texture2D>("Interface/HUD/icons/health");
+            manaIcon = Content.Load<Texture2D>("Interface/HUD/icons/mana");
+            essenceIcon = Content.Load<Texture2D>("Interface/HUD/icons/essence");
         }
     }
 }

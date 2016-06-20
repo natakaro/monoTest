@@ -30,8 +30,8 @@ namespace Game1.HUD
 
         public override void LoadContent(ContentManager Content)
         {
-            barBackground = Content.Load<Texture2D>("Hud/bar_background");
-            cornerMask = Content.Load<Texture2D>("Hud/bar_background_cornermask");
+            barBackground = Content.Load<Texture2D>("Interface/HUD/bar_background");
+            cornerMask = Content.Load<Texture2D>("Interface/HUD/bar_background_cornermask");
             stopwatch = new Stopwatch();
         }
 

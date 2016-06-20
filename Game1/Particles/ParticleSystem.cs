@@ -12,13 +12,15 @@ namespace Game1.Particles
     /// <summary>
     /// The main component in charge of displaying particles.
     /// </summary>
-    public abstract class ParticleSystem : DrawableGameComponent
+    public abstract class ParticleSystem
     {
         #region Fields
 
 
         // Settings class controls the appearance and animation of this particle system.
         ParticleSettings settings = new ParticleSettings();
+
+        Game game;
 
 
         // For loading the effect and particle texture.
@@ -152,8 +154,8 @@ namespace Game1.Particles
         /// Constructor.
         /// </summary>
         protected ParticleSystem(Game game, ContentManager content)
-            : base(game)
         {
+            this.game = game;
             this.content = content;
         }
 
@@ -161,7 +163,7 @@ namespace Game1.Particles
         /// <summary>
         /// Initializes the component.
         /// </summary>
-        public override void Initialize()
+        public void Initialize()
         {
             InitializeSettings(settings);
 
@@ -175,8 +177,6 @@ namespace Game1.Particles
                 particles[i * 4 + 2].Corner = new Vector2(1, 1);
                 particles[i * 4 + 3].Corner = new Vector2(-1, 1);
             }
-
-            base.Initialize();
         }
 
 
@@ -190,12 +190,12 @@ namespace Game1.Particles
         /// <summary>
         /// Loads graphics for the particle system.
         /// </summary>
-        protected override void LoadContent()
+        public void LoadContent()
         {
             LoadParticleEffect();
 
             // Create a dynamic vertex buffer.
-            vertexBuffer = new DynamicVertexBuffer(GraphicsDevice, ParticleVertex.VertexDeclaration,
+            vertexBuffer = new DynamicVertexBuffer(game.GraphicsDevice, ParticleVertex.VertexDeclaration,
                                                    settings.MaxParticles * 4, BufferUsage.WriteOnly);
 
             // Create and populate the index buffer.
@@ -212,7 +212,7 @@ namespace Game1.Particles
                 indices[i * 6 + 5] = (ushort)(i * 4 + 3);
             }
 
-            indexBuffer = new IndexBuffer(GraphicsDevice, typeof(ushort), indices.Length, BufferUsage.WriteOnly);
+            indexBuffer = new IndexBuffer(game.GraphicsDevice, typeof(ushort), indices.Length, BufferUsage.WriteOnly);
 
             indexBuffer.SetData(indices);
         }
@@ -276,7 +276,7 @@ namespace Game1.Particles
         /// <summary>
         /// Updates the particle system.
         /// </summary>
-        public override void Update(GameTime gameTime)
+        public void Update(GameTime gameTime)
         {
             if (gameTime == null)
                 throw new ArgumentNullException("gameTime");
@@ -364,9 +364,9 @@ namespace Game1.Particles
         /// <summary>
         /// Draws the particle system.
         /// </summary>
-        public override void Draw(GameTime gameTime)
+        public void Draw(GameTime gameTime)
         {
-            GraphicsDevice device = GraphicsDevice;
+            GraphicsDevice device = game.GraphicsDevice;
 
             // Restore the vertex buffer contents if the graphics device was lost.
             if (vertexBuffer.IsContentLost)

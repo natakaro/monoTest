@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Game1.Input;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
@@ -8,11 +9,14 @@ using System.Threading.Tasks;
 
 namespace Game1
 {
-    public class GameSettings : GameComponent
+    public class GameSettings
     {
         private static readonly int[] KernelSizes = { 2, 3, 5, 7 };
+
         public Vector3 LightDirection;
         public Vector3 LightColor;
+
+        public bool Shadows;
         public FixedFilterSize FixedFilterSize;
         public bool VisualizeCascades;
         public bool StabilizeCascades;
@@ -29,31 +33,31 @@ namespace Game1
         public bool DrawDebugShapes;
 
         public bool FXAA;
-        public bool DrawFog;
         public bool DrawSSAO;
         public bool ToneMap;
-        public bool Reflect;
+        public bool ReflectObjects;
         public float WaterHeight;
 
         public float SSAORadius;
         public float SSAOPower;
 
-        public bool EnemyMove;
+        public static Point ScreenResolution = new Point(1280, 720);
 
         public enum FogEffect
         {
-            FogLinear = 0,
-            FogExp = 1,
-            FogExp2 = 2
+            Off = 0,
+            Linear = 1,
+            Exponential = 2,
+            Exponential2 = 3
         }
 
         public FogEffect fog;
 
         public enum DOFType
         {
-            None = 0,
-            BlurBuffer = 1,
-            BlurBufferDepthCorrection = 2,
+            Off = 0,
+            Downscale = 1,
+            DownscaleWithDepth = 2,
             DiscBlur = 3
         }
 
@@ -71,8 +75,9 @@ namespace Game1
         }
 
         public GameSettings(Game game)
-            : base(game)
         {
+            Shadows = true;
+
             LightDirection = Vector3.Normalize(new Vector3(1, 1, -1));
             LightColor = new Vector3(3, 3, 3);
             Bias = 0.002f;
@@ -91,54 +96,41 @@ namespace Game1
             ShowGBuffer = false;
             DrawDebugShapes = false;
 
-            fog = FogEffect.FogExp;
+            fog = FogEffect.Exponential;
             dofType = DOFType.DiscBlur;
 
             FXAA = true;
-            DrawFog = true;
             DrawSSAO = true;
             ToneMap = true;
-            Reflect = true;
+            ReflectObjects = true;
             WaterHeight = 5;
-
-            EnemyMove = false;
 
             SSAORadius = 5;
             SSAOPower = 2;
         }
 
-        public override void Initialize()
-        {
-            base.Initialize();
-        }
-
-        private bool KeyJustPressed(Keys key)
-        {
-            return _currentKeyboardState.IsKeyDown(key) && _prevKeyboardState.IsKeyUp(key);
-        }
-
-        public override void Update(GameTime gameTime)
+        public void Update(GameTime gameTime, InputState state)
         {
             _prevKeyboardState = _currentKeyboardState;
-            _currentKeyboardState = Keyboard.GetState();
+            _currentKeyboardState = state.CurrentKeyboardState;
 
-            if (KeyJustPressed(Keys.F))
+            if (state.IsNewKeyPress(Keys.F))
             {
                 FixedFilterSize++;
                 if (FixedFilterSize > FixedFilterSize.Filter7x7)
                     FixedFilterSize = FixedFilterSize.Filter2x2;
             }
 
-            if (KeyJustPressed(Keys.C))
+            if (state.IsNewKeyPress(Keys.C))
                 StabilizeCascades = !StabilizeCascades;
 
-            if (KeyJustPressed(Keys.V))
+            if (state.IsNewKeyPress(Keys.V))
                 VisualizeCascades = !VisualizeCascades;
 
-            if (KeyJustPressed(Keys.K))
+            if (state.IsNewKeyPress(Keys.K))
                 FilterAcrossCascades = !FilterAcrossCascades;
 
-            if (KeyJustPressed(Keys.B))
+            if (state.IsNewKeyPress(Keys.B))
             {
                 if (_currentKeyboardState.IsKeyDown(Keys.LeftShift) || _currentKeyboardState.IsKeyDown(Keys.RightShift))
                 {
@@ -152,7 +144,7 @@ namespace Game1
                 Bias = (float)Math.Round(Bias, 3);
             }
 
-            if (KeyJustPressed(Keys.O))
+            if (state.IsNewKeyPress(Keys.O))
             {
                 if (_currentKeyboardState.IsKeyDown(Keys.LeftShift) || _currentKeyboardState.IsKeyDown(Keys.RightShift))
                 {
@@ -166,78 +158,63 @@ namespace Game1
                 OffsetScale = (float)Math.Round(OffsetScale, 1);
             }
 
-            if (KeyJustPressed(Keys.G))
+            if (state.IsNewKeyPress(Keys.G))
             {
                 ShowGBuffer = !ShowGBuffer;
             }
 
-            if (KeyJustPressed(Keys.X))
+            if (state.IsNewKeyPress(Keys.X))
                 FXAA = !FXAA;
 
-            if (KeyJustPressed(Keys.D1))
+            if (state.IsNewKeyPress(Keys.D1))
             {
                 Instancing = !Instancing;
             }
 
-            if (KeyJustPressed(Keys.D2))
+            if (state.IsNewKeyPress(Keys.D2))
             {
                 DrawDebugShapes = !DrawDebugShapes;
             }
 
-            if (KeyJustPressed(Keys.D4))
-                DrawFog = !DrawFog;
-
-            if (KeyJustPressed(Keys.D5))
+            if (state.IsNewKeyPress(Keys.D5))
             {
                 fog++;
-                if ((int)fog == 3)
-                    fog = FogEffect.FogLinear;
+                if ((int)fog == 4)
+                    fog = FogEffect.Off;
             }
 
-            if (KeyJustPressed(Keys.D6))
+            if (state.IsNewKeyPress(Keys.D6))
             {
                 dofType++;
                 if ((int)dofType == 4)
-                    dofType = DOFType.None;
+                    dofType = DOFType.Off;
             }
 
-            if (KeyJustPressed(Keys.D9))
+            if (state.IsNewKeyPress(Keys.D9))
             {
-                Reflect = !Reflect;
+                ReflectObjects = !ReflectObjects;
             }
 
-            if (_currentKeyboardState.IsKeyDown(Keys.Left))
-                FocalWidth -= 0.1f;
-
-            if (_currentKeyboardState.IsKeyDown(Keys.Right))
-                FocalWidth += 0.1f;
-
-            if (_currentKeyboardState.IsKeyDown(Keys.Down))
-                FocalDistance -= 0.1f;
-
-            if (_currentKeyboardState.IsKeyDown(Keys.Up))
-                FocalDistance += 0.1f;
-
-            if (KeyJustPressed(Keys.D8))
+            if (state.IsNewKeyPress(Keys.D8))
                 DrawSSAO = !DrawSSAO;
 
-            if (KeyJustPressed(Keys.F1))
+            if (state.IsNewKeyPress(Keys.F1))
                 SSAORadius -= 0.1f;
 
-            if (KeyJustPressed(Keys.F2))
+            if (state.IsNewKeyPress(Keys.F2))
                 SSAORadius += 0.1f;
 
-            if (KeyJustPressed(Keys.F3))
+            if (state.IsNewKeyPress(Keys.F3))
                 SSAOPower -= 0.1f;
 
-            if (KeyJustPressed(Keys.F4))
+            if (state.IsNewKeyPress(Keys.F4))
                 SSAOPower += 0.1f;
 
-            if (KeyJustPressed(Keys.F5))
+            if (state.IsNewKeyPress(Keys.F5))
                 ToneMap = !ToneMap;
 
-            if (KeyJustPressed(Keys.R))
-                Reflect = !Reflect;
+            if (state.IsNewKeyPress(Keys.R))
+                ReflectObjects = !ReflectObjects;
         }
     }
     public enum FixedFilterSize

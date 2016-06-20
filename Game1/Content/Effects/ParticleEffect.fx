@@ -8,7 +8,7 @@
 #endif
 
 #define CONTRAST_POWER 1.2
-#define FADE_DISTANCE 1
+#define FADE_DISTANCE 5
 
 // Camera parameters.
 matrix View;
@@ -208,10 +208,10 @@ float CalculateZFade(float2 uv, float particleDepth)
     {
         depthVal *= FarClip;
 
-        float input = (depthVal - particleDepth);
+        float input = (depthVal - particleDepth) / FADE_DISTANCE;
         if ((input < 1) && (input > 0))
         {
-            zFade = 0.5 * pow(saturate(2 * ((input > 0.5) ? (1 - input) : input)), 1.2);
+            zFade = 0.5 * pow(saturate(2 * ((input > 0.5) ? (1 - input) : input)), CONTRAST_POWER);
             zFade = (input > 0.5) ? (1 - zFade) : zFade;
         }
         else
@@ -245,7 +245,6 @@ float4 MainPS(VertexShaderOutput input) : COLOR
     //clip(depth - depthVal);
 
     return FadeParticleAlpha(tex2D(Sampler, input.TextureCoordinate) * input.Color, input.PositionCS.z, texCoord);
-    return tex2D(Sampler, input.TextureCoordinate) * input.Color;
 }
 
 technique Particles

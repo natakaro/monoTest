@@ -122,7 +122,7 @@ namespace Game1.Sky
 
         #region Contructor
 
-        public SkyDome(Game game, ref Camera camera)
+        public SkyDome(Game game, ref Camera camera, QuadRenderComponent quadRenderer)
         {
             this.game = game;
             this.camera = camera;
@@ -131,8 +131,7 @@ namespace Game1.Sky
 
             parameters = new SkyDomeParameters();
 
-            quad = new QuadRenderComponent(game);
-            game.Components.Add(quad);
+            quad = quadRenderer;
 
             fTheta = 0.0f;
             fPhi = 0.0f;

@@ -8,31 +8,28 @@ using System.Threading.Tasks;
 
 namespace Game1.Helpers
 {
-    public partial class QuadRenderComponent : DrawableGameComponent
+    public partial class QuadRenderComponent
     {
         #region Private Members        
         VertexPositionTextureRayIndex[] verts = null;
         short[] ib = null;
+        IGraphicsDeviceService graphicsService;
+        GraphicsDevice device;
 
         #endregion
 
         #region Constructor
-        public QuadRenderComponent(Game game)
-            : base(game)
+        public QuadRenderComponent(Game game, IGraphicsDeviceService graphicsService)
         {
-            // TODO: Construct any child components here
+            this.graphicsService = graphicsService;
+            this.device = graphicsService.GraphicsDevice;
         }
         #endregion
 
         #region LoadGraphicsContent
 
-        protected override void LoadContent()
+        public void LoadContent()
         {
-            IGraphicsDeviceService graphicsService =
-                (IGraphicsDeviceService)base.Game.Services.GetService(
-                                            typeof(IGraphicsDeviceService));
-
-
             verts = new VertexPositionTextureRayIndex[]
                     {
                             new VertexPositionTextureRayIndex(
@@ -57,11 +54,6 @@ namespace Game1.Helpers
         #region void Render(Vector2 v1, Vector2 v2)
         public void Render(Vector2 v1, Vector2 v2)
         {
-            IGraphicsDeviceService graphicsService = (IGraphicsDeviceService)
-                base.Game.Services.GetService(typeof(IGraphicsDeviceService));
-
-            GraphicsDevice device = graphicsService.GraphicsDevice;
-
             verts[0].Position.X = v2.X;
             verts[0].Position.Y = v1.Y;
 
@@ -80,11 +72,6 @@ namespace Game1.Helpers
 
         public void Render()
         {
-            IGraphicsDeviceService graphicsService = (IGraphicsDeviceService)
-                base.Game.Services.GetService(typeof(IGraphicsDeviceService));
-
-            GraphicsDevice device = graphicsService.GraphicsDevice;
-
             verts[0].Position.X = 1;
             verts[0].Position.Y = -1;
 
