@@ -24,6 +24,11 @@ namespace Game1
         { get { return Minutes + Seconds / 60; } }
         public float TimeFloat
         { get { return Hours + MinutesFloat / 60; } }
+
+        public bool IsDay
+        {
+            get { return (TimeFloat >= 6 && TimeFloat < 18); }
+        }
         public TimeOfDay(int hours, int minutes, float seconds)
         {
             Hours = hours;

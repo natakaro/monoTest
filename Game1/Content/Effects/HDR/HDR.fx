@@ -28,6 +28,11 @@
 float g_fDT;
 float g_fBloomMultiplier;
 
+float VignetteAmount = 0.6;
+float VignetteCurve = 1.0;
+float VignetteRadius = 1.4;
+float3 VignetteColor = float3(0.0, 0.0, 0.0);
+
 float4 LuminancePS(VertexShaderOutput input) : COLOR0
 {
     float4 vSample = tex2D(LinearSampler0, input.TexCoord);
@@ -69,6 +74,27 @@ float4 ToneMapPS(VertexShaderOutput input) : COLOR0
     return float4(vColor, 1.0f);
 }
 
+float4 ToneMapVignettePS(VertexShaderOutput input) : COLOR0
+{
+	// Sample the original HDR image
+    float4 vSample = tex2D(PointSampler0, input.TexCoord);
+    float3 vHDRColor = vSample.rgb;
+		
+	// Do the tone-mapping
+    float3 vToneMapped = fToneMap(vHDRColor);
+	
+	// Add in the bloom component
+    float3 vColor = vToneMapped + tex2D(LinearSampler2, input.TexCoord).rgb * g_fBloomMultiplier;
+
+    float2 dist = (input.TexCoord - 0.5f) * VignetteRadius;
+    float vignette = saturate(dot(dist, dist));
+    vignette = pow(vignette, VignetteCurve);
+
+    vColor = lerp(vColor, VignetteColor, vignette * VignetteAmount);
+	
+    return float4(vColor, 1.0f);
+}
+
 technique Luminance
 {
     pass p0
@@ -93,6 +119,15 @@ technique ToneMap
     {
         VertexShader = compile VS_SHADERMODEL PostProcessVS();
         PixelShader = compile PS_SHADERMODEL ToneMapPS();
+    }
+}
+
+technique ToneMapVignette
+{
+    pass p0
+    {
+        VertexShader = compile VS_SHADERMODEL PostProcessVS();
+        PixelShader = compile PS_SHADERMODEL ToneMapVignettePS();
     }
 }
 

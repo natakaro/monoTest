@@ -63,6 +63,7 @@
     <Compile Include="Animation\Bone.cs" />
     <Compile Include="Camera.cs" />
     <Compile Include="Core.cs" />
+    <Compile Include="HUD\HUDMinimap.cs" />
     <Compile Include="Postprocess\DepthOfFieldProcessor.cs" />
     <Compile Include="Enemy\EnemyWalk.cs" />
     <Compile Include="Enemy\EnemyFly.cs" />

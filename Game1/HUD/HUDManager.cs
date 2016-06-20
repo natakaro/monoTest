@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Game1.Helpers.HexCoordinates;
 
 namespace Game1.HUD
 {
@@ -16,6 +17,9 @@ namespace Game1.HUD
         private GraphicsDevice graphicsDevice;
         private ContentManager content;
         private Stats stats;
+        private TimeOfDay timeOfDay;
+        private Dictionary<AxialCoordinate, Tile> map;
+
         private List<HUDElement> elements;
 
         private float backbufferWidth;
@@ -29,18 +33,21 @@ namespace Game1.HUD
         private HUDCrosshair crosshair;
         private HUDPhaseMessage phaseMessage;
         private HUDIcons hudIcons;
+        private HUDMinimap minimap;
 
         private Matrix m;
         private AlphaTestEffect a;
         private DepthStencilState s1;
         private DepthStencilState s2;
 
-        public HUDManager(SpriteBatch spriteBatch, GraphicsDevice graphicsDevice, ContentManager content, Stats stats)
+        public HUDManager(SpriteBatch spriteBatch, GraphicsDevice graphicsDevice, ContentManager content, Stats stats, TimeOfDay timeOfDay, Dictionary<AxialCoordinate, Tile> map)
         {
             this.spriteBatch = spriteBatch;
             this.graphicsDevice = graphicsDevice;
             this.content = content;
             this.stats = stats;
+            this.timeOfDay = timeOfDay;
+            this.map = map;
             backbufferWidth = graphicsDevice.PresentationParameters.BackBufferWidth;
             backbufferHeight = graphicsDevice.PresentationParameters.BackBufferHeight;
             elements = new List<HUDElement>();
@@ -79,6 +86,7 @@ namespace Game1.HUD
             crosshair = new HUDCrosshair(spriteBatch, graphicsDevice, new Vector2(backbufferWidth / 2 - 32, backbufferHeight / 2 - 32), new Vector2(64, 64), stats);
             phaseMessage = new HUDPhaseMessage(spriteBatch, graphicsDevice, new Vector2(backbufferWidth / 2 - 740 / 2, backbufferHeight / 4 - 100 / 2), new Vector2(740, 100));
             hudIcons = new HUDIcons(spriteBatch, graphicsDevice, new Vector2(0, 0), new Vector2(0, 0), this);
+            minimap = new HUDMinimap(spriteBatch, graphicsDevice, new Vector2(backbufferWidth - 250, 0), new Vector2(250, 250), timeOfDay, map);
 
             elements.Add(healthBar);
             elements.Add(manaBar);
@@ -87,6 +95,7 @@ namespace Game1.HUD
             elements.Add(crosshair);
             elements.Add(phaseMessage);
             elements.Add(hudIcons);
+            elements.Add(minimap);
 
             foreach(HUDElement element in elements)
             {

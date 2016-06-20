@@ -263,7 +263,7 @@ namespace Game1.Screens
 
             stopwatchLastTargetedEnemy = new Stopwatch();
 
-            hudManager = new HUDManager(spriteBatch, GraphicsDevice, Content, stats);
+            hudManager = new HUDManager(spriteBatch, GraphicsDevice, Content, stats, timeOfDay, map);
             hudManager.LoadContent();
 
             assetContentContainer = new AssetContentContainer();
@@ -298,7 +298,7 @@ namespace Game1.Screens
 
             ssao = new SSAO(GraphicsDevice, Content, settings, quadRenderer, camera, normalTarget, depthTarget);
 
-            hdrProcessor = new HDRProcessor(GraphicsDevice, Content, quadRenderer);
+            hdrProcessor = new HDRProcessor(GraphicsDevice, Content, quadRenderer, settings);
             hdrProcessor.FlushCache();
 
             dofProcessor = new DepthOfFieldProcessor(GraphicsDevice, Content, quadRenderer);
@@ -736,6 +736,8 @@ namespace Game1.Screens
                     timeOfDay.Seconds.ToString("00"));
                 buffer.AppendFormat(" Time of day Logistic: {0}\n\n",
                     timeOfDay.LogisticTime(0.1f, 0.8f, 2.0f).ToString("f2"));
+                buffer.AppendFormat(" Time of day TimeFloat: {0}\n\n",
+                    timeOfDay.TimeFloat.ToString("f2"));
 
                 buffer.AppendFormat(" Non-octree objects: {0}\n\n",
                     objectManager.List.Count);
@@ -748,6 +750,7 @@ namespace Game1.Screens
                     stats.currentHealth.ToString());
                 buffer.AppendFormat(" Mana: {0}\n\n",
                     stats.currentMana.ToString());
+
             }
             spriteBatch.DrawString(spriteFont, buffer.ToString(), fontPos, Color.Yellow);
         }
@@ -864,8 +867,7 @@ namespace Game1.Screens
 
                 ResolveGBuffer();
 
-                if(settings.Shadows)
-                    shadowRenderer.RenderShadowMap(GraphicsDevice, camera, lightDirection, Matrix.Identity, octree);
+                shadowRenderer.RenderShadowMap(GraphicsDevice, camera, lightDirection, Matrix.Identity, octree);
 
                 ssao.DrawSSAO();
 

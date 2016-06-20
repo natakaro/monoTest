@@ -38,6 +38,8 @@ namespace Game1
         public bool ReflectObjects;
         public float WaterHeight;
 
+        public bool Vignette;
+
         public float SSAORadius;
         public float SSAOPower;
 
@@ -104,6 +106,8 @@ namespace Game1
             ToneMap = true;
             ReflectObjects = true;
             WaterHeight = 5;
+
+            Vignette = true;
 
             SSAORadius = 5;
             SSAOPower = 2;
@@ -215,6 +219,9 @@ namespace Game1
 
             if (state.IsNewKeyPress(Keys.R))
                 ReflectObjects = !ReflectObjects;
+
+            if (state.IsNewKeyPress(Keys.Q))
+                Vignette = !Vignette;
         }
     }
     public enum FixedFilterSize

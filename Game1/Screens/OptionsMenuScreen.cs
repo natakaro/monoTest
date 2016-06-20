@@ -33,6 +33,7 @@ namespace Game1.Screens
         MenuEntry fxaaMenuEntry;
         MenuEntry hdrMenuEntry;
         MenuEntry reflectionsMenuEntry;
+        MenuEntry vignetteMenuEntry;
 
         MenuEntry back;
 
@@ -63,6 +64,7 @@ namespace Game1.Screens
             fxaaMenuEntry = new MenuEntry(string.Empty);
             hdrMenuEntry = new MenuEntry(string.Empty);
             reflectionsMenuEntry = new MenuEntry(string.Empty);
+            vignetteMenuEntry = new MenuEntry(string.Empty);
 
             back = new MenuEntry("Back");            
 
@@ -108,6 +110,10 @@ namespace Game1.Screens
             reflectionsMenuEntry.SelectedLeft += ReflectionsMenuEntrySelected;
             reflectionsMenuEntry.SelectedRight += ReflectionsMenuEntrySelected;
 
+            vignetteMenuEntry.Selected += VignetteMenuEntrySelected;
+            vignetteMenuEntry.SelectedLeft += VignetteMenuEntrySelected;
+            vignetteMenuEntry.SelectedRight += VignetteMenuEntrySelected;
+
             back.Selected += OnCancel;
 
             // Add entries to the menu.
@@ -127,6 +133,7 @@ namespace Game1.Screens
             MenuEntries.Add(fxaaMenuEntry);
             MenuEntries.Add(hdrMenuEntry);
             MenuEntries.Add(reflectionsMenuEntry);
+            MenuEntries.Add(vignetteMenuEntry);
 
             MenuEntries.Add(back);
         }
@@ -160,6 +167,7 @@ namespace Game1.Screens
             fxaaMenuEntry.Text = "FXAA: " + (settings.FXAA ? "on" : "off");
             hdrMenuEntry.Text = "HDR and Tonemapping: " + (settings.ToneMap ? "on" : "off");
             reflectionsMenuEntry.Text = "Water reflections: " + (settings.ReflectObjects ? "on" : "off");
+            vignetteMenuEntry.Text = "Vignette: " + (settings.Vignette ? "on" : "off");
         }
         #endregion
 
@@ -332,6 +340,13 @@ namespace Game1.Screens
         void ReflectionsMenuEntrySelected(object sender, EventArgs e)
         {
             settings.ReflectObjects = !settings.ReflectObjects;
+
+            SetMenuEntryText();
+        }
+
+        void VignetteMenuEntrySelected(object sender, EventArgs e)
+        {
+            settings.Vignette = !settings.Vignette;
 
             SetMenuEntryText();
         }

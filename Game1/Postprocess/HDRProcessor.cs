@@ -15,6 +15,7 @@ namespace Game1.Postprocess
         protected GraphicsDevice graphicsDevice;
         protected ContentManager contentManager;
         protected QuadRenderComponent quadRenderer;
+        protected GameSettings settings;
         protected List<IntermediateTexture> intermediateTextures = new List<IntermediateTexture>();
 
         protected Effect blurEffect;
@@ -45,11 +46,12 @@ namespace Game1.Postprocess
             set { maxLuminance = value; }
         }
 
-        public HDRProcessor(GraphicsDevice graphicsDevice, ContentManager contentManager, QuadRenderComponent quadRenderer)
+        public HDRProcessor(GraphicsDevice graphicsDevice, ContentManager contentManager, QuadRenderComponent quadRenderer, GameSettings settings)
         {
             this.contentManager = contentManager;
             this.graphicsDevice = graphicsDevice;
             this.quadRenderer = quadRenderer;
+            this.settings = settings;
 
             // Load the effects
             blurEffect = contentManager.Load<Effect>("Effects/HDR/Blur");
@@ -251,7 +253,10 @@ namespace Game1.Postprocess
             sources3[0] = source;
             sources3[1] = currentFrameAdaptedLuminance;
             sources3[2] = bloom.RenderTarget;
-            HDREffect.CurrentTechnique = HDREffect.Techniques["ToneMap"];
+            if (settings.Vignette)
+                HDREffect.CurrentTechnique = HDREffect.Techniques["ToneMapVignette"];
+            else
+                HDREffect.CurrentTechnique = HDREffect.Techniques["ToneMap"];
             PostProcess(sources3, result, HDREffect);
 
             // Flip the luminance textures
