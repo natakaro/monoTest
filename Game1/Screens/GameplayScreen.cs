@@ -891,7 +891,12 @@ namespace Game1.Screens
                 DrawFog();
 
                 if (settings.dofType != GameSettings.DOFType.Off)
-                    dofProcessor.DOF(postProcessTarget2, postProcessTarget1, depthTarget, camera, settings.dofType, settings.FocalDistance, settings.FocalWidth);
+                {
+                    if(settings.ToneMap)
+                        dofProcessor.DOF(postProcessTarget2, postProcessTarget1, depthTarget, camera, settings.dofType, settings.FocalDistance, settings.FocalWidth);
+                    else
+                        dofProcessor.DOF(postProcessTarget2, finalTarget, depthTarget, camera, settings.dofType, settings.FocalDistance, settings.FocalWidth);
+                }
 
                 if (settings.ToneMap)
                 {
@@ -957,8 +962,11 @@ namespace Game1.Screens
             else
             {
                 spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
-                spriteBatch.Draw(finalTarget, new Rectangle(0, 0, finalTarget.Width, finalTarget.Height), Color.White);
-                spriteBatch.End();               
+                if(settings.ToneMap || settings.dofType != GameSettings.DOFType.Off)
+                    spriteBatch.Draw(finalTarget, new Rectangle(0, 0, finalTarget.Width, finalTarget.Height), Color.White);
+                else
+                    spriteBatch.Draw(postProcessTarget1, new Rectangle(0, 0, postProcessTarget1.Width, postProcessTarget1.Height), Color.White);
+                spriteBatch.End();
             }
             // If the game is transitioning on or off, fade it out to black.
             if (TransitionPosition > 0 || pauseAlpha > 0)

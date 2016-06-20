@@ -19,17 +19,17 @@ namespace Game1.Screens
     {
         #region Fields
 
-        List<MenuEntry> menuEntries = new List<MenuEntry>();
-        int? selectedEntry = 0;
-        int previousSelectedEntry = 0;
-        string menuTitle;
+        protected List<MenuEntry> menuEntries = new List<MenuEntry>();
+        protected int? selectedEntry = 0;
+        protected int previousSelectedEntry = 0;
+        protected string menuTitle;
 
-        InputAction menuUp;
-        InputAction menuDown;
-        InputAction menuLeft;
-        InputAction menuRight;
-        InputAction menuSelect;
-        InputAction menuCancel;
+        protected InputAction menuUp;
+        protected InputAction menuDown;
+        protected InputAction menuLeft;
+        protected InputAction menuRight;
+        protected InputAction menuSelect;
+        protected InputAction menuCancel;
 
         ContentManager content;
         Texture2D arrowTexture;
