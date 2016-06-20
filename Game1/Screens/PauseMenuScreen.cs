@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -39,6 +41,13 @@ namespace Game1.Screens
         #endregion
 
         #region Handle Input
+        protected override void OnCancel()
+        {
+            Rectangle clientBounds = ScreenManager.Game.Window.ClientBounds;
+            Mouse.SetPosition(clientBounds.Width / 2, clientBounds.Height / 2);
+            ExitScreen();
+        }
+
         /// <summary>
         /// Event handler for when the Quit Game menu entry is selected.
         /// </summary>

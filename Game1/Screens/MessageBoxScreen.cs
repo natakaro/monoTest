@@ -16,7 +16,10 @@ namespace Game1.Screens
         #region Fields
 
         string message;
-        Texture2D gradientTexture;
+        Texture2D backgroundTexture;
+        Texture2D horizontalBorderTexture;
+        Texture2D verticalBorderTexture;
+        Texture2D cornerTexture;
 
         InputAction menuSelect;
         InputAction menuCancel;
@@ -31,22 +34,11 @@ namespace Game1.Screens
         #endregion
 
         #region Initialization
-
-
-        /// <summary>
-        /// Constructor automatically includes the standard "A=ok, B=cancel"
-        /// usage text prompt.
-        /// </summary>
-        public MessageBoxScreen(string message)
-            : this(message, true)
-        { }
-
-
         /// <summary>
         /// Constructor lets the caller specify whether to include the standard
         /// "A=ok, B=cancel" usage text prompt.
         /// </summary>
-        public MessageBoxScreen(string message, bool includeUsageText)
+        public MessageBoxScreen(string message, bool includeUsageText = true)
         {
             const string usageText = "\nSpace, Enter = ok" +
                                      "\nEsc = cancel";
@@ -81,7 +73,11 @@ namespace Game1.Screens
         public override void Activate()
         {
             ContentManager content = ScreenManager.Game.Content;
-            gradientTexture = content.Load<Texture2D>("Interface/gradient");
+            horizontalBorderTexture = content.Load<Texture2D>("Interface/messagebox_horizontalborder");
+            verticalBorderTexture = content.Load<Texture2D>("Interface/messagebox_verticalborder");
+            cornerTexture = content.Load<Texture2D>("Interface/messagebox_corner");
+            backgroundTexture = new Texture2D(ScreenManager.Game.GraphicsDevice, 1, 1);
+            backgroundTexture.SetData(new Color[] { Color.Black });
         }
 
 
@@ -149,13 +145,63 @@ namespace Game1.Screens
                                                           (int)textSize.X + hPad * 2,
                                                           (int)textSize.Y + vPad * 2);
 
+            Rectangle topBorder = new Rectangle((int)textPosition.X - hPad + cornerTexture.Width,
+                                                (int)textPosition.Y - vPad,
+                                                (int)textSize.X + hPad * 2 - cornerTexture.Width,
+                                                horizontalBorderTexture.Height);
+
+            Rectangle bottomBorder = new Rectangle((int)textPosition.X - hPad + cornerTexture.Width,
+                                                  (int)textPosition.Y + (int)textSize.Y + vPad,
+                                                  (int)textSize.X + hPad * 2 - cornerTexture.Width,
+                                                  horizontalBorderTexture.Height);
+
+            Rectangle leftBorder = new Rectangle((int)textPosition.X - hPad,
+                                                 (int)textPosition.Y - vPad + cornerTexture.Height,
+                                                 verticalBorderTexture.Width,
+                                                 (int)textSize.Y + vPad * 2 - cornerTexture.Height);
+
+            Rectangle rightBorder = new Rectangle((int)textPosition.X + (int)textSize.X + hPad,
+                                                  (int)textPosition.Y - vPad + cornerTexture.Height,
+                                                  verticalBorderTexture.Width,
+                                                  (int)textSize.Y + vPad * 2 - cornerTexture.Height);
+
+            Rectangle ULcorner = new Rectangle((int)textPosition.X - hPad,
+                                                (int)textPosition.Y - vPad,
+                                                cornerTexture.Width,
+                                                cornerTexture.Height);
+
+            Rectangle URcorner = new Rectangle((int)textPosition.X + (int)textSize.X + hPad,
+                                                (int)textPosition.Y - vPad,
+                                                cornerTexture.Width,
+                                                cornerTexture.Height);
+
+            Rectangle DLcorner = new Rectangle((int)textPosition.X - hPad,
+                                                (int)textPosition.Y + (int)textSize.Y + vPad,
+                                                cornerTexture.Width,
+                                                cornerTexture.Height);
+
+            Rectangle DRcorner = new Rectangle((int)textPosition.X + (int)textSize.X + hPad,
+                                                (int)textPosition.Y + (int)textSize.Y + vPad,
+                                                cornerTexture.Width,
+                                                cornerTexture.Height);
+
             // Fade the popup alpha during transitions.
             Color color = Color.White * TransitionAlpha;
 
             spriteBatch.Begin();
 
             // Draw the background rectangle.
-            spriteBatch.Draw(gradientTexture, backgroundRectangle, color);
+            spriteBatch.Draw(backgroundTexture, backgroundRectangle, color * (100f/255f));
+
+            spriteBatch.Draw(horizontalBorderTexture, topBorder, color);
+            spriteBatch.Draw(horizontalBorderTexture, bottomBorder, null, color, 0, Vector2.Zero, SpriteEffects.FlipVertically, 0);
+            spriteBatch.Draw(verticalBorderTexture, leftBorder, color);
+            spriteBatch.Draw(verticalBorderTexture, rightBorder, null, color, 0, Vector2.Zero, SpriteEffects.FlipHorizontally, 0);
+
+            spriteBatch.Draw(cornerTexture, ULcorner, color);
+            spriteBatch.Draw(cornerTexture, URcorner, null, color, 0, Vector2.Zero, SpriteEffects.FlipHorizontally, 0);
+            spriteBatch.Draw(cornerTexture, DLcorner, null, color, 0, Vector2.Zero, SpriteEffects.FlipVertically, 0);
+            spriteBatch.Draw(cornerTexture, DRcorner, null, color, 0, Vector2.Zero, SpriteEffects.FlipHorizontally | SpriteEffects.FlipVertically, 0);
 
             // Draw the message box text.
             spriteBatch.DrawString(font, message, textPosition, color);

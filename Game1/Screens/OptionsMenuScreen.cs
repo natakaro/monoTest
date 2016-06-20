@@ -48,18 +48,18 @@ namespace Game1.Screens
             : base("Options")
         {
             shadowsMenuEntry = new MenuEntry(string.Empty);
-            shadowFilteringMenuEntry = new MenuEntry(string.Empty);
+            shadowFilteringMenuEntry = new MenuEntry(string.Empty, true);
             stabilizeCascadesMenuEntry = new MenuEntry(string.Empty);
             filterAcrossCascadesMenuEntry = new MenuEntry(string.Empty);
-            shadowBiasMenuEntry = new MenuEntry(string.Empty);
-            shadowOffsetMenuEntry = new MenuEntry(string.Empty);
+            shadowBiasMenuEntry = new MenuEntry(string.Empty, true);
+            shadowOffsetMenuEntry = new MenuEntry(string.Empty, true);
 
             ssaoMenuEntry = new MenuEntry(string.Empty);
-            ssaoRadiusMenuEntry = new MenuEntry(string.Empty);
-            ssaoPowerMenuEntry = new MenuEntry(string.Empty);
+            ssaoRadiusMenuEntry = new MenuEntry(string.Empty, true);
+            ssaoPowerMenuEntry = new MenuEntry(string.Empty, true);
 
-            fogMenuEntry = new MenuEntry(string.Empty);
-            dofMenuEntry = new MenuEntry(string.Empty);
+            fogMenuEntry = new MenuEntry(string.Empty, true);
+            dofMenuEntry = new MenuEntry(string.Empty, true);
             fxaaMenuEntry = new MenuEntry(string.Empty);
             hdrMenuEntry = new MenuEntry(string.Empty);
             reflectionsMenuEntry = new MenuEntry(string.Empty);
@@ -133,6 +133,8 @@ namespace Game1.Screens
 
         public override void Activate()
         {
+            base.Activate();
+
             settings = (ScreenManager.Game as Game1).settings;
             SetMenuEntryText();
         }

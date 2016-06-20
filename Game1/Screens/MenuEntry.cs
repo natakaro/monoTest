@@ -37,6 +37,8 @@ namespace Game1.Screens
         /// </summary>
         Vector2 position;
 
+        bool drawArrows;
+
         #endregion
 
         #region Properties
@@ -59,6 +61,12 @@ namespace Game1.Screens
         {
             get { return position; }
             set { position = value; }
+        }
+
+        public bool DrawArrows
+        {
+            get { return drawArrows; }
+            set { drawArrows = value; }
         }
 
 
@@ -102,9 +110,10 @@ namespace Game1.Screens
         /// <summary>
         /// Constructs a new menu entry with the specified text.
         /// </summary>
-        public MenuEntry(string text)
+        public MenuEntry(string text, bool drawArrows = false)
         {
             this.text = text;
+            this.drawArrows = drawArrows;
         }
 
 
@@ -143,7 +152,7 @@ namespace Game1.Screens
 
             float pulsate = (float)Math.Sin(time * 6) + 1;
 
-            float scale = 1 + pulsate * 0.05f * selectionFade;
+            float scale = 1 + pulsate * 0.01f * selectionFade;
 
             // Modify the alpha to fade text out during transitions.
             color *= screen.TransitionAlpha;

@@ -1,5 +1,6 @@
 ﻿using Game1.Input;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
@@ -19,7 +20,8 @@ namespace Game1.Screens
         #region Fields
 
         List<MenuEntry> menuEntries = new List<MenuEntry>();
-        int selectedEntry = 0;
+        int? selectedEntry = 0;
+        int previousSelectedEntry = 0;
         string menuTitle;
 
         InputAction menuUp;
@@ -28,6 +30,9 @@ namespace Game1.Screens
         InputAction menuRight;
         InputAction menuSelect;
         InputAction menuCancel;
+
+        ContentManager content;
+        Texture2D arrowTexture;
 
         #endregion
 
@@ -85,6 +90,14 @@ namespace Game1.Screens
                 true);
         }
 
+        public override void Activate()
+        {
+            if (content == null)
+                content = new ContentManager(ScreenManager.Game.Services, "Content");
+
+            arrowTexture = content.Load<Texture2D>("Interface/arrow");
+        }
+
 
         #endregion
 
@@ -97,55 +110,109 @@ namespace Game1.Screens
         /// </summary>
         public override void HandleInput(GameTime gameTime, InputState input)
         {
-            ScreenManager.Game.IsMouseVisible = true;
+            //ScreenManager.Game.IsMouseVisible = true;
             // Move to the previous menu entry?
             if (menuUp.Evaluate(input))
             {
-                selectedEntry--;
+                ScreenManager.Game.IsMouseVisible = false;
 
-                if (selectedEntry < 0)
-                    selectedEntry = menuEntries.Count - 1;
+                if (selectedEntry == null)
+                    selectedEntry = previousSelectedEntry;
+                else
+                {
+                    selectedEntry--;
+
+                    if (selectedEntry < 0)
+                        selectedEntry = menuEntries.Count - 1;
+                }
             }
 
             // Move to the next menu entry?
             if (menuDown.Evaluate(input))
             {
-                selectedEntry++;
+                ScreenManager.Game.IsMouseVisible = false;
 
-                if (selectedEntry >= menuEntries.Count)
-                    selectedEntry = 0;
+                if (selectedEntry == null)
+                    selectedEntry = previousSelectedEntry;
+                else
+                {
+                    selectedEntry++;
+
+                    if (selectedEntry >= menuEntries.Count)
+                        selectedEntry = 0;
+                }
             }
 
             if (menuLeft.Evaluate(input))
             {
+                ScreenManager.Game.IsMouseVisible = false;
                 OnSelectEntryLeft(selectedEntry);
             }
 
             if (menuRight.Evaluate(input))
             {
+                ScreenManager.Game.IsMouseVisible = false;
                 OnSelectEntryRight(selectedEntry);
             }
 
             if (menuSelect.Evaluate(input))
             {
+                ScreenManager.Game.IsMouseVisible = false;
                 OnSelectEntry(selectedEntry);
             }
-            else if (menuCancel.Evaluate(input))
+
+            if (menuCancel.Evaluate(input))
             {
                 OnCancel();
             }
 
             if (input.IsNewLeftMouseClick)
             {
-                OnSelectEntry(selectedEntry);
+                if (selectedEntry != null)
+                {
+                    if (input.LastMouseState.Y > menuEntries[(int)selectedEntry].Position.Y - menuEntries[(int)selectedEntry].GetHeight(this) / 2 &&
+                                input.LastMouseState.Y < menuEntries[(int)selectedEntry].Position.Y + menuEntries[(int)selectedEntry].GetHeight(this) / 2 &&
+                                input.LastMouseState.X > menuEntries[(int)selectedEntry].Position.X - 30 &&
+                                input.LastMouseState.X < menuEntries[(int)selectedEntry].Position.X - 10)
+                        OnSelectEntryLeft(selectedEntry);
+                    else
+                        OnSelectEntry(selectedEntry);
+                }
+                else
+                    OnSelectEntry(selectedEntry);
             }
 
-            for (int i = 0; i < menuEntries.Count; i++)
+            if (input.CurrentMouseState.Position != input.LastMouseState.Position)
             {
-                if (input.LastMouseState.Y > menuEntries[i].Position.Y &&
-                    input.LastMouseState.Y < menuEntries[i].Position.Y + ScreenManager.Font.LineSpacing)
+                if(selectedEntry != null)
+                    previousSelectedEntry = (int)selectedEntry;
+
+                selectedEntry = null;
+
+                ScreenManager.Game.IsMouseVisible = true;
+
+                for (int i = 0; i < menuEntries.Count; i++)
                 {
-                    selectedEntry = i;
+                    if (input.LastMouseState.Y > menuEntries[i].Position.Y - menuEntries[i].GetHeight(this) / 2 &&
+                        input.LastMouseState.Y < menuEntries[i].Position.Y + menuEntries[i].GetHeight(this) / 2 &&
+                        input.LastMouseState.X > menuEntries[i].Position.X &&
+                        input.LastMouseState.X < menuEntries[i].Position.X + menuEntries[i].GetWidth(this))
+                    {
+                        selectedEntry = i;
+                    }
+
+                    if (menuEntries[i].DrawArrows)
+                    {
+                        if (input.LastMouseState.Y > menuEntries[i].Position.Y - menuEntries[i].GetHeight(this) / 2 &&
+                            input.LastMouseState.Y < menuEntries[i].Position.Y + menuEntries[i].GetHeight(this) / 2 &&
+                            ((input.LastMouseState.X > menuEntries[i].Position.X - 30 &&
+                            input.LastMouseState.X < menuEntries[i].Position.X - 10) ||
+                            (input.LastMouseState.X > menuEntries[i].Position.X + menuEntries[i].GetWidth(this) + 8 &&
+                            input.LastMouseState.X < menuEntries[i].Position.X + menuEntries[i].GetWidth(this) + 28)))
+                        {
+                            selectedEntry = i;
+                        }
+                    }
                 }
             }
         }
@@ -154,19 +221,22 @@ namespace Game1.Screens
         /// <summary>
         /// Handler for when the user has chosen a menu entry.
         /// </summary>
-        protected virtual void OnSelectEntry(int entryIndex)
+        protected virtual void OnSelectEntry(int? entryIndex)
         {
-            menuEntries[entryIndex].OnSelectEntry();
+            if(entryIndex != null)
+                menuEntries[(int)entryIndex].OnSelectEntry();
         }
 
-        protected virtual void OnSelectEntryLeft(int entryIndex)
+        protected virtual void OnSelectEntryLeft(int? entryIndex)
         {
-            menuEntries[entryIndex].OnSelectEntryLeft();
+            if (entryIndex != null)
+                menuEntries[(int)entryIndex].OnSelectEntryLeft();
         }
 
-        protected virtual void OnSelectEntryRight(int entryIndex)
+        protected virtual void OnSelectEntryRight(int? entryIndex)
         {
-            menuEntries[entryIndex].OnSelectEntryRight();
+            if (entryIndex != null)
+                menuEntries[(int)entryIndex].OnSelectEntryRight();
         }
 
         /// <summary>
@@ -266,6 +336,12 @@ namespace Game1.Screens
                 bool isSelected = IsActive && (i == selectedEntry);
 
                 menuEntry.Draw(this, isSelected, gameTime);
+
+                if (menuEntry.DrawArrows)
+                {
+                    spriteBatch.Draw(arrowTexture, new Vector2(menuEntry.Position.X - 25, menuEntry.Position.Y - 8), null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.FlipHorizontally, 0);
+                    spriteBatch.Draw(arrowTexture, new Vector2(menuEntry.Position.X + menuEntry.GetWidth(this) + 14, menuEntry.Position.Y - 8), null, Color.White);
+                }
             }
 
             // Make the menu slide into place during transitions, using a
