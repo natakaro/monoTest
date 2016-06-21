@@ -26,8 +26,8 @@ namespace Game1
             this.modelId = modelId;
 
             type = ObjectType.Asset;
-
-            boundingBox = CollisionBox.CreateBoundingBox(model, position, 1);
+            //boundingBox = CollisionBox.CreateBoundingBox(model, position, 1);
+            boundingBox = CollisionBox.CreateBoundingBox(model, position, 1, Matrix.CreateFromQuaternion(Orientation));
         }
 
         public override void Draw(Camera camera)
@@ -45,6 +45,7 @@ namespace Game1
                 }
                 mesh.Draw();
             }
+
         }
     }
 }

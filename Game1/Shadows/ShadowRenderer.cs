@@ -365,7 +365,7 @@ namespace Game1.Shadows
                         foreach (var meshPart in mesh.MeshParts)
                             if (meshPart.PrimitiveCount > 0)
                             {
-                                shadowMapEffect.WorldViewProjection = Matrix.CreateScale(dObject.Scale) * dObject.ModelBones[mesh.ParentBone.Index] * Matrix.CreateTranslation(dObject.Position) * worldViewProjection;
+                                shadowMapEffect.WorldViewProjection = Matrix.CreateScale(dObject.Scale) * dObject.ModelBones[mesh.ParentBone.Index] * Matrix.CreateFromQuaternion(dObject.Orientation) * Matrix.CreateTranslation(dObject.Position) * worldViewProjection;
                                 shadowMapEffect.Apply();
 
                                 graphicsDevice.SetVertexBuffer(meshPart.VertexBuffer);

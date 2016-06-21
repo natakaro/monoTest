@@ -48,60 +48,6 @@ namespace Game1
 
 
 
-        //ten ble stary
-        public new bool Update(GameTime gameTime, Octree octree, List<Tile> path)
-        {
-            Dictionary<AxialCoordinate, Tile> map = GameplayScreen.map;
-
-            if (path.Count != 0)
-            {
-                try
-                {
-                    targetTile = path[tileNumber];
-                    Vector3 direction = Vector3.Normalize(targetTile.Position - position);
-                    Vector3 directionXZ = Vector3.Normalize(new Vector3(targetTile.Position.X, 0, targetTile.Position.Z) - new Vector3(position.X, 0, position.Z));
-                    velocity = speed * directionXZ;
-
-                    Tile tile = tileFromPosition(position, map);
-
-                    if (tile != null)
-                    {
-                        distance = boundingBox.Min.Y - tile.BoundingBox.Max.Y;
-                        boundingBox.Min.Y -= distance * gravity / 10 * (float)(gameTime.ElapsedGameTime.TotalSeconds);
-                    }
-                    if (tile == null)
-                        boundingBox.Min.Y -= gravity * (float)(gameTime.ElapsedGameTime.TotalSeconds);
-
-                    boundingBox.Max.Y = boundingBox.Min.Y + a;
-                    position.Y = boundingBox.Min.Y + b;
-
-                    targetRotation = (float)Math.Atan2((double)(targetTile.Position.X - position.X), (double)(targetTile.Position.Z - position.Z));
-
-                    worldMatrix = Matrix.CreateRotationY(targetRotation) * Matrix.CreateTranslation(position);
-                    animatedModel.Update(gameTime);
-
-                    while(Vector3.Distance(position, targetTile.Position) < 25 && tileNumber < path.Count)
-                    {
-                        tileNumber++;
-                        targetTile = path[tileNumber];
-                    }
-
-                    //if (Vector3.Distance(position, targetTile.Position) < 25 && tileNumber < path.Count)
-                    //{
-                    //    tileNumber++;
-                    //}
-                }
-                catch
-                {
-                    alive = false;
-                }
-
-            }
-            bool ret = base.Update(gameTime);
-
-            return ret;
-        }
-
         public override bool Update(GameTime gameTime)
         {
             bool ret = base.Update(gameTime);
@@ -136,13 +82,25 @@ namespace Game1
 
                     targetRotation = (float)Math.Atan2((double)(targetPosition.X - position.X), (double)(targetPosition.Z - position.Z));
                     worldMatrix = Matrix.CreateRotationY(targetRotation) * Matrix.CreateTranslation(position);
-
+                    Orientation = worldMatrix.Rotation;
                     animatedModel.Update(gameTime);
+
+                    /*
+                    ////wyciagamy punkty 
+                    Vector3[] obb = new Vector3[8];
+                    obb = boundingBox.GetCorners();
+
+                    ////transformacja o worldmatrix
+                    Matrix rot = Matrix.CreateRotationY(targetRotation);
+                    Vector3.Transform(obb, ref rot, obb);
+                    ////tworzymy boxa na podstawie punktow 
+                    boundingBox = BoundingBox.CreateFromPoints(obb);
+                    */
 
                     //while (Vector3.Distance(position, targetPosition) < 25 && tileNumber < path.Count - 1)
                     //{
-                        //tileNumber++;
-                        //targetPosition = path[tileNumber];
+                    //tileNumber++;
+                    //targetPosition = path[tileNumber];
                     //}
 
                     if (Vector3.Distance(position, targetPosition) < 25 && tileNumber < path.Count)
@@ -174,6 +132,7 @@ namespace Game1
             }
             */
             animatedModel.Draw(GraphicsDevice, camera, worldMatrix, Content);
+            //boundingBox = CollisionBox.CreateBoundingBox(animatedModel, position, 1, Matrix.CreateFromQuaternion(Orientation)); // dostosowywany boundingbox
         }
 
 

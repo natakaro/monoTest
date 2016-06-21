@@ -62,5 +62,48 @@ namespace Game1.Helpers
             result.Min += position;
             return result;
         }
+
+        public static BoundingBox CreateBoundingBox(Model model, Vector3 position, float scale, Matrix rotation)
+        {
+            Matrix[] boneTransforms = new Matrix[model.Bones.Count];
+            model.CopyAbsoluteBoneTransformsTo(boneTransforms);
+
+            BoundingBox result = new BoundingBox();
+            foreach (ModelMesh mesh in model.Meshes)
+                foreach (ModelMeshPart meshPart in mesh.MeshParts)
+                {
+                    BoundingBox? meshPartBoundingBox = GetBoundingBox(meshPart, boneTransforms[mesh.ParentBone.Index]*rotation);
+                    if (meshPartBoundingBox != null)
+                        result = BoundingBox.CreateMerged(result, meshPartBoundingBox.Value);
+                }
+            
+            result.Max *= scale;
+            result.Min *= scale;
+            result.Max += position;
+            result.Min += position;
+            return result;
+        }
+
+        public static BoundingBox CreateBoundingBox(AnimatedModel model, Vector3 position, float scale, Matrix rotation)
+        {
+            Matrix[] boneTransforms = model.Skeleton;
+           // model.CopyAbsoluteBoneTransformsTo(boneTransforms);
+
+            BoundingBox result = new BoundingBox();
+            foreach (ModelMesh mesh in model.Model.Meshes)
+                foreach (ModelMeshPart meshPart in mesh.MeshParts)
+                {
+                    BoundingBox? meshPartBoundingBox = GetBoundingBox(meshPart, boneTransforms[mesh.ParentBone.Index] * rotation);
+                    if (meshPartBoundingBox != null)
+                        result = BoundingBox.CreateMerged(result, meshPartBoundingBox.Value);
+                }
+
+            result.Max *= scale;
+            result.Min *= scale;
+            result.Max += position;
+            result.Min += position;
+            return result;
+        }
+
     }
 }

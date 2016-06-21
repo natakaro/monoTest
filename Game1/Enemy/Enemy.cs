@@ -161,7 +161,7 @@ namespace Game1
 
                     targetRotation = (float)Math.Atan2((double)(targetPosition.X - position.X), (double)(targetPosition.Z - position.Z));
                     worldMatrix = Matrix.CreateRotationY(targetRotation) * Matrix.CreateTranslation(position);
-
+                    Orientation = worldMatrix.Rotation;
 
                     //while (Vector3.Distance(position, targetPosition) < 25 && tileNumber < path.Count - 1)
                     //{

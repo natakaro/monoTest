@@ -73,7 +73,7 @@ namespace Game1
             worldMatrix = inWorldMatrix;
             position = new Vector3(inWorldMatrix.M41, inWorldMatrix.M42, inWorldMatrix.M43);
             lastPosition = position;
-            orientation = Quaternion.Identity;
+            orientation = worldMatrix.Rotation;
             velocity = Vector3.Zero;
             acceleration = Vector3.Zero;
             boundingSphere = new BoundingSphere();
