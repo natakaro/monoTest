@@ -12,6 +12,7 @@ namespace Game1
 {
     public abstract class DrawableObject : DrawableGameComponent
     {
+        [Flags]
         public enum ObjectType
         {
             Player = 1,
@@ -22,8 +23,9 @@ namespace Game1
             Spawn = 32,
             Projectile = 64,
             Item = 128,
-            Ethereal = 256,      //stuff can go through this, not affected by most forces such as gravity
-            ALL = Player | Tile | Core | Turret | Enemy | Spawn | Projectile | Item | Ethereal
+            Asset = 256,
+            Ethereal = 512,      //stuff can go through this, not affected by most forces such as gravity
+            ALL = Player | Tile | Core | Turret | Enemy | Spawn | Projectile | Item | Asset | Ethereal
         };
 
         /// <summary>

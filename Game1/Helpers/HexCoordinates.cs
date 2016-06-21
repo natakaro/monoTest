@@ -9,6 +9,59 @@ namespace Game1.Helpers
 {
     public static class HexCoordinates
     {
+        public struct HexOffset
+        {
+            public float x;
+            public float y;
+
+            public HexOffset(float x, float y)
+            {
+                this.x = x;
+                this.y = y;
+            }
+
+            public CubeCoordinate evenQ_toCube()
+            {
+                CubeCoordinate ret;
+
+                ret.x = x;
+                ret.z = y - (x + (x % 2)) / 2;
+                ret.y = -ret.x - ret.z;
+
+                return ret;
+            }
+            public CubeCoordinate oddQ_toCube()
+            {
+                CubeCoordinate ret;
+
+                ret.x = x;
+                ret.z = y - (x - (x % 2)) / 2;
+                ret.y = -ret.x - ret.z;
+
+                return ret;
+            }
+            public CubeCoordinate evenR_toCube()
+            {
+                CubeCoordinate ret;
+
+                ret.x = x - (y + (y % 2)) / 2;
+                ret.z = y;
+                ret.y = -ret.x - ret.z;
+
+                return ret;
+            }
+            public CubeCoordinate oddR_toCube()
+            {
+                CubeCoordinate ret;
+
+                ret.x = x - (y - (y % 2)) / 2;
+                ret.z = y;
+                ret.y = -ret.x - ret.z;
+
+                return ret;
+            }
+        }
+
         public struct HexOffsetH
         {
             public float x;
@@ -122,42 +175,42 @@ namespace Game1.Helpers
                 return ret;
             }
 
-            public Vector2 to_evenQ_Offset()
+            public HexOffset to_evenQ_Offset()
             {
-                Vector2 ret;
+                HexOffset ret;
 
-                ret.X = x;
-                ret.Y = z + (x + (x % 2)) / 2;
+                ret.x = x;
+                ret.y = z + (x + (x % 2)) / 2;
 
                 return ret;
             }
 
-            public Vector2 to_oddQ_Offset()
+            public HexOffset to_oddQ_Offset()
             {
-                Vector2 ret;
+                HexOffset ret;
 
-                ret.X = x;
-                ret.Y = z + (x - (x % 2)) / 2;
+                ret.x = x;
+                ret.y = z + (x - (x % 2)) / 2;
 
                 return ret;
             }
 
-            public Vector2 to_evenR_Offset()
+            public HexOffset to_evenR_Offset()
             {
-                Vector2 ret;
+                HexOffset ret;
 
-                ret.X = x + (z + (z % 2)) / 2;
-                ret.Y = z;
+                ret.x = x + (z + (z % 2)) / 2;
+                ret.y = z;
 
                 return ret;
             }
 
-            public Vector2 to_oddR_Offset()
+            public HexOffset to_oddR_Offset()
             {
-                Vector2 ret;
+                HexOffset ret;
 
-                ret.X = x + (z - (z % 2)) / 2;
-                ret.Y = z;
+                ret.x = x + (z - (z % 2)) / 2;
+                ret.y = z;
 
                 return ret;
             }

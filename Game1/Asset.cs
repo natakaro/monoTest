@@ -13,12 +13,19 @@ namespace Game1
     class Asset : DrawableObject
     {
         Texture2D texture;
-        public Asset(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, Texture2D inTexture) : base(game, inWorldMatrix, inModel, octree)
+        private int modelId;
+
+        public int ModelID
+        {
+            get { return modelId; }
+        }
+        public Asset(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, Texture2D inTexture, int modelId) : base(game, inWorldMatrix, inModel, octree)
         {
             //boundingSphere = new BoundingSphere(position, Map.scale * 0.75f);
             texture = inTexture;
+            this.modelId = modelId;
 
-            type = ObjectType.Core;
+            type = ObjectType.Asset;
 
             boundingBox = CollisionBox.CreateBoundingBox(model, position, 1);
         }

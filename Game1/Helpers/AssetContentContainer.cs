@@ -30,6 +30,14 @@ namespace Game1.Helpers
         public Model spawnModel;
         public Texture2D spawnTexture;
 
+        public Texture2D pinetreeIcon;
+        public Texture2D tree1Icon;
+        public Texture2D tree2Icon;
+        public Texture2D treetrunkIcon;
+        public Texture2D rockIcon;
+        public Texture2D spawnIcon;
+        public Texture2D coreIcon;
+
         public Model enemyFly;
         public Texture2D enemyFlyTexture;
 
@@ -61,6 +69,14 @@ namespace Game1.Helpers
             spawnTexture = Content.Load<Texture2D>("Textures/core");
             enemyFly = Content.Load<Model>("Models/ship/enemy_ship");
             enemyFlyTexture = Content.Load<Texture2D>("Textures/ship/enemy_ship");
+
+            pinetreeIcon = Content.Load<Texture2D>("Interface/Map/pinetreeIcon1");
+            tree1Icon = Content.Load<Texture2D>("Interface/Map/treeIcon1");
+            tree2Icon = Content.Load<Texture2D>("Interface/Map/treeIcon2");
+            treetrunkIcon = Content.Load<Texture2D>("Interface/Map/treetrunkIcon");
+            rockIcon = Content.Load<Texture2D>("Interface/Map/rockIcon4");
+            spawnIcon = Content.Load<Texture2D>("Interface/Map/spawnIcon");
+            coreIcon = Content.Load<Texture2D>("Interface/Map/coreIcon");
 
         }
     }

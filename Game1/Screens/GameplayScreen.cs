@@ -60,11 +60,12 @@ namespace Game1.Screens
         private Vector3 lightDirection;
         private Vector3 lightColor;
 
-        private Core core;
+        public static Core core;
         private TimeOfDay timeOfDay;
 
         #region ScreenActions
         InputAction pauseAction;
+        InputAction menuAction;
         float pauseAlpha;
         #endregion
 
@@ -132,8 +133,8 @@ namespace Game1.Screens
         private Texture2D handstex;
         private Texture2D tileTexture;
         private Texture2D coreTexture;
-        private Texture2D mapTex;
-        private Texture2D mapTexAsset;
+        public static Texture2D mapTex;
+        public static Texture2D mapTexAsset;
         #endregion    
 
         #region Diagnostics
@@ -179,6 +180,11 @@ namespace Game1.Screens
 
             pauseAction = new InputAction(
                 new Keys[] { Keys.Escape },
+                null,
+                true);
+
+            menuAction = new InputAction(
+                new Keys[] { Keys.Tab, Keys.M },
                 null,
                 true);
         }
@@ -477,6 +483,10 @@ namespace Game1.Screens
             {
                 ScreenManager.AddScreen(new PauseMenuScreen());
             }
+            else if (menuAction.Evaluate(input))
+            {
+                ScreenManager.AddScreen(new MapScreen());
+            }
             else
             {
                 camera.Update(gameTime, input);
@@ -498,8 +508,8 @@ namespace Game1.Screens
                 if (input.IsNewKeyPress(Keys.H))
                     displayHelp = !displayHelp;
 
-                if (input.IsNewKeyPress(Keys.M))
-                    camera.EnableMouseSmoothing = !camera.EnableMouseSmoothing;
+                //if (input.IsNewKeyPress(Keys.M))
+                //    camera.EnableMouseSmoothing = !camera.EnableMouseSmoothing;
 
                 if (input.IsNewKeyPress(Keys.Add))
                 {
