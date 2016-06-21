@@ -82,8 +82,8 @@ namespace Game1.Screens
             //UpdateMenuEntryLocations(mapDimensions, mapPosition);
 
             // The background includes a border somewhat larger than the text itself.
-            const int hPad = 2;
-            const int vPad = -1;
+            const int hPad = 0;
+            const int vPad = 0;
 
             Viewport viewport = ScreenManager.GraphicsDevice.Viewport;
             Vector2 viewportSize = new Vector2(viewport.Width, viewport.Height);
@@ -93,38 +93,39 @@ namespace Game1.Screens
             Vector2 mapDimensions = new Vector2(tileTex.Width * mapTileCount.X * 0.75f, tileTex.Height * mapTileCount.Y + tileTex.Height * 0.5f);
 
             Vector2 mapPosition = viewportSize / 2 - mapDimensions / 2;
-            Vector2 borderOffset = new Vector2(2, 2);
-            mapPosition -= borderOffset;
+            Vector2 borderOffset = new Vector2(tileTex.Width / 2, tileTex.Height / 2);
 
             //Rectangle mapRectangle = new Rectangle((int)mapPosition.X,
             //                                       (int)mapPosition.Y,
             //                                       (int)mapDimensions.X,
             //                                       (int)mapDimensions.Y);
 
+            mapPosition -= borderOffset;
+
             Rectangle backgroundRectangle = new Rectangle((int)mapPosition.X - hPad,
                                                           (int)mapPosition.Y - vPad,
                                                           (int)mapDimensions.X + hPad * 2,
                                                           (int)mapDimensions.Y + vPad * 2);
 
-            Rectangle topBorder = new Rectangle((int)mapPosition.X - hPad + cornerTexture.Width,
+            Rectangle topBorder = new Rectangle((int)mapPosition.X - hPad + cornerTexture.Width / 2,
                                                 (int)mapPosition.Y - vPad,
-                                                (int)mapDimensions.X + hPad * 2 - cornerTexture.Width,
+                                                (int)mapDimensions.X + hPad * 2 - cornerTexture.Width / 2,
                                                 horizontalBorderTexture.Height);
 
-            Rectangle bottomBorder = new Rectangle((int)mapPosition.X - hPad + cornerTexture.Width,
+            Rectangle bottomBorder = new Rectangle((int)mapPosition.X - hPad + cornerTexture.Width / 2,
                                                   (int)mapPosition.Y + (int)mapDimensions.Y + vPad,
-                                                  (int)mapDimensions.X + hPad * 2 - cornerTexture.Width,
+                                                  (int)mapDimensions.X + hPad * 2 - cornerTexture.Width / 2,
                                                   horizontalBorderTexture.Height);
 
             Rectangle leftBorder = new Rectangle((int)mapPosition.X - hPad,
-                                                 (int)mapPosition.Y - vPad + cornerTexture.Height,
+                                                 (int)mapPosition.Y - vPad + cornerTexture.Height / 2,
                                                  verticalBorderTexture.Width,
-                                                 (int)mapDimensions.Y + vPad * 2 - cornerTexture.Height);
+                                                 (int)mapDimensions.Y + vPad * 2 - cornerTexture.Height / 2);
 
             Rectangle rightBorder = new Rectangle((int)mapPosition.X + (int)mapDimensions.X + hPad,
-                                                  (int)mapPosition.Y - vPad + cornerTexture.Height,
+                                                  (int)mapPosition.Y - vPad + cornerTexture.Height / 2,
                                                   verticalBorderTexture.Width,
-                                                  (int)mapDimensions.Y + vPad * 2 - cornerTexture.Height);
+                                                  (int)mapDimensions.Y + vPad * 2 - cornerTexture.Height / 2);
 
             Rectangle ULcorner = new Rectangle((int)mapPosition.X - hPad,
                                                 (int)mapPosition.Y - vPad,
@@ -159,15 +160,20 @@ namespace Game1.Screens
             Map.Draw(spriteBatch, tileTex, mapPosition, mapTileCount, TransitionAlpha);
             Map.DrawAssets(spriteBatch, tileTex, mapPosition, mapTileCount, TransitionAlpha);
 
-            spriteBatch.Draw(horizontalBorderTexture, topBorder, color);
-            spriteBatch.Draw(horizontalBorderTexture, bottomBorder, null, color, 0, Vector2.Zero, SpriteEffects.FlipVertically, 0);
-            spriteBatch.Draw(verticalBorderTexture, leftBorder, color);
-            spriteBatch.Draw(verticalBorderTexture, rightBorder, null, color, 0, Vector2.Zero, SpriteEffects.FlipHorizontally, 0);
+            Vector2 horizontalBorderOrigin = new Vector2(horizontalBorderTexture.Width / 2, horizontalBorderTexture.Height / 2);
+            Vector2 verticalBorderOrigin = new Vector2(verticalBorderTexture.Width / 2, verticalBorderTexture.Height / 2);
 
-            spriteBatch.Draw(cornerTexture, ULcorner, color);
-            spriteBatch.Draw(cornerTexture, URcorner, null, color, 0, Vector2.Zero, SpriteEffects.FlipHorizontally, 0);
-            spriteBatch.Draw(cornerTexture, DLcorner, null, color, 0, Vector2.Zero, SpriteEffects.FlipVertically, 0);
-            spriteBatch.Draw(cornerTexture, DRcorner, null, color, 0, Vector2.Zero, SpriteEffects.FlipHorizontally | SpriteEffects.FlipVertically, 0);
+            spriteBatch.Draw(horizontalBorderTexture, topBorder, null, color, 0, horizontalBorderOrigin, SpriteEffects.None, 0);
+            spriteBatch.Draw(horizontalBorderTexture, bottomBorder, null, color, 0, horizontalBorderOrigin, SpriteEffects.FlipVertically, 0);
+            spriteBatch.Draw(verticalBorderTexture, leftBorder, null, color, 0, verticalBorderOrigin, SpriteEffects.None, 0);
+            spriteBatch.Draw(verticalBorderTexture, rightBorder, null, color, 0, verticalBorderOrigin, SpriteEffects.FlipHorizontally, 0);
+
+            Vector2 cornerOrigin = new Vector2(cornerTexture.Width / 2, cornerTexture.Height / 2);
+
+            spriteBatch.Draw(cornerTexture, ULcorner, null, color, 0, cornerOrigin, SpriteEffects.None, 0);
+            spriteBatch.Draw(cornerTexture, URcorner, null, color, 0, cornerOrigin, SpriteEffects.FlipHorizontally, 0);
+            spriteBatch.Draw(cornerTexture, DLcorner, null, color, 0, cornerOrigin, SpriteEffects.FlipVertically, 0);
+            spriteBatch.Draw(cornerTexture, DRcorner, null, color, 0, cornerOrigin, SpriteEffects.FlipHorizontally | SpriteEffects.FlipVertically, 0);
 
             spriteBatch.End();
         }

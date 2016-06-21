@@ -39,6 +39,8 @@ namespace Game1.Spells
 
         public void Start(bool leftButton, bool rightButton, DrawableObject dObj)
         {
+            tooHigh = false;
+            tooLow = false;
             if (dObj != null && phaseManager.Phase == Phase.Day)
             {
                 startingMana = stats.currentMana;
@@ -102,15 +104,7 @@ namespace Game1.Spells
                     {
                         target = dObj;
 
-                        neighbors = GetNeighborTiles((Tile)target, map);
-
-                        foreach (Tile neighbor in neighbors)
-                        {
-                            if (target.Position.Y - neighbor.Position.Y > 100)
-                                tooHigh = true;
-                            else if (target.Position.Y - neighbor.Position.Y < -100)
-                                tooLow = true;
-                        }
+                        HeightLimiter();
 
                         target.IsStatic = false;
                         if (leftButton)
@@ -197,29 +191,22 @@ namespace Game1.Spells
                         manaDeducted = (stopwatch.ElapsedMilliseconds / castSpeed) * manaCost;
                         stats.currentMana = startingMana - manaDeducted;
 
-                        if (stopwatch.ElapsedMilliseconds > castSpeed) //zwiekszanie predkosci + zabawa timerem
+                        HeightLimiter();
+
+                        if ((leftButton == true && tooHigh == false) || (rightButton == true && tooLow == false))
                         {
-                            if (leftButton == true)
+                            if (stopwatch.ElapsedMilliseconds > castSpeed) //zwiekszanie predkosci + zabawa timerem
                             {
-                                if (tooHigh == false)
+                                if (leftButton == true)
                                     target.Acceleration += new Vector3(0, 1, 0);
-                                else
-                                {
-                                    Stop(false, false);
-                                }
-                            }
-                            else if (rightButton == true)
-                            {
-                                if (tooLow == false)
+                                else if (rightButton == true)
                                     target.Acceleration += new Vector3(0, -1, 0);
-                                else
-                                {
-                                    Stop(false, false);
-                                }
+                                startingMana -= manaDeducted;
+                                stopwatch.Restart();
                             }
-                            startingMana -= manaDeducted;
-                            stopwatch.Restart();
                         }
+                        else
+                            Stop(false, false);
                     }
                     else
                         Stop(false, false);
@@ -251,6 +238,19 @@ namespace Game1.Spells
             }
             spellCharging = SpellCharging.None;
             stats.SpellStatus(spellCharging);
+        }
+
+        public void HeightLimiter()
+        {
+            neighbors = GetNeighborTiles((Tile)target, map);
+
+            foreach (Tile neighbor in neighbors)
+            {
+                if (target.Position.Y - neighbor.Position.Y > 95)
+                    tooHigh = true;
+                else if (target.Position.Y - neighbor.Position.Y < -95)
+                    tooLow = true;
+            }
         }
 
         public SpellMoveTerrain(Octree octree, Stats stats, PhaseManager phaseManager, Dictionary<AxialCoordinate, Tile> map)

@@ -328,6 +328,9 @@ namespace Game1.Screens
 
             spriteBatch.Begin();
 
+            Vector2 arrowOrigin = new Vector2(arrowTexture.Width / 2, arrowTexture.Height / 2);
+            float arrowDistance = 15;
+
             // Draw each menu entry in turn.
             for (int i = 0; i < menuEntries.Count; i++)
             {
@@ -339,8 +342,8 @@ namespace Game1.Screens
 
                 if (menuEntry.DrawArrows)
                 {
-                    spriteBatch.Draw(arrowTexture, new Vector2(menuEntry.Position.X - 25, menuEntry.Position.Y - 8), null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.FlipHorizontally, 0);
-                    spriteBatch.Draw(arrowTexture, new Vector2(menuEntry.Position.X + menuEntry.GetWidth(this) + 14, menuEntry.Position.Y - 8), null, Color.White);
+                    spriteBatch.Draw(arrowTexture, new Vector2(menuEntry.Position.X - arrowDistance, menuEntry.Position.Y), null, Color.White, 0, arrowOrigin, 1, SpriteEffects.FlipHorizontally, 0);
+                    spriteBatch.Draw(arrowTexture, new Vector2(menuEntry.Position.X + menuEntry.GetWidth(this) + arrowDistance, menuEntry.Position.Y), null, Color.White, 0, arrowOrigin, 1, SpriteEffects.None, 0);
                 }
             }
 

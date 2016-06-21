@@ -274,6 +274,7 @@ namespace Game1
         public static void Draw(SpriteBatch spriteBatch, Texture2D tileTex, Vector2 startingPos, Vector2 mapTileCount, float alpha = 1f)
         {
             Dictionary<AxialCoordinate, Tile> map = GameplayScreen.map;
+            Vector2 origin = new Vector2(tileTex.Width / 2, tileTex.Height / 2);
 
             Vector2 tileSize = new Vector2(tileTex.Width, tileTex.Height);
             for (int y = 0; y < mapTileCount.Y; y++)
@@ -298,7 +299,7 @@ namespace Game1
                     else
                         color = Color.Lerp(Color.Yellow, Color.Red, (position - 128f) / 128f) * alpha;
 
-                    spriteBatch.Draw(tileTex, new Vector2(startingPos.X + x * tileTex.Width * 0.75f, startingPos.Y + y * tileTex.Height + offset), color);
+                    spriteBatch.Draw(tileTex, new Vector2(startingPos.X + x * tileTex.Width * 0.75f, startingPos.Y + y * tileTex.Height + offset), null, color, 0, origin, 1, SpriteEffects.None, 0);
                 }
             }
         }
@@ -355,7 +356,9 @@ namespace Game1
                 }
                 else if (item.Value is Spawn)
                     icon = GameplayScreen.assetContentContainer.spawnIcon;
-                spriteBatch.Draw(icon, new Vector2(startingPos.X + coord.x * tileTex.Width * 0.75f, startingPos.Y + coord.y * tileTex.Height + offset), Color.DarkGray * alpha);
+
+                Vector2 origin = new Vector2(icon.Width / 2, icon.Height / 2);
+                spriteBatch.Draw(icon, new Vector2(startingPos.X + coord.x * tileTex.Width * 0.75f, startingPos.Y + coord.y * tileTex.Height + offset), null, Color.DarkGray * alpha, 0, origin, 1, SpriteEffects.None, 0);
             }
 
             AxialCoordinate axialCore = pixelToAxialH(GameplayScreen.core.Position, Map.size);
@@ -364,7 +367,8 @@ namespace Game1
             if (coordCore.x % 2 != 0)
                 offsetCore = tileSize.Y / 2;
 
-            spriteBatch.Draw(GameplayScreen.assetContentContainer.coreIcon, new Vector2(startingPos.X + coordCore.x * tileTex.Width * 0.75f, startingPos.Y + coordCore.y * tileTex.Height + offsetCore), Color.DarkGray * alpha);
+            Vector2 coreOrigin = new Vector2(GameplayScreen.assetContentContainer.coreIcon.Width / 2, GameplayScreen.assetContentContainer.coreIcon.Height / 2);
+            spriteBatch.Draw(GameplayScreen.assetContentContainer.coreIcon, new Vector2(startingPos.X + coordCore.x * tileTex.Width * 0.75f, startingPos.Y + coordCore.y * tileTex.Height + offsetCore), null, Color.DarkGray * alpha, 0, coreOrigin, 1, SpriteEffects.None, 0);
         }
     }
 }

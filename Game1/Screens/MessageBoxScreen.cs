@@ -268,30 +268,34 @@ namespace Game1.Screens
             const int hPad = 32;
             const int vPad = 16;
 
+            Vector2 horizontalBorderOrigin = new Vector2(horizontalBorderTexture.Width / 2, horizontalBorderTexture.Height / 2);
+            Vector2 verticalBorderOrigin = new Vector2(verticalBorderTexture.Width / 2, verticalBorderTexture.Height / 2);
+            Vector2 cornerOrigin = new Vector2(cornerTexture.Width / 2, cornerTexture.Height / 2);
+
             Rectangle backgroundRectangle = new Rectangle((int)textPosition.X - hPad,
                                                           (int)textPosition.Y - vPad,
                                                           (int)textSize.X + hPad * 2,
                                                           (int)textSize.Y + vPad * 2);
 
-            Rectangle topBorder = new Rectangle((int)textPosition.X - hPad + cornerTexture.Width,
+            Rectangle topBorder = new Rectangle((int)textPosition.X - hPad + cornerTexture.Width / 2,
                                                 (int)textPosition.Y - vPad,
-                                                (int)textSize.X + hPad * 2 - cornerTexture.Width,
+                                                (int)textSize.X + hPad * 2 - cornerTexture.Width / 2,
                                                 horizontalBorderTexture.Height);
 
-            Rectangle bottomBorder = new Rectangle((int)textPosition.X - hPad + cornerTexture.Width,
+            Rectangle bottomBorder = new Rectangle((int)textPosition.X - hPad + cornerTexture.Width / 2,
                                                   (int)textPosition.Y + (int)textSize.Y + vPad,
-                                                  (int)textSize.X + hPad * 2 - cornerTexture.Width,
+                                                  (int)textSize.X + hPad * 2 - cornerTexture.Width / 2,
                                                   horizontalBorderTexture.Height);
 
             Rectangle leftBorder = new Rectangle((int)textPosition.X - hPad,
-                                                 (int)textPosition.Y - vPad + cornerTexture.Height,
+                                                 (int)textPosition.Y - vPad + cornerTexture.Height / 2,
                                                  verticalBorderTexture.Width,
-                                                 (int)textSize.Y + vPad * 2 - cornerTexture.Height);
+                                                 (int)textSize.Y + vPad * 2 - cornerTexture.Height / 2);
 
             Rectangle rightBorder = new Rectangle((int)textPosition.X + (int)textSize.X + hPad,
-                                                  (int)textPosition.Y - vPad + cornerTexture.Height,
+                                                  (int)textPosition.Y - vPad + cornerTexture.Height / 2,
                                                   verticalBorderTexture.Width,
-                                                  (int)textSize.Y + vPad * 2 - cornerTexture.Height);
+                                                  (int)textSize.Y + vPad * 2 - cornerTexture.Height / 2);
 
             Rectangle ULcorner = new Rectangle((int)textPosition.X - hPad,
                                                 (int)textPosition.Y - vPad,
@@ -321,15 +325,15 @@ namespace Game1.Screens
             // Draw the background rectangle.
             spriteBatch.Draw(backgroundTexture, backgroundRectangle, color * (100f/255f));
 
-            spriteBatch.Draw(horizontalBorderTexture, topBorder, color);
-            spriteBatch.Draw(horizontalBorderTexture, bottomBorder, null, color, 0, Vector2.Zero, SpriteEffects.FlipVertically, 0);
-            spriteBatch.Draw(verticalBorderTexture, leftBorder, color);
-            spriteBatch.Draw(verticalBorderTexture, rightBorder, null, color, 0, Vector2.Zero, SpriteEffects.FlipHorizontally, 0);
+            spriteBatch.Draw(horizontalBorderTexture, topBorder, null, color, 0, horizontalBorderOrigin, SpriteEffects.None, 0);
+            spriteBatch.Draw(horizontalBorderTexture, bottomBorder, null, color, 0, horizontalBorderOrigin, SpriteEffects.FlipVertically, 0);
+            spriteBatch.Draw(verticalBorderTexture, leftBorder, null, color, 0, verticalBorderOrigin, SpriteEffects.None, 0);
+            spriteBatch.Draw(verticalBorderTexture, rightBorder, null, color, 0, verticalBorderOrigin, SpriteEffects.FlipHorizontally, 0);
 
-            spriteBatch.Draw(cornerTexture, ULcorner, color);
-            spriteBatch.Draw(cornerTexture, URcorner, null, color, 0, Vector2.Zero, SpriteEffects.FlipHorizontally, 0);
-            spriteBatch.Draw(cornerTexture, DLcorner, null, color, 0, Vector2.Zero, SpriteEffects.FlipVertically, 0);
-            spriteBatch.Draw(cornerTexture, DRcorner, null, color, 0, Vector2.Zero, SpriteEffects.FlipHorizontally | SpriteEffects.FlipVertically, 0);
+            spriteBatch.Draw(cornerTexture, ULcorner, null, color, 0, cornerOrigin, SpriteEffects.None, 0);
+            spriteBatch.Draw(cornerTexture, URcorner, null, color, 0, cornerOrigin, SpriteEffects.FlipHorizontally, 0);
+            spriteBatch.Draw(cornerTexture, DLcorner, null, color, 0, cornerOrigin, SpriteEffects.FlipVertically, 0);
+            spriteBatch.Draw(cornerTexture, DRcorner, null, color, 0, cornerOrigin, SpriteEffects.FlipHorizontally | SpriteEffects.FlipVertically, 0);
 
             // Draw the message box text.
             spriteBatch.DrawString(font, message, textPosition, color);
