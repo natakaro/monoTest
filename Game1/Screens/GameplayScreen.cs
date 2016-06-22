@@ -51,7 +51,7 @@ namespace Game1.Screens
         public static Dictionary<AxialCoordinate, Tile> map;
         public static Dictionary<AxialCoordinate, DrawableObject> mapAsset;
 
-        public Camera camera;
+        public static Camera camera;
         float acceleration = 100.0f; // przyspieszenie przy wspinaniu i opadaniu
         private float distance;
         private DrawableObject tileStandingOn;
@@ -264,7 +264,11 @@ namespace Game1.Screens
             postProcessTarget2 = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.HdrBlendable, DepthFormat.None);
 
             finalTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.HdrBlendable, DepthFormat.Depth24Stencil8);
-            
+
+            //map
+            mapTex = Content.Load<Texture2D>("Textures/map");
+            mapTexAsset = Content.Load<Texture2D>("Textures/mapAssets");
+
             stats = new Stats();
 
             stopwatchLastTargetedEnemy = new Stopwatch();
@@ -286,10 +290,6 @@ namespace Game1.Screens
             coreModel = Content.Load<Model>("Models/core");
 
             coreTexture = Content.Load<Texture2D>("Textures/core");
-
-            //map
-            mapTex = Content.Load<Texture2D>("Textures/map");
-            mapTexAsset = Content.Load<Texture2D>("Textures/mapAssets");
 
             clearBufferEffect = Content.Load<Effect>("Effects/ClearGBuffer");
             finalCombineEffect = Content.Load<Effect>("Effects/CombineFinal");

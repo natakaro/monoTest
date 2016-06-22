@@ -219,6 +219,11 @@ namespace Game1.Helpers
             {
                 return new CubeCoordinate(a.x + b.x, a.y + b.y, a.z + b.z);
             }
+
+            public static CubeCoordinate operator *(CubeCoordinate a, int b)
+            {
+                return new CubeCoordinate(a.x * b, a.y * b, a.z * b);
+            }
         }
 
         public struct AxialCoordinateH
@@ -500,6 +505,43 @@ namespace Game1.Helpers
             }
 
             return neighbors;
+        }
+
+        public static List<CubeCoordinate> CubeRing(CubeCoordinate center, int radius)
+        {
+            var ring = new List<CubeCoordinate>();
+
+            CubeCoordinate[] directions =
+            {
+                new CubeCoordinate(+1, -1, 0), new CubeCoordinate(+1, 0, -1), new CubeCoordinate(0, +1, -1),
+                new CubeCoordinate(-1, +1, 0), new CubeCoordinate(-1, 0, +1), new CubeCoordinate(0, -1, +1)
+            };
+
+            var coords = center + (directions[4] * radius);
+
+            for (int i = 0; i < 6; i++)
+            {
+                for (int j = 0; j < radius; j++)
+                {
+                    ring.Add(coords);
+                    coords = coords + directions[i];
+                }
+            }
+
+            return ring;
+        }
+
+        public static List<CubeCoordinate> CubeSpiral(CubeCoordinate center, int radius)
+        {
+            var results = new List<CubeCoordinate>();
+            results.Add(center);
+
+            for (int i = 1; i < radius; i++)
+            {
+                results.AddRange(CubeRing(center, i));
+            }
+
+            return results;
         }
     }
 }

@@ -304,6 +304,44 @@ namespace Game1
             }
         }
 
+        public static void Draw(SpriteBatch spriteBatch, Texture2D tileTex, Vector2 startingPos, Vector2 mapTileCount, CubeCoordinate center, int radius, float alpha = 1f)
+        {
+            Dictionary<AxialCoordinate, Tile> map = GameplayScreen.map;
+            Vector2 origin = new Vector2(tileTex.Width / 2, tileTex.Height / 2);
+
+            Vector2 tileSize = new Vector2(tileTex.Width, tileTex.Height);
+            var list = CubeSpiral(center, radius);
+            foreach (CubeCoordinate coordinate in list)
+            {
+                HexOffset coord = coordinate.to_oddQ_Offset();
+
+                float offset = 0;
+                if ((int)coord.x % 2 != 0)
+                    offset = tileSize.Y / 2;
+
+                var axial = coordinate.ToAxial();
+
+                var tile = tileFromAxial(axial, map);
+                if (tile != null)
+                {
+                    var position = tile.Position.Y;
+
+                    Color color = Color.White;
+                    if (position < 128)
+                    {
+                        color = Color.Lerp(Color.Green, Color.Yellow, position / 128f) * alpha;
+                        if (position < 5)
+                            color = Color.SkyBlue * alpha;
+                    }
+                    else
+                        color = Color.Lerp(Color.Yellow, Color.Red, (position - 128f) / 128f) * alpha;
+
+                    spriteBatch.Draw(tileTex, new Vector2(startingPos.X + coord.x * tileTex.Width * 0.75f, startingPos.Y + coord.y * tileTex.Height + offset), null, color, 0, origin, 1, SpriteEffects.None, 0);
+                }
+            }
+        }
+
+
         //pointy top
         //public void Draw(SpriteBatch spriteBatch, Texture2D tileTex, Vector2 mapSize, Dictionary<AxialCoordinate, Tile> map)
         //{
@@ -325,40 +363,75 @@ namespace Game1
         //    }
         //}
 
+        //wszystko
+        //public static void DrawAssets(SpriteBatch spriteBatch, Texture2D tileTex, Vector2 startingPos, Vector2 mapTileCount, float alpha = 1f)
+        //{
+        //    Dictionary<AxialCoordinate, DrawableObject> assets = GameplayScreen.mapAsset;
+
+        //    Vector2 tileSize = new Vector2(tileTex.Width, tileTex.Height);
+        //    foreach(var item in assets)
+        //    {
+        //        AxialCoordinate axial = pixelToAxialH(item.Value.Position, Map.size);
+        //        HexOffset coord = axial.ToCube().to_oddQ_Offset();
+
+        //        float offset = 0;
+        //        if (coord.x % 2 != 0)
+        //            offset = tileSize.Y / 2;
+
+        //        Texture2D icon = tileTex;
+
+        //        if (item.Value is Asset)
+        //        {
+        //            if ((item.Value as Asset).ModelID >= 50 && (item.Value as Asset).ModelID <= 120)
+        //                icon = GameplayScreen.assetContentContainer.rockIcon;
+        //            else if ((item.Value as Asset).ModelID == 10)
+        //                icon = GameplayScreen.assetContentContainer.pinetreeIcon;
+        //            else if ((item.Value as Asset).ModelID == 20)
+        //                icon = GameplayScreen.assetContentContainer.tree1Icon;
+        //            else if ((item.Value as Asset).ModelID == 30)
+        //                icon = GameplayScreen.assetContentContainer.tree2Icon;
+        //            else if ((item.Value as Asset).ModelID == 40)
+        //                icon = GameplayScreen.assetContentContainer.treetrunkIcon;
+        //        }
+        //        else if (item.Value is Spawn)
+        //            icon = GameplayScreen.assetContentContainer.spawnIcon;
+
+        //        Vector2 origin = new Vector2(icon.Width / 2, icon.Height / 2);
+        //        spriteBatch.Draw(icon, new Vector2(startingPos.X + coord.x * tileTex.Width * 0.75f, startingPos.Y + coord.y * tileTex.Height + offset), null, Color.DarkGray * alpha, 0, origin, 1, SpriteEffects.None, 0);
+        //    }
+
+        //    AxialCoordinate axialCore = pixelToAxialH(GameplayScreen.core.Position, Map.size);
+        //    HexOffset coordCore = axialCore.ToCube().to_oddQ_Offset();
+        //    float offsetCore = 0;
+        //    if (coordCore.x % 2 != 0)
+        //        offsetCore = tileSize.Y / 2;
+
+        //    Vector2 coreOrigin = new Vector2(GameplayScreen.assetContentContainer.coreIcon.Width / 2, GameplayScreen.assetContentContainer.coreIcon.Height / 2);
+        //    spriteBatch.Draw(GameplayScreen.assetContentContainer.coreIcon, new Vector2(startingPos.X + coordCore.x * tileTex.Width * 0.75f, startingPos.Y + coordCore.y * tileTex.Height + offsetCore), null, Color.DarkGray * alpha, 0, coreOrigin, 1, SpriteEffects.None, 0);
+        //}
+
+        //tylko core i spawny
         public static void DrawAssets(SpriteBatch spriteBatch, Texture2D tileTex, Vector2 startingPos, Vector2 mapTileCount, float alpha = 1f)
         {
             Dictionary<AxialCoordinate, DrawableObject> assets = GameplayScreen.mapAsset;
 
             Vector2 tileSize = new Vector2(tileTex.Width, tileTex.Height);
-            foreach(var item in assets)
+            foreach (var item in assets)
             {
-                AxialCoordinate axial = pixelToAxialH(item.Value.Position, Map.size);
-                HexOffset coord = axial.ToCube().to_oddQ_Offset();
-
-                float offset = 0;
-                if (coord.x % 2 != 0)
-                    offset = tileSize.Y / 2;
-
-                Texture2D icon = tileTex;
-
-                if (item.Value is Asset)
+                if (item.Value is Spawn)
                 {
-                    if ((item.Value as Asset).ModelID >= 50 && (item.Value as Asset).ModelID <= 120)
-                        icon = GameplayScreen.assetContentContainer.rockIcon;
-                    else if ((item.Value as Asset).ModelID == 10)
-                        icon = GameplayScreen.assetContentContainer.pinetreeIcon;
-                    else if ((item.Value as Asset).ModelID == 20)
-                        icon = GameplayScreen.assetContentContainer.tree1Icon;
-                    else if ((item.Value as Asset).ModelID == 30)
-                        icon = GameplayScreen.assetContentContainer.tree2Icon;
-                    else if ((item.Value as Asset).ModelID == 40)
-                        icon = GameplayScreen.assetContentContainer.treetrunkIcon;
-                }
-                else if (item.Value is Spawn)
-                    icon = GameplayScreen.assetContentContainer.spawnIcon;
+                    AxialCoordinate axial = pixelToAxialH(item.Value.Position, Map.size);
+                    HexOffset coord = axial.ToCube().to_oddQ_Offset();
 
-                Vector2 origin = new Vector2(icon.Width / 2, icon.Height / 2);
-                spriteBatch.Draw(icon, new Vector2(startingPos.X + coord.x * tileTex.Width * 0.75f, startingPos.Y + coord.y * tileTex.Height + offset), null, Color.DarkGray * alpha, 0, origin, 1, SpriteEffects.None, 0);
+                    float offset = 0;
+                    if (coord.x % 2 != 0)
+                        offset = tileSize.Y / 2;
+
+                    Texture2D icon = GameplayScreen.assetContentContainer.spawnIcon;
+
+                    Vector2 origin = new Vector2(icon.Width / 2, icon.Height / 2);
+                    spriteBatch.Draw(icon, new Vector2(startingPos.X + coord.x * tileTex.Width * 0.75f, startingPos.Y + coord.y * tileTex.Height + offset), null, Color.DarkGray * alpha, 0, origin, 1, SpriteEffects.None, 0);
+                }
             }
 
             AxialCoordinate axialCore = pixelToAxialH(GameplayScreen.core.Position, Map.size);
