@@ -27,6 +27,8 @@ namespace Game1.HUD
 
         private const float alpha = 100f / 255f;
 
+        Vector2 minimapCenter;
+
         public HUDMinimap(SpriteBatch spriteBatch, GraphicsDevice graphicsDevice, Vector2 position, Vector2 dimension, TimeOfDay timeOfDay, Dictionary<AxialCoordinate, Tile> map) : base(spriteBatch, graphicsDevice, position, dimension)
         {
             this.timeOfDay = timeOfDay;
@@ -52,7 +54,10 @@ namespace Game1.HUD
 
                 spriteBatch.Draw(icon, Rotate(MathHelper.ToRadians(timeOfDay.TimeFloat * 15) + MathHelper.PiOver2, minimapTexture.Width / 2 - icon.Width / 2 - 2, position + new Vector2(minimapTexture.Width / 2, minimapTexture.Height / 2)) - new Vector2(icon.Width, icon.Height) / 2, Color.White * ALPHA);
 
-                //Map.Draw(spriteBatch, tileTex, position, mapTileCount, pixelToAxialH(GameplayScreen.camera.Position, Map.size).ToCube(), 5, 1);
+                var cube = pixelToAxialH(GameplayScreen.camera.Position, Map.size).ToCube();
+                var offset = cube.to_oddQ_Offset();
+                
+                Map.Draw(spriteBatch, tileTex, position + minimapCenter - new Vector2((offset.x - (float)Math.Truncate(offset.x)) * tileTex.Width, (offset.y - (float)Math.Truncate(offset.y)) * tileTex.Height), mapTileCount, CubeRound(cube), 15, 1);
             }
         }
 
@@ -67,6 +72,8 @@ namespace Game1.HUD
             dayIcon = Content.Load<Texture2D>("Interface/HUD/Icons/sunrise");
             nightIcon = Content.Load<Texture2D>("Interface/HUD/Icons/night-sky");
             tileTex = Content.Load<Texture2D>("Interface/Map/tile");
+
+            minimapCenter = new Vector2(minimapTexture.Width / 2, minimapTexture.Height / 2);
         }
     }
 }

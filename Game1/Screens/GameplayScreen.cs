@@ -54,7 +54,7 @@ namespace Game1.Screens
         public static Camera camera;
         float acceleration = 100.0f; // przyspieszenie przy wspinaniu i opadaniu
         private float distance;
-        private DrawableObject tileStandingOn;
+        public static DrawableObject tileStandingOn;
         Vector2 fontPos = new Vector2(1.0f, 1.0f);
         private SkyDome sky;
         private Vector3 lightDirection;
@@ -760,7 +760,6 @@ namespace Game1.Screens
                     stats.currentHealth.ToString());
                 buffer.AppendFormat(" Mana: {0}\n\n",
                     stats.currentMana.ToString());
-
             }
             spriteBatch.DrawString(spriteFont, buffer.ToString(), fontPos, Color.Yellow);
         }

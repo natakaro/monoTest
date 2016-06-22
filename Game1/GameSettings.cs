@@ -43,7 +43,7 @@ namespace Game1
         public float SSAORadius;
         public float SSAOPower;
 
-        public static Point ScreenResolution = new Point(1920, 1080);
+        public static Point ScreenResolution = new Point(1280, 720);
 
         public enum FogEffect
         {

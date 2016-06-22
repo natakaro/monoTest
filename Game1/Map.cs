@@ -314,6 +314,7 @@ namespace Game1
             foreach (CubeCoordinate coordinate in list)
             {
                 HexOffset coord = coordinate.to_oddQ_Offset();
+                HexOffset centerCoord = center.to_oddQ_Offset();
 
                 float offset = 0;
                 if ((int)coord.x % 2 != 0)
@@ -336,7 +337,7 @@ namespace Game1
                     else
                         color = Color.Lerp(Color.Yellow, Color.Red, (position - 128f) / 128f) * alpha;
 
-                    spriteBatch.Draw(tileTex, new Vector2(startingPos.X + coord.x * tileTex.Width * 0.75f, startingPos.Y + coord.y * tileTex.Height + offset), null, color, 0, origin, 1, SpriteEffects.None, 0);
+                    spriteBatch.Draw(tileTex, new Vector2(startingPos.X + (coord.x-centerCoord.x) * tileTex.Width * 0.75f, startingPos.Y /*- tileTex.Height*radius*/ + (coord.y-centerCoord.y) * tileTex.Height + offset), null, color, 0, origin, 1, SpriteEffects.None, 0);
                 }
             }
         }
