@@ -100,10 +100,12 @@ namespace Game1
                 lastPosition = position;
                 velocity += acceleration * (float)(gameTime.ElapsedGameTime.TotalSeconds);
                 position += velocity * (float)(gameTime.ElapsedGameTime.TotalSeconds);
-                worldMatrix = Matrix.CreateTranslation(position);
+
                 boundingSphere.Center = position;
                 boundingBox.Min += velocity * (float)(gameTime.ElapsedGameTime.TotalSeconds);
                 boundingBox.Max += velocity * (float)(gameTime.ElapsedGameTime.TotalSeconds);
+
+                worldMatrix = Matrix.CreateTranslation(position);
                 if (lastPosition != position)
                     CheckIntersections();
                 return lastPosition != position;    //lets you know if the object actually moved relative to its last position

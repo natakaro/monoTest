@@ -285,12 +285,18 @@ namespace Game1.Helpers
             List<Vector3> ret = new List<Vector3>();
             Tile previous = tileList[0];
 
-            foreach(Tile current in tileList)
+
+            foreach (Tile current in tileList)
+            {
+                ret.Add(current.Position);
+            }
+            /*
+            foreach (Tile current in tileList)
             {
                 Vector3 distance = (current.Position - previous.Position) / 2;
                 ret.Add(previous.Position + distance);
                 previous = current;
-            }
+            }*/
 
             return ret;
         }

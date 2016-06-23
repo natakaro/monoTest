@@ -44,6 +44,7 @@ namespace Game1
         public float SSAOPower;
 
         public static Point ScreenResolution = new Point(1920, 1080);
+        Game1 game;
 
         public enum FogEffect
         {
@@ -76,8 +77,9 @@ namespace Game1
             get { return KernelSizes[(int)FixedFilterSize]; }
         }
 
-        public GameSettings(Game game)
+        public GameSettings(Game1 game)
         {
+            this.game = game;
             Shadows = true;
 
             LightDirection = Vector3.Normalize(new Vector3(1, 1, -1));
@@ -222,6 +224,9 @@ namespace Game1
 
             if (state.IsNewKeyPress(Keys.Q))
                 Vignette = !Vignette;
+
+            if (state.IsNewKeyPress(Keys.T))
+                game.Window.IsBorderless = !game.Window.IsBorderless;
         }
     }
     public enum FixedFilterSize

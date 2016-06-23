@@ -64,8 +64,13 @@ namespace Game1
                 {
                     Vector3 targetPosition = path[tileNumber];
                     Vector3 direction = Vector3.Normalize(targetPosition - position);
-                    Vector3 directionXZ = Vector3.Normalize(new Vector3(targetPosition.X, 0, targetPosition.Z) - new Vector3(position.X, 0, position.Z));
+                    Vector3 distance = new Vector3(targetPosition.X, 0, targetPosition.Z) - new Vector3(position.X, 0, position.Z);
+                    Vector3 directionXZ = Vector3.Normalize(distance);
                     velocity = speed * direction;
+
+                    Vector3 dist2 = path[tileNumber - 1] - position;
+                    position.Y += 5 * dist2.Y * (float)(gameTime.ElapsedGameTime.TotalSeconds);
+
 
                     //Tile tile = tileFromPosition(position, map);
 
@@ -103,7 +108,7 @@ namespace Game1
                     //targetPosition = path[tileNumber];
                     //}
 
-                    if (Vector3.Distance(position, targetPosition) < 25 && tileNumber < path.Count)
+                    if (Vector3.Distance(position, targetPosition) < 30 && tileNumber < path.Count)
                     {
                         tileNumber++;
                     }
