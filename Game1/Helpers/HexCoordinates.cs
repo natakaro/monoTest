@@ -123,6 +123,11 @@ namespace Game1.Helpers
 
                 return ret;
             }
+
+            public static implicit operator HexOffset(HexOffsetH value)
+            {
+                return new HexOffset(value.x, value.y);
+            }
         }
         public struct AxialCoordinate
         {
@@ -392,8 +397,6 @@ namespace Game1.Helpers
 
             return ret;
         }
-
-
 
         public static float CubeDistance(CubeCoordinateH a, CubeCoordinateH b)
         {

@@ -14,10 +14,12 @@ namespace Game1.HUD
     class HUDMinimap : HUDElement
     {
         Texture2D minimapTexture;
+        Texture2D minimapMaskTexture;
         Texture2D dayIcon;
         Texture2D nightIcon;
 
         Texture2D tileTex;
+        Texture2D playerTex;
 
         TimeOfDay timeOfDay;
         Dictionary<AxialCoordinate, Tile> map;
@@ -43,6 +45,23 @@ namespace Game1.HUD
         {
             if (enabled)
             {
+                var cube = pixelToAxialH(GameplayScreen.camera.Position, Map.size).ToCube();
+                cube = CubeRound(cube);
+
+                var offset = cube.to_oddQ_Offset();
+                //offset.x += 0.5f;
+                //offset.y += 0.5f;
+
+                //Map.Draw(spriteBatch, tileTex, position + minimapCenter - new Vector2(offset.x * tileTex.Width, offset.y * tileTex.Height), mapTileCount, cube, 13, alpha);
+                Map.Draw(spriteBatch, tileTex, playerTex, position + minimapCenter - new Vector2((offset.x - (float)Math.Truncate(offset.x)) * tileTex.Width, (offset.y - (float)Math.Truncate(offset.y)) * tileTex.Height), mapTileCount, cube, 26, 0.5f, 1);
+                //Map.Draw(spriteBatch, tileTex, position + minimapCenter - new Vector2(offset.x * tileTex.Width, offset.y * tileTex.Height), mapTileCount, alpha);
+            }
+        }
+
+        public void DrawBackground()
+        {
+            if (enabled)
+            {
                 spriteBatch.Draw(minimapTexture, position, Color.White * alpha);
 
                 Texture2D icon;
@@ -53,11 +72,14 @@ namespace Game1.HUD
                     icon = nightIcon;
 
                 spriteBatch.Draw(icon, Rotate(MathHelper.ToRadians(timeOfDay.TimeFloat * 15) + MathHelper.PiOver2, minimapTexture.Width / 2 - icon.Width / 2 - 2, position + new Vector2(minimapTexture.Width / 2, minimapTexture.Height / 2)) - new Vector2(icon.Width, icon.Height) / 2, Color.White * ALPHA);
+            }
+        }
 
-                var cube = pixelToAxialH(GameplayScreen.camera.Position, Map.size).ToCube();
-                var offset = cube.to_oddQ_Offset();
-                
-                Map.Draw(spriteBatch, tileTex, position + minimapCenter - new Vector2((offset.x - (float)Math.Truncate(offset.x)) * tileTex.Width, (offset.y - (float)Math.Truncate(offset.y)) * tileTex.Height), mapTileCount, CubeRound(cube), 15, 1);
+        public void DrawMask()
+        {
+            if (enabled)
+            {
+                spriteBatch.Draw(minimapMaskTexture, position, Color.White * alpha);
             }
         }
 
@@ -69,9 +91,11 @@ namespace Game1.HUD
         public override void LoadContent(ContentManager Content)
         {
             minimapTexture = Content.Load<Texture2D>("Interface/HUD/minimapRound");
+            minimapMaskTexture = Content.Load<Texture2D>("Interface/HUD/minimapRoundMask");
             dayIcon = Content.Load<Texture2D>("Interface/HUD/Icons/sunrise");
             nightIcon = Content.Load<Texture2D>("Interface/HUD/Icons/night-sky");
             tileTex = Content.Load<Texture2D>("Interface/Map/tile");
+            playerTex = Content.Load<Texture2D>("Interface/Map/tile");
 
             minimapCenter = new Vector2(minimapTexture.Width / 2, minimapTexture.Height / 2);
         }

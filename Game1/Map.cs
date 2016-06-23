@@ -271,7 +271,7 @@ namespace Game1
         //}
 
         //flat top
-        public static void Draw(SpriteBatch spriteBatch, Texture2D tileTex, Vector2 startingPos, Vector2 mapTileCount, float alpha = 1f)
+        public static void Draw(SpriteBatch spriteBatch, Texture2D tileTex, Texture2D playerTex, Vector2 startingPos, Vector2 mapTileCount, float scale = 1f, float alpha = 1f)
         {
             Dictionary<AxialCoordinate, Tile> map = GameplayScreen.map;
             Vector2 origin = new Vector2(tileTex.Width / 2, tileTex.Height / 2);
@@ -302,20 +302,23 @@ namespace Game1
                     spriteBatch.Draw(tileTex, new Vector2(startingPos.X + x * tileTex.Width * 0.75f, startingPos.Y + y * tileTex.Height + offset), null, color, 0, origin, 1, SpriteEffects.None, 0);
                 }
             }
+            HexOffset playerCoord = pixelToAxialH(GameplayScreen.camera.Position, Map.size).ToCube().to_oddQ_Offset();
+            spriteBatch.Draw(playerTex, new Vector2(startingPos.X + playerCoord.x * tileSize.X * 0.75f, startingPos.Y + playerCoord.y * tileSize.Y), null, Color.White, 0, origin, scale, SpriteEffects.None, 0);
         }
 
-        public static void Draw(SpriteBatch spriteBatch, Texture2D tileTex, Vector2 startingPos, Vector2 mapTileCount, CubeCoordinate center, int radius, float alpha = 1f)
+        public static void Draw(SpriteBatch spriteBatch, Texture2D tileTex, Texture2D playerTex, Vector2 startingPos, Vector2 mapTileCount, CubeCoordinate center, int radius, float scale = 1f, float alpha = 1f)
         {
             Dictionary<AxialCoordinate, Tile> map = GameplayScreen.map;
-            Vector2 origin = new Vector2(tileTex.Width / 2, tileTex.Height / 2);
+            Vector2 tileSize = new Vector2(tileTex.Width, tileTex.Height) * scale;
+            Vector2 origin = tileSize / 2;
 
-            Vector2 tileSize = new Vector2(tileTex.Width, tileTex.Height);
             var list = CubeSpiral(center, radius);
+            HexOffset centerCoord = center.to_oddQ_Offset();
+
             foreach (CubeCoordinate coordinate in list)
             {
                 HexOffset coord = coordinate.to_oddQ_Offset();
-                HexOffset centerCoord = center.to_oddQ_Offset();
-
+                
                 float offset = 0;
                 if ((int)coord.x % 2 != 0)
                     offset = tileSize.Y / 2;
@@ -331,15 +334,20 @@ namespace Game1
                     if (position < 128)
                     {
                         color = Color.Lerp(Color.Green, Color.Yellow, position / 128f) * alpha;
-                        if (position < 5)
+                        if (position < 5) //waterheight
                             color = Color.SkyBlue * alpha;
                     }
                     else
                         color = Color.Lerp(Color.Yellow, Color.Red, (position - 128f) / 128f) * alpha;
 
-                    spriteBatch.Draw(tileTex, new Vector2(startingPos.X + (coord.x-centerCoord.x) * tileTex.Width * 0.75f, startingPos.Y /*- tileTex.Height*radius*/ + (coord.y-centerCoord.y) * tileTex.Height + offset), null, color, 0, origin, 1, SpriteEffects.None, 0);
+                    spriteBatch.Draw(tileTex, new Vector2(startingPos.X + (coord.x - centerCoord.x) * tileSize.X * 0.75f, startingPos.Y /*- tileTex.Height*radius*/ + (coord.y - centerCoord.y) * tileSize.Y + offset), null, color, 0, origin, scale, SpriteEffects.None, 0);
+                }
+                else
+                {
+                    spriteBatch.Draw(tileTex, new Vector2(startingPos.X + (coord.x - centerCoord.x) * tileSize.X * 0.75f, startingPos.Y /*- tileTex.Height*radius*/ + (coord.y - centerCoord.y) * tileSize.Y + offset), null, Color.SkyBlue, 0, origin, scale, SpriteEffects.None, 0);
                 }
             }
+            spriteBatch.Draw(playerTex, startingPos, null, Color.White, 0, origin, scale, SpriteEffects.None, 0);
         }
 
 

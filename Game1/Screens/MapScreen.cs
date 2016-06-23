@@ -16,6 +16,7 @@ namespace Game1.Screens
     {
         InputAction exit;
         Texture2D tileTex;
+        Texture2D playerTex;
         Texture2D backgroundTexture;
         Texture2D horizontalBorderTexture;
         Texture2D verticalBorderTexture;
@@ -39,6 +40,7 @@ namespace Game1.Screens
         {
             ContentManager content = ScreenManager.Game.Content;
             tileTex = content.Load<Texture2D>("Interface/Map/tile");
+            playerTex = content.Load<Texture2D>("Interface/Map/tile");
             horizontalBorderTexture = content.Load<Texture2D>("Interface/messagebox_horizontalborder");
             verticalBorderTexture = content.Load<Texture2D>("Interface/messagebox_verticalborder");
             cornerTexture = content.Load<Texture2D>("Interface/messagebox_corner");
@@ -157,7 +159,7 @@ namespace Game1.Screens
             // Draw the background rectangle.
             spriteBatch.Draw(backgroundTexture, backgroundRectangle, color);
 
-            Map.Draw(spriteBatch, tileTex, mapPosition, mapTileCount, TransitionAlpha);
+            Map.Draw(spriteBatch, tileTex, playerTex, mapPosition, mapTileCount, 1, TransitionAlpha);
             Map.DrawAssets(spriteBatch, tileTex, mapPosition, mapTileCount, TransitionAlpha);
 
             Vector2 horizontalBorderOrigin = new Vector2(horizontalBorderTexture.Width / 2, horizontalBorderTexture.Height / 2);

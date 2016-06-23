@@ -760,6 +760,23 @@ namespace Game1.Screens
                     stats.currentHealth.ToString());
                 buffer.AppendFormat(" Mana: {0}\n\n",
                     stats.currentMana.ToString());
+
+                var cube = pixelToAxialH(GameplayScreen.camera.Position, Map.size).ToCube();
+                var offset = cube.to_oddQ_Offset();
+                //offset.x += 0.5f;
+                //offset.y += 0.5f;
+                //if ((int)offset.x % 2 != 0)
+                //    offset.y -= 0.5f;
+                //
+                //offset.x = 1 / camera.Position.X;
+                //offset.y = 1 / camera.Position.Z;
+
+                var pos = new Vector2((offset.x - (float)Math.Truncate(offset.x)) * 10, (offset.y - (float)Math.Truncate(offset.y)) * 9);
+
+                buffer.AppendFormat(" offset: x: {0}, y: {1}\n\n",
+                    offset.x,
+                    offset.y);
+
             }
             spriteBatch.DrawString(spriteFont, buffer.ToString(), fontPos, Color.Yellow);
         }

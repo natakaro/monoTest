@@ -43,7 +43,7 @@ namespace Game1
         public float SSAORadius;
         public float SSAOPower;
 
-        public static Point ScreenResolution = new Point(1280, 720);
+        public static Point ScreenResolution = new Point(1920, 1080);
 
         public enum FogEffect
         {
@@ -82,7 +82,7 @@ namespace Game1
 
             LightDirection = Vector3.Normalize(new Vector3(1, 1, -1));
             LightColor = new Vector3(3, 3, 3);
-            Bias = 0.002f;
+            Bias = 0.004f;
             OffsetScale = 0.0f;
             FixedFilterSize = FixedFilterSize.Filter3x3;
 

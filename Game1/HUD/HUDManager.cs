@@ -121,7 +121,7 @@ namespace Game1.HUD
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, s2, null);
             foreach (HUDElement element in elements)
             {
-                if (element is HUDBar || element is HUDTargetBar)
+                if (element is HUDBar || element is HUDTargetBar || element is HUDMinimap)
                 {
                     element.Draw();
                 }
@@ -141,6 +141,11 @@ namespace Game1.HUD
                     HUDTargetBar targetBar = element as HUDTargetBar;
                     targetBar.DrawBackground();
                 }
+                else if (element is HUDMinimap)
+                {
+                    HUDMinimap minimap = element as HUDMinimap;
+                    minimap.DrawBackground();
+                }
                 else
                     element.Draw();
             }
@@ -156,6 +161,7 @@ namespace Game1.HUD
             manaBar.DrawMask();
             essenceBar.DrawMask();
             targetHealthBar.DrawMask();
+            minimap.DrawMask();
             spriteBatch.End();
         }
 
