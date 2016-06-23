@@ -274,9 +274,9 @@ namespace Game1
         public static void Draw(SpriteBatch spriteBatch, Texture2D tileTex, Texture2D playerTex, Vector2 startingPos, Vector2 mapTileCount, float scale = 1f, float alpha = 1f)
         {
             Dictionary<AxialCoordinate, Tile> map = GameplayScreen.map;
-            Vector2 origin = new Vector2(tileTex.Width / 2, tileTex.Height / 2);
+            Vector2 tileSize = new Vector2(tileTex.Width, tileTex.Height) * scale;
+            Vector2 origin = tileSize / 2;
 
-            Vector2 tileSize = new Vector2(tileTex.Width, tileTex.Height);
             for (int y = 0; y < mapTileCount.Y; y++)
             {
                 for (int x = 0; x < mapTileCount.X; x++)
@@ -299,7 +299,7 @@ namespace Game1
                     else
                         color = Color.Lerp(Color.Yellow, Color.Red, (position - 128f) / 128f) * alpha;
 
-                    spriteBatch.Draw(tileTex, new Vector2(startingPos.X + x * tileTex.Width * 0.75f, startingPos.Y + y * tileTex.Height + offset), null, color, 0, origin, 1, SpriteEffects.None, 0);
+                    spriteBatch.Draw(tileTex, new Vector2(startingPos.X + x * tileSize.X * 0.75f, startingPos.Y + y * tileSize.Y + offset), null, color, 0, origin, 1, SpriteEffects.None, 0);
                 }
             }
             HexOffset playerCoord = pixelToAxialH(GameplayScreen.camera.Position, Map.size).ToCube().to_oddQ_Offset();
@@ -340,11 +340,11 @@ namespace Game1
                     else
                         color = Color.Lerp(Color.Yellow, Color.Red, (position - 128f) / 128f) * alpha;
 
-                    spriteBatch.Draw(tileTex, new Vector2(startingPos.X + (coord.x - centerCoord.x) * tileSize.X * 0.75f, startingPos.Y /*- tileTex.Height*radius*/ + (coord.y - centerCoord.y) * tileSize.Y + offset), null, color, 0, origin, scale, SpriteEffects.None, 0);
+                    spriteBatch.Draw(tileTex, new Vector2(startingPos.X + (coord.x - centerCoord.x) * tileSize.X * 0.75f, startingPos.Y + (coord.y - centerCoord.y) * tileSize.Y + offset), null, color, 0, origin, scale, SpriteEffects.None, 0);
                 }
                 else
                 {
-                    spriteBatch.Draw(tileTex, new Vector2(startingPos.X + (coord.x - centerCoord.x) * tileSize.X * 0.75f, startingPos.Y /*- tileTex.Height*radius*/ + (coord.y - centerCoord.y) * tileSize.Y + offset), null, Color.SkyBlue, 0, origin, scale, SpriteEffects.None, 0);
+                    spriteBatch.Draw(tileTex, new Vector2(startingPos.X + (coord.x - centerCoord.x) * tileSize.X * 0.75f, startingPos.Y + (coord.y - centerCoord.y) * tileSize.Y + offset), null, Color.SkyBlue, 0, origin, scale, SpriteEffects.None, 0);
                 }
             }
             spriteBatch.Draw(playerTex, startingPos, null, Color.White, 0, origin, scale, SpriteEffects.None, 0);

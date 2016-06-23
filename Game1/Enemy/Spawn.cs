@@ -28,6 +28,8 @@ namespace Game1
         //do testów
         private Stopwatch stopwatch = new Stopwatch();
 
+        const int portalParticlesPerFrame = 3;
+
         public Spawn(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ItemManager itemManager, ContentManager Content, Vector3 corePosition, PhaseManager phaseManager, int enemyType) : base(game, inWorldMatrix, inModel, octree)
         {
             type = ObjectType.Spawn;
@@ -48,6 +50,23 @@ namespace Game1
             Tile end = HexCoordinates.tileFromPosition(corePosition, GameplayScreen.map);
             path = pathfinder.Pathfind(start, end, GameplayScreen.map, true);
             pathMiddle = pathfinder.PathfindMiddle(path);
+        }
+
+        public override void Draw(Camera camera)
+        {
+            //foreach (ModelMesh mesh in model.Meshes)
+            //{
+            //    foreach (Effect effect in mesh.Effects)
+            //    {
+            //        effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index] * worldMatrix);
+            //        effect.Parameters["View"].SetValue(camera.ViewMatrix);
+            //        effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
+            //        effect.Parameters["FarClip"].SetValue(camera.FarZ);
+            //        effect.Parameters["Texture"].SetValue(texture);
+            //        effect.Parameters["Clipping"].SetValue(false);
+            //    }
+            //    mesh.Draw();
+            //}
         }
 
         public override bool Update(GameTime gameTime)
@@ -77,6 +96,11 @@ namespace Game1
 
             if (phaseManager.Phase == Phase.Night)
             {
+                for (int i = 0; i < portalParticlesPerFrame; i++)
+                {
+                    GameplayScreen.particleManager.portalParticlesEnemy.AddParticle(position + Core.RandomPointOnCircle(30, 60), Vector3.Zero);
+                }
+
                 stopwatch.Start();
                 if (stopwatch.ElapsedMilliseconds > 6000)
                 {
@@ -104,7 +128,7 @@ namespace Game1
         }
         public bool SpawnFlyEnemy()
         {
-            Enemy enemy = new EnemyFly(Game, Matrix.CreateTranslation(0, 30, 0)*worldMatrix, GameplayScreen.assetContentContainer.enemyFly, octree, itemManager, Content, pathMiddle);
+            Enemy enemy = new EnemyFly(Game, Matrix.CreateTranslation(0, 30, 0) * worldMatrix, GameplayScreen.assetContentContainer.enemyFly, octree, itemManager, Content, pathMiddle);
             enemies.Add(enemy);
             Octree.AddObject(enemy);
             return true;

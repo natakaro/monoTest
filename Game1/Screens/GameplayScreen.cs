@@ -34,6 +34,8 @@ namespace Game1.Screens
         private ContentManager Content;
         private SpriteBatch spriteBatch;
 
+        public static Random random;
+
         private GameSettings settings;
         private QuadRenderComponent quadRenderer;
         private SpriteFont spriteFont;
@@ -43,7 +45,7 @@ namespace Game1.Screens
         private ItemManager itemManager;
         private PhaseManager phaseManager;
         private PathFinder pathfinder;
-        private ParticleManager particleManager;
+        public static ParticleManager particleManager;
         private HUDManager hudManager;
         private Stats stats;
         public static AssetContentContainer assetContentContainer;
@@ -226,6 +228,8 @@ namespace Game1.Screens
             camera.Initialize();
             #endregion
 
+            random = new Random();
+
             timeOfDay = new TimeOfDay(14, 30, 0);
             quadRenderer = new QuadRenderComponent(ScreenManager.Game, (IGraphicsDeviceService)ScreenManager.Game.Services.GetService(typeof(IGraphicsDeviceService)));
             quadRenderer.LoadContent();
@@ -324,7 +328,8 @@ namespace Game1.Screens
             }
 
             core = new Core(ScreenManager.Game, Matrix.CreateTranslation(1100, 50, 1700), coreModel, octree, coreTexture);
-            Octree.AddObject(core);
+            objectManager.Add(core);
+            //Octree.AddObject(core);
 
             camera.Octree = octree;
 
@@ -341,7 +346,10 @@ namespace Game1.Screens
             List<DrawableObject> assetList = new List<DrawableObject>();
             foreach (var item in mapAsset)
             {
-                Octree.AddObject(item.Value);
+                if (item.Value is Spawn)
+                    objectManager.Add(item.Value);
+                else
+                    Octree.AddObject(item.Value);
             }
         }
 
@@ -529,7 +537,8 @@ namespace Game1.Screens
                 if (input.IsNewKeyPress(Keys.P))
                 {
                     Spawn spawn = new Spawn(ScreenManager.Game, Matrix.CreateTranslation(camera.Position + Vector3.Normalize(core.Position - camera.Position) * 100), coreModel, octree, itemManager, Content, core.Position, phaseManager, 2);
-                    Octree.AddObject(spawn);
+                    objectManager.Add(spawn);
+                    //Octree.AddObject(spawn);
                 }
 
                 if (input.IsNewMouseScrollDown && mouseState.LeftButton == ButtonState.Released && mouseState.RightButton == ButtonState.Released)
