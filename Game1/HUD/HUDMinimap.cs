@@ -96,7 +96,7 @@ namespace Game1.HUD
             dayIcon = Content.Load<Texture2D>("Interface/HUD/Icons/sunrise");
             nightIcon = Content.Load<Texture2D>("Interface/HUD/Icons/night-sky");
             tileTex = Content.Load<Texture2D>("Interface/Map/tile");
-            playerTex = Content.Load<Texture2D>("Interface/Map/tile");
+            playerTex = Content.Load<Texture2D>("Interface/Map/playerIcon");
 
             minimapCenter = new Vector2(minimapTexture.Width / 2, minimapTexture.Height / 2);
         }

@@ -40,7 +40,7 @@ namespace Game1.Screens
         {
             ContentManager content = ScreenManager.Game.Content;
             tileTex = content.Load<Texture2D>("Interface/Map/tile");
-            playerTex = content.Load<Texture2D>("Interface/Map/tile");
+            playerTex = content.Load<Texture2D>("Interface/Map/playerIcon");
             horizontalBorderTexture = content.Load<Texture2D>("Interface/messagebox_horizontalborder");
             verticalBorderTexture = content.Load<Texture2D>("Interface/messagebox_verticalborder");
             cornerTexture = content.Load<Texture2D>("Interface/messagebox_corner");

@@ -303,7 +303,11 @@ namespace Game1
                 }
             }
             HexOffset playerCoord = pixelToAxialH(GameplayScreen.camera.Position, Map.size).ToCube().to_oddQ_Offset();
-            spriteBatch.Draw(playerTex, new Vector2(startingPos.X + playerCoord.x * tileSize.X * 0.75f, startingPos.Y + playerCoord.y * tileSize.Y), null, Color.White, 0, origin, scale, SpriteEffects.None, 0);
+
+            Vector2 playerIconOrigin = new Vector2(playerTex.Width / 2, playerTex.Height / 2);
+            float rotation = -MathHelper.ToRadians(GameplayScreen.camera.HeadingDegrees);
+
+            spriteBatch.Draw(playerTex, new Vector2(startingPos.X + playerCoord.x * tileSize.X * 0.75f, startingPos.Y + playerCoord.y * tileSize.Y), null, Color.White * alpha, rotation, playerIconOrigin, scale, SpriteEffects.None, 0);
         }
 
         public static void Draw(SpriteBatch spriteBatch, Texture2D tileTex, Texture2D playerTex, Vector2 startingPos, Vector2 mapTileCount, CubeCoordinate center, int radius, float scale = 1f, float alpha = 1f)
@@ -347,7 +351,11 @@ namespace Game1
                     spriteBatch.Draw(tileTex, new Vector2(startingPos.X + (coord.x - centerCoord.x) * tileSize.X * 0.75f, startingPos.Y + (coord.y - centerCoord.y) * tileSize.Y + offset), null, Color.SkyBlue, 0, origin, scale, SpriteEffects.None, 0);
                 }
             }
-            spriteBatch.Draw(playerTex, startingPos, null, Color.White, 0, origin, scale, SpriteEffects.None, 0);
+
+            Vector2 playerIconOrigin = new Vector2(playerTex.Width / 2, playerTex.Height / 2);
+            float rotation = -MathHelper.ToRadians(GameplayScreen.camera.HeadingDegrees);
+
+            spriteBatch.Draw(playerTex, startingPos, null, Color.White * alpha, rotation, playerIconOrigin, 1, SpriteEffects.None, 0);
         }
 
 
