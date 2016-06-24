@@ -12,6 +12,9 @@ float4 heightcolor = float4(1, 0, 0, 1);
 bool Clipping = false;
 float4 ClipPlane;
 
+float DissolveThreshold = 0.0f;
+float EdgeSize = 0.15f;
+
 texture Texture;
 sampler diffuseSampler = sampler_state
 {
@@ -37,6 +40,28 @@ texture NormalMap;
 sampler normalSampler = sampler_state
 {
     Texture = (NormalMap);
+    MagFilter = LINEAR;
+    MinFilter = LINEAR;
+    Mipfilter = LINEAR;
+    AddressU = Wrap;
+    AddressV = Wrap;
+};
+
+texture DissolveMap;
+sampler dissolveSampler = sampler_state
+{
+    Texture = (DissolveMap);
+    MagFilter = LINEAR;
+    MinFilter = LINEAR;
+    Mipfilter = LINEAR;
+    AddressU = Wrap;
+    AddressV = Wrap;
+};
+
+texture EdgeMap;
+sampler edgeSampler = sampler_state
+{
+    Texture = (EdgeMap);
     MagFilter = LINEAR;
     MinFilter = LINEAR;
     Mipfilter = LINEAR;
@@ -106,6 +131,17 @@ PixelShaderOutput PixelShaderFunction(VertexShaderOutput input)
 
     output.Color = tex2D(diffuseSampler, input.TexCoord);
 
+    float4 dissolve = tex2D(dissolveSampler, input.TexCoord);
+
+    float val = dissolve - DissolveThreshold;
+    clip(val);
+
+    if(val < EdgeSize && DissolveThreshold > 0 && DissolveThreshold < 1)
+    {
+        float4 emission = tex2D(edgeSampler, float2(val * (1 / EdgeSize), 0));
+        output.Color *= emission;
+    }
+
 	//output.Color *= heightcolor * World[3][1];
     float4 specularAttributes = tex2D(specularSampler, input.TexCoord);
     //specular Intensity
@@ -146,6 +182,18 @@ PixelShaderOutput PixelShaderFunctionColor(VertexShaderOutput input)
 	{
 		output.Color = tex2D(diffuseSampler, float2(0, 0));
 	}
+
+    float4 dissolve = tex2D(dissolveSampler, input.TexCoord);
+
+    float val = dissolve - DissolveThreshold;
+    clip(val);
+
+    if (val < EdgeSize && DissolveThreshold > 0 && DissolveThreshold < 1)
+    {
+        float4 emission = tex2D(edgeSampler, float2(val * (1 / EdgeSize), 0));
+        output.Color *= emission;
+    }
+
 	//output.Color *= float4 (0.01*input.instanceTransform[3][1], 1-0.01*input.instanceTransform[3][1], 0, 1);
 	float4 specularAttributes = tex2D(specularSampler, input.TexCoord);
 	//specular Intensity

@@ -1,4 +1,5 @@
 ﻿using Game1.Helpers;
+using Game1.Screens;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -42,6 +43,9 @@ namespace Game1
                     effect.Parameters["FarClip"].SetValue(camera.FarZ);
                     effect.Parameters["Texture"].SetValue(texture);
                     effect.Parameters["Clipping"].SetValue(false);
+                    //effect.Parameters["DissolveMap"].SetValue(GameplayScreen.assetContentContainer.dissolveTexture);
+                    //effect.Parameters["DissolveThreshold"].SetValue(dissolveAmount);
+                    //effect.Parameters["EdgeMap"].SetValue(GameplayScreen.assetContentContainer.edgeTexture);
                 }
                 mesh.Draw();
             }

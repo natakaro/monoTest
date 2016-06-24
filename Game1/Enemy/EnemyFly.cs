@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework.Graphics;
 using AnimationAux;
 using static Game1.Helpers.HexCoordinates;
 using Game1.Items;
+using Game1.Screens;
 
 namespace Game1
 {
@@ -38,6 +39,9 @@ namespace Game1
                     effect.Parameters["FarClip"].SetValue(camera.FarZ);
                     effect.Parameters["Texture"].SetValue(tex);
                     effect.Parameters["Clipping"].SetValue(false);
+                    effect.Parameters["DissolveMap"].SetValue(GameplayScreen.assetContentContainer.dissolveTexture);
+                    effect.Parameters["DissolveThreshold"].SetValue(dissolveAmount);
+                    effect.Parameters["EdgeMap"].SetValue(GameplayScreen.assetContentContainer.edgeTexture);
                 }
                 mesh.Draw();
             }

@@ -26,7 +26,6 @@ namespace Game1
             animatedModel = new AnimatedModel("Models/h");
             animatedModel.LoadContent(Content);
 
-
             dance = new AnimatedModel("Models/h_walk");
             dance.LoadContent(Content);
             AnimationClip clip = dance.Clips[0];
@@ -46,18 +45,26 @@ namespace Game1
             currentHealth = 100;
         }
 
-
-
         public override bool Update(GameTime gameTime)
         {
             bool ret = base.Update(gameTime);
 
             if (CurrentHealth <= 0)
             {
-                Die();
+                Die(gameTime);
             }
             else
             {
+                if (dissolveAmount >= 0)
+                {
+                    float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+                    spawnAge += elapsedTime;
+
+                    dissolveAmount = MathHelper.Lerp(1, 0, spawnAge / spawnLength);
+                }
+                else
+                    dissolveAmount = 0;
+
                 Dictionary<AxialCoordinate, Tile> map = GameplayScreen.map;
 
                 if (path.Count - tileNumber > 0)
@@ -136,8 +143,17 @@ namespace Game1
                 mesh.Draw();
             }
             */
-            animatedModel.Draw(GraphicsDevice, camera, worldMatrix, Content);
+            animatedModel.Draw(GraphicsDevice, camera, worldMatrix, Content, GameplayScreen.assetContentContainer.enemyFlyTexture, dissolveAmount);
             //boundingBox = CollisionBox.CreateBoundingBox(animatedModel, position, 1, Matrix.CreateFromQuaternion(Orientation)); // dostosowywany boundingbox
+        }
+
+        public override void Die(GameTime gameTime)
+        {
+            //animatedModel.Update(gameTime);
+            velocity = Vector3.Zero;
+            worldMatrix = Matrix.CreateRotationY(targetRotation) * Matrix.CreateTranslation(position);
+            Orientation = worldMatrix.Rotation;
+            base.Die(gameTime);
         }
 
 

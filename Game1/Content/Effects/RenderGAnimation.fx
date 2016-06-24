@@ -11,6 +11,9 @@ float4x4 Projection;
 float specularIntensity = 0.8f;
 float specularPower = 0.5f;
 
+float DissolveThreshold = 0.0f;
+float EdgeSize = 0.15f;
+
 texture Texture;
 sampler diffuseSampler = sampler_state
 {
@@ -41,6 +44,28 @@ sampler normalSampler = sampler_state
 	Mipfilter = LINEAR;
 	AddressU = Wrap;
 	AddressV = Wrap;
+};
+
+texture DissolveMap;
+sampler dissolveSampler = sampler_state
+{
+    Texture = (DissolveMap);
+    MagFilter = LINEAR;
+    MinFilter = LINEAR;
+    Mipfilter = LINEAR;
+    AddressU = Wrap;
+    AddressV = Wrap;
+};
+
+texture EdgeMap;
+sampler edgeSampler = sampler_state
+{
+    Texture = (EdgeMap);
+    MagFilter = LINEAR;
+    MinFilter = LINEAR;
+    Mipfilter = LINEAR;
+    AddressU = Wrap;
+    AddressV = Wrap;
 };
 
 struct VertexShaderInput
@@ -112,7 +137,19 @@ struct PixelShaderOutput
 PixelShaderOutput PixelShaderFunction(VertexShaderOutput input)
 {
 	PixelShaderOutput output;
+
 	output.Color = tex2D(diffuseSampler, input.TexCoord);
+
+    float4 dissolve = tex2D(dissolveSampler, input.TexCoord);
+
+    float val = dissolve - DissolveThreshold;
+    clip(val);
+
+    if (val < EdgeSize && DissolveThreshold > 0 && DissolveThreshold < 1)
+    {
+        float4 emission = tex2D(edgeSampler, float2(val * (1 / EdgeSize), 0));
+        output.Color *= emission;
+    }
 
 	float4 specularAttributes = tex2D(specularSampler, input.TexCoord);
 	//specular Intensity

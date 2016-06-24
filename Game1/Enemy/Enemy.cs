@@ -37,6 +37,12 @@ namespace Game1
         protected float maxHealth;
         protected float currentHealth;
 
+        protected float deathAge;
+        protected const float deathLength = 1f;
+
+        protected float spawnAge;
+        protected const float spawnLength = 1f;
+
         public float MaxHealth
         {
             get { return maxHealth; }
@@ -56,8 +62,6 @@ namespace Game1
             m_static = false;
             //boundingSphere = new BoundingSphere(position, Map.scale * 0.75f);
 
-
-
             type = ObjectType.Enemy;
             boundingBox = CollisionBox.CreateBoundingBox(model, position, 1);
             a = boundingBox.Max.Y - boundingBox.Min.Y;
@@ -70,9 +74,9 @@ namespace Game1
 
             maxHealth = 100;
             currentHealth = 100;
+
+            dissolveAmount = 1;
         }
-
-
 
         //ten ble stary
         public bool Update(GameTime gameTime, Octree octree, List<Tile> path)
@@ -133,10 +137,20 @@ namespace Game1
 
             if (CurrentHealth <= 0)
             {
-                Die();
+                Die(gameTime);
             }
             else
             {
+                if (dissolveAmount >= 0)
+                {
+                    float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+                    spawnAge += elapsedTime;
+
+                    dissolveAmount = MathHelper.Lerp(1, 0, spawnAge / spawnLength);
+                }
+                else
+                    dissolveAmount = 0;
+
                 Dictionary<AxialCoordinate, Tile> map = GameplayScreen.map;
 
                 if (path.Count - tileNumber > 0)
@@ -204,12 +218,19 @@ namespace Game1
             CurrentHealth -= value;
         }
 
-        public void Die()
+        public virtual void Die(GameTime gameTime)
         {
-            itemManager.Spawn(position);
-            Alive = false;
-        }
+            float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            deathAge += elapsedTime;
 
+            dissolveAmount = MathHelper.Lerp(0, 1, deathAge / deathLength);
+
+            if (deathAge > deathLength)
+            {
+                itemManager.Spawn(position);
+                Alive = false;
+            }
+        }
 
         public float Rotation
         {

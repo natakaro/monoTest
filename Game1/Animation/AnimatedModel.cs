@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Content;
 using AnimationAux;
+using Game1.Screens;
 
 namespace Game1
 {
@@ -178,7 +179,7 @@ namespace Game1
         /// <param name="graphics">The graphics device to draw on</param>
         /// <param name="camera">A camera to determine the view</param>
         /// <param name="world">A world matrix to place the model</param>
-        public void Draw(GraphicsDevice graphics, Camera camera, Matrix world, ContentManager content)
+        public void Draw(GraphicsDevice graphics, Camera camera, Matrix world, ContentManager content, float dissolveAmount = 0)
         {
             if (model == null)
                 return;
@@ -220,6 +221,60 @@ namespace Game1
                         part.Effect.Parameters["View"].SetValue(camera.viewMatrix);
                         part.Effect.Parameters["Projection"].SetValue(camera.projMatrix);
                         part.Effect.Parameters["FarClip"].SetValue(camera.FarZ);
+                        part.Effect.Parameters["DissolveMap"].SetValue(GameplayScreen.assetContentContainer.dissolveTexture);
+                        part.Effect.Parameters["DissolveThreshold"].SetValue(dissolveAmount);
+                    }
+                }
+                mesh.Draw();
+            }
+        }
+
+        public void Draw(GraphicsDevice graphics, Camera camera, Matrix world, ContentManager content, Texture2D tex, float dissolveAmount = 0)
+        {
+            if (model == null)
+                return;
+
+            //
+            // Compute all of the bone absolute transforms
+            //
+
+            boneTransforms = new Matrix[bones.Count];
+
+            for (int i = 0; i < bones.Count; i++)
+            {
+                Bone bone = bones[i];
+                bone.ComputeAbsoluteTransform();
+
+                boneTransforms[i] = bone.AbsoluteTransform;
+            }
+
+            //
+            // Determine the skin transforms from the skeleton
+            //
+
+            skeleton = new Matrix[modelExtra.Skeleton.Count];
+            for (int s = 0; s < modelExtra.Skeleton.Count; s++)
+            {
+                Bone bone = bones[modelExtra.Skeleton[s]];
+                skeleton[s] = bone.SkinTransform * bone.AbsoluteTransform;
+            }
+
+            // Draw the model.
+            foreach (ModelMesh mesh in Model.Meshes)
+            {
+                foreach (Effect effect in mesh.Effects)
+                {
+                    foreach (ModelMeshPart part in mesh.MeshParts)
+                    {
+                        part.Effect.Parameters["Bones"].SetValue(skeleton);
+                        part.Effect.Parameters["World"].SetValue(boneTransforms[mesh.ParentBone.Index] * world);
+                        part.Effect.Parameters["View"].SetValue(camera.viewMatrix);
+                        part.Effect.Parameters["Projection"].SetValue(camera.projMatrix);
+                        part.Effect.Parameters["FarClip"].SetValue(camera.FarZ);
+                        part.Effect.Parameters["Texture"].SetValue(tex);
+                        part.Effect.Parameters["DissolveMap"].SetValue(GameplayScreen.assetContentContainer.dissolveTexture);
+                        part.Effect.Parameters["DissolveThreshold"].SetValue(dissolveAmount);
+                        part.Effect.Parameters["EdgeMap"].SetValue(GameplayScreen.assetContentContainer.edgeTexture);
                     }
                 }
                 mesh.Draw();

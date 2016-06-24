@@ -10,6 +10,9 @@ namespace Game1.Helpers
 {
     public class AssetContentContainer
     {
+        public Texture2D dissolveTexture;
+        public Texture2D edgeTexture;
+
         public Model pinetreeModel;
         public Texture2D pinetreeTexture;
         public Model tree1Model;
@@ -49,6 +52,9 @@ namespace Game1.Helpers
 
         public void LoadContent(ContentManager Content)
         {
+            dissolveTexture = Content.Load<Texture2D>("Textures/dissolveTexture");
+            edgeTexture = Content.Load<Texture2D>("Textures/edgeTexture");
+
             pinetreeModel = Content.Load<Model>("Models/trees/pinetree");
             pinetreeTexture = Content.Load<Texture2D>("Textures/trees/pinetree");
             tree1Model = Content.Load<Model>("Models/trees/tree1");
