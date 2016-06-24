@@ -68,7 +68,7 @@ namespace Game1
 
         protected float scale;
 
-        protected float dissolveAmount = 0;
+        protected float dissolveAmount = 0.5f;
 
         public DrawableObject(Game game, Matrix inWorldMatrix, Model inModel, Octree octree) : base(game)
         {
@@ -156,6 +156,9 @@ namespace Game1
                     effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
                     effect.Parameters["FarClip"].SetValue(camera.FarZ);
                     effect.Parameters["Clipping"].SetValue(false);
+                    //effect.Parameters["DissolveMap"].SetValue(GameplayScreen.assetContentContainer.dissolveTexture);
+                    //effect.Parameters["DissolveThreshold"].SetValue(dissolveAmount);
+                    //effect.Parameters["EdgeMap"].SetValue(GameplayScreen.assetContentContainer.edgeTexture);
                 }
                 mesh.Draw();
             }

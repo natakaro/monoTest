@@ -37,7 +37,7 @@ namespace Game1
             {
                 foreach (Effect effect in mesh.Effects)
                 {
-                    effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index] * worldMatrix);
+                    effect.Parameters["World"].SetValue(Matrix.CreateScale(scale) * modelBones[mesh.ParentBone.Index] * worldMatrix);
                     effect.Parameters["View"].SetValue(camera.ViewMatrix);
                     effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
                     effect.Parameters["FarClip"].SetValue(camera.FarZ);
@@ -49,7 +49,27 @@ namespace Game1
                 }
                 mesh.Draw();
             }
+        }
 
+        public override void Draw(Camera camera, Matrix viewMatrix, Vector4 clipPlane)
+        {
+            foreach (ModelMesh mesh in model.Meshes)
+            {
+                foreach (Effect effect in mesh.Effects)
+                {
+                    effect.Parameters["World"].SetValue(Matrix.CreateScale(scale) * modelBones[mesh.ParentBone.Index] * worldMatrix);
+                    effect.Parameters["View"].SetValue(viewMatrix);
+                    effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
+                    effect.Parameters["FarClip"].SetValue(camera.FarZ);
+                    effect.Parameters["Texture"].SetValue(texture);
+                    effect.Parameters["Clipping"].SetValue(true);
+                    effect.Parameters["ClipPlane"].SetValue(clipPlane);
+                    //effect.Parameters["DissolveMap"].SetValue(GameplayScreen.assetContentContainer.dissolveTexture);
+                    //effect.Parameters["DissolveThreshold"].SetValue(dissolveAmount);
+                    //effect.Parameters["EdgeMap"].SetValue(GameplayScreen.assetContentContainer.edgeTexture);
+                }
+                mesh.Draw();
+            }
         }
     }
 }

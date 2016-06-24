@@ -12,7 +12,7 @@ float specularIntensity = 0.8f;
 float specularPower = 0.5f;
 
 float DissolveThreshold = 0.0f;
-float EdgeSize = 0.1f;
+float EdgeSize = 0.15f;
 
 texture Texture;
 sampler diffuseSampler = sampler_state
@@ -148,7 +148,7 @@ PixelShaderOutput PixelShaderFunction(VertexShaderOutput input)
 
     if (val < EdgeSize && DissolveThreshold > 0 && DissolveThreshold < 1)
     {
-        output.Emissive = tex2D(edgeSampler, float2(val * (1 / EdgeSize), 0)) * 100;
+        output.Emissive = tex2D(edgeSampler, float2(val * (1 / EdgeSize), 0)) * 10;
         output.Color *= output.Emissive;
     }
 
