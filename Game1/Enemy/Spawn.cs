@@ -15,7 +15,7 @@ namespace Game1
 {
     public class Spawn : DrawableObject
     {
-        List <DrawableObject> enemies;
+        public List <DrawableObject> enemies;
         List <Tile> path;
         List<Vector3> pathMiddle;
         ContentManager Content;

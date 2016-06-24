@@ -425,10 +425,14 @@ namespace Game1
             Dictionary<AxialCoordinate, DrawableObject> assets = GameplayScreen.mapAsset;
             Vector2 tileSize = new Vector2(tileTex.Width, tileTex.Height) * scale;
 
+            Color color = Color.White * alpha;
+
             foreach (var item in assets)
             {
                 if (item.Value is Spawn)
                 {
+                    Spawn spawn = item.Value as Spawn;
+
                     AxialCoordinate axial = pixelToAxialH(item.Value.Position, Map.size);
                     HexOffset coord = axial.ToCube().to_oddQ_Offset();
 
@@ -439,7 +443,24 @@ namespace Game1
                     Texture2D icon = GameplayScreen.assetContentContainer.spawnIcon;
                     Vector2 origin = new Vector2(icon.Width / 2, icon.Height / 2);
 
-                    spriteBatch.Draw(icon, new Vector2(startingPos.X + coord.x * tileSize.X * 0.75f, startingPos.Y + coord.y * tileSize.Y + offset), null, Color.DarkGray * alpha, 0, origin, scale, SpriteEffects.None, 0);
+                    spriteBatch.Draw(icon, new Vector2(startingPos.X + coord.x * tileSize.X * 0.75f, startingPos.Y + coord.y * tileSize.Y + offset), null, color, 0, origin, scale, SpriteEffects.None, 0);
+
+                    List<DrawableObject> enemyList = spawn.enemies;
+
+                    foreach (DrawableObject enemy in enemyList)
+                    {
+                        AxialCoordinate axialEnemy = pixelToAxialH(enemy.Position, Map.size);
+                        HexOffset enemyCoord = axialEnemy.ToCube().to_oddQ_Offset();
+
+                        float enemyOffset = 0;
+                        if ((int)enemyCoord.x % 2 != 0)
+                            enemyOffset = tileSize.Y / 2;
+
+                        Texture2D enemyIcon = GameplayScreen.assetContentContainer.enemyIcon;
+                        Vector2 enemyOrigin = new Vector2(icon.Width / 2, icon.Height / 2);
+
+                        spriteBatch.Draw(enemyIcon, new Vector2(startingPos.X + enemyCoord.x * tileSize.X * 0.75f, startingPos.Y + enemyCoord.y * tileSize.Y + enemyOffset), null, color, 0, enemyOrigin, scale, SpriteEffects.None, 0);
+                    }
                 }
             }
 
@@ -464,7 +485,7 @@ namespace Game1
             var list = CubeSpiral(center, radius);
             HexOffset centerCoord = center.to_oddQ_Offset();
 
-            Color color = Color.White;
+            Color color = Color.White * alpha;
 
             AxialCoordinate axialCore = pixelToAxialH(GameplayScreen.core.Position, Map.size);
             CubeCoordinate cubeCore = CubeRound(axialCore.ToCube());
@@ -489,7 +510,35 @@ namespace Game1
                     Texture2D icon = GameplayScreen.assetContentContainer.spawnIcon;
                     Vector2 origin = new Vector2(icon.Width / 2, icon.Height / 2);
 
-                    spriteBatch.Draw(icon, new Vector2(startingPos.X + (coord.x - centerCoord.x) * tileSize.X * 0.75f, startingPos.Y + (coord.y - centerCoord.y) * tileSize.Y + offset), null, color * alpha, 0, origin, scale, SpriteEffects.None, 0);
+                    spriteBatch.Draw(icon, new Vector2(startingPos.X + (coord.x - centerCoord.x) * tileSize.X * 0.75f, startingPos.Y + (coord.y - centerCoord.y) * tileSize.Y + offset), null, color, 0, origin, scale, SpriteEffects.None, 0);
+                }
+            }
+
+            foreach (var item in assets)
+            {
+                if (item.Value is Spawn)
+                {
+                    Spawn spawn = item.Value as Spawn;
+
+                    List<DrawableObject> enemyList = spawn.enemies;
+
+                    Texture2D icon = GameplayScreen.assetContentContainer.enemyIcon;
+                    Vector2 origin = new Vector2(icon.Width / 2, icon.Height / 2);
+
+                    foreach (DrawableObject enemy in enemyList)
+                    {
+                        AxialCoordinate axialEnemy = pixelToAxialH(enemy.Position, Map.size);
+                        HexOffset enemyCoord = axialEnemy.ToCube().to_oddQ_Offset();
+
+                        if (Math.Abs(enemyCoord.x - centerCoord.x) < 26 && Math.Abs(enemyCoord.y - centerCoord.y) < 26)
+                        {
+                            float enemyOffset = 0;
+                            if ((int)enemyCoord.x % 2 != 0)
+                                enemyOffset = tileSize.Y / 2;
+
+                            spriteBatch.Draw(icon, new Vector2(startingPos.X + (enemyCoord.x - centerCoord.x) * tileSize.X * 0.75f, startingPos.Y + (enemyCoord.y - centerCoord.y) * tileSize.Y + enemyOffset), null, color, 0, origin, scale, SpriteEffects.None, 0);
+                        }
+                    }
                 }
             }
 
@@ -498,13 +547,13 @@ namespace Game1
                 HexOffset coordCore = axialCore.ToCube().to_oddQ_Offset();
 
                 float offsetCore = 0;
-                if (coordCore.x % 2 != 0)
+                if ((int)coordCore.x % 2 != 0)
                     offsetCore = tileSize.Y / 2;
 
                 Texture2D coreIcon = GameplayScreen.assetContentContainer.coreIcon;
                 Vector2 coreOrigin = new Vector2(coreIcon.Width / 2, coreIcon.Height / 2);
 
-                spriteBatch.Draw(coreIcon, new Vector2(startingPos.X + (coordCore.x - centerCoord.x) * tileSize.X * 0.75f, startingPos.Y + (coordCore.y - centerCoord.y) * tileSize.Y + offsetCore), null, color * alpha, 0, coreOrigin, scale, SpriteEffects.None, 0);
+                spriteBatch.Draw(coreIcon, new Vector2(startingPos.X + (coordCore.x - centerCoord.x) * tileSize.X * 0.75f, startingPos.Y + (coordCore.y - centerCoord.y) * tileSize.Y + offsetCore), null, color, 0, coreOrigin, scale, SpriteEffects.None, 0);
             }
         }
     }
