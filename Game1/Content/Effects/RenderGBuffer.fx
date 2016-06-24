@@ -123,6 +123,7 @@ struct PixelShaderOutput
     float4 Color : COLOR0;
     float4 Normal : COLOR1;
     float Depth : COLOR2;
+    float4 Emissive : COLOR3;
 };
 
 PixelShaderOutput PixelShaderFunction(VertexShaderOutput input)
@@ -138,8 +139,8 @@ PixelShaderOutput PixelShaderFunction(VertexShaderOutput input)
 
     if(val < EdgeSize && DissolveThreshold > 0 && DissolveThreshold < 1)
     {
-        float4 emission = tex2D(edgeSampler, float2(val * (1 / EdgeSize), 0));
-        output.Color *= emission;
+        output.Emissive = tex2D(edgeSampler, float2(val * (1 / EdgeSize), 0)) * 2;
+        output.Color *= output.Emissive;
     }
 
 	//output.Color *= heightcolor * World[3][1];
@@ -190,8 +191,8 @@ PixelShaderOutput PixelShaderFunctionColor(VertexShaderOutput input)
 
     if (val < EdgeSize && DissolveThreshold > 0 && DissolveThreshold < 1)
     {
-        float4 emission = tex2D(edgeSampler, float2(val * (1 / EdgeSize), 0));
-        output.Color *= emission;
+        output.Emissive = tex2D(edgeSampler, float2(val * (1 / EdgeSize), 0)) * 2;
+        output.Color *= output.Emissive;
     }
 
 	//output.Color *= float4 (0.01*input.instanceTransform[3][1], 1-0.01*input.instanceTransform[3][1], 0, 1);

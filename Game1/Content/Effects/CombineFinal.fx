@@ -9,6 +9,7 @@
 
 texture colorMap;
 texture lightMap;
+texture emissionMap;
 
 sampler colorSampler = sampler_state
 {
@@ -22,6 +23,15 @@ sampler colorSampler = sampler_state
 sampler lightSampler = sampler_state
 {
     Texture = (lightMap);
+    AddressU = CLAMP;
+    AddressV = CLAMP;
+    MagFilter = LINEAR;
+    MinFilter = LINEAR;
+    Mipfilter = LINEAR;
+};
+sampler emissionSampler = sampler_state
+{
+    Texture = (emissionMap);
     AddressU = CLAMP;
     AddressV = CLAMP;
     MagFilter = LINEAR;
@@ -54,9 +64,10 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 {
     float3 diffuseColor = tex2D(colorSampler,input.TexCoord).rgb;
     float4 light = tex2D(lightSampler,input.TexCoord);
+    float3 emission = tex2D(emissionSampler, input.TexCoord).rgb;
     float3 diffuseLight = light.rgb;
     float specularLight = light.a;
-    return float4((diffuseColor * diffuseLight + specularLight),1);
+    return float4((diffuseColor * diffuseLight + specularLight + emission),1);
 }
 
 technique Technique1

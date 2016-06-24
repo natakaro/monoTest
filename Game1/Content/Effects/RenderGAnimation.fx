@@ -129,9 +129,10 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 }
 struct PixelShaderOutput
 {
-	half4 Color : COLOR0;
-	half4 Normal : COLOR1;
+	float4 Color : COLOR0;
+	float4 Normal : COLOR1;
 	float Depth : COLOR2;
+    float4 Emissive : COLOR3;
 };
 
 PixelShaderOutput PixelShaderFunction(VertexShaderOutput input)
@@ -147,8 +148,8 @@ PixelShaderOutput PixelShaderFunction(VertexShaderOutput input)
 
     if (val < EdgeSize && DissolveThreshold > 0 && DissolveThreshold < 1)
     {
-        float4 emission = tex2D(edgeSampler, float2(val * (1 / EdgeSize), 0));
-        output.Color *= emission;
+        output.Emissive = tex2D(edgeSampler, float2(val * (1 / EdgeSize), 0)) * 2;
+        output.Color *= output.Emissive;
     }
 
 	float4 specularAttributes = tex2D(specularSampler, input.TexCoord);

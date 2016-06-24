@@ -29,6 +29,7 @@ struct PixelShaderOutput
     float4 Color : COLOR0;
     float4 Normal : COLOR1;
     float4 Depth : COLOR2;
+    float4 Emissive : COLOR3;
 };
 
 PixelShaderOutput PixelShaderFunction(VertexShaderOutput input)
@@ -43,6 +44,7 @@ PixelShaderOutput PixelShaderFunction(VertexShaderOutput input)
     output.Normal.a = 0.0f;
     //max depth
     output.Depth = 0.0f;
+    output.Emissive = 0.0f;
     return output;
 }
 

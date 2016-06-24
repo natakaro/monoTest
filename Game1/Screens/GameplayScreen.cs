@@ -101,6 +101,7 @@ namespace Game1.Screens
         public RenderTarget2D colorTarget;
         public RenderTarget2D normalTarget;
         public RenderTarget2D depthTarget;
+        public RenderTarget2D emissiveTarget;
         public RenderTarget2D lightTarget;
         public RenderTarget2D postProcessTarget1;
         public RenderTarget2D postProcessTarget2;
@@ -262,6 +263,7 @@ namespace Game1.Screens
             colorTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.HdrBlendable, DepthFormat.Depth24Stencil8);
             normalTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.Color, DepthFormat.None);
             depthTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.Single, DepthFormat.None);
+            emissiveTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.HdrBlendable, DepthFormat.None);
             lightTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.HdrBlendable, DepthFormat.None);
 
             postProcessTarget1 = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.HdrBlendable, DepthFormat.None);
@@ -356,7 +358,7 @@ namespace Game1.Screens
         #region GBuffer
         private void SetGBuffer()
         {
-            GraphicsDevice.SetRenderTargets(colorTarget, normalTarget, depthTarget);
+            GraphicsDevice.SetRenderTargets(colorTarget, normalTarget, depthTarget, emissiveTarget);
         }
 
         private void ResolveGBuffer()
@@ -795,6 +797,7 @@ namespace Game1.Screens
             //Combine everything
             finalCombineEffect.Parameters["colorMap"].SetValue(colorTarget);
             finalCombineEffect.Parameters["lightMap"].SetValue(lightTarget);
+            finalCombineEffect.Parameters["emissionMap"].SetValue(emissiveTarget);
 
             finalCombineEffect.Techniques[0].Passes[0].Apply();
             //render a full-screen quad
