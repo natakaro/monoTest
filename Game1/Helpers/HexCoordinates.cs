@@ -229,6 +229,29 @@ namespace Game1.Helpers
             {
                 return new CubeCoordinate(a.x * b, a.y * b, a.z * b);
             }
+
+            public static bool operator ==(CubeCoordinate a, CubeCoordinate b)
+            {
+                // If both are null, or both are same instance, return true.
+                if (System.Object.ReferenceEquals(a, b))
+                {
+                    return true;
+                }
+
+                // If one is null, but not both, return false.
+                if (((object)a == null) || ((object)b == null))
+                {
+                    return false;
+                }
+
+                // Return true if the fields match:
+                return a.x == b.x && a.y == b.y && a.z == b.z;
+            }
+
+            public static bool operator !=(CubeCoordinate a, CubeCoordinate b)
+            {
+                return !(a == b);
+            }
         }
 
         public struct AxialCoordinateH
@@ -366,6 +389,14 @@ namespace Game1.Helpers
             dictionary.TryGetValue(axial, out tile);
 
             return tile;
+        }
+
+        public static DrawableObject assetFromAxial(AxialCoordinate axial, Dictionary<AxialCoordinate, DrawableObject> dictionary)
+        {
+            DrawableObject dObject;
+            dictionary.TryGetValue(axial, out dObject);
+
+            return dObject;
         }
 
         public static Vector3 axialHToPixel(AxialCoordinateH axial, float size)

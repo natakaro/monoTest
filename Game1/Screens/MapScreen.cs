@@ -154,13 +154,15 @@ namespace Game1.Screens
             // Fade the popup alpha during transitions.
             Color color = Color.White * TransitionAlpha;
 
+            float scale = 1f;
+
             spriteBatch.Begin();
 
             // Draw the background rectangle.
             spriteBatch.Draw(backgroundTexture, backgroundRectangle, color);
 
-            Map.Draw(spriteBatch, tileTex, playerTex, mapPosition, mapTileCount, 1, TransitionAlpha);
-            Map.DrawAssets(spriteBatch, tileTex, mapPosition, mapTileCount, TransitionAlpha);
+            Map.Draw(spriteBatch, tileTex, playerTex, mapPosition, mapTileCount, scale, TransitionAlpha);
+            Map.DrawAssets(spriteBatch, tileTex, mapPosition, mapTileCount, scale, TransitionAlpha);
 
             Vector2 horizontalBorderOrigin = new Vector2(horizontalBorderTexture.Width / 2, horizontalBorderTexture.Height / 2);
             Vector2 verticalBorderOrigin = new Vector2(verticalBorderTexture.Width / 2, verticalBorderTexture.Height / 2);

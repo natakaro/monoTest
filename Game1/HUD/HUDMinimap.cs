@@ -52,8 +52,9 @@ namespace Game1.HUD
                 //offset.x += 0.5f;
                 //offset.y += 0.5f;
 
-                //Map.Draw(spriteBatch, tileTex, position + minimapCenter - new Vector2(offset.x * tileTex.Width, offset.y * tileTex.Height), mapTileCount, cube, 13, alpha);
-                Map.Draw(spriteBatch, tileTex, playerTex, position + minimapCenter - new Vector2((offset.x - (float)Math.Truncate(offset.x)) * tileTex.Width, (offset.y - (float)Math.Truncate(offset.y)) * tileTex.Height), mapTileCount, cube, 26, 0.5f, 1);
+                Map.Draw(spriteBatch, tileTex, playerTex, position + minimapCenter, mapTileCount, cube, 26, 0.5f, 1);
+                //Map.Draw(spriteBatch, tileTex, playerTex, position + minimapCenter - new Vector2((offset.x - (float)Math.Truncate(offset.x)) * tileTex.Width, (offset.y - (float)Math.Truncate(offset.y)) * tileTex.Height), mapTileCount, cube, 26, 0.5f, 1);
+                Map.DrawAssets(spriteBatch, tileTex, position + minimapCenter, mapTileCount, cube, 26, 0.5f, 1);
                 //Map.Draw(spriteBatch, tileTex, position + minimapCenter - new Vector2(offset.x * tileTex.Width, offset.y * tileTex.Height), mapTileCount, alpha);
             }
         }

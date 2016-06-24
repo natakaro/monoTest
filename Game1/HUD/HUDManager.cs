@@ -82,7 +82,7 @@ namespace Game1.HUD
             healthBar = new HUDBar(spriteBatch, graphicsDevice, stats.currentHealth, new Vector2(backbufferWidth / 2 - backbufferWidth / 2 + 100, backbufferHeight - 100), new Vector2(250, 20), new Color(192, 57, 43), stats.maxHealth);
             manaBar = new HUDBar(spriteBatch, graphicsDevice, stats.currentMana, new Vector2(backbufferWidth / 2 - 125, backbufferHeight - 100), new Vector2(250, 20), new Color(41, 128, 185), stats.maxMana);
             essenceBar = new HUDBar(spriteBatch, graphicsDevice, stats.currentEssence, new Vector2(backbufferWidth / 2 + backbufferWidth / 2 - 350, backbufferHeight - 100), new Vector2(250, 20), new Color(142, 68, 173), stats.maxEssence);
-            targetHealthBar = new HUDTargetBar(spriteBatch, graphicsDevice, 100, new Vector2(backbufferWidth / 2 - 125, backbufferHeight / 6), new Vector2(250, 20), new Color(192, 57, 43), 100);
+            targetHealthBar = new HUDTargetBar(spriteBatch, graphicsDevice, 100, new Vector2(backbufferWidth / 2 - 125, backbufferHeight / 8), new Vector2(250, 20), new Color(192, 57, 43), 100);
             crosshair = new HUDCrosshair(spriteBatch, graphicsDevice, new Vector2(backbufferWidth / 2 - 32, backbufferHeight / 2 - 32), new Vector2(64, 64), stats);
             phaseMessage = new HUDPhaseMessage(spriteBatch, graphicsDevice, new Vector2(backbufferWidth / 2 - 740 / 2, backbufferHeight / 4 - 100 / 2), new Vector2(740, 100));
             hudIcons = new HUDIcons(spriteBatch, graphicsDevice, new Vector2(0, 0), new Vector2(0, 0), this);
