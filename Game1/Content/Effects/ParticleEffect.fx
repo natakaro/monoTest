@@ -191,7 +191,7 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
 
     output.Position.xy += mul(input.Corner, rotation) * size * ViewportScale;
 
-    output.Color = ComputeParticleColor(output.Position, input.Random.z, normalizedAge);
+    output.Color = ComputeParticleColor(output.Position, input.Random.z, normalizedAge) * 2;
     output.TextureCoordinate = (input.Corner + 1) / 2;
 
     output.PositionCS = output.Position;

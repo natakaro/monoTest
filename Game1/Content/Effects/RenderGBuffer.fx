@@ -13,7 +13,7 @@ bool Clipping = false;
 float4 ClipPlane;
 
 float DissolveThreshold = 0.0f;
-float EdgeSize = 0.15f;
+float EdgeSize = 0.1f;
 
 texture Texture;
 sampler diffuseSampler = sampler_state
@@ -139,7 +139,7 @@ PixelShaderOutput PixelShaderFunction(VertexShaderOutput input)
 
     if(val < EdgeSize && DissolveThreshold > 0 && DissolveThreshold < 1)
     {
-        output.Emissive = tex2D(edgeSampler, float2(val * (1 / EdgeSize), 0)) * 2;
+        output.Emissive = tex2D(edgeSampler, float2(val * (1 / EdgeSize), 0)) * 100;
         output.Color *= output.Emissive;
     }
 
@@ -191,7 +191,7 @@ PixelShaderOutput PixelShaderFunctionColor(VertexShaderOutput input)
 
     if (val < EdgeSize && DissolveThreshold > 0 && DissolveThreshold < 1)
     {
-        output.Emissive = tex2D(edgeSampler, float2(val * (1 / EdgeSize), 0)) * 2;
+        output.Emissive = tex2D(edgeSampler, float2(val * (1 / EdgeSize), 0)) * 100;
         output.Color *= output.Emissive;
     }
 

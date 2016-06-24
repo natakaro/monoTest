@@ -24,7 +24,7 @@ namespace Game1.Particles.ParticleSystems
 
             settings.MaxParticles = 200;
 
-            settings.Duration = TimeSpan.FromSeconds(4);
+            settings.Duration = TimeSpan.FromSeconds(2);
 
             settings.MinHorizontalVelocity = 0;
             settings.MaxHorizontalVelocity = 25;
@@ -38,17 +38,17 @@ namespace Game1.Particles.ParticleSystems
 
             //settings.MinColor = Color.LightGray;
             //settings.MaxColor = Color.White;
-            settings.MinColor = new Color(64, 96, 128, 16);
-            settings.MaxColor = new Color(255, 255, 255, 8);
+            settings.MinColor = new Color(64, 96, 128, 4);
+            settings.MaxColor = new Color(255, 255, 255, 2);
 
             settings.MinRotateSpeed = -2;
             settings.MaxRotateSpeed = 2;
 
-            settings.MinStartSize = 3;
-            settings.MaxStartSize = 3;
+            settings.MinStartSize = 7;
+            settings.MaxStartSize = 7;
 
-            settings.MinEndSize = 5;
-            settings.MaxEndSize = 10;
+            settings.MinEndSize = 10;
+            settings.MaxEndSize = 50;
         }
     }
 }
