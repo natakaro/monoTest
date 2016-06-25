@@ -5317,3 +5317,15 @@
 /processorParam:TextureFormat=Color
 /build:Textures/edgeTexture.png
 
+#begin Textures/particles/fireSmall.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/particles/fireSmall.png
+

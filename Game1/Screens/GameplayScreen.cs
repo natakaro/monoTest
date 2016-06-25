@@ -159,7 +159,7 @@ namespace Game1.Screens
         };
 
         private SpellMoveTerrain spellMoveTerrain;
-        private SpellFireball spellFireball;
+        private SpellFire spellFireball;
         private SpellCreateTurret spellCreateTurret;
 
         public SpellType selectedSpell = SpellType.MoveTerrain;
@@ -336,7 +336,7 @@ namespace Game1.Screens
             camera.Octree = octree;
 
             spellMoveTerrain = new SpellMoveTerrain(octree, stats, phaseManager, map);
-            spellFireball = new SpellFireball(ScreenManager.Game, camera, octree, objectManager, lightManager, particleManager, hudManager, stats);
+            spellFireball = new SpellFire(ScreenManager.Game, camera, octree, objectManager, lightManager, particleManager, hudManager, stats);
             spellCreateTurret = new SpellCreateTurret(ScreenManager.Game, camera, octree, objectManager, lightManager, particleManager, stats);          
 
             pathfinder = new PathFinder();
@@ -390,7 +390,7 @@ namespace Game1.Screens
             }
         }
 
-        private void ContinueSpellcasting(bool leftButton, bool rightButton)
+        private void ContinueSpellcasting(bool leftButton, bool rightButton, GameTime gameTime)
         {
             switch (selectedSpell)
             {
@@ -398,7 +398,7 @@ namespace Game1.Screens
                     spellMoveTerrain.Continue(leftButton, rightButton);
                     break;
                 case SpellType.Fireball:
-                    spellFireball.Continue(leftButton, rightButton);
+                    spellFireball.Continue(leftButton, rightButton, gameTime);
                     break;
                 case SpellType.CreateTurret:
                     spellCreateTurret.Continue(leftButton, rightButton, selectedObject);
@@ -562,7 +562,7 @@ namespace Game1.Screens
                 if ((currentLeftButton && prevLeftButton == false) || (currentRightButton && prevRightButton == false))
                     StartSpellcasting(currentLeftButton, currentRightButton);
                 if ((currentLeftButton && prevLeftButton) || (currentRightButton && prevRightButton))
-                    ContinueSpellcasting(currentLeftButton, currentRightButton);
+                    ContinueSpellcasting(currentLeftButton, currentRightButton, gameTime);
                 if ((currentLeftButton == false && prevLeftButton) || (currentRightButton == false && prevRightButton))
                     StopSpellcasting(currentLeftButton, currentRightButton);
 

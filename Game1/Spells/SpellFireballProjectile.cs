@@ -32,7 +32,7 @@ namespace Game1.Spells
         private const float lifespan = 5f;
         private const float trailParticlesPerSecond = 200;
         private const float trailHeadParticlesPerSecond = 50;
-        private const int numExplosionParticles = 10;
+        private const int numExplosionParticles = 5;
         private const int numExplosionSmokeParticles = 40;
 
         public event EventHandler hitEvent;
@@ -63,8 +63,6 @@ namespace Game1.Spells
             trailHeadEmitter.Update(gameTime, position);
 
             pointLight.Position = position;
-            BoundingSphere pointLightSphere = pointLight.BoundingSphere;
-            pointLightSphere.Center = position;
 
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             age += elapsedTime;
@@ -118,7 +116,7 @@ namespace Game1.Spells
                     Destroy();
                 }
 
-                else if (ir.DrawableObjectObject.Type == ObjectType.Tile)
+                else if ((ir.DrawableObjectObject.Type == ObjectType.Tile) || (ir.DrawableObjectObject.Type == ObjectType.Asset))
                 {
                     Destroy();
                 }                

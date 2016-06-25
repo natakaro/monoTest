@@ -137,7 +137,7 @@ PixelShaderOutput PixelShaderFunction(VertexShaderOutput input)
     float val = dissolve - DissolveThreshold;
     clip(val);
 
-    if(val < EdgeSize && DissolveThreshold > 0 && DissolveThreshold < 1)
+    if (val < EdgeSize && DissolveThreshold > 0 && DissolveThreshold < 1)
     {
         output.Emissive = tex2D(edgeSampler, float2(val * (1 / EdgeSize), 0)) * 10;
         output.Color *= output.Emissive;

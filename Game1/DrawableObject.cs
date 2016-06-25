@@ -156,9 +156,9 @@ namespace Game1
                     effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
                     effect.Parameters["FarClip"].SetValue(camera.FarZ);
                     effect.Parameters["Clipping"].SetValue(false);
-                    //effect.Parameters["DissolveMap"].SetValue(GameplayScreen.assetContentContainer.dissolveTexture);
-                    //effect.Parameters["DissolveThreshold"].SetValue(dissolveAmount);
-                    //effect.Parameters["EdgeMap"].SetValue(GameplayScreen.assetContentContainer.edgeTexture);
+                    effect.Parameters["DissolveMap"].SetValue(GameplayScreen.assetContentContainer.dissolveTexture);
+                    effect.Parameters["DissolveThreshold"].SetValue(dissolveAmount);
+                    effect.Parameters["EdgeMap"].SetValue(GameplayScreen.assetContentContainer.edgeTexture);
                 }
                 mesh.Draw();
             }
@@ -176,9 +176,9 @@ namespace Game1
                     effect.Parameters["FarClip"].SetValue(camera.FarZ);
                     effect.Parameters["Clipping"].SetValue(true);
                     effect.Parameters["ClipPlane"].SetValue(clipPlane);
-                    //effect.Parameters["DissolveMap"].SetValue(GameplayScreen.assetContentContainer.dissolveTexture);
-                    //effect.Parameters["DissolveThreshold"].SetValue(dissolveAmount);
-                    //effect.Parameters["EdgeMap"].SetValue(GameplayScreen.assetContentContainer.edgeTexture);
+                    effect.Parameters["DissolveMap"].SetValue(GameplayScreen.assetContentContainer.dissolveTexture);
+                    effect.Parameters["DissolveThreshold"].SetValue(dissolveAmount);
+                    effect.Parameters["EdgeMap"].SetValue(GameplayScreen.assetContentContainer.edgeTexture);
                 }
                 mesh.Draw();
             }

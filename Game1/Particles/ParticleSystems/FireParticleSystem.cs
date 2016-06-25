@@ -21,31 +21,34 @@ namespace Game1.Particles.ParticleSystems
 
         protected override void InitializeSettings(ParticleSettings settings)
         {
-            settings.TextureName = "Textures/particles/fire";
+            settings.TextureName = "Textures/particles/fireSmall";
 
             settings.MaxParticles = 2400;
 
-            settings.Duration = TimeSpan.FromSeconds(2);
+            settings.Duration = TimeSpan.FromSeconds(1f);
 
-            settings.DurationRandomness = 1;
+            settings.DurationRandomness = 1f;
 
-            settings.MinHorizontalVelocity = 0;
-            settings.MaxHorizontalVelocity = 15;
+            settings.MinHorizontalVelocity = -2;
+            settings.MaxHorizontalVelocity = 20;
 
-            settings.MinVerticalVelocity = -10;
+            settings.MinVerticalVelocity = -2;
             settings.MaxVerticalVelocity = 10;
 
             // Set gravity upside down, so the flames will 'fall' upward.
-            settings.Gravity = new Vector3(0, 15, 0);
+            settings.Gravity = new Vector3(0, 5, 0);
 
             settings.MinColor = new Color(255, 255, 255, 10);
             settings.MaxColor = new Color(255, 255, 255, 40);
 
-            settings.MinStartSize = 5;
-            settings.MaxStartSize = 10;
+            settings.MinRotateSpeed = -4;
+            settings.MaxRotateSpeed = 4;
 
-            settings.MinEndSize = 10;
-            settings.MaxEndSize = 40;
+            settings.MinStartSize = 0.5f;
+            settings.MaxStartSize = 2;
+
+            settings.MinEndSize = 1;
+            settings.MaxEndSize = 4;
 
             // Use additive blending.
             settings.BlendState = BlendState.Additive;

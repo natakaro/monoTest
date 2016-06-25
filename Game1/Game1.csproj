@@ -143,7 +143,7 @@
     <Compile Include="Sky\SkyDome.cs" />
     <Compile Include="Sky\SkyDomeParameters.cs" />
     <Compile Include="Spells\SpellCreateTurret.cs" />
-    <Compile Include="Spells\SpellFireball.cs" />
+    <Compile Include="Spells\SpellFire.cs" />
     <Compile Include="Spells\SpellFireballProjectile.cs" />
     <Compile Include="Spells\SpellMoveTerrain.cs" />
     <Compile Include="Postprocess\SSAO.cs" />

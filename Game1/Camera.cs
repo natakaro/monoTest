@@ -93,6 +93,8 @@ namespace Game1
         private Ray downwardRay;
         private Octree octree;
 
+        private BoundingFrustum frustum;
+
         #region Public Methods
 
         public Camera(Game game)
@@ -137,6 +139,8 @@ namespace Game1
             Rectangle clientBounds = game.Window.ClientBounds;
             float aspect = (float)clientBounds.Width / (float)clientBounds.Height;
             Perspective(fovx, aspect, znear, zfar);
+
+            frustum = new BoundingFrustum(ViewProjectionMatrix);
         }
 
         public void Initialize()
@@ -218,9 +222,9 @@ namespace Game1
 
             Vector3 movement = (xAxis * dx + WORLD_Y_AXIS * dy + forwards * dz);
 
-            dx = octree.CameraIntersection(eye + new Vector3(movement.X, 0, 0), 1) ? 0 : dx;
-            dy = octree.CameraIntersection(eye + new Vector3(0, movement.Y, 0), 1) ? 0 : dy;
-            dz = octree.CameraIntersection(eye + new Vector3(0, 0, movement.Z), 1) ? 0 : dz;
+            dx = octree.CameraIntersection(eye + new Vector3(movement.X, 0, 0)*2, 1) ? 0 : dx;
+            dy = octree.CameraIntersection(eye + new Vector3(0, movement.Y, 0)*2, 1) ? 0 : dy;
+            dz = octree.CameraIntersection(eye + new Vector3(0, 0, movement.Z)*2, 1) ? 0 : dz;
 
             eye += xAxis * dx;
             eye += WORLD_Y_AXIS * dy;
@@ -315,6 +319,7 @@ namespace Game1
         {
             UpdateInput(state);
             UpdateCamera(gameTime, state);
+            //frustum.Matrix = ViewProjectionMatrix;
         }
 
         /// <summary>
@@ -868,6 +873,8 @@ namespace Game1
             viewDir.X = -zAxis.X;
             viewDir.Y = -zAxis.Y;
             viewDir.Z = -zAxis.Z;
+
+            frustum.Matrix = ViewProjectionMatrix;
         }
 
         #endregion
@@ -1009,7 +1016,7 @@ namespace Game1
 
         public BoundingFrustum Frustum
         {
-            get { return new BoundingFrustum(ViewProjectionMatrix); }
+            get { return frustum; }
         }
 
         public Vector3[] FrustumCorners
