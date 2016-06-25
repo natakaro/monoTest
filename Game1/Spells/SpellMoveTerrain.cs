@@ -242,6 +242,9 @@ namespace Game1.Spells
 
         public void HeightLimiter()
         {
+            if (target.Position.Y <= 1)
+                tooLow = true;
+
             neighbors = GetNeighborTiles((Tile)target, map);
 
             foreach (Tile neighbor in neighbors)

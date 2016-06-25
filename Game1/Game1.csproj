@@ -63,6 +63,7 @@
     <Compile Include="Animation\Bone.cs" />
     <Compile Include="Camera.cs" />
     <Compile Include="Core.cs" />
+    <Compile Include="HUD\HUDIcon.cs" />
     <Compile Include="HUD\HUDMinimap.cs" />
     <Compile Include="Particles\ParticleSystems\PortalParticleSystemEnemy.cs" />
     <Compile Include="Particles\ParticleSystems\PortalParticleSystemFriendly.cs" />

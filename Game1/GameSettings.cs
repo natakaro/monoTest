@@ -28,7 +28,6 @@ namespace Game1
         public float Bias;
         public float OffsetScale;
 
-        public bool Instancing;
         public bool ShowGBuffer;
         public bool DrawDebugShapes;
 
@@ -96,7 +95,6 @@ namespace Game1
             SplitDistance2 = 0.50f;
             SplitDistance3 = 1.0f;
 
-            Instancing = true;
             ShowGBuffer = false;
             DrawDebugShapes = false;
 
@@ -172,12 +170,7 @@ namespace Game1
             if (state.IsNewKeyPress(Keys.X))
                 FXAA = !FXAA;
 
-            if (state.IsNewKeyPress(Keys.D1))
-            {
-                Instancing = !Instancing;
-            }
-
-            if (state.IsNewKeyPress(Keys.D2))
+            if (state.IsNewKeyPress(Keys.Y))
             {
                 DrawDebugShapes = !DrawDebugShapes;
             }

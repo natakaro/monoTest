@@ -112,27 +112,17 @@ namespace Game1.Helpers
                             cameFrom.Add(neighbor, current);
                         }
 
-                        if (settings.Instancing)
-                        {
-                            var distanceToStraightLine = DistanceToStraightLine(neighbor, straightLine);
+                        
+                        var distanceToStraightLine = DistanceToStraightLine(neighbor, straightLine);
 
-                            currentDistance[neighbor] = tempCurrentDistance;
-                            predictedDistance[neighbor] =
-                                currentDistance[neighbor]
-                                + Math.Abs(neighbor.Position.X - end.Position.X)
-                                + Math.Abs(neighbor.Position.Z - end.Position.Z)
-                                + Math.Abs(neighbor.Position.Y - current.Position.Y)
-                                + distanceToStraightLine;
-                        }
-                        else
-                        {
-                            currentDistance[neighbor] = tempCurrentDistance;
-                            predictedDistance[neighbor] =
-                                currentDistance[neighbor]
-                                + Math.Abs(neighbor.Position.X - end.Position.X)
-                                + Math.Abs(neighbor.Position.Z - end.Position.Z)
-                                + Math.Abs(neighbor.Position.Y - current.Position.Y);
-                        }
+                        currentDistance[neighbor] = tempCurrentDistance;
+                        predictedDistance[neighbor] =
+                            currentDistance[neighbor]
+                            + Math.Abs(neighbor.Position.X - end.Position.X)
+                            + Math.Abs(neighbor.Position.Z - end.Position.Z)
+                            + Math.Abs(neighbor.Position.Y - current.Position.Y)
+                            + distanceToStraightLine;
+                        
 
                         // if this is a new node, add it to processing
                         if (!openSet.Contains(neighbor))
