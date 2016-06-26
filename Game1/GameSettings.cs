@@ -84,10 +84,10 @@ namespace Game1
             LightDirection = Vector3.Normalize(new Vector3(1, 1, -1));
             LightColor = new Vector3(3, 3, 3);
             Bias = 0.004f;
-            OffsetScale = 0.0f;
+            OffsetScale = 0.01f;
             FixedFilterSize = FixedFilterSize.Filter3x3;
 
-            StabilizeCascades = false;
+            StabilizeCascades = true;
             VisualizeCascades = false;
 
             SplitDistance0 = 0.05f;
