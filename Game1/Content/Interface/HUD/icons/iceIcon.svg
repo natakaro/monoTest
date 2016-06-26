@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   viewBox="0 0 512 512"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="snowflake-2.svg"
+   inkscape:export-filename="D:\Documents\monoTest\Game1\Content\Interface\HUD\icons\iceIcon.png"
+   inkscape:export-xdpi="11.25"
+   inkscape:export-ydpi="11.25">
+  <metadata
+     id="metadata12">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs10" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     id="namedview8"
+     showgrid="false"
+     inkscape:zoom="0.65186405"
+     inkscape:cx="-242.16731"
+     inkscape:cy="159.15663"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg2"
+     inkscape:object-paths="false"
+     inkscape:snap-intersection-paths="false"
+     inkscape:object-nodes="false"
+     inkscape:snap-smooth-nodes="false"
+     inkscape:snap-midpoints="false"
+     inkscape:snap-bbox="true" />
+  <path
+     stroke-width="16"
+     stroke="#000"
+     fill="#fff"
+     d="M256 16 L463.8460969082653 136 L463.8460969082653 376 L256 496 L48.15390309173472 376 L48.15390309173472 136z"
+     id="path4" />
+  <path
+     inkscape:connector-curvature="0"
+     d="m 240.40625,92.578116 0,40.718754 -30.59375,-17.6875 -15.53125,26.8125 46.125,26.71875 0,60.09375 -51.8125,-29.9375 -0.0937,-53.53125 -31,0.0625 0.0625,35.5625 -35.375,-20.4375 -15.5,26.84375 35.28125,20.375 -30.625,17.625 15.4375,26.87501 46.21875,-26.59376 52,30.03126 -51.8125,29.90625 -46.40625,-26.6875 -15.4375,26.875 30.8125,17.75 -35.375,20.40625 15.5,26.84375 35.28125,-20.375 -0.0625,35.34375 31,0.0625 0.0937,-53.3125 52,-30 0,59.8125 -46.3125,26.84375 15.53125,26.8125 30.78125,-17.8125 0,40.84375 31,0 0,-40.71875 30.59375,17.6875 15.53125,-26.8125 -46.125,-26.71875 0,-60.09375 51.8125,29.9375 0.0937,53.53125 31,-0.0625 -0.0625,-35.5625 35.375,20.4375 15.5,-26.84375 -35.28125,-20.375 30.625,-17.625 -15.4375,-26.875 -46.1875,26.59375 -52.03125,-30.03125 51.84375,-29.9375 46.375,26.71875 15.4375,-26.875 -30.8125,-17.75 35.375,-20.40625 -15.5,-26.84375 -35.28125,20.375 0.0625,-35.34375 -31,-0.0625 -0.0937,53.3125 -52,30 0,-59.8125 46.3125,-26.84375 -15.53125,-26.8125 -30.78125,17.8125 0,-40.843764 -31,0 z"
+     id="rect2991"
+     style="fill:#000000;fill-opacity:1;stroke:none" />
+</svg>

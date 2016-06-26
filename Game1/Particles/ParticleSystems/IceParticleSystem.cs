@@ -9,34 +9,30 @@ using System.Threading.Tasks;
 
 namespace Game1.Particles.ParticleSystems
 {
-    /// <summary>
-    /// Custom particle system for creating a flame effect.
-    /// </summary>
-    class FireParticleSystem : ParticleSystem
+    class IceParticleSystem : ParticleSystem
     {
-        public FireParticleSystem(Game game, ContentManager content)
+        public IceParticleSystem(Game game, ContentManager content)
             : base(game, content)
         { }
 
 
         protected override void InitializeSettings(ParticleSettings settings)
         {
-            settings.TextureName = "Textures/particles/fireSmall";
+            settings.TextureName = "Textures/particles/iceSmall";
 
             settings.MaxParticles = 2400;
 
-            settings.Duration = TimeSpan.FromSeconds(1f);
+            settings.Duration = TimeSpan.FromSeconds(3);
 
             settings.DurationRandomness = 1f;
 
             settings.MinHorizontalVelocity = -2;
-            settings.MaxHorizontalVelocity = 20;
+            settings.MaxHorizontalVelocity = 5;
 
             settings.MinVerticalVelocity = -2;
-            settings.MaxVerticalVelocity = 10;
+            settings.MaxVerticalVelocity = 5;
 
-            // Set gravity upside down, so the flames will 'fall' upward.
-            settings.Gravity = new Vector3(0, 5, 0);
+            settings.Gravity = new Vector3(0, -1, 0);
 
             settings.MinColor = new Color(255, 255, 255, 10);
             settings.MaxColor = new Color(255, 255, 255, 40);

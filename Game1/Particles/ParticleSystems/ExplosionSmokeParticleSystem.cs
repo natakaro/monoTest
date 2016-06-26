@@ -24,7 +24,7 @@ namespace Game1.Particles.ParticleSystems
 
             settings.MaxParticles = 200;
 
-            settings.Duration = TimeSpan.FromSeconds(2);
+            settings.Duration = TimeSpan.FromSeconds(1);
 
             settings.MinHorizontalVelocity = 0;
             settings.MaxHorizontalVelocity = 25;

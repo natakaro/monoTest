@@ -107,7 +107,7 @@ namespace Game1
                 var position = tileFromAxial(axial, GameplayScreen.map).Position;
                 
                 float temp = rand.Next(0, 359);
-                Matrix worldm = Matrix.CreateRotationY((float)temp) * Matrix.CreateTranslation(position);
+                Matrix worldm = Matrix.CreateRotationY(MathHelper.ToRadians(temp)) * Matrix.CreateTranslation(position);
                 int id = (int)coord.height;
 
                 if (id == 10)

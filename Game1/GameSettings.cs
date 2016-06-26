@@ -28,7 +28,6 @@ namespace Game1
         public float Bias;
         public float OffsetScale;
 
-        public bool Instancing;
         public bool ShowGBuffer;
         public bool DrawDebugShapes;
 
@@ -85,10 +84,10 @@ namespace Game1
             LightDirection = Vector3.Normalize(new Vector3(1, 1, -1));
             LightColor = new Vector3(3, 3, 3);
             Bias = 0.004f;
-            OffsetScale = 0.0f;
+            OffsetScale = 0.01f;
             FixedFilterSize = FixedFilterSize.Filter3x3;
 
-            StabilizeCascades = false;
+            StabilizeCascades = true;
             VisualizeCascades = false;
 
             SplitDistance0 = 0.05f;
@@ -96,7 +95,6 @@ namespace Game1
             SplitDistance2 = 0.50f;
             SplitDistance3 = 1.0f;
 
-            Instancing = true;
             ShowGBuffer = false;
             DrawDebugShapes = false;
 
@@ -172,12 +170,7 @@ namespace Game1
             if (state.IsNewKeyPress(Keys.X))
                 FXAA = !FXAA;
 
-            if (state.IsNewKeyPress(Keys.D1))
-            {
-                Instancing = !Instancing;
-            }
-
-            if (state.IsNewKeyPress(Keys.D2))
+            if (state.IsNewKeyPress(Keys.Y))
             {
                 DrawDebugShapes = !DrawDebugShapes;
             }

@@ -156,16 +156,19 @@ namespace Game1.Screens
         #region Spells
         public enum SpellType
         {
-            MoveTerrain = 1,
-            Fireball = 2,
+            Fire = 0,
+            Ice = 1,
+            MoveTerrain = 2,
             CreateTurret = 3
         };
 
+        
+        private SpellFire spellFire;
+        private SpellIce spellIce;
         private SpellMoveTerrain spellMoveTerrain;
-        private SpellFireball spellFireball;
         private SpellCreateTurret spellCreateTurret;
 
-        public SpellType selectedSpell = SpellType.MoveTerrain;
+        public static SpellType selectedSpell = SpellType.Fire;
 
         private bool currentLeftButton;
         private bool currentRightButton;
@@ -379,8 +382,10 @@ namespace Game1.Screens
 
             camera.Octree = octree;
 
+            
+            spellFire = new SpellFire(ScreenManager.Game, camera, octree, objectManager, lightManager, particleManager, hudManager, stats);
+            spellIce = new SpellIce(ScreenManager.Game, camera, octree, objectManager, lightManager, particleManager, hudManager, stats);
             spellMoveTerrain = new SpellMoveTerrain(octree, stats, phaseManager, map);
-            spellFireball = new SpellFireball(ScreenManager.Game, camera, octree, objectManager, lightManager, particleManager, hudManager, stats);
             spellCreateTurret = new SpellCreateTurret(ScreenManager.Game, camera, octree, objectManager, lightManager, particleManager, stats);          
 
             pathfinder = new PathFinder();
@@ -422,11 +427,14 @@ namespace Game1.Screens
         {
             switch (selectedSpell)
             {
+                case SpellType.Fire:
+                    spellFire.Start(leftButton, rightButton);
+                    break;
+                case SpellType.Ice:
+                    spellIce.Start(leftButton, rightButton);
+                    break;
                 case SpellType.MoveTerrain:
                     spellMoveTerrain.Start(leftButton, rightButton, selectedObject);
-                    break;
-                case SpellType.Fireball:
-                    spellFireball.Start(leftButton, rightButton);
                     break;
                 case SpellType.CreateTurret:
                     spellCreateTurret.Start(leftButton, rightButton, selectedObject);
@@ -434,15 +442,18 @@ namespace Game1.Screens
             }
         }
 
-        private void ContinueSpellcasting(bool leftButton, bool rightButton)
+        private void ContinueSpellcasting(bool leftButton, bool rightButton, GameTime gameTime)
         {
             switch (selectedSpell)
             {
+                case SpellType.Fire:
+                    spellFire.Continue(leftButton, rightButton, gameTime);
+                    break;
+                case SpellType.Ice:
+                    spellIce.Continue(leftButton, rightButton, gameTime);
+                    break;
                 case SpellType.MoveTerrain:
                     spellMoveTerrain.Continue(leftButton, rightButton);
-                    break;
-                case SpellType.Fireball:
-                    spellFireball.Continue(leftButton, rightButton);
                     break;
                 case SpellType.CreateTurret:
                     spellCreateTurret.Continue(leftButton, rightButton, selectedObject);
@@ -454,11 +465,14 @@ namespace Game1.Screens
         {
             switch (selectedSpell)
             {
+                case SpellType.Fire:
+                    spellFire.Stop(leftButton, rightButton);
+                    break;
+                case SpellType.Ice:
+                    spellIce.Stop(leftButton, rightButton);
+                    break;
                 case SpellType.MoveTerrain:
                     spellMoveTerrain.Stop(leftButton, rightButton);
-                    break;
-                case SpellType.Fireball:
-                    spellFireball.Stop(leftButton, rightButton);
                     break;
                 case SpellType.CreateTurret:
                     spellCreateTurret.Stop(leftButton, rightButton, selectedObject);
@@ -597,16 +611,36 @@ namespace Game1.Screens
 
                 if (input.IsNewMouseScrollUp && mouseState.LeftButton == ButtonState.Released && mouseState.RightButton == ButtonState.Released)
                 {
-                    if (selectedSpell != SpellType.MoveTerrain)
+                    if (selectedSpell != SpellType.Fire)
                     {
                         selectedSpell--;
                     }
                 }
 
+                if (input.IsNewKeyPress(Keys.D1))
+                {
+                    selectedSpell = SpellType.Fire;
+                }
+
+                if (input.IsNewKeyPress(Keys.D2))
+                {
+                    selectedSpell = SpellType.Ice;
+                }
+
+                if (input.IsNewKeyPress(Keys.D3))
+                {
+                    selectedSpell = SpellType.MoveTerrain;
+                }
+
+                if (input.IsNewKeyPress(Keys.D4))
+                {
+                    selectedSpell = SpellType.CreateTurret;
+                }
+
                 if ((currentLeftButton && prevLeftButton == false) || (currentRightButton && prevRightButton == false))
                     StartSpellcasting(currentLeftButton, currentRightButton);
                 if ((currentLeftButton && prevLeftButton) || (currentRightButton && prevRightButton))
-                    ContinueSpellcasting(currentLeftButton, currentRightButton);
+                    ContinueSpellcasting(currentLeftButton, currentRightButton, gameTime);
                 if ((currentLeftButton == false && prevLeftButton) || (currentRightButton == false && prevRightButton))
                     StopSpellcasting(currentLeftButton, currentRightButton);
 
@@ -741,8 +775,6 @@ namespace Game1.Screens
 
             if (displayHelp)
             {
-                buffer.AppendFormat("Instancing: {0}\n",
-                    settings.Instancing.ToString());
                 buffer.AppendFormat(" Models drawn: {0}\n",
                     modelsDrawn.ToString("f2"));
                 buffer.AppendFormat(" Models drawn instanced: {0}\n\n",
@@ -815,23 +847,6 @@ namespace Game1.Screens
                     stats.currentHealth.ToString());
                 buffer.AppendFormat(" Mana: {0}\n\n",
                     stats.currentMana.ToString());
-
-                var cube = pixelToAxialH(GameplayScreen.camera.Position, Map.size).ToCube();
-                var offset = cube.to_oddQ_Offset();
-                //offset.x += 0.5f;
-                //offset.y += 0.5f;
-                //if ((int)offset.x % 2 != 0)
-                //    offset.y -= 0.5f;
-                //
-                //offset.x = 1 / camera.Position.X;
-                //offset.y = 1 / camera.Position.Z;
-
-                var pos = new Vector2((offset.x - (float)Math.Truncate(offset.x)) * 10, (offset.y - (float)Math.Truncate(offset.y)) * 9);
-
-                buffer.AppendFormat(" offset: x: {0}, y: {1}\n\n",
-                    offset.x,
-                    offset.y);
-
             }
             spriteBatch.DrawString(spriteFont, buffer.ToString(), fontPos, Color.Yellow);
         }
@@ -1067,7 +1082,7 @@ namespace Game1.Screens
             int halfHeight = GraphicsDevice.Viewport.Height / 2;
             GraphicsDevice.Clear(Color.Transparent);
 
-            spriteBatch.Draw(colorTarget, new Rectangle(0, 0, halfWidth, halfHeight), Color.White);
+            spriteBatch.Draw(shadowRenderer.ShadowMap, new Rectangle(0, 0, halfWidth, halfHeight), Color.White);
             spriteBatch.Draw(normalTarget, new Rectangle(0, halfHeight, halfWidth, halfHeight), Color.White);
             spriteBatch.Draw(depthTarget, new Rectangle(halfWidth, 0, halfWidth, halfHeight), Color.White);
             spriteBatch.Draw(lightTarget, new Rectangle(halfWidth, halfHeight, halfWidth, halfHeight), Color.White);

@@ -1,4 +1,5 @@
-﻿using Game1.HUD;
+﻿using Game1.Helpers;
+using Game1.HUD;
 using Game1.Lights;
 using Game1.Particles;
 using Microsoft.Xna.Framework;
@@ -12,17 +13,18 @@ using System.Threading.Tasks;
 
 namespace Game1.Spells
 {
-    public class SpellFireball
+    public class SpellFire
     {
         private Game game;
         private Camera camera;
         private Octree octree;
         private ObjectManager objectManager;
-        public Model fireballModel;
+        private Model fireballModel;
         private LightManager lightManager;
         private ParticleManager particleManager;
         private HUDManager hudManager;
         private Stats stats;
+        private Viewport viewport;
 
         private Stopwatch stopwatch = new Stopwatch();
 
@@ -39,8 +41,18 @@ namespace Game1.Spells
         private float startingMana;
         private float manaDeducted;
 
-        private float damage;
+        private float leftDamage;
+        private float rightDamage;
         private float projectileSpeed;
+        private float particlesPerSecond;
+        private float coneRange;
+
+        private float timer;
+
+        private BoundingFrustum frustum;
+        private Matrix projectionMatrix;
+
+        public event EventHandler hitEvent;
 
         private enum LastMode
         {
@@ -85,7 +97,7 @@ namespace Game1.Spells
             }
         }
 
-        public void Continue(bool leftButton, bool rightButton)
+        public void Continue(bool leftButton, bool rightButton, GameTime gameTime)
         {
             if (spellCharging > 0)
             {
@@ -100,13 +112,13 @@ namespace Game1.Spells
                     stats.currentMana = startingMana - manaDeducted;
                 }
 
-                else if (leftButton == false && rightButton == true)  //poki co karabin kulek, ale moze jakis cone - miotacz ognia bliskodystansowy?
+                else if (leftButton == false && rightButton == true)  //cone - miotacz ognia bliskodystansowy
                 {
                     if (spellReady == false)
                     {
                         if (startingMana >= rightManaCost)
                         {
-                            manaDeducted = Math.Min((stopwatch.ElapsedMilliseconds / rightCastSpeed) * rightManaCost, rightManaCost);
+                            manaDeducted = (stopwatch.ElapsedMilliseconds / rightCastSpeed) * rightManaCost;
                             stats.currentMana = startingMana - manaDeducted;
                             if (stopwatch.ElapsedMilliseconds >= rightCastSpeed)
                                 spellReady = true;
@@ -118,17 +130,39 @@ namespace Game1.Spells
                     }
                     else if (spellReady == true)
                     {
-                        SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel, octree, objectManager, lightManager, hudManager, damage, particleManager.explosionParticles, particleManager.explosionSmokeParticles, particleManager.fireProjectileTrailParticles, particleManager.projectileTrailHeadParticles);
-                        fireball.Position = camera.Position;
-                        fireball.Velocity = camera.ViewDirection * 1;
-                        fireball.Acceleration = camera.ViewDirection * 10;
-                        objectManager.Add(fireball);
-                        //octree.m_objects.Add(fireball);
+                        if (stats.currentMana > 0)
+                        {
+                            float elapsedTime = (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+                            timer += elapsedTime;
 
-                        spellReady = false;
-                        startingMana -= manaDeducted;
-                        manaDeducted = 0;
-                        stopwatch.Restart();
+                            frustum.Matrix = camera.ViewMatrix * projectionMatrix;
+                            Vector3 position = camera.Position + camera.ViewDirection * 15 + new Vector3(0, -3, 0);
+                            Vector3 velocity = camera.ViewDirection * 50;
+
+                            for (int i = 0; i < particlesPerSecond / elapsedTime; i++)
+                            {
+                                particleManager.fireParticles.AddParticle(position, velocity);
+                            }
+
+                            manaDeducted = (stopwatch.ElapsedMilliseconds / rightCastSpeed) * rightManaCost;
+                            stats.currentMana = startingMana - manaDeducted;
+
+                            if (timer > 50)
+                            {
+                                List<IntersectionRecord> hitList = octree.AllIntersections(frustum, DrawableObject.ObjectType.Enemy);
+                                foreach (IntersectionRecord ir in hitList)
+                                {
+                                    Enemy enemy = ir.DrawableObjectObject as Enemy;
+                                    enemy.Damage(rightDamage);
+                                    OnHitEvent();
+                                }
+                                timer = 0;
+                            }
+
+                            //DebugShapeRenderer.AddBoundingFrustum(frustum, Color.White);
+                        }
+                        else
+                            Stop(false, false);
                     }
                 }
 
@@ -153,7 +187,7 @@ namespace Game1.Spells
                 {
                     if (spellReady == true)
                     {
-                        SpellFireballProjectile fireball = new SpellFireballProjectile(game, camera.WeaponWorldMatrix(2, -2, 2, 1) /*Matrix.CreateTranslation(camera.Position)*/, fireballModel, octree, objectManager, lightManager, hudManager, damage, particleManager.explosionParticles, particleManager.explosionSmokeParticles, particleManager.fireProjectileTrailParticles, particleManager.projectileTrailHeadParticles);
+                        SpellFireProjectile fireball = new SpellFireProjectile(game, camera.WeaponWorldMatrix(2, -2, 2, 1) /*Matrix.CreateTranslation(camera.Position)*/, fireballModel, octree, objectManager, lightManager, hudManager, leftDamage, particleManager.explosionParticles, particleManager.explosionSmokeParticles, particleManager.fireProjectileTrailParticles, particleManager.projectileTrailHeadParticles);
                         //fireball.Position = camera.Position;
                         fireball.Velocity = camera.ViewDirection * projectileSpeed;
                         objectManager.Add(fireball);
@@ -186,7 +220,7 @@ namespace Game1.Spells
                         for (int i = 0; i < 16; i++)
                         {
                             Vector3 direction = Vector3.Transform(new Vector3(camera.ViewDirection.X, 0, camera.ViewDirection.Z), Quaternion.CreateFromAxisAngle(Vector3.Up, MathHelper.ToRadians((360 / 16)*i)));
-                            SpellFireballProjectile fireball = new SpellFireballProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel, octree, objectManager, lightManager, hudManager, damage, particleManager.explosionParticles, particleManager.explosionSmokeParticles, particleManager.fireProjectileTrailParticles, particleManager.projectileTrailHeadParticles);
+                            SpellFireProjectile fireball = new SpellFireProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel, octree, objectManager, lightManager, hudManager, leftDamage, particleManager.explosionParticles, particleManager.explosionSmokeParticles, particleManager.fireProjectileTrailParticles, particleManager.projectileTrailHeadParticles);
                             fireball.Position = camera.Position;
                             fireball.Velocity = direction * 100;
                             objectManager.Add(fireball);
@@ -206,7 +240,7 @@ namespace Game1.Spells
             }
         }
 
-        public SpellFireball(Game game, Camera camera, Octree octree, ObjectManager objectManager, LightManager lightManager, ParticleManager particleManager, HUDManager hudManager, Stats stats)
+        public SpellFire(Game game, Camera camera, Octree octree, ObjectManager objectManager, LightManager lightManager, ParticleManager particleManager, HUDManager hudManager, Stats stats)
         {
             this.game = game;
             this.camera = camera;
@@ -216,6 +250,7 @@ namespace Game1.Spells
             this.particleManager = particleManager;
             this.hudManager = hudManager;
             this.stats = stats;
+            this.viewport = game.GraphicsDevice.Viewport;
 
             leftManaCost = 25;
             rightManaCost = 10;
@@ -226,10 +261,28 @@ namespace Game1.Spells
             rightCastSpeed = 250;
             dualCastSpeed = 1000;
 
-            damage = 50;
-            projectileSpeed = 250;
+            leftDamage = 50;
+            rightDamage = 2;
+            projectileSpeed = 400;
+            coneRange = 150f;
+
+            particlesPerSecond = 250;
 
             fireballModel = game.Content.Load<Model>("Models/fireball");
+
+            frustum = new BoundingFrustum(camera.ViewProjectionMatrix);
+
+            Vector2 size = new Vector2(viewport.Bounds.Width, viewport.Bounds.Height);
+            size.X /= 256f;
+            size.Y /= 256f;
+            projectionMatrix = Matrix.CreatePerspective(size.X, size.Y, 15f, coneRange);
+
+            hitEvent += hudManager.Crosshair.HandleHitEvent;
+        }
+
+        public void OnHitEvent()
+        {
+            hitEvent?.Invoke(this, EventArgs.Empty);
         }
     }
 }

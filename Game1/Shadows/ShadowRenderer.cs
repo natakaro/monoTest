@@ -182,7 +182,7 @@ namespace Game1.Shadows
                 // Come up with a new orthographic camera for the shadow caster
                 var shadowCamera = new ShadowOrthographicCamera(
                     minExtents.X, minExtents.Y, maxExtents.X, maxExtents.Y,
-                    0.0f, cascadeExtents.Z);
+                    -500.0f, cascadeExtents.Z); //sukces? oryginalnie 0.0f
                 shadowCamera.SetLookAt(shadowCameraPos, frustumCenter, upDir);
 
                 if (settings.StabilizeCascades)
@@ -299,43 +299,17 @@ namespace Game1.Shadows
 
             var worldViewProjection = worldMatrix * camera.ViewProjection;
 
-            //FrustumIntersections shadowMapObjects = octree.AllFrustumIntersections(new BoundingFrustum(camera.ViewProjection));
+            FrustumIntersections shadowMapObjects = octree.AllFrustumIntersections(new BoundingFrustum(camera.ViewProjection));
 
-            //if(shadowMapObjects.IntersectionsInstanced.Count > 0)
-            //    DrawModelHardwareInstancing(shadowMapObjects.IntersectionsInstanced, shadowMapObjects.IntersectionsInstanced[0].DrawableObjectObject.Model, camera.View, camera.Projection); //model na sztywno na razie, zakladamy ze tylko jeden model instancingiem rysujemy
-
-            ////reszta, nie instancowane obiekty z listy
-            //foreach (IntersectionRecord ir in shadowMapObjects.Intersections)
-            //{
-            //    foreach (var mesh in ir.DrawableObjectObject.Model.Meshes)
-            //    {
-            //        foreach (var meshPart in mesh.MeshParts)
-            //            if (meshPart.PrimitiveCount > 0)
-            //            {
-            //                shadowMapEffect.WorldViewProjection = ir.DrawableObjectObject.ModelBones[mesh.ParentBone.Index] * Matrix.CreateTranslation(ir.DrawableObjectObject.Position) * worldViewProjection;
-            //                shadowMapEffect.Apply();
-
-            //                graphicsDevice.SetVertexBuffer(meshPart.VertexBuffer);
-            //                graphicsDevice.Indices = meshPart.IndexBuffer;
-
-            //                graphicsDevice.DrawIndexedPrimitives(
-            //                    PrimitiveType.TriangleList,
-            //                    meshPart.VertexOffset,
-            //                    meshPart.StartIndex, meshPart.PrimitiveCount);
-            //            }
-            //    }
-            //}
-
-            SplitAllObjects shadowMapObjects = octree.AllObjectsSplit();
-
-            DrawModelHardwareInstancing(shadowMapObjects.ObjectsInstanced, shadowMapObjects.ObjectsInstanced[0].Model, camera.View, camera.Projection); //model na sztywno na razie, zakladamy ze tylko jeden model instancingiem rysujemy
+            if (shadowMapObjects.IntersectionsInstanced.Count > 0)
+                DrawModelHardwareInstancing(shadowMapObjects.IntersectionsInstanced, shadowMapObjects.IntersectionsInstanced[0].DrawableObjectObject.Model, camera.View, camera.Projection); //model na sztywno na razie, zakladamy ze tylko jeden model instancingiem rysujemy
 
             //reszta, nie instancowane obiekty z listy
-            foreach (DrawableObject dObject in shadowMapObjects.Objects)
+            foreach (IntersectionRecord ir in shadowMapObjects.Intersections)
             {
-                if (dObject is EnemyWalk)
+                if (ir.DrawableObjectObject is EnemyWalk)
                 {
-                    EnemyWalk enemy = dObject as EnemyWalk;
+                    EnemyWalk enemy = ir.DrawableObjectObject as EnemyWalk;
                     enemy.AnimatedModel.BoneAdjust();
                     foreach (var mesh in enemy.AnimatedModel.Model.Meshes)
                     {
@@ -360,12 +334,13 @@ namespace Game1.Shadows
                 }
                 else
                 {
-                    foreach (var mesh in dObject.Model.Meshes)
+
+                    foreach (var mesh in ir.DrawableObjectObject.Model.Meshes)
                     {
                         foreach (var meshPart in mesh.MeshParts)
                             if (meshPart.PrimitiveCount > 0)
                             {
-                                shadowMapEffect.WorldViewProjection = Matrix.CreateScale(dObject.Scale) * dObject.ModelBones[mesh.ParentBone.Index] * Matrix.CreateFromQuaternion(dObject.Orientation) * Matrix.CreateTranslation(dObject.Position) * worldViewProjection;
+                                shadowMapEffect.WorldViewProjection = Matrix.CreateScale(ir.DrawableObjectObject.Scale) * ir.DrawableObjectObject.ModelBones[mesh.ParentBone.Index] * Matrix.CreateFromQuaternion(ir.DrawableObjectObject.Orientation) * Matrix.CreateTranslation(ir.DrawableObjectObject.Position) * worldViewProjection;
                                 shadowMapEffect.Apply();
 
                                 graphicsDevice.SetVertexBuffer(meshPart.VertexBuffer);
@@ -379,6 +354,60 @@ namespace Game1.Shadows
                     }
                 }
             }
+
+            //SplitAllObjects shadowMapObjects = octree.AllObjectsSplit();
+
+            //DrawModelHardwareInstancing(shadowMapObjects.ObjectsInstanced, shadowMapObjects.ObjectsInstanced[0].Model, camera.View, camera.Projection); //model na sztywno na razie, zakladamy ze tylko jeden model instancingiem rysujemy
+
+            ////reszta, nie instancowane obiekty z listy
+            //foreach (DrawableObject dObject in shadowMapObjects.Objects)
+            //{
+            //    if (dObject is EnemyWalk)
+            //    {
+            //        EnemyWalk enemy = dObject as EnemyWalk;
+            //        enemy.AnimatedModel.BoneAdjust();
+            //        foreach (var mesh in enemy.AnimatedModel.Model.Meshes)
+            //        {
+            //            foreach (var meshPart in mesh.MeshParts)
+            //            {
+            //                if (meshPart.PrimitiveCount > 0)
+            //                {
+            //                    shadowMapAnimatedEffect.WorldViewProjection = Matrix.CreateScale(enemy.Scale) * enemy.AnimatedModel.BoneTransforms[mesh.ParentBone.Index] * Matrix.CreateRotationY(enemy.Rotation) * Matrix.CreateTranslation(enemy.Position) * worldViewProjection;
+            //                    shadowMapAnimatedEffect.Bones = enemy.AnimatedModel.Skeleton;
+            //                    shadowMapAnimatedEffect.Apply();
+
+            //                    graphicsDevice.SetVertexBuffer(meshPart.VertexBuffer);
+            //                    graphicsDevice.Indices = meshPart.IndexBuffer;
+
+            //                    graphicsDevice.DrawIndexedPrimitives(
+            //                        PrimitiveType.TriangleList,
+            //                        meshPart.VertexOffset,
+            //                        meshPart.StartIndex, meshPart.PrimitiveCount);
+            //                }
+            //            }
+            //        }
+            //    }
+            //    else
+            //    {
+            //        foreach (var mesh in dObject.Model.Meshes)
+            //        {
+            //            foreach (var meshPart in mesh.MeshParts)
+            //                if (meshPart.PrimitiveCount > 0)
+            //                {
+            //                    shadowMapEffect.WorldViewProjection = Matrix.CreateScale(dObject.Scale) * dObject.ModelBones[mesh.ParentBone.Index] * Matrix.CreateFromQuaternion(dObject.Orientation) * Matrix.CreateTranslation(dObject.Position) * worldViewProjection;
+            //                    shadowMapEffect.Apply();
+
+            //                    graphicsDevice.SetVertexBuffer(meshPart.VertexBuffer);
+            //                    graphicsDevice.Indices = meshPart.IndexBuffer;
+
+            //                    graphicsDevice.DrawIndexedPrimitives(
+            //                        PrimitiveType.TriangleList,
+            //                        meshPart.VertexOffset,
+            //                        meshPart.StartIndex, meshPart.PrimitiveCount);
+            //                }
+            //        }
+            //    }
+            //}
         }
 
         private void DrawModelHardwareInstancing(List<DrawableObject> list, Model model, Matrix viewMatrix, Matrix projMatrix)
@@ -561,7 +590,7 @@ namespace Game1.Shadows
 
             shadowEffect.FrustumCorners = camera.FrustumCorners;
 
-            shadowEffect.SkyIntensity = timeOfDay.LogisticTime(2, 4, 2.0f); 
+            shadowEffect.SkyIntensity = timeOfDay.LogisticTime(1, 4, 2.0f); 
 
             shadowEffect.Apply();
         }

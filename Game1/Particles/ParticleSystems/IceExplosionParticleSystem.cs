@@ -9,38 +9,35 @@ using System.Threading.Tasks;
 
 namespace Game1.Particles.ParticleSystems
 {
-    /// <summary>
-    /// Custom particle system for creating the fiery part of the explosions.
-    /// </summary>
-    class ExplosionParticleSystem : ParticleSystem
+    class IceExplosionParticleSystem : ParticleSystem
     {
-        public ExplosionParticleSystem(Game game, ContentManager content)
+        public IceExplosionParticleSystem(Game game, ContentManager content)
             : base(game, content)
         { }
 
 
         protected override void InitializeSettings(ParticleSettings settings)
         {
-            settings.TextureName = "Textures/particles/explosion";
+            settings.TextureName = "Textures/particles/iceExplosion";
 
             settings.MaxParticles = 100;
 
-            settings.Duration = TimeSpan.FromSeconds(1);
+            settings.Duration = TimeSpan.FromSeconds(2);
             settings.DurationRandomness = 1;
 
-            settings.MinHorizontalVelocity = 5;
-            settings.MaxHorizontalVelocity = 7.5f;
+            settings.MinHorizontalVelocity = 1;
+            settings.MaxHorizontalVelocity = 1.5f;
 
-            settings.MinVerticalVelocity = -5;
-            settings.MaxVerticalVelocity = 5;
+            settings.MinVerticalVelocity = -1;
+            settings.MaxVerticalVelocity = 1;
 
             settings.EndVelocity = 0;
 
             settings.MinColor = Color.LightGray;
             settings.MaxColor = Color.White;
 
-            settings.MinRotateSpeed = -1;
-            settings.MaxRotateSpeed = 1;
+            settings.MinRotateSpeed = -0.2f;
+            settings.MaxRotateSpeed = 0.2f;
 
             settings.MinStartSize = 3;
             settings.MaxStartSize = 3;

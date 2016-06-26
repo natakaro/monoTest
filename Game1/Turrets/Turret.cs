@@ -1,6 +1,7 @@
 ﻿using Game1.Helpers;
 using Game1.Lights;
 using Game1.Particles;
+using Game1.Screens;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -36,8 +37,8 @@ namespace Game1.Turrets
         Enemy currentTarget;
         Stopwatch shootStopwatch;
 
-        Stopwatch scaleStopwatch;
-        bool fullSize;
+        protected float spawnAge;
+        protected const float spawnLength = 2f;
 
         public Turret(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ObjectManager objectManager, Texture2D inTexture, LightManager lightManager, ParticleManager particleManager) : base(game, inWorldMatrix, inModel, octree)
         {
@@ -70,65 +71,47 @@ namespace Game1.Turrets
 
             shootStopwatch = new Stopwatch();
 
-            scaleStopwatch = new Stopwatch();
-            scaleStopwatch.Start();
-            fullSize = false;
+            dissolveAmount = 1;
+            scale = 1;
         }
 
         public override void Draw(Camera camera)
         {
-            if (fullSize == false)
+            foreach (ModelMesh mesh in model.Meshes)
             {
-                scale = 0;
-                if (scaleStopwatch.ElapsedMilliseconds < 750)
+                foreach (Effect effect in mesh.Effects)
                 {
-                    scale = MathHelper.Lerp(0, 1, scaleStopwatch.ElapsedMilliseconds / 750f);
+                    effect.Parameters["World"].SetValue(Matrix.CreateScale(scale) * modelBones[mesh.ParentBone.Index] * worldMatrix);
+                    effect.Parameters["View"].SetValue(camera.ViewMatrix);
+                    effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
+                    effect.Parameters["Texture"].SetValue(texture);
+                    effect.Parameters["FarClip"].SetValue(camera.FarZ);
+                    effect.Parameters["Clipping"].SetValue(false);
+                    effect.Parameters["DissolveMap"].SetValue(GameplayScreen.assetContentContainer.dissolveTexture);
+                    effect.Parameters["DissolveThreshold"].SetValue(dissolveAmount);
+                    effect.Parameters["EdgeMap"].SetValue(GameplayScreen.assetContentContainer.edgeTexture);
                 }
-                else
-                {
-                    scale = 1;
-                    fullSize = true;
-                    scaleStopwatch.Stop();
-                }
-                Matrix scaleMatrix = Matrix.CreateScale(scale);
-
-                foreach (ModelMesh mesh in model.Meshes)
-                {
-                    foreach (Effect effect in mesh.Effects)
-                    {
-                        effect.Parameters["World"].SetValue(scaleMatrix * modelBones[mesh.ParentBone.Index] * worldMatrix);
-                        effect.Parameters["View"].SetValue(camera.ViewMatrix);
-                        effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
-                        effect.Parameters["FarClip"].SetValue(camera.FarZ);
-                        effect.Parameters["Texture"].SetValue(texture);
-                        effect.Parameters["Clipping"].SetValue(false);
-                    }
-                    mesh.Draw();
-                }
+                mesh.Draw();
             }
-            else
-            {
-                foreach (ModelMesh mesh in model.Meshes)
-                {
-                    foreach (Effect effect in mesh.Effects)
-                    {
-                        effect.Parameters["World"].SetValue(modelBones[mesh.ParentBone.Index] * worldMatrix);
-                        effect.Parameters["View"].SetValue(camera.ViewMatrix);
-                        effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
-                        effect.Parameters["FarClip"].SetValue(camera.FarZ);
-                        effect.Parameters["Texture"].SetValue(texture);
-                        effect.Parameters["Clipping"].SetValue(false);
-                    }
-                    mesh.Draw();
-                }
-            }
-
-            //DebugShapeRenderer.AddBoundingSphere(rangeSphere, Color.Red);
         }
 
         public override bool Update(GameTime gameTime)
         {
             bool ret = base.Update(gameTime);
+
+            float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            spawnAge += elapsedTime;
+
+            if (spawnAge < spawnLength)
+            {
+                dissolveAmount = MathHelper.Lerp(1, 0, spawnAge / spawnLength);
+                //scale = MathHelper.Lerp(0, 1, spawnAge / spawnLength);
+            }
+            else
+            {
+                dissolveAmount = 0;
+                //scale = 1;
+            }
 
             SearchForEnemies();
             TargetClosest();

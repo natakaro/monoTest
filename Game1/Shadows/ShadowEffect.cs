@@ -123,7 +123,6 @@ namespace Game1.Shadows
             _offsetScaleParameter.SetValue(OffsetScale);
             _lightDirectionParameter.SetValue(LightDirection);
             _lightColorParameter.SetValue(LightColor);
-            //_diffuseColorParameter.SetValue(DiffuseColor);
             _worldParameter.SetValue(World);
             _viewProjectionParameter.SetValue(ViewProjection);
             _shadowMapParameter.SetValue(ShadowMap);

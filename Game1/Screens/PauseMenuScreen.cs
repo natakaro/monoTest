@@ -27,16 +27,19 @@ namespace Game1.Screens
             MenuEntry resumeGameMenuEntry = new MenuEntry("Resume");
             MenuEntry optionsMenuEntry = new MenuEntry("Options");
             MenuEntry quitGameMenuEntry = new MenuEntry("Return to title menu");
+            MenuEntry exitGameMenuEntry = new MenuEntry("Quit game");
 
             // Hook up menu event handlers.
             resumeGameMenuEntry.Selected += OnCancel;
             optionsMenuEntry.Selected += OptionsMenuEntrySelected;
             quitGameMenuEntry.Selected += QuitGameMenuEntrySelected;
+            exitGameMenuEntry.Selected += ExitGameMenuEntrySelected;
 
             // Add entries to the menu.
             MenuEntries.Add(resumeGameMenuEntry);
             MenuEntries.Add(optionsMenuEntry);
             MenuEntries.Add(quitGameMenuEntry);
+            MenuEntries.Add(exitGameMenuEntry);
         }
         #endregion
 
@@ -62,6 +65,17 @@ namespace Game1.Screens
             ScreenManager.AddScreen(confirmQuitMessageBox);
         }
 
+        void ExitGameMenuEntrySelected(object sender, EventArgs e)
+        {
+            const string message = "Are you sure?";
+
+            MessageBoxScreen confirmExitMessageBox = new MessageBoxScreen(message);
+
+            confirmExitMessageBox.Accepted += ConfirmExitMessageBoxAccepted;
+
+            ScreenManager.AddScreen(confirmExitMessageBox);
+        }
+
         void OptionsMenuEntrySelected(object sender, EventArgs e)
         {
             ScreenManager.AddScreen(new OptionsMenuScreen());
@@ -77,6 +91,11 @@ namespace Game1.Screens
         {
             LoadingScreen.Load(ScreenManager, false, null, new BackgroundScreen(),
                                                            new MainMenuScreen());
+        }
+
+        void ConfirmExitMessageBoxAccepted(object sender, EventArgs e)
+        {
+            ScreenManager.Game.Exit();
         }
 
 

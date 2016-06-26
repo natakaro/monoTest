@@ -9,27 +9,24 @@ using System.Threading.Tasks;
 
 namespace Game1.Particles.ParticleSystems
 {
-    /// <summary>
-    /// Custom particle system for leaving smoke trails behind the rocket projectiles.
-    /// </summary>
-    class FireProjectileTrailParticleSystem : ParticleSystem
+    class IceProjectileTrailParticleSystem : ParticleSystem
     {
-        public FireProjectileTrailParticleSystem(Game game, ContentManager content)
+        public IceProjectileTrailParticleSystem(Game game, ContentManager content)
             : base(game, content)
         { }
 
 
         protected override void InitializeSettings(ParticleSettings settings)
         {
-            settings.TextureName = "Textures/particles/fire";
+            settings.TextureName = "Textures/particles/iceSmall";
 
             settings.MaxParticles = 1000;
 
-            settings.Duration = TimeSpan.FromSeconds(0.5f);
+            settings.Duration = TimeSpan.FromSeconds(2);
 
             settings.DurationRandomness = 1;
 
-            settings.EmitterVelocitySensitivity = 0.1f;
+            settings.EmitterVelocitySensitivity = 0.02f;
 
             settings.MinHorizontalVelocity = 0;
             settings.MaxHorizontalVelocity = 1;
@@ -40,14 +37,14 @@ namespace Game1.Particles.ParticleSystems
             settings.MinColor = new Color(255, 255, 255, 20);
             settings.MaxColor = new Color(255, 255, 255, 80);
 
-            settings.MinRotateSpeed = -4;
-            settings.MaxRotateSpeed = 4;
+            settings.MinRotateSpeed = -2;
+            settings.MaxRotateSpeed = 2;
 
             settings.MinStartSize = 1;
             settings.MaxStartSize = 3;
 
-            settings.MinEndSize = 4;
-            settings.MaxEndSize = 11;
+            settings.MinEndSize = 2;
+            settings.MaxEndSize = 5;
 
             settings.BlendState = BlendState.Additive;
         }

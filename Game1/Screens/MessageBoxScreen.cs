@@ -196,8 +196,8 @@ namespace Game1.Screens
 
                 for (int i = 0; i < menuEntries.Count; i++)
                 {
-                    if (input.LastMouseState.Y > menuEntries[i].Position.Y - menuEntries[i].GetHeight(this) / 2 &&
-                        input.LastMouseState.Y < menuEntries[i].Position.Y + menuEntries[i].GetHeight(this) / 2 &&
+                    if (input.LastMouseState.Y > menuEntries[i].Position.Y - menuEntries[i].GetHeight(this) &&
+                        input.LastMouseState.Y < menuEntries[i].Position.Y &&
                         input.LastMouseState.X > menuEntries[i].Position.X &&
                         input.LastMouseState.X < menuEntries[i].Position.X + menuEntries[i].GetWidth(this))
                     {

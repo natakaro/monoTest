@@ -39,7 +39,7 @@ namespace Game1
             //positionray = new Ray(new Vector3(position.X, boundingBox.Min.Y, position.Z), Vector3.Down);
 
             targetRotation = 0;
-            speed = 45;
+            speed = 55;
             maxHealth = 100;
             currentHealth = 100;
         }
