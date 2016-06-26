@@ -99,6 +99,7 @@ namespace Game1
             Dictionary<AxialCoordinate, DrawableObject> assetDictionary = new Dictionary<AxialCoordinate, DrawableObject>();
             List<HexOffsetH> map = readMapOffset(tex);
             Random rand = new Random();
+            int i = 0;
             foreach (HexOffsetH coord in map)
             {
                 //if (coord.height != 255) { throw new Exception(coord.height.ToString() + " " + coord.x.ToString() + " " + coord.y.ToString()); }
@@ -159,11 +160,13 @@ namespace Game1
                 }
                 else if (id == 130)
                 {
-                    assetDictionary.Add(axial, new Spawn(game, worldm, assetContainer.spawnModel, octree, itemManager, Content, corePosition, phaseManager, 1));
+                    assetDictionary.Add(axial, new Spawn(game, worldm, assetContainer.spawnModel, octree, itemManager, Content, corePosition, phaseManager, GameplayScreen.wavesList[i]));
+                    i++;
                 }
                 else if (id == 140)
                 {
-                    assetDictionary.Add(axial, new Spawn(game, worldm, assetContainer.spawnModel, octree, itemManager, Content, corePosition, phaseManager, 2));
+                    assetDictionary.Add(axial, new Spawn(game, worldm, assetContainer.spawnModel, octree, itemManager, Content, corePosition, phaseManager, GameplayScreen.wavesList[i]));
+                    i++;
                 }
             }
 

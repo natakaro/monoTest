@@ -23,14 +23,16 @@ namespace Game1
         PathFinder pathfinder;
         PhaseManager phaseManager;
         ItemManager itemManager;
-        int enemyType = 0;
+        List<Wave> waves;
+        int waveNumber = 0;
+        int enemyNumber = 0;
 
         //do testów
         private Stopwatch stopwatch = new Stopwatch();
 
         const int portalParticlesPerFrame = 3;
 
-        public Spawn(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ItemManager itemManager, ContentManager Content, Vector3 corePosition, PhaseManager phaseManager, int enemyType) : base(game, inWorldMatrix, inModel, octree)
+        public Spawn(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ItemManager itemManager, ContentManager Content, Vector3 corePosition, PhaseManager phaseManager, List<Wave> waves) : base(game, inWorldMatrix, inModel, octree)
         {
             type = ObjectType.Spawn;
 
@@ -44,7 +46,7 @@ namespace Game1
             this.phaseManager = phaseManager;
             this.itemManager = itemManager;
 
-            this.enemyType = enemyType;
+            this.waves = waves;
 
             Tile start = HexCoordinates.tileFromPosition(position, GameplayScreen.map);
             Tile end = HexCoordinates.tileFromPosition(corePosition, GameplayScreen.map);
@@ -94,38 +96,64 @@ namespace Game1
                 stopwatch.Reset();
             }
 
-            if (phaseManager.Phase == Phase.Night)
+
+            if (phaseManager.Phase == Phase.Night && waveNumber < waves.Count)
             {
                 for (int i = 0; i < portalParticlesPerFrame; i++)
                 {
                     GameplayScreen.particleManager.portalParticlesEnemy.AddParticle(position + Core.RandomPointOnCircle(30, 60), Vector3.Zero);
                 }
 
-                stopwatch.Start();
-                if (stopwatch.ElapsedMilliseconds > 6000)
+                
+                if(GameplayScreen.timeOfDay.TimeFloatCut == waves[waveNumber].time) // &&  //waves[waveNumber].time ==
                 {
-                    if(enemyType == 1)
+                    stopwatch.Start();
+                }
+
+                if (stopwatch.ElapsedMilliseconds > waves[waveNumber].stopwatch)
+                {
+                    if (enemyNumber < waves[waveNumber].number)
                     {
-                        SpawnEnemy();
+                        SpawnEnemy(waves[waveNumber].enemyType);
+                        enemyNumber++;
+                        stopwatch.Restart();
                     }
                     else
                     {
-                        SpawnFlyEnemy();
+                        enemyNumber=0;
+                        waveNumber++;
+                        stopwatch.Reset();
                     }
-                    stopwatch.Restart();
                 }
             }
 
             return ret;
         }
 
-        public bool SpawnEnemy()
+        public bool SpawnEnemy(int type)
         {
-            Enemy enemy = new EnemyWalk(Game, worldMatrix, model, octree, itemManager, Content, pathMiddle);
+            Enemy enemy = null;
+            switch (type)
+            {
+                case 0:
+                    enemy = new EnemyFly(Game, worldMatrix, model, octree, itemManager, Content, pathMiddle);
+                    break;
+                case 1:
+                    enemy = new EnemyWalk(Game, worldMatrix, model, octree, itemManager, Content, pathMiddle);
+                    break;
+                case 2:
+                    enemy = new EnemyGremlin(Game, worldMatrix, model, octree, itemManager, Content, pathMiddle);
+                    break;
+                case 3:
+                    enemy = new EnemyWeird(Game, worldMatrix, model, octree, itemManager, Content, pathMiddle);
+                    break;
+            }
             enemies.Add(enemy);
             Octree.AddObject(enemy);
             return true;
         }
+        
+        /*
         public bool SpawnFlyEnemy()
         {
             Enemy enemy = new EnemyFly(Game, Matrix.CreateTranslation(0, 30, 0) * worldMatrix, GameplayScreen.assetContentContainer.enemyFly, octree, itemManager, Content, pathMiddle);
@@ -133,6 +161,7 @@ namespace Game1
             Octree.AddObject(enemy);
             return true;
         }
+        */
 
         public void UpdatePath()
         {

@@ -17,23 +17,22 @@ namespace Game1
     public class EnemyWalk : Enemy
     {
 
-        private AnimatedModel animatedModel = null;
-        private AnimatedModel dance = null;
-
+        protected AnimatedModel animatedModel = null;
+        protected AnimatedModel walk = null;
 
         public EnemyWalk(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ItemManager itemManager, ContentManager Content, List<Vector3> path) : base(game, inWorldMatrix, inModel, octree, itemManager, Content, path)
         {
+            type = ObjectType.Enemy;
             animatedModel = new AnimatedModel("Models/h");
             animatedModel.LoadContent(Content);
 
-            dance = new AnimatedModel("Models/h_walk");
-            dance.LoadContent(Content);
-            AnimationClip clip = dance.Clips[0];
-
+            walk = new AnimatedModel("Models/h_walk");
+            walk.LoadContent(Content);
+            AnimationClip clip = walk.Clips[0];
+            
             AnimationPlayer player = animatedModel.PlayClip(clip);
             player.Looping = true;
-
-            type = ObjectType.Enemy;
+            
             boundingBox = CollisionBox.CreateBoundingBox(animatedModel.Model, position, 1);
             a = boundingBox.Max.Y - boundingBox.Min.Y;
             b = position.Y - boundingBox.Min.Y;

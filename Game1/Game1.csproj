@@ -63,6 +63,9 @@
     <Compile Include="Animation\Bone.cs" />
     <Compile Include="Camera.cs" />
     <Compile Include="Core.cs" />
+    <Compile Include="Enemy\EnemyGremlin.cs" />
+    <Compile Include="Enemy\EnemyWeird.cs" />
+    <Compile Include="Enemy\Wave.cs" />
     <Compile Include="HUD\HUDMinimap.cs" />
     <Compile Include="Particles\ParticleSystems\PortalParticleSystemEnemy.cs" />
     <Compile Include="Particles\ParticleSystems\PortalParticleSystemFriendly.cs" />
@@ -167,6 +170,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\waves.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Icon.ico" />
   </ItemGroup>
   <ItemGroup>

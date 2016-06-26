@@ -24,6 +24,13 @@ namespace Game1
         { get { return Minutes + Seconds / 60; } }
         public float TimeFloat
         { get { return Hours + MinutesFloat / 60; } }
+        public float TimeFloatCut
+        {
+            get {
+                double time = Hours + MinutesFloat / 60;
+                return (float)Math.Round(time, 2);
+                }
+        }
 
         public bool IsDay
         {
@@ -38,7 +45,6 @@ namespace Game1
         public void Update(float dt, int timeScale)
         {
             Seconds += dt * timeScale;
-
             if (Seconds >= 60)
             {
                 int deltaMinutes = (int)Seconds / 60;

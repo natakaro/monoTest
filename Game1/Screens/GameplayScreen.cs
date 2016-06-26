@@ -15,6 +15,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -63,7 +64,9 @@ namespace Game1.Screens
         private Vector3 lightColor;
 
         public static Core core;
-        private TimeOfDay timeOfDay;
+        public static TimeOfDay timeOfDay;
+        public static List<Spawn> spawns;
+        public static List<List<Wave>> wavesList;
 
         #region ScreenActions
         InputAction pauseAction;
@@ -245,7 +248,11 @@ namespace Game1.Screens
             particleManager = new ParticleManager(ScreenManager.Game, Content);
             settings = (ScreenManager.Game as Game1).settings;
 
+
+            spawns = new List<Spawn>();
+            wavesList = new List<List<Wave>>();
             LoadContent();
+
 
             // once the load has finished, we use ResetElapsedTime to tell the game's
             // timing mechanism that we have just finished a very long frame, and that
@@ -270,6 +277,43 @@ namespace Game1.Screens
             postProcessTarget2 = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.HdrBlendable, DepthFormat.None);
 
             finalTarget = new RenderTarget2D(GraphicsDevice, backbufferWidth, backbufferHeight, false, SurfaceFormat.HdrBlendable, DepthFormat.Depth24Stencil8);
+
+
+
+            List<Wave> jeden = new List<Wave>();
+            List<Wave> dwa = new List<Wave>();
+            List<Wave> trzy = new List<Wave>();
+            List<Wave> cztery = new List<Wave>();
+
+            wavesList.Add(jeden);
+            wavesList.Add(dwa);
+            wavesList.Add(trzy);
+            wavesList.Add(cztery);
+
+            var path = @"Content\waves.txt";
+
+            var stream = TitleContainer.OpenStream(path);
+            var reader = new StreamReader(stream);
+
+            while (!reader.EndOfStream)
+            {
+                string text = reader.ReadLine();
+                string[] bits = text.Split(' ');
+
+                int i = int.Parse(bits[0]);
+                int type = int.Parse(bits[1]);
+                float time = float.Parse(bits[2]);
+                int number = int.Parse(bits[3]);
+                float stopwatch = float.Parse(bits[4]);
+
+                wavesList[i].Add(new Wave(type, time, number, stopwatch));
+            }
+             
+            
+
+
+
+
 
             //map
             mapTex = Content.Load<Texture2D>("Textures/map");
@@ -538,8 +582,8 @@ namespace Game1.Screens
                 }
                 if (input.IsNewKeyPress(Keys.P))
                 {
-                    Spawn spawn = new Spawn(ScreenManager.Game, Matrix.CreateTranslation(camera.Position + Vector3.Normalize(core.Position - camera.Position) * 100), coreModel, octree, itemManager, Content, core.Position, phaseManager, 2);
-                    objectManager.Add(spawn);
+                    //Spawn spawn = new Spawn(ScreenManager.Game, Matrix.CreateTranslation(camera.Position + Vector3.Normalize(core.Position - camera.Position) * 100), coreModel, octree, itemManager, Content, core.Position, phaseManager, 2);
+                    //objectManager.Add(spawn);
                     //Octree.AddObject(spawn);
                 }
 
