@@ -16,7 +16,7 @@ float EdgeSize = 0.15f;
 
 float Emissive = 0.0f;
 
-bool Chilled = false;
+float4 OverlayColor = (1, 1, 1, 1);
 
 texture Texture;
 sampler diffuseSampler = sampler_state
@@ -144,8 +144,7 @@ PixelShaderOutput PixelShaderFunction(VertexShaderOutput input)
 	PixelShaderOutput output;
 
 	output.Color = tex2D(diffuseSampler, input.TexCoord);
-    if (Chilled)
-        output.Color *= float4(0.5, 0.5, 1, 1);
+    output.Color *= OverlayColor;
 
     output.Emissive = output.Color * Emissive;
 

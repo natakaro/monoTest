@@ -1,5 +1,6 @@
 ﻿using Game1.Lights;
 using Game1.Particles;
+using Game1.Screens;
 using Game1.Turrets;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -23,6 +24,9 @@ namespace Game1.Spells
         public Texture2D smallTurretTexture;
         public Model bigTurretModel;
         public Texture2D bigTurretTexture;
+
+        public Model turretLatticeModel;
+        public Texture2D turretLatticeTexture;
 
         private LightManager lightManager;
         private Stats stats;
@@ -51,6 +55,10 @@ namespace Game1.Spells
 
         private Turret targetedTurret;
 
+        private TurretLattice lattice;
+        private PointLight latticeLight;
+        private Vector3 latticeLightOffset = new Vector3(0, 1, 0);
+
         private enum LastMode
         {
             Left = 0,
@@ -74,6 +82,14 @@ namespace Game1.Spells
                 spellCharging = SpellCharging.Left;
                 stats.SpellStatus(spellCharging, leftCastSpeed, stopwatch);
                 lastMode = LastMode.Left;
+
+                if (lattice == null && dObj != null)
+                {
+                    lattice = new TurretLattice(game, Matrix.CreateTranslation(dObj.Position), turretLatticeModel, turretLatticeTexture, octree);
+                    latticeLight = new PointLight(dObj.Position + latticeLightOffset, Color.White, 5, 1);
+                    objectManager.AddAlwaysDraw(lattice);
+                    lightManager.AddLight(latticeLight);
+                }
             }
             if (leftButton == false && rightButton == true && stats.currentMana >= rightManaCost && stats.currentEssence >= rightEssenceCost)
             {
@@ -87,6 +103,14 @@ namespace Game1.Spells
                 spellCharging = SpellCharging.Right;
                 stats.SpellStatus(spellCharging, rightCastSpeed, stopwatch);
                 lastMode = LastMode.Right;
+
+                if (lattice == null && dObj != null)
+                {
+                    lattice = new TurretLattice(game, Matrix.CreateTranslation(dObj.Position), turretLatticeModel, turretLatticeTexture, octree);
+                    latticeLight = new PointLight(dObj.Position + latticeLightOffset, Color.White, 5, 1);
+                    objectManager.AddAlwaysDraw(lattice);
+                    lightManager.AddLight(latticeLight);
+                }
             }
             if (leftButton == true && rightButton == true && stats.currentMana >= dualManaCost && dObj.Type == DrawableObject.ObjectType.Turret)
             {
@@ -100,6 +124,15 @@ namespace Game1.Spells
                 spellCharging = SpellCharging.Dual;
                 stats.SpellStatus(spellCharging, dualCastSpeed, stopwatch);
                 lastMode = LastMode.Dual;
+
+                if (lattice != null)
+                {
+                    objectManager.RemoveAlwaysDraw(lattice);
+                    lightManager.RemoveLight(latticeLight);
+
+                    lattice = null;
+                    latticeLight = null;
+                }
             }
         }
 
@@ -109,6 +142,27 @@ namespace Game1.Spells
             {
                 if (leftButton == true && rightButton == false)
                 {
+                    if (lattice == null && dObj != null)
+                    {
+                        lattice = new TurretLattice(game, Matrix.CreateTranslation(dObj.Position), turretLatticeModel, turretLatticeTexture, octree);
+                        latticeLight = new PointLight(dObj.Position + latticeLightOffset, Color.White, 5, 1);
+                        objectManager.AddAlwaysDraw(lattice);
+                        lightManager.AddLight(latticeLight);
+                    }
+                    else if (lattice != null && dObj != null)
+                    {
+                        lattice.Position = dObj.Position;
+                        latticeLight.Position = dObj.Position + latticeLightOffset;
+                    }
+                    else if (lattice != null && dObj == null)
+                    {
+                        objectManager.RemoveAlwaysDraw(lattice);
+                        lightManager.RemoveLight(latticeLight);
+
+                        lattice = null;
+                        latticeLight = null;
+                    }
+
                     if (spellReady == false)
                     {
                         manaDeducted = Math.Min((stopwatch.ElapsedMilliseconds / leftCastSpeed) * leftManaCost, leftManaCost);
@@ -122,6 +176,27 @@ namespace Game1.Spells
 
                 else if (leftButton == false && rightButton == true)  //?
                 {
+                    if (lattice == null && dObj != null)
+                    {
+                        lattice = new TurretLattice(game, Matrix.CreateTranslation(dObj.Position), turretLatticeModel, turretLatticeTexture, octree);
+                        latticeLight = new PointLight(dObj.Position + latticeLightOffset, Color.White, 5, 1);
+                        objectManager.AddAlwaysDraw(lattice);
+                        lightManager.AddLight(latticeLight);
+                    }
+                    else if (lattice != null && dObj != null)
+                    {
+                        lattice.Position = dObj.Position;
+                        latticeLight.Position = dObj.Position + latticeLightOffset;
+                    }
+                    else if (lattice != null && dObj == null)
+                    {
+                        objectManager.RemoveAlwaysDraw(lattice);
+                        lightManager.RemoveLight(latticeLight);
+
+                        lattice = null;
+                        latticeLight = null;
+                    }
+
                     if (spellReady == false)
                     {
                         manaDeducted = Math.Min((stopwatch.ElapsedMilliseconds / rightCastSpeed) * rightManaCost, rightManaCost);
@@ -135,6 +210,15 @@ namespace Game1.Spells
 
                 else if (leftButton == true && rightButton == true) //usuwanie turreta
                 {
+                    if (lattice != null)
+                    {
+                        objectManager.RemoveAlwaysDraw(lattice);
+                        lightManager.RemoveLight(latticeLight);
+
+                        lattice = null;
+                        latticeLight = null;
+                    }
+
                     if (dObj != null && dObj.Type == DrawableObject.ObjectType.Turret)
                     {
                         if (spellReady == false)
@@ -168,13 +252,20 @@ namespace Game1.Spells
                             Octree.AddObject(turret);
                             spellReady = false;
                         }
+                        else
+                        {
+                            stats.currentMana = startingMana;
+                            manaDeducted = 0;
+                            stats.currentEssence = startingEssence;
+                            essenceDeducted = 0;
+                        }
                     }
-                    else if (spellReady == false)
+                    else
                     {
                         stats.currentMana = startingMana;
                         manaDeducted = 0;
                         stats.currentEssence = startingEssence;
-                        essenceDeducted = 0;
+                        essenceDeducted = 0;    
                     }
                     spellCharging = SpellCharging.None;
                     stats.SpellStatus(spellCharging);
@@ -190,8 +281,15 @@ namespace Game1.Spells
                             Octree.AddObject(turret);
                             spellReady = false;
                         }
+                        else
+                        {
+                            stats.currentMana = startingMana;
+                            manaDeducted = 0;
+                            stats.currentEssence = startingEssence;
+                            essenceDeducted = 0;
+                        }
                     }
-                    else if (spellReady == false)
+                    else
                     {
                         stats.currentMana = startingMana;
                         manaDeducted = 0;
@@ -229,6 +327,14 @@ namespace Game1.Spells
                     stopwatch.Reset();
                 }
             }
+            if (lattice != null)
+            {
+                objectManager.RemoveAlwaysDraw(lattice);
+                lightManager.RemoveLight(latticeLight);
+
+                lattice = null;
+                latticeLight = null;
+            }
         }
 
         public SpellCreateTurret(Game game, Camera camera, Octree octree, ObjectManager objectManager, LightManager lightManager, ParticleManager particleManager, Stats stats)
@@ -257,6 +363,9 @@ namespace Game1.Spells
             smallTurretTexture = game.Content.Load<Texture2D>("Textures/turret");
             bigTurretModel = game.Content.Load<Model>("Models/big_turret/big_turret");
             bigTurretTexture = game.Content.Load<Texture2D>("Textures/big_turret/big_turret_FIRE");
+
+            turretLatticeModel = game.Content.Load<Model>("Models/turretLattice");
+            turretLatticeTexture = game.Content.Load<Texture2D>("Textures/turret");
         }
     }
 }

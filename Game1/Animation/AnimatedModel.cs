@@ -179,7 +179,7 @@ namespace Game1
         /// <param name="graphics">The graphics device to draw on</param>
         /// <param name="camera">A camera to determine the view</param>
         /// <param name="world">A world matrix to place the model</param>
-        public void Draw(GraphicsDevice graphics, Camera camera, Matrix world, ContentManager content, float dissolveAmount = 0, bool chilled = false)
+        public void Draw(GraphicsDevice graphics, Camera camera, Matrix world, ContentManager content, Vector3 OverlayColor, float dissolveAmount = 0)
         {
             if (model == null)
                 return;
@@ -224,8 +224,7 @@ namespace Game1
                         part.Effect.Parameters["DissolveMap"].SetValue(GameplayScreen.assetContentContainer.dissolveTexture);
                         part.Effect.Parameters["DissolveThreshold"].SetValue(dissolveAmount);
                         part.Effect.Parameters["EdgeMap"].SetValue(GameplayScreen.assetContentContainer.edgeTexture);
-                        if (chilled)
-                            part.Effect.Parameters["Chilled"].SetValue(chilled);
+                        part.Effect.Parameters["OverlayColor"].SetValue(OverlayColor);
 
                     }
                 }
@@ -233,7 +232,7 @@ namespace Game1
             }
         }
 
-        public void Draw(GraphicsDevice graphics, Camera camera, Matrix world, ContentManager content, Texture2D tex, float dissolveAmount = 0, bool chilled = false)
+        public void Draw(GraphicsDevice graphics, Camera camera, Matrix world, ContentManager content, Texture2D tex, Vector4 OverlayColor, float dissolveAmount = 0)
         {
             if (model == null)
                 return;
@@ -279,7 +278,7 @@ namespace Game1
                         part.Effect.Parameters["DissolveMap"].SetValue(GameplayScreen.assetContentContainer.dissolveTexture);
                         part.Effect.Parameters["DissolveThreshold"].SetValue(dissolveAmount);
                         part.Effect.Parameters["EdgeMap"].SetValue(GameplayScreen.assetContentContainer.edgeTexture);
-                        part.Effect.Parameters["Chilled"].SetValue(chilled);
+                        part.Effect.Parameters["OverlayColor"].SetValue(OverlayColor);
                     }
                 }
                 mesh.Draw();

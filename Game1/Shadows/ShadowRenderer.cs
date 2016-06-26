@@ -377,7 +377,6 @@ namespace Game1.Shadows
                 }
             }
 
-
             //SplitAllObjects shadowMapObjects = octree.AllObjectsSplit();
 
             //DrawModelHardwareInstancing(shadowMapObjects.ObjectsInstanced, shadowMapObjects.ObjectsInstanced[0].Model, camera.View, camera.Projection); //model na sztywno na razie, zakladamy ze tylko jeden model instancingiem rysujemy

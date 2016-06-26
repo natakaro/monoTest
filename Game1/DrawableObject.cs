@@ -68,7 +68,7 @@ namespace Game1
 
         protected float scale;
 
-        protected float dissolveAmount = 0.5f;
+        protected float dissolveAmount = 0f;
 
         public DrawableObject(Game game, Matrix inWorldMatrix, Model inModel, Octree octree) : base(game)
         {

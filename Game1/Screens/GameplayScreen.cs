@@ -42,7 +42,7 @@ namespace Game1.Screens
         private SpriteFont spriteFont;
         private InstancingManager instancingManager;
         private Octree octree;
-        private ObjectManager objectManager;
+        public static ObjectManager objectManager;
         public static ItemManager itemManager;
         private PhaseManager phaseManager;
         private PathFinder pathfinder;

@@ -13,9 +13,18 @@ namespace Game1
         private List<DrawableObject> toAdd;
         private List<DrawableObject> toRemove;
 
+        private List<DrawableObject> listAlwaysDraw;
+        private List<DrawableObject> toAddAlwaysDraw;
+        private List<DrawableObject> toRemoveAlwaysDraw;
+
         public List<DrawableObject> List
         {
             get { return list; }
+        }
+
+        public List<DrawableObject> ListAlwaysDraw
+        {
+            get { return listAlwaysDraw; }
         }
 
         public ObjectManager()
@@ -23,6 +32,10 @@ namespace Game1
             list = new List<DrawableObject>();
             toAdd = new List<DrawableObject>();
             toRemove = new List<DrawableObject>();
+
+            listAlwaysDraw = new List<DrawableObject>();
+            toAddAlwaysDraw = new List<DrawableObject>();
+            toRemoveAlwaysDraw = new List<DrawableObject>();
         }
 
         public void Update(GameTime gameTime)
@@ -37,6 +50,22 @@ namespace Game1
             toAdd.Clear();
 
             foreach (DrawableObject dObject in list)
+            {
+                dObject.Update(gameTime);
+            }
+
+            //===
+
+            foreach (DrawableObject dObject in toRemoveAlwaysDraw)
+            {
+                listAlwaysDraw.Remove(dObject);
+            }
+            listAlwaysDraw.AddRange(toAddAlwaysDraw);
+
+            toRemoveAlwaysDraw.Clear();
+            toAddAlwaysDraw.Clear();
+
+            foreach (DrawableObject dObject in listAlwaysDraw)
             {
                 dObject.Update(gameTime);
             }
@@ -57,6 +86,11 @@ namespace Game1
                         dObject.Draw(camera);
                 }
             }
+
+            foreach (DrawableObject dObject in listAlwaysDraw)
+            {
+                dObject.Draw(camera);
+            }
         }
 
         public void Add(DrawableObject dObject)
@@ -69,5 +103,14 @@ namespace Game1
             toRemove.Add(dObject);
         }
 
+        public void AddAlwaysDraw(DrawableObject dObject)
+        {
+            toAddAlwaysDraw.Add(dObject);
+        }
+
+        public void RemoveAlwaysDraw(DrawableObject dObject)
+        {
+            toRemoveAlwaysDraw.Add(dObject);
+        }
     }
 }
