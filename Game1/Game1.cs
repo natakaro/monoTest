@@ -24,6 +24,7 @@ namespace Game1
         public GraphicsDeviceManager graphics;
         private ScreenManager screenManager;
         public GameSettings settings;
+        public static Random random;
         
         public int frames;
         public int framesPerSecond;
@@ -46,6 +47,8 @@ namespace Game1
             IsFixedTimeStep = false; //to ustawione na false albo vsync na true potrzebne
 
             settings = new GameSettings(this);
+
+            random = new Random();
 
             screenManager = new ScreenManager(this);
             Components.Add(screenManager);

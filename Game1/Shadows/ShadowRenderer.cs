@@ -1,4 +1,5 @@
 ﻿using Game1.Helpers;
+using Game1.Screens;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -354,6 +355,28 @@ namespace Game1.Shadows
                     }
                 }
             }
+
+            foreach (var item in GameplayScreen.itemManager.List)
+            {
+                foreach (var mesh in item.Model.Meshes)
+                {
+                    foreach (var meshPart in mesh.MeshParts)
+                        if (meshPart.PrimitiveCount > 0)
+                        {
+                            shadowMapEffect.WorldViewProjection = Matrix.CreateScale(item.Scale) * item.ModelBones[mesh.ParentBone.Index] * Matrix.CreateFromQuaternion(item.Orientation) * Matrix.CreateTranslation(item.Position) * worldViewProjection;
+                            shadowMapEffect.Apply();
+
+                            graphicsDevice.SetVertexBuffer(meshPart.VertexBuffer);
+                            graphicsDevice.Indices = meshPart.IndexBuffer;
+
+                            graphicsDevice.DrawIndexedPrimitives(
+                                PrimitiveType.TriangleList,
+                                meshPart.VertexOffset,
+                                meshPart.StartIndex, meshPart.PrimitiveCount);
+                        }
+                }
+            }
+
 
             //SplitAllObjects shadowMapObjects = octree.AllObjectsSplit();
 

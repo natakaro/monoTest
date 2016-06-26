@@ -98,7 +98,6 @@ namespace Game1
             float horiz = width;
             Dictionary<AxialCoordinate, DrawableObject> assetDictionary = new Dictionary<AxialCoordinate, DrawableObject>();
             List<HexOffsetH> map = readMapOffset(tex);
-            Random rand = new Random();
             int i = 0;
             foreach (HexOffsetH coord in map)
             {
@@ -106,7 +105,7 @@ namespace Game1
                 var axial = coord.oddQ_toCube().ToAxial();
                 var position = tileFromAxial(axial, GameplayScreen.map).Position;
                 
-                float temp = rand.Next(0, 359);
+                float temp = Game1.random.Next(0, 359);
                 Matrix worldm = Matrix.CreateRotationY(MathHelper.ToRadians(temp)) * Matrix.CreateTranslation(position);
                 int id = (int)coord.height;
 

@@ -43,11 +43,11 @@ namespace Game1.Screens
         private InstancingManager instancingManager;
         private Octree octree;
         private ObjectManager objectManager;
-        private ItemManager itemManager;
+        public static ItemManager itemManager;
         private PhaseManager phaseManager;
         private PathFinder pathfinder;
         public static ParticleManager particleManager;
-        private HUDManager hudManager;
+        public static HUDManager hudManager;
         private Stats stats;
         public static AssetContentContainer assetContentContainer;
 

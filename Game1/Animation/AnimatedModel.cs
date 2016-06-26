@@ -179,7 +179,7 @@ namespace Game1
         /// <param name="graphics">The graphics device to draw on</param>
         /// <param name="camera">A camera to determine the view</param>
         /// <param name="world">A world matrix to place the model</param>
-        public void Draw(GraphicsDevice graphics, Camera camera, Matrix world, ContentManager content, float dissolveAmount = 0)
+        public void Draw(GraphicsDevice graphics, Camera camera, Matrix world, ContentManager content, float dissolveAmount = 0, bool chilled = false)
         {
             if (model == null)
                 return;
@@ -223,13 +223,17 @@ namespace Game1
                         part.Effect.Parameters["FarClip"].SetValue(camera.FarZ);
                         part.Effect.Parameters["DissolveMap"].SetValue(GameplayScreen.assetContentContainer.dissolveTexture);
                         part.Effect.Parameters["DissolveThreshold"].SetValue(dissolveAmount);
+                        part.Effect.Parameters["EdgeMap"].SetValue(GameplayScreen.assetContentContainer.edgeTexture);
+                        if (chilled)
+                            part.Effect.Parameters["Chilled"].SetValue(chilled);
+
                     }
                 }
                 mesh.Draw();
             }
         }
 
-        public void Draw(GraphicsDevice graphics, Camera camera, Matrix world, ContentManager content, Texture2D tex, float dissolveAmount = 0)
+        public void Draw(GraphicsDevice graphics, Camera camera, Matrix world, ContentManager content, Texture2D tex, float dissolveAmount = 0, bool chilled = false)
         {
             if (model == null)
                 return;
@@ -275,6 +279,7 @@ namespace Game1
                         part.Effect.Parameters["DissolveMap"].SetValue(GameplayScreen.assetContentContainer.dissolveTexture);
                         part.Effect.Parameters["DissolveThreshold"].SetValue(dissolveAmount);
                         part.Effect.Parameters["EdgeMap"].SetValue(GameplayScreen.assetContentContainer.edgeTexture);
+                        part.Effect.Parameters["Chilled"].SetValue(chilled);
                     }
                 }
                 mesh.Draw();

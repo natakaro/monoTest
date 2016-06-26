@@ -164,7 +164,7 @@ namespace Game1.Spells
                     {
                         if (dObj.Type == DrawableObject.ObjectType.Tile)
                         {
-                            Turret turret = new Turret(game, Matrix.CreateTranslation(dObj.Position), smallTurretModel, octree, objectManager, smallTurretTexture, lightManager, particleManager);
+                            Turret turret = new Turret(game, Matrix.CreateTranslation(dObj.Position), smallTurretModel, camera, octree, objectManager, smallTurretTexture, lightManager, particleManager);
                             Octree.AddObject(turret);
                             spellReady = false;
                         }
@@ -186,7 +186,7 @@ namespace Game1.Spells
                     {
                         if (dObj.Type == DrawableObject.ObjectType.Tile)
                         {
-                            Turret turret = new Turret(game, Matrix.CreateTranslation(dObj.Position), bigTurretModel, octree, objectManager, bigTurretTexture, lightManager, particleManager);
+                            Turret turret = new Turret(game, Matrix.CreateTranslation(dObj.Position), bigTurretModel, camera, octree, objectManager, bigTurretTexture, lightManager, particleManager);
                             Octree.AddObject(turret);
                             spellReady = false;
                         }

@@ -1,6 +1,7 @@
 ﻿using Game1.Helpers;
 using Game1.HUD;
 using Game1.Particles;
+using Game1.Turrets;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Game1.Spells
 {
-    class SpellIceProjectile : DrawableObject
+    class IceProjectile : DrawableObject
     {
         private HUDManager hudManager;
         private ObjectManager objectManager;
@@ -67,7 +68,7 @@ namespace Game1.Spells
             return ret;
         }
 
-        public SpellIceProjectile(Game game, Matrix inWorldMatrix, Model inModel, Texture2D texture, Octree octree, ObjectManager objectManager,
+        public IceProjectile(Game game, Matrix inWorldMatrix, Model inModel, Texture2D texture, Octree octree, ObjectManager objectManager,
                                        HUDManager hudManager, float damage,
                                        ParticleSystem iceExplosionParticles,
                                        ParticleSystem iceExplosionSnowParticles,
@@ -84,8 +85,6 @@ namespace Game1.Spells
 
             this.damage = damage;
 
-            hitEvent += hudManager.Crosshair.HandleHitEvent;
-
             this.iceExplosionParticles = iceExplosionParticles;
             this.iceExplosionSnowParticles = iceExplosionSnowParticles;
             trailEmitter = new ParticleEmitter(iceProjectileTrailParticles,
@@ -99,9 +98,21 @@ namespace Game1.Spells
                 if (ir.DrawableObjectObject.Type == ObjectType.Enemy)
                 {
                     OnHitEvent();
-                    Enemy hitEnemy = (Enemy)ir.DrawableObjectObject;
-                    hitEnemy.Damage(damage);
+                    Enemy hitEnemy = ir.DrawableObjectObject as Enemy;
+                    hitEnemy.Damage(damage, DamageType.Ice);
                     Destroy();
+                }
+
+                else if (ir.DrawableObjectObject.Type == ObjectType.Turret)
+                {
+                    Turret turret = ir.DrawableObjectObject as Turret;
+
+                    if (turret.mode != Mode.IceLeft)
+                    {
+                        OnHitEvent();
+                        turret.SwitchMode(Mode.IceLeft);
+                        Destroy(false);
+                    }
                 }
 
                 else if ((ir.DrawableObjectObject.Type == ObjectType.Tile) || (ir.DrawableObjectObject.Type == ObjectType.Asset))
@@ -111,13 +122,16 @@ namespace Game1.Spells
             }
         }
 
-        private void Destroy()
+        private void Destroy(bool explosion = true)
         {
-            for (int i = 0; i < numExplosionParticles; i++)
-                iceExplosionParticles.AddParticle(position, -velocity * 0.02f);
+            if (explosion)
+            {
+                for (int i = 0; i < numExplosionParticles; i++)
+                    iceExplosionParticles.AddParticle(position, -velocity * 0.02f);
 
-            for (int i = 0; i < numExplosionSnowParticles; i++)
-                iceExplosionSnowParticles.AddParticle(position, -velocity * 0.02f);
+                for (int i = 0; i < numExplosionSnowParticles; i++)
+                    iceExplosionSnowParticles.AddParticle(position, -velocity * 0.02f);
+            }
 
             hitEvent -= hudManager.Crosshair.HandleHitEvent;
             Alive = false;

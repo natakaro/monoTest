@@ -14,6 +14,11 @@ using Game1.Screens;
 
 namespace Game1
 {
+    public enum DamageType
+    {
+        Fire = 0,
+        Ice = 1
+    }
     public class Enemy : DrawableObject
     {
         //Ray positionray;
@@ -42,6 +47,10 @@ namespace Game1
 
         protected float spawnAge;
         protected const float spawnLength = 1f;
+
+        protected bool chilled = false;
+        protected float chilledAge;
+        protected float chilledLength;
 
         public float MaxHealth
         {
@@ -78,59 +87,6 @@ namespace Game1
             dissolveAmount = 1;
         }
 
-        //ten ble stary
-        public bool Update(GameTime gameTime, Octree octree, List<Tile> path)
-        {
-            Dictionary<AxialCoordinate, Tile> map = GameplayScreen.map;
-
-            if (path.Count != 0)
-            {
-                try
-                {
-                    targetTile = path[tileNumber];
-                    Vector3 direction = Vector3.Normalize(targetTile.Position - position);
-                    Vector3 directionXZ = Vector3.Normalize(new Vector3(targetTile.Position.X, 0, targetTile.Position.Z) - new Vector3(position.X, 0, position.Z));
-                    velocity = speed * directionXZ;
-
-                    Tile tile = tileFromPosition(position, map);
-
-                    if (tile != null)
-                    {
-                        distance = boundingBox.Min.Y - tile.BoundingBox.Max.Y;
-                        boundingBox.Min.Y -= distance * gravity / 10 * (float)(gameTime.ElapsedGameTime.TotalSeconds);
-                    }
-                    if (tile == null)
-                        boundingBox.Min.Y -= gravity * (float)(gameTime.ElapsedGameTime.TotalSeconds);
-
-                    boundingBox.Max.Y = boundingBox.Min.Y + a;
-                    position.Y = boundingBox.Min.Y + b;
-
-                    targetRotation = (float)Math.Atan2((double)(targetTile.Position.X - position.X), (double)(targetTile.Position.Z - position.Z));
-
-                    worldMatrix = Matrix.CreateRotationY(targetRotation) * Matrix.CreateTranslation(position);
-
-                    while (Vector3.Distance(position, targetTile.Position) < 25 && tileNumber < path.Count)
-                    {
-                        tileNumber++;
-                        targetTile = path[tileNumber];
-                    }
-
-                    //if (Vector3.Distance(position, targetTile.Position) < 25 && tileNumber < path.Count)
-                    //{
-                    //    tileNumber++;
-                    //}
-                }
-                catch
-                {
-                    alive = false;
-                }
-
-            }
-            bool ret = base.Update(gameTime);
-
-            return ret;
-        }
-
         public override bool Update(GameTime gameTime)
         {
             bool ret = base.Update(gameTime);
@@ -141,9 +97,10 @@ namespace Game1
             }
             else
             {
+                float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
                 if (dissolveAmount >= 0)
                 {
-                    float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
                     spawnAge += elapsedTime;
 
                     dissolveAmount = MathHelper.Lerp(1, 0, spawnAge / spawnLength);
@@ -159,6 +116,18 @@ namespace Game1
                     Vector3 direction = Vector3.Normalize(targetPosition - position);
                     Vector3 directionXZ = Vector3.Normalize(new Vector3(targetPosition.X, 0, targetPosition.Z) - new Vector3(position.X, 0, position.Z));
                     velocity = speed * direction;
+
+                    if (chilled)
+                    {
+                        velocity /= 2;
+                        chilledAge += elapsedTime;
+
+                        if (chilledAge > chilledLength)
+                        {
+                            chilled = false;
+                            chilledAge = 0;
+                        }
+                    }
 
                     //Tile tile = tileFromPosition(position, map);
 
@@ -213,9 +182,15 @@ namespace Game1
             
         }*/
 
-        public void Damage(float value)
+        public void Damage(float value, DamageType type)
         {
             CurrentHealth -= value;
+            if (type == DamageType.Ice)
+            {
+                chilled = true;
+                chilledAge = 0;
+                chilledLength = 5;
+            }
         }
 
         public virtual void Die(GameTime gameTime)
@@ -227,7 +202,7 @@ namespace Game1
 
             if (deathAge > deathLength)
             {
-                itemManager.Spawn(position);
+                itemManager.SpawnEssence(position);
                 Alive = false;
             }
         }

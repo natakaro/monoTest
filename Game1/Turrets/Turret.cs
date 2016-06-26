@@ -2,6 +2,7 @@
 using Game1.Lights;
 using Game1.Particles;
 using Game1.Screens;
+using Game1.Spells;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -13,9 +14,19 @@ using System.Threading.Tasks;
 
 namespace Game1.Turrets
 {
+    public enum Mode
+    {
+        Off = 0,
+        FireLeft = 1,
+        FireRight = 2,
+        IceLeft = 3,
+        IceRight = 4
+    }
+
     class Turret : DrawableObject
     {
         Game game;
+        Camera camera;
         Texture2D texture;
         private PointLight pointLight;
         LightManager lightManager;
@@ -25,24 +36,39 @@ namespace Game1.Turrets
         public Model fireballModel;
         public Texture2D fireballTexture;
 
+        public Model iceboltModel;
+        public Texture2D iceboltTexture;
+
         Vector3 shootStartPosition;
 
         float range;
         float projectileSpeed;
         float rateOfFire;
         float damage;
+        float particlesPerSecond;
+        float timeBetweenParticles;
+        float timeLeftOver;
 
         BoundingSphere rangeSphere;
         List<DrawableObject> enemiesInRange;
         Enemy currentTarget;
-        Stopwatch shootStopwatch;
+
+        float timer = 0;
 
         protected float spawnAge;
         protected const float spawnLength = 2f;
 
-        public Turret(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ObjectManager objectManager, Texture2D inTexture, LightManager lightManager, ParticleManager particleManager) : base(game, inWorldMatrix, inModel, octree)
+        public Mode mode;
+
+        Vector3 direction;
+        private Matrix viewMatrix;
+        private Matrix projectionMatrix;
+        private BoundingFrustum frustum;
+
+        public Turret(Game game, Matrix inWorldMatrix, Model inModel, Camera camera, Octree octree, ObjectManager objectManager, Texture2D inTexture, LightManager lightManager, ParticleManager particleManager) : base(game, inWorldMatrix, inModel, octree)
         {
             this.game = game;
+            this.camera = camera;
             this.lightManager = lightManager;
             this.objectManager = objectManager;
             this.particleManager = particleManager;
@@ -60,19 +86,24 @@ namespace Game1.Turrets
             fireballModel = game.Content.Load<Model>("Models/fireball");
             fireballTexture = game.Content.Load<Texture2D>("Textures/firedot");
 
-            range = 250;
-            projectileSpeed = 100;
-            rateOfFire = 500;
-            damage = 10;
+            iceboltModel = game.Content.Load<Model>("Models/icebolt");
+            iceboltTexture = game.Content.Load<Texture2D>("Textures/icebolt");
+
+            range = 0;
+            projectileSpeed = 0;
+            rateOfFire = 0;
+            damage = 0;
+            particlesPerSecond = 0;
             rangeSphere = new BoundingSphere(shootStartPosition, range);
+            frustum = new BoundingFrustum(camera.ViewProjectionMatrix);
 
             enemiesInRange = new List<DrawableObject>();
             currentTarget = null;
 
-            shootStopwatch = new Stopwatch();
-
             dissolveAmount = 1;
             scale = 1;
+
+            mode = Mode.Off;
         }
 
         public override void Draw(Camera camera)
@@ -95,6 +126,55 @@ namespace Game1.Turrets
             }
         }
 
+        public void SwitchMode(Mode argument)
+        {
+            this.mode = argument;
+            switch (mode)
+            {
+                case Mode.Off:
+                    range = 0;
+                    projectileSpeed = 0;
+                    rateOfFire = 0;
+                    damage = 0;
+                    rangeSphere = new BoundingSphere(shootStartPosition, range);
+                    break;
+                case Mode.FireLeft:
+                    range = 250;
+                    projectileSpeed = 400;
+                    rateOfFire = 1000;
+                    damage = 10;
+                    rangeSphere = new BoundingSphere(shootStartPosition, range);
+                    break;
+                case Mode.FireRight:
+                    range = 100;
+                    projectileSpeed = 0;
+                    rateOfFire = 50;
+                    damage = 1;
+                    particlesPerSecond = 250;
+                    timeBetweenParticles = 1.0f / particlesPerSecond;
+                    rangeSphere = new BoundingSphere(shootStartPosition, range);
+                    projectionMatrix = Matrix.CreatePerspective(7.5f, 4.2f, 15f, range);
+                    break;
+                case Mode.IceLeft:
+                    range = 250;
+                    projectileSpeed = 250;
+                    rateOfFire = 1000;
+                    damage = 10;
+                    rangeSphere = new BoundingSphere(shootStartPosition, range);
+                    break;
+                case Mode.IceRight:
+                    range = 100;
+                    projectileSpeed = 0;
+                    rateOfFire = 50;
+                    damage = 1;
+                    particlesPerSecond = 250;
+                    timeBetweenParticles = 1.0f / particlesPerSecond;
+                    rangeSphere = new BoundingSphere(shootStartPosition, range);
+                    projectionMatrix = Matrix.CreatePerspective(7.5f, 4.2f, 15f, range);
+                    break;
+            }
+        }
+
         public override bool Update(GameTime gameTime)
         {
             bool ret = base.Update(gameTime);
@@ -113,9 +193,12 @@ namespace Game1.Turrets
                 //scale = 1;
             }
 
-            SearchForEnemies();
-            TargetClosest();
-            Shoot(gameTime);
+            if (mode != Mode.Off)
+            {
+                SearchForEnemies();
+                TargetClosest();
+                Shoot(gameTime);
+            }
 
             return ret;
         }
@@ -131,6 +214,7 @@ namespace Game1.Turrets
 
         private void TargetClosest()
         {
+            currentTarget = null;
             float distance = float.MaxValue;
 
             foreach(Enemy enemy in enemiesInRange)
@@ -148,24 +232,115 @@ namespace Game1.Turrets
         {
             if (currentTarget != null && currentTarget.Alive)
             {
-                shootStopwatch.Start();
+                float elapsedMs = (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+                timer += elapsedMs;
 
-                if (shootStopwatch.ElapsedMilliseconds > rateOfFire)
+                float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+                Vector3 interception = currentTarget.Position + new Vector3(0, 20, 0);
+                direction = Vector3.Normalize(interception - shootStartPosition);
+
+                switch (mode)
                 {
-                    //Vector3 interception = currentTarget.Position + new Vector3(0, 20, 30);
-                    Vector3 interception = iterative_approximation(currentTarget.Position + new Vector3(0, 20, 0), currentTarget.Velocity, projectileSpeed);
-                    //Vector3 interception = direct_solution(currentTarget.Position + new Vector3(0, 20, 0), currentTarget.Velocity, projectileSpeed);
-                    Vector3 direction = Vector3.Normalize(interception - shootStartPosition);
+                    case Mode.FireLeft:
+                        if (timer > rateOfFire)
+                        {
+                            //interception = currentTarget.Position + new Vector3(0, 20, 0);
+                            interception = iterative_approximation(currentTarget.Position + new Vector3(0, 20, 0), currentTarget.Velocity, projectileSpeed);
+                            //interception = direct_solution(currentTarget.Position + new Vector3(0, 20, 0), currentTarget.Velocity, projectileSpeed);
+                            direction = Vector3.Normalize(interception - shootStartPosition);
 
-                    TurretProjectile projectile = new TurretProjectile(game, Matrix.CreateTranslation(shootStartPosition), fireballModel, octree, objectManager, lightManager, damage, particleManager.explosionParticles, particleManager.explosionSmokeParticles, particleManager.fireProjectileTrailParticles, particleManager.projectileTrailHeadParticles);
-                    
-                    projectile.Position = shootStartPosition;
-                    projectile.Velocity = direction * projectileSpeed;
-                    //projectile.Acceleration = direction * 10;
-                    objectManager.Add(projectile);
-                    //octree.AddObject(projectile);
+                            FireProjectile projectile = new FireProjectile(game, Matrix.CreateTranslation(shootStartPosition), fireballModel, octree, objectManager, lightManager, GameplayScreen.hudManager, damage, particleManager.explosionParticles, particleManager.explosionSmokeParticles, particleManager.fireProjectileTrailParticles, particleManager.projectileTrailHeadParticles);
 
-                    shootStopwatch.Reset();
+                            projectile.Position = shootStartPosition;
+                            projectile.Velocity = direction * projectileSpeed;
+                            objectManager.Add(projectile);
+
+                            timer = 0;
+                        }
+                        break;
+
+                    case Mode.IceLeft:
+                        if (timer > rateOfFire)
+                        {
+                            //Vector3 interception = currentTarget.Position + new Vector3(0, 20, 0);
+                            interception = iterative_approximation(currentTarget.Position + new Vector3(0, 20, 0), currentTarget.Velocity, projectileSpeed);
+                            //Vector3 interception = direct_solution(currentTarget.Position + new Vector3(0, 20, 0), currentTarget.Velocity, projectileSpeed);
+                            direction = Vector3.Normalize(interception - shootStartPosition);
+
+                            IceProjectile projectile = new IceProjectile(game, Matrix.CreateTranslation(shootStartPosition), iceboltModel, iceboltTexture, octree, objectManager, GameplayScreen.hudManager, damage, particleManager.iceExplosionParticles, particleManager.iceExplosionSnowParticles, particleManager.iceProjectileTrailParticles);
+
+                            projectile.Position = shootStartPosition;
+                            projectile.Velocity = direction * projectileSpeed;
+                            objectManager.Add(projectile);
+
+                            timer = 0;
+                        }
+                        break;
+
+                    case Mode.FireRight:
+                        viewMatrix = Matrix.CreateLookAt(shootStartPosition, interception, Vector3.Up);
+                        frustum.Matrix = viewMatrix * projectionMatrix;
+                        Vector3 firePosition = shootStartPosition + direction * 15;
+                        Vector3 fireVelocity = direction * 50;
+
+                        float timeToSpendFire = timeLeftOver + elapsedTime;
+                        float currentTimeFire = -timeLeftOver;
+
+                        while (timeToSpendFire > timeBetweenParticles)
+                        {
+                            currentTimeFire += timeBetweenParticles;
+                            timeToSpendFire -= timeBetweenParticles;
+                            particleManager.fireParticles.AddParticle(firePosition, fireVelocity);
+                        }
+
+                        if (timer > rateOfFire)
+                        {
+                            List<IntersectionRecord> hitList = octree.AllIntersections(frustum, ObjectType.Enemy);
+
+                            foreach (IntersectionRecord ir in hitList)
+                            {
+                                Enemy enemy = ir.DrawableObjectObject as Enemy;
+                                enemy.Damage(damage, DamageType.Fire);
+                            }
+
+                            timer = 0;
+                        }
+                        timeLeftOver = timeToSpendFire;
+                        //DebugShapeRenderer.AddBoundingFrustum(frustum, Color.White);
+                        break;
+
+                    case Mode.IceRight:
+                        viewMatrix = Matrix.CreateLookAt(shootStartPosition, interception, Vector3.Up);
+                        frustum.Matrix = viewMatrix * projectionMatrix;
+                        Vector3 icePosition = shootStartPosition + direction * 15;
+                        Vector3 iceVelocity = direction * 25;
+
+                        float timeToSpendIce = timeLeftOver + elapsedTime;
+                        float currentTimeIce = -timeLeftOver;
+
+                        while (timeToSpendIce > timeBetweenParticles)
+                        {
+                            currentTimeIce += timeBetweenParticles;
+                            timeToSpendIce -= timeBetweenParticles;
+                            particleManager.iceParticles.AddParticle(icePosition, iceVelocity);
+                        }
+
+                        if (timer > rateOfFire)
+                        {
+                            List<IntersectionRecord> hitList = octree.AllIntersections(frustum, ObjectType.Enemy);
+
+                            foreach (IntersectionRecord ir in hitList)
+                            {
+                                Enemy enemy = ir.DrawableObjectObject as Enemy;
+                                enemy.Damage(damage, DamageType.Ice);
+                            }
+
+                            timer = 0;
+                        }
+                        timeLeftOver = timeToSpendIce;
+                        //DebugShapeRenderer.AddBoundingFrustum(frustum, Color.White);
+                        break;
                 }
             }
         }

@@ -22,6 +22,9 @@ namespace Game1.Items
         private Model essenceModel;
         private Texture2D essenceTexture;
 
+        private Model heartModel;
+        private Texture2D heartTexture;
+
         private List<Item> list;
         private List<Item> toAdd;
         private List<Item> toRemove;
@@ -34,6 +37,7 @@ namespace Game1.Items
         public ItemManager(Game game, ContentManager content, Octree octree, ObjectManager objectManager, LightManager lightManager, Stats stats)
         {
             this.game = game;
+            this.content = content;
             this.octree = octree;
             this.objectManager = objectManager;
             this.lightManager = lightManager;
@@ -43,8 +47,11 @@ namespace Game1.Items
             toAdd = new List<Item>();
             toRemove = new List<Item>();
 
-            essenceModel = content.Load<Model>("Models/turret");
-            essenceTexture = content.Load<Texture2D>("Textures/turret");
+            essenceModel = content.Load<Model>("Models/crystal");
+            essenceTexture = content.Load<Texture2D>("Textures/crystal");
+
+            heartModel = content.Load<Model>("Models/crystal");
+            heartTexture = content.Load<Texture2D>("Textures/heart");
         }
 
         public void Update(GameTime gameTime, Vector3 cameraPosition)
@@ -86,9 +93,22 @@ namespace Game1.Items
         }
 
 
-        public void Spawn(Vector3 position)
+        public void SpawnEssence(Vector3 position)
         {
-            Item item = new Item(game, Matrix.CreateTranslation(position), essenceModel, octree, this, essenceTexture, lightManager, stats);
+            float randomAngle = Game1.random.Next(0, 359);
+            Matrix worldMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(randomAngle)) * Matrix.CreateTranslation(position);
+
+            Essence item = new Essence(game, worldMatrix, essenceModel, octree, this, essenceTexture, lightManager, stats);
+            item.Position = position;
+            Add(item);
+        }
+
+        public void SpawnHeart(Vector3 position)
+        {
+            float randomAngle = Game1.random.Next(0, 359);
+            Matrix worldMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(randomAngle)) * Matrix.CreateTranslation(position);
+
+            Heart item = new Heart(game, worldMatrix, heartModel, octree, this, heartTexture, lightManager, stats);
             item.Position = position;
             Add(item);
         }

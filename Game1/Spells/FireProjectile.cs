@@ -11,10 +11,12 @@ using Game1.Lights;
 using System.Diagnostics;
 using Game1.HUD;
 using Game1.Particles;
+using Game1.Turrets;
+using Game1.Screens;
 
 namespace Game1.Spells
 {
-    class SpellFireProjectile : DrawableObject
+    class FireProjectile : DrawableObject
     {
         private PointLight pointLight;
         private LightManager lightManager;
@@ -73,7 +75,7 @@ namespace Game1.Spells
             return ret;
         }
 
-        public SpellFireProjectile(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ObjectManager objectManager, 
+        public FireProjectile(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ObjectManager objectManager, 
                                        LightManager lightManager, HUDManager hudManager, float damage,
                                        ParticleSystem explosionParticles,
                                        ParticleSystem explosionSmokeParticles,
@@ -94,8 +96,6 @@ namespace Game1.Spells
 
             this.damage = damage;
 
-            hitEvent += hudManager.Crosshair.HandleHitEvent;
-
             this.explosionParticles = explosionParticles;
             this.explosionSmokeParticles = explosionSmokeParticles;
             trailEmitter = new ParticleEmitter(fireProjectileTrailParticles,
@@ -112,8 +112,19 @@ namespace Game1.Spells
                 {
                     OnHitEvent();
                     Enemy hitEnemy = (Enemy)ir.DrawableObjectObject;
-                    hitEnemy.Damage(damage);
+                    hitEnemy.Damage(damage, DamageType.Fire);
                     Destroy();
+                }
+
+                else if (ir.DrawableObjectObject.Type == ObjectType.Turret)
+                {
+                    Turret turret = ir.DrawableObjectObject as Turret;
+                    if (turret.mode != Mode.FireLeft)
+                    {
+                        OnHitEvent();
+                        turret.SwitchMode(Mode.FireLeft);
+                        Destroy(false);
+                    }
                 }
 
                 else if ((ir.DrawableObjectObject.Type == ObjectType.Tile) || (ir.DrawableObjectObject.Type == ObjectType.Asset))
@@ -123,16 +134,20 @@ namespace Game1.Spells
             }
         }
 
-        private void Destroy()
+        private void Destroy(bool explosion = true)
         {
-            for (int i = 0; i < numExplosionParticles; i++)
-                explosionParticles.AddParticle(position, -velocity * 0.02f);
+            if (explosion)
+            {
+                for (int i = 0; i < numExplosionParticles; i++)
+                    explosionParticles.AddParticle(position, -velocity * 0.02f);
 
-            for (int i = 0; i < numExplosionSmokeParticles; i++)
-                explosionSmokeParticles.AddParticle(position, -velocity * 0.02f);
+                for (int i = 0; i < numExplosionSmokeParticles; i++)
+                    explosionSmokeParticles.AddParticle(position, -velocity * 0.02f);
+            }
 
             hitEvent -= hudManager.Crosshair.HandleHitEvent;
             lightManager.RemoveLight(pointLight);
+
             Alive = false;
             objectManager.Remove(this);
         }

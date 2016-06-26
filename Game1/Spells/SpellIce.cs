@@ -1,6 +1,7 @@
 ﻿using Game1.HUD;
 using Game1.Lights;
 using Game1.Particles;
+using Game1.Turrets;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -45,6 +46,8 @@ namespace Game1.Spells
         private float rightDamage;
         private float projectileSpeed;
         private float particlesPerSecond;
+        private float timeBetweenParticles;
+        private float timeLeftOver;
         private float coneRange;
 
         private float timer;
@@ -132,15 +135,22 @@ namespace Game1.Spells
                     {
                         if (stats.currentMana > 0)
                         {
-                            float elapsedTime = (float)gameTime.ElapsedGameTime.TotalMilliseconds;
-                            timer += elapsedTime;
-
                             frustum.Matrix = camera.ViewMatrix * projectionMatrix;
                             Vector3 position = camera.Position + camera.ViewDirection * 15 + new Vector3(0, -3, 0);
                             Vector3 velocity = camera.ViewDirection * 25;
 
-                            for (int i = 0; i < particlesPerSecond / elapsedTime; i++)
+                            float elapsedMs = (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+                            timer += elapsedMs;
+
+                            float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+                            float timeToSpend = timeLeftOver + elapsedTime;
+                            float currentTime = -timeLeftOver;
+
+                            while (timeToSpend > timeBetweenParticles)
                             {
+                                currentTime += timeBetweenParticles;
+                                timeToSpend -= timeBetweenParticles;
                                 particleManager.iceParticles.AddParticle(position, velocity);
                             }
 
@@ -149,16 +159,29 @@ namespace Game1.Spells
 
                             if (timer > 50)
                             {
-                                List<IntersectionRecord> hitList = octree.AllIntersections(frustum, DrawableObject.ObjectType.Enemy);
+                                List<IntersectionRecord> hitList = octree.AllIntersections(frustum);
                                 foreach (IntersectionRecord ir in hitList)
                                 {
-                                    Enemy enemy = ir.DrawableObjectObject as Enemy;
-                                    enemy.Damage(rightDamage);
-                                    OnHitEvent();
+                                    if (ir.DrawableObjectObject.Type == DrawableObject.ObjectType.Enemy)
+                                    {
+                                        OnHitEvent();
+                                        Enemy enemy = ir.DrawableObjectObject as Enemy;
+                                        enemy.Damage(rightDamage, DamageType.Ice);
+                                    }
+                                    else if (ir.DrawableObjectObject.Type == DrawableObject.ObjectType.Turret)
+                                    {
+                                        Turret turret = ir.DrawableObjectObject as Turret;
+                                        if (turret.mode != Mode.IceRight)
+                                        {
+                                            OnHitEvent();
+                                            turret.SwitchMode(Mode.IceRight);
+                                        }
+                                    }
                                 }
                                 timer = 0;
                             }
 
+                            timeLeftOver = timeToSpend;
                             //DebugShapeRenderer.AddBoundingFrustum(frustum, Color.White);
                         }
                         else
@@ -187,7 +210,7 @@ namespace Game1.Spells
                 {
                     if (spellReady == true)
                     {
-                        SpellIceProjectile iceBolt = new SpellIceProjectile(game, camera.WeaponWorldMatrix(2, -2, 2, 1) /*Matrix.CreateTranslation(camera.Position)*/, iceboltModel, iceboltTexture, octree, objectManager, hudManager, leftDamage, particleManager.iceExplosionParticles, particleManager.iceExplosionSnowParticles, particleManager.iceProjectileTrailParticles);
+                        IceProjectile iceBolt = new IceProjectile(game, camera.WeaponWorldMatrix(2, -2, 2, 1) /*Matrix.CreateTranslation(camera.Position)*/, iceboltModel, iceboltTexture, octree, objectManager, hudManager, leftDamage, particleManager.iceExplosionParticles, particleManager.iceExplosionSnowParticles, particleManager.iceProjectileTrailParticles);
                         iceBolt.Velocity = camera.ViewDirection * projectileSpeed;
                         objectManager.Add(iceBolt);
                         spellReady = false;
@@ -218,9 +241,10 @@ namespace Game1.Spells
                         for (int i = 0; i < 16; i++)
                         {
                             Vector3 direction = Vector3.Transform(new Vector3(camera.ViewDirection.X, 0, camera.ViewDirection.Z), Quaternion.CreateFromAxisAngle(Vector3.Up, MathHelper.ToRadians((360 / 16) * i)));
-                            SpellIceProjectile iceBolt = new SpellIceProjectile(game, Matrix.CreateTranslation(camera.Position), iceboltModel, iceboltTexture, octree, objectManager, hudManager, leftDamage, particleManager.iceExplosionParticles, particleManager.iceExplosionSnowParticles, particleManager.iceProjectileTrailParticles);
+                            IceProjectile iceBolt = new IceProjectile(game, Matrix.CreateTranslation(camera.Position), iceboltModel, iceboltTexture, octree, objectManager, hudManager, leftDamage, particleManager.iceExplosionParticles, particleManager.iceExplosionSnowParticles, particleManager.iceProjectileTrailParticles);
                             iceBolt.Velocity = direction * 100;
                             objectManager.Add(iceBolt);
+                            iceBolt.hitEvent += hudManager.Crosshair.HandleHitEvent;
                             spellReady = false;
                         }
                     }
@@ -258,11 +282,12 @@ namespace Game1.Spells
             dualCastSpeed = 1000;
 
             leftDamage = 50;
-            rightDamage = 2;
+            rightDamage = 1;
             projectileSpeed = 250;
             coneRange = 150f;
 
             particlesPerSecond = 250;
+            timeBetweenParticles = 1.0f / particlesPerSecond;
 
             iceboltModel = game.Content.Load<Model>("Models/icebolt");
             iceboltTexture = game.Content.Load<Texture2D>("Textures/icebolt");

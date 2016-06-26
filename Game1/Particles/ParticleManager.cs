@@ -32,6 +32,8 @@ namespace Game1.Particles
         public ParticleSystem portalParticlesFriendly;
         public ParticleSystem portalParticlesEnemy;
 
+        public ParticleSystem lootParticles;
+
         List<ParticleSystem> particleSystems;
 
         public ParticleManager(Game game, ContentManager Content)
@@ -58,6 +60,8 @@ namespace Game1.Particles
 
             portalParticlesFriendly = new PortalParticleSystemFriendly(game, Content);
             portalParticlesEnemy = new PortalParticleSystemEnemy(game, Content);
+
+            lootParticles = new LootParticleSystem(game, Content);
 
             //// Set the draw order so the explosions and fire
             //// will appear over the top of the smoke.
@@ -86,6 +90,8 @@ namespace Game1.Particles
             
             particleSystems.Add(portalParticlesFriendly);
             particleSystems.Add(portalParticlesEnemy);
+
+            particleSystems.Add(lootParticles);
 
             foreach (ParticleSystem system in particleSystems)
             {

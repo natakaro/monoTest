@@ -54,15 +54,7 @@ namespace Game1
             }
             else
             {
-                if (dissolveAmount >= 0)
-                {
-                    float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-                    spawnAge += elapsedTime;
-
-                    dissolveAmount = MathHelper.Lerp(1, 0, spawnAge / spawnLength);
-                }
-                else
-                    dissolveAmount = 0;
+                float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
                 Dictionary<AxialCoordinate, Tile> map = GameplayScreen.map;
 
@@ -74,9 +66,20 @@ namespace Game1
                     Vector3 directionXZ = Vector3.Normalize(distance);
                     velocity = speed * direction;
 
-                    Vector3 dist2 = path[tileNumber - 1] - position;
-                    position.Y += 5 * dist2.Y * (float)(gameTime.ElapsedGameTime.TotalSeconds);
+                    if (chilled)
+                    {
+                        velocity /= 2;
+                        chilledAge += elapsedTime;
 
+                        if (chilledAge > chilledLength)
+                        {
+                            chilled = false;
+                            chilledAge = 0;
+                        }
+                    }
+
+                    //Vector3 dist2 = path[tileNumber - 1] - position;
+                    //position.Y += 5 * dist2.Y * (float)(gameTime.ElapsedGameTime.TotalSeconds);
 
                     //Tile tile = tileFromPosition(position, map);
 
@@ -122,6 +125,7 @@ namespace Game1
                 else
                     alive = false;
             }
+
             
             return ret;
         }
@@ -142,7 +146,7 @@ namespace Game1
                 mesh.Draw();
             }
             */
-            animatedModel.Draw(GraphicsDevice, camera, worldMatrix, Content, GameplayScreen.assetContentContainer.enemyFlyTexture, dissolveAmount);
+            animatedModel.Draw(GraphicsDevice, camera, worldMatrix, Content, GameplayScreen.assetContentContainer.enemyFlyTexture, dissolveAmount, chilled);
             //boundingBox = CollisionBox.CreateBoundingBox(animatedModel, position, 1, Matrix.CreateFromQuaternion(Orientation)); // dostosowywany boundingbox
         }
 
