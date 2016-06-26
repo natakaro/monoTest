@@ -193,6 +193,7 @@ namespace Game1.Screens
 
                 for (int i = 0; i < menuEntries.Count; i++)
                 {
+                    
                     if (input.LastMouseState.Y > menuEntries[i].Position.Y - menuEntries[i].GetHeight(this) / 2 &&
                         input.LastMouseState.Y < menuEntries[i].Position.Y + menuEntries[i].GetHeight(this) / 2 &&
                         input.LastMouseState.X > menuEntries[i].Position.X &&
@@ -200,7 +201,6 @@ namespace Game1.Screens
                     {
                         selectedEntry = i;
                     }
-
                     if (menuEntries[i].DrawArrows)
                     {
                         if (input.LastMouseState.Y > menuEntries[i].Position.Y - menuEntries[i].GetHeight(this) / 2 &&

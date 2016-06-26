@@ -154,12 +154,15 @@ namespace Game1.Screens
         public enum SpellType
         {
             Fire = 0,
-            MoveTerrain = 1,
-            CreateTurret = 2
+            Ice = 1,
+            MoveTerrain = 2,
+            CreateTurret = 3
         };
 
-        private SpellMoveTerrain spellMoveTerrain;
+        
         private SpellFire spellFire;
+        private SpellIce spellIce;
+        private SpellMoveTerrain spellMoveTerrain;
         private SpellCreateTurret spellCreateTurret;
 
         public static SpellType selectedSpell = SpellType.Fire;
@@ -335,8 +338,10 @@ namespace Game1.Screens
 
             camera.Octree = octree;
 
-            spellMoveTerrain = new SpellMoveTerrain(octree, stats, phaseManager, map);
+            
             spellFire = new SpellFire(ScreenManager.Game, camera, octree, objectManager, lightManager, particleManager, hudManager, stats);
+            spellIce = new SpellIce(ScreenManager.Game, camera, octree, objectManager, lightManager, particleManager, hudManager, stats);
+            spellMoveTerrain = new SpellMoveTerrain(octree, stats, phaseManager, map);
             spellCreateTurret = new SpellCreateTurret(ScreenManager.Game, camera, octree, objectManager, lightManager, particleManager, stats);          
 
             pathfinder = new PathFinder();
@@ -381,6 +386,9 @@ namespace Game1.Screens
                 case SpellType.Fire:
                     spellFire.Start(leftButton, rightButton);
                     break;
+                case SpellType.Ice:
+                    spellIce.Start(leftButton, rightButton);
+                    break;
                 case SpellType.MoveTerrain:
                     spellMoveTerrain.Start(leftButton, rightButton, selectedObject);
                     break;
@@ -397,6 +405,9 @@ namespace Game1.Screens
                 case SpellType.Fire:
                     spellFire.Continue(leftButton, rightButton, gameTime);
                     break;
+                case SpellType.Ice:
+                    spellIce.Continue(leftButton, rightButton, gameTime);
+                    break;
                 case SpellType.MoveTerrain:
                     spellMoveTerrain.Continue(leftButton, rightButton);
                     break;
@@ -412,6 +423,9 @@ namespace Game1.Screens
             {
                 case SpellType.Fire:
                     spellFire.Stop(leftButton, rightButton);
+                    break;
+                case SpellType.Ice:
+                    spellIce.Stop(leftButton, rightButton);
                     break;
                 case SpellType.MoveTerrain:
                     spellMoveTerrain.Stop(leftButton, rightButton);
@@ -566,10 +580,15 @@ namespace Game1.Screens
 
                 if (input.IsNewKeyPress(Keys.D2))
                 {
-                    selectedSpell = SpellType.MoveTerrain;
+                    selectedSpell = SpellType.Ice;
                 }
 
                 if (input.IsNewKeyPress(Keys.D3))
+                {
+                    selectedSpell = SpellType.MoveTerrain;
+                }
+
+                if (input.IsNewKeyPress(Keys.D4))
                 {
                     selectedSpell = SpellType.CreateTurret;
                 }

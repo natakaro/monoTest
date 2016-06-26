@@ -1,5 +1,4 @@
-﻿using Game1.Helpers;
-using Game1.HUD;
+﻿using Game1.HUD;
 using Game1.Lights;
 using Game1.Particles;
 using Microsoft.Xna.Framework;
@@ -13,13 +12,14 @@ using System.Threading.Tasks;
 
 namespace Game1.Spells
 {
-    public class SpellFire
+    public class SpellIce
     {
         private Game game;
         private Camera camera;
         private Octree octree;
         private ObjectManager objectManager;
-        private Model fireballModel;
+        private Model iceboltModel;
+        private Texture2D iceboltTexture;
         private LightManager lightManager;
         private ParticleManager particleManager;
         private HUDManager hudManager;
@@ -112,7 +112,7 @@ namespace Game1.Spells
                     stats.currentMana = startingMana - manaDeducted;
                 }
 
-                else if (leftButton == false && rightButton == true)  //cone - miotacz ognia bliskodystansowy
+                else if (leftButton == false && rightButton == true)  //cone
                 {
                     if (spellReady == false)
                     {
@@ -137,11 +137,11 @@ namespace Game1.Spells
 
                             frustum.Matrix = camera.ViewMatrix * projectionMatrix;
                             Vector3 position = camera.Position + camera.ViewDirection * 15 + new Vector3(0, -3, 0);
-                            Vector3 velocity = camera.ViewDirection * 50;
+                            Vector3 velocity = camera.ViewDirection * 25;
 
                             for (int i = 0; i < particlesPerSecond / elapsedTime; i++)
                             {
-                                particleManager.fireParticles.AddParticle(position, velocity);
+                                particleManager.iceParticles.AddParticle(position, velocity);
                             }
 
                             manaDeducted = (stopwatch.ElapsedMilliseconds / rightCastSpeed) * rightManaCost;
@@ -176,7 +176,7 @@ namespace Game1.Spells
                     }
                     stats.currentMana = startingMana - manaDeducted;
                 }
-            } 
+            }
         }
 
         public void Stop(bool leftButton, bool rightButton)
@@ -187,11 +187,9 @@ namespace Game1.Spells
                 {
                     if (spellReady == true)
                     {
-                        SpellFireProjectile fireball = new SpellFireProjectile(game, camera.WeaponWorldMatrix(2, -2, 2, 1) /*Matrix.CreateTranslation(camera.Position)*/, fireballModel, octree, objectManager, lightManager, hudManager, leftDamage, particleManager.explosionParticles, particleManager.explosionSmokeParticles, particleManager.fireProjectileTrailParticles, particleManager.projectileTrailHeadParticles);
-                        //fireball.Position = camera.Position;
-                        fireball.Velocity = camera.ViewDirection * projectileSpeed;
-                        objectManager.Add(fireball);
-                        //octree.m_objects.Add(fireball);
+                        SpellIceProjectile iceBolt = new SpellIceProjectile(game, camera.WeaponWorldMatrix(2, -2, 2, 1) /*Matrix.CreateTranslation(camera.Position)*/, iceboltModel, iceboltTexture, octree, objectManager, hudManager, leftDamage, particleManager.iceExplosionParticles, particleManager.iceExplosionSnowParticles, particleManager.iceProjectileTrailParticles);
+                        iceBolt.Velocity = camera.ViewDirection * projectileSpeed;
+                        objectManager.Add(iceBolt);
                         spellReady = false;
                     }
                     else if (spellReady == false)
@@ -219,12 +217,10 @@ namespace Game1.Spells
                     {
                         for (int i = 0; i < 16; i++)
                         {
-                            Vector3 direction = Vector3.Transform(new Vector3(camera.ViewDirection.X, 0, camera.ViewDirection.Z), Quaternion.CreateFromAxisAngle(Vector3.Up, MathHelper.ToRadians((360 / 16)*i)));
-                            SpellFireProjectile fireball = new SpellFireProjectile(game, Matrix.CreateTranslation(camera.Position), fireballModel, octree, objectManager, lightManager, hudManager, leftDamage, particleManager.explosionParticles, particleManager.explosionSmokeParticles, particleManager.fireProjectileTrailParticles, particleManager.projectileTrailHeadParticles);
-                            fireball.Position = camera.Position;
-                            fireball.Velocity = direction * 100;
-                            objectManager.Add(fireball);
-                            //octree.m_objects.Add(fireball);
+                            Vector3 direction = Vector3.Transform(new Vector3(camera.ViewDirection.X, 0, camera.ViewDirection.Z), Quaternion.CreateFromAxisAngle(Vector3.Up, MathHelper.ToRadians((360 / 16) * i)));
+                            SpellIceProjectile iceBolt = new SpellIceProjectile(game, Matrix.CreateTranslation(camera.Position), iceboltModel, iceboltTexture, octree, objectManager, hudManager, leftDamage, particleManager.iceExplosionParticles, particleManager.iceExplosionSnowParticles, particleManager.iceProjectileTrailParticles);
+                            iceBolt.Velocity = direction * 100;
+                            objectManager.Add(iceBolt);
                             spellReady = false;
                         }
                     }
@@ -240,7 +236,7 @@ namespace Game1.Spells
             }
         }
 
-        public SpellFire(Game game, Camera camera, Octree octree, ObjectManager objectManager, LightManager lightManager, ParticleManager particleManager, HUDManager hudManager, Stats stats)
+        public SpellIce(Game game, Camera camera, Octree octree, ObjectManager objectManager, LightManager lightManager, ParticleManager particleManager, HUDManager hudManager, Stats stats)
         {
             this.game = game;
             this.camera = camera;
@@ -263,12 +259,13 @@ namespace Game1.Spells
 
             leftDamage = 50;
             rightDamage = 2;
-            projectileSpeed = 400;
+            projectileSpeed = 250;
             coneRange = 150f;
 
             particlesPerSecond = 250;
 
-            fireballModel = game.Content.Load<Model>("Models/fireball");
+            iceboltModel = game.Content.Load<Model>("Models/icebolt");
+            iceboltTexture = game.Content.Load<Texture2D>("Textures/icebolt");
 
             frustum = new BoundingFrustum(camera.ViewProjectionMatrix);
 

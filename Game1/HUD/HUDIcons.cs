@@ -24,6 +24,8 @@ namespace Game1.HUD
         Texture2D moveTerrainIconTexture;
         HUDIcon fireIcon;
         Texture2D fireIconTexture;
+        HUDIcon iceIcon;
+        Texture2D iceIconTexture;
         HUDIcon createTurretIcon;
         Texture2D createTurretIconTexture;
 
@@ -59,10 +61,6 @@ namespace Game1.HUD
                     else
                         spellIcons[i].Draw(false);
                 }
-
-                //spriteBatch.Draw(healthIcon, hudManager.HealthBar.Position + offset, Color.White * ALPHA);
-                //spriteBatch.Draw(manaIcon, hudManager.ManaBar.Position + offset, Color.White * ALPHA);
-                //spriteBatch.Draw(essenceIcon, hudManager.EssenceBar.Position + offset, Color.White * ALPHA);
             }
         }
 
@@ -82,6 +80,7 @@ namespace Game1.HUD
 
             moveTerrainIconTexture = Content.Load<Texture2D>("Interface/HUD/icons/moveTerrainIcon");
             fireIconTexture = Content.Load<Texture2D>("Interface/HUD/icons/fireIcon");
+            iceIconTexture = Content.Load<Texture2D>("Interface/HUD/icons/iceIcon");
             createTurretIconTexture = Content.Load<Texture2D>("Interface/HUD/icons/createTurretIcon");
 
             Vector2 offset = new Vector2(-34, -6);
@@ -90,20 +89,21 @@ namespace Game1.HUD
             manaIcon = new HUDIcon(spriteBatch, graphicsDevice, hudManager.ManaBar.Position + offset, dimension, manaIconTexture);
             essenceIcon = new HUDIcon(spriteBatch, graphicsDevice, hudManager.EssenceBar.Position + offset, dimension, essenceIconTexture);
 
-            Vector2 pos = CalculateSpellIconsPosition(3, 64);
-            Vector2 spellOffset = new Vector2(64, 0);
-
-            fireIcon = new HUDIcon(spriteBatch, graphicsDevice, pos, dimension, fireIconTexture);
-            moveTerrainIcon = new HUDIcon(spriteBatch, graphicsDevice, pos + spellOffset, dimension, moveTerrainIconTexture);
-            createTurretIcon = new HUDIcon(spriteBatch, graphicsDevice, pos + spellOffset * 2, dimension, createTurretIconTexture);
-
             icons.Add(healthIcon);
             icons.Add(manaIcon);
             icons.Add(essenceIcon);
 
+            Vector2 spellPosition = CalculateSpellIconsPosition(4, 64);
+            Vector2 spellOffset = new Vector2(64, 0);
+
+            fireIcon = new HUDIcon(spriteBatch, graphicsDevice, spellPosition + spellOffset * spellIcons.Count, dimension, fireIconTexture);
             spellIcons.Add(fireIcon);
+            iceIcon = new HUDIcon(spriteBatch, graphicsDevice, spellPosition + spellOffset * spellIcons.Count, dimension, iceIconTexture);
+            spellIcons.Add(iceIcon);
+            moveTerrainIcon = new HUDIcon(spriteBatch, graphicsDevice, spellPosition + spellOffset * spellIcons.Count, dimension, moveTerrainIconTexture);
             spellIcons.Add(moveTerrainIcon);
-            spellIcons.Add(createTurretIcon);
+            createTurretIcon = new HUDIcon(spriteBatch, graphicsDevice, spellPosition + spellOffset * spellIcons.Count, dimension, createTurretIconTexture);
+            spellIcons.Add(createTurretIcon);  
         }
     }
 }

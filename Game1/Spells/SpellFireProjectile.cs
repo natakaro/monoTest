@@ -14,7 +14,7 @@ using Game1.Particles;
 
 namespace Game1.Spells
 {
-    class SpellFireballProjectile : DrawableObject
+    class SpellFireProjectile : DrawableObject
     {
         private PointLight pointLight;
         private LightManager lightManager;
@@ -29,7 +29,7 @@ namespace Game1.Spells
         private float damage;
         private float age;
 
-        private const float lifespan = 5f;
+        private const float lifespan = 3f;
         private const float trailParticlesPerSecond = 200;
         private const float trailHeadParticlesPerSecond = 50;
         private const int numExplosionParticles = 5;
@@ -73,7 +73,7 @@ namespace Game1.Spells
             return ret;
         }
 
-        public SpellFireballProjectile(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ObjectManager objectManager, 
+        public SpellFireProjectile(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ObjectManager objectManager, 
                                        LightManager lightManager, HUDManager hudManager, float damage,
                                        ParticleSystem explosionParticles,
                                        ParticleSystem explosionSmokeParticles,
@@ -126,10 +126,10 @@ namespace Game1.Spells
         private void Destroy()
         {
             for (int i = 0; i < numExplosionParticles; i++)
-                explosionParticles.AddParticle(position, -velocity * 0.05f);
+                explosionParticles.AddParticle(position, -velocity * 0.02f);
 
             for (int i = 0; i < numExplosionSmokeParticles; i++)
-                explosionSmokeParticles.AddParticle(position, -velocity * 0.05f);
+                explosionSmokeParticles.AddParticle(position, -velocity * 0.02f);
 
             hitEvent -= hudManager.Crosshair.HandleHitEvent;
             lightManager.RemoveLight(pointLight);

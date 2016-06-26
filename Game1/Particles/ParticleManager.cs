@@ -15,13 +15,20 @@ namespace Game1.Particles
         Game game;
         ContentManager Content;
 
+        public ParticleSystem fireParticles;
         public ParticleSystem explosionParticles;
         public ParticleSystem explosionSmokeParticles;
-        public ParticleSystem smokeProjectileTrailParticles;
-        public ParticleSystem smokePlumeParticles;
-        public ParticleSystem fireParticles;
         public ParticleSystem fireProjectileTrailParticles;
         public ParticleSystem projectileTrailHeadParticles;
+
+        public ParticleSystem iceParticles;
+        public ParticleSystem iceExplosionParticles;
+        public ParticleSystem iceExplosionSnowParticles;
+        public ParticleSystem iceProjectileTrailParticles;
+
+        public ParticleSystem smokeProjectileTrailParticles;
+        public ParticleSystem smokePlumeParticles;
+        
         public ParticleSystem portalParticlesFriendly;
         public ParticleSystem portalParticlesEnemy;
 
@@ -35,13 +42,20 @@ namespace Game1.Particles
             particleSystems = new List<ParticleSystem>();
 
             // Construct our particle system components.
+            fireParticles = new FireParticleSystem(game, Content);
             explosionParticles = new ExplosionParticleSystem(game, Content);
             explosionSmokeParticles = new ExplosionSmokeParticleSystem(game, Content);
-            smokeProjectileTrailParticles = new SmokeProjectileTrailParticleSystem(game, Content);
-            smokePlumeParticles = new SmokePlumeParticleSystem(game, Content);
-            fireParticles = new FireParticleSystem(game, Content);
             fireProjectileTrailParticles = new FireProjectileTrailParticleSystem(game, Content);
             projectileTrailHeadParticles = new ProjectileTrailHeadParticleSystem(game, Content);
+
+            iceParticles = new IceParticleSystem(game, Content);
+            iceExplosionParticles = new IceExplosionParticleSystem(game, Content);
+            iceExplosionSnowParticles = new IceExplosionSnowParticleSystem(game, Content);
+            iceProjectileTrailParticles = new IceProjectileTrailParticleSystem(game, Content);
+
+            smokeProjectileTrailParticles = new SmokeProjectileTrailParticleSystem(game, Content);
+            smokePlumeParticles = new SmokePlumeParticleSystem(game, Content);
+
             portalParticlesFriendly = new PortalParticleSystemFriendly(game, Content);
             portalParticlesEnemy = new PortalParticleSystemEnemy(game, Content);
 
@@ -56,13 +70,20 @@ namespace Game1.Particles
             //fireParticles.DrawOrder = 500;
 
             // Register the particle system components.
+            particleSystems.Add(fireParticles);
             particleSystems.Add(explosionParticles);
             particleSystems.Add(explosionSmokeParticles);
-            particleSystems.Add(smokeProjectileTrailParticles);
-            particleSystems.Add(smokePlumeParticles);
-            particleSystems.Add(fireParticles);
             particleSystems.Add(fireProjectileTrailParticles);
             particleSystems.Add(projectileTrailHeadParticles);
+
+            particleSystems.Add(iceParticles);
+            particleSystems.Add(iceExplosionParticles);
+            particleSystems.Add(iceExplosionSnowParticles);
+            particleSystems.Add(iceProjectileTrailParticles);
+
+            particleSystems.Add(smokeProjectileTrailParticles);
+            particleSystems.Add(smokePlumeParticles);
+            
             particleSystems.Add(portalParticlesFriendly);
             particleSystems.Add(portalParticlesEnemy);
 
@@ -83,16 +104,6 @@ namespace Game1.Particles
 
         public void Draw(GameTime gameTime, Camera camera, float farClip, RenderTarget2D depthTarget)
         {
-            // Pass camera matrices through to the particle system components.
-            //explosionParticles.SetCamera(camera.ViewMatrix, camera.ProjectionMatrix, farClip, depthTarget);
-            //explosionSmokeParticles.SetCamera(camera.ViewMatrix, camera.ProjectionMatrix, farClip, depthTarget);
-            //smokeProjectileTrailParticles.SetCamera(camera.ViewMatrix, camera.ProjectionMatrix, farClip, depthTarget);
-            //smokePlumeParticles.SetCamera(camera.ViewMatrix, camera.ProjectionMatrix, farClip, depthTarget);
-            //fireParticles.SetCamera(camera.ViewMatrix, camera.ProjectionMatrix, farClip, depthTarget);
-            //fireProjectileTrailParticles.SetCamera(camera.ViewMatrix, camera.ProjectionMatrix, farClip, depthTarget);
-            //projectileTrailHeadParticles.SetCamera(camera.ViewMatrix, camera.ProjectionMatrix, farClip, depthTarget);
-            //portalParticlesFriendly.SetCamera(camera.ViewMatrix, camera.ProjectionMatrix, farClip, depthTarget);
-
             foreach (ParticleSystem system in particleSystems)
             {
                 system.SetCamera(camera.ViewMatrix, camera.ProjectionMatrix, farClip, depthTarget);

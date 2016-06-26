@@ -561,7 +561,7 @@ namespace Game1.Shadows
 
             shadowEffect.FrustumCorners = camera.FrustumCorners;
 
-            shadowEffect.SkyIntensity = timeOfDay.LogisticTime(2, 4, 2.0f); 
+            shadowEffect.SkyIntensity = timeOfDay.LogisticTime(1, 4, 2.0f); 
 
             shadowEffect.Apply();
         }
