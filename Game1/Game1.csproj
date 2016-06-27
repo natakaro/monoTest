@@ -63,6 +63,7 @@
     <Compile Include="Animation\Bone.cs" />
     <Compile Include="Camera.cs" />
     <Compile Include="Core.cs" />
+    <Compile Include="Enemy\Boss.cs" />
     <Compile Include="Enemy\EnemyGremlin.cs" />
     <Compile Include="Enemy\EnemyWeird.cs" />
     <Compile Include="Enemy\Wave.cs" />

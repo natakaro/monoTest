@@ -147,6 +147,9 @@ namespace Game1
                 case 3:
                     enemy = new EnemyWeird(Game, worldMatrix, model, octree, itemManager, Content, pathMiddle);
                     break;
+                case 7:
+                    enemy = new Boss(Game, Matrix.CreateWorld(new Vector3(3000, 240, 1700),Vector3.Forward, Vector3.Up), model, octree, itemManager, Content, pathMiddle);
+                    break;
             }
             enemies.Add(enemy);
             Octree.AddObject(enemy);
