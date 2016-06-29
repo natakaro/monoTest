@@ -16,25 +16,28 @@ namespace Game1.Helpers
         SoundEffectInstance soundInstance;
         AudioEmitter emitter;
         AudioListener listener;
-        bool loop;
         public Sound(SoundEffect sounds)
         {
             soundInstance = sounds.CreateInstance();
+            listener = new AudioListener();
+            emitter = new AudioEmitter();
         }
 
         public void Play(Vector3 position)
         {
-            AudioListener listener = new AudioListener();
-            AudioEmitter emitter = new AudioEmitter();
             Update(position);
             soundInstance.Play();
-            
+        }
+
+        public void PlaySimple()
+        {
+            soundInstance.Play();
         }
 
         public void Update(Vector3 position)
         {
             listener.Position = GameplayScreen.camera.Position;
-            listener.Forward = GameplayScreen.camera.ViewDirection; //nie wiem czy to coś daje i czy działa
+            //listener.Forward = GameplayScreen.camera.ViewDirection; //nie wiem czy to coś daje i czy działa
             emitter.Position = position;
             soundInstance.Apply3D(listener, emitter);
         }

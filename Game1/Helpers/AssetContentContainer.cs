@@ -46,6 +46,10 @@ namespace Game1.Helpers
 
         public Model enemyFly;
         public Texture2D enemyFlyTexture;
+        public Texture2D enemyGremlinTexture;
+        public Texture2D enemyWiredTexture;
+        public Texture2D enemyWalkTexture;
+
 
         public SoundEffect fireball;
 
@@ -81,6 +85,10 @@ namespace Game1.Helpers
             spawnTexture = Content.Load<Texture2D>("Textures/core");
             enemyFly = Content.Load<Model>("Models/ship/enemy_ship");
             enemyFlyTexture = Content.Load<Texture2D>("Textures/ship/enemy_ship");
+
+            enemyGremlinTexture = Content.Load<Texture2D>("Textures/enemies/gremlin");
+            enemyWiredTexture = Content.Load<Texture2D>("Textures/enemies/wired");
+            enemyWalkTexture = Content.Load<Texture2D>("Textures/enemies/walk");
 
             pinetreeIcon = Content.Load<Texture2D>("Interface/Map/pinetreeIcon1");
             tree1Icon = Content.Load<Texture2D>("Interface/Map/treeIcon1");

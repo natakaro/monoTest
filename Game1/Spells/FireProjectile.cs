@@ -92,7 +92,7 @@ namespace Game1.Spells
             this.hudManager = hudManager;
             this.objectManager = objectManager;
 
-            sound = new Sound(GameplayScreen.assetContentContainer.fireball, true);
+            sound = new Sound(GameplayScreen.assetContentContainer.fireball);
             sound.Play(position);
 
             m_static = false;
