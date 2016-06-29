@@ -19,6 +19,7 @@ namespace Game1
 
         protected AnimatedModel animatedModel = null;
         protected AnimatedModel walk = null;
+        protected Texture2D texture = null;
 
         public EnemyWalk(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ItemManager itemManager, ContentManager Content, List<Vector3> path) : base(game, inWorldMatrix, inModel, octree, itemManager, Content, path)
         {
@@ -32,7 +33,9 @@ namespace Game1
             
             AnimationPlayer player = animatedModel.PlayClip(clip);
             player.Looping = true;
-            
+
+            texture = GameplayScreen.assetContentContainer.enemyWalkTexture;
+
             boundingBox = CollisionBox.CreateBoundingBox(animatedModel.Model, position, 1);
             a = boundingBox.Max.Y - boundingBox.Min.Y;
             b = position.Y - boundingBox.Min.Y;
@@ -150,7 +153,7 @@ namespace Game1
             Vector4 OverlayColor = Color.White.ToVector4();
             if (chilled)
                 OverlayColor = Color.SlateBlue.ToVector4();
-            animatedModel.Draw(GraphicsDevice, camera, worldMatrix, Content, GameplayScreen.assetContentContainer.enemyFlyTexture, OverlayColor, dissolveAmount);
+            animatedModel.Draw(GraphicsDevice, camera, worldMatrix, Content, texture, OverlayColor, dissolveAmount);
             //boundingBox = CollisionBox.CreateBoundingBox(animatedModel, position, 1, Matrix.CreateFromQuaternion(Orientation)); // dostosowywany boundingbox
         }
 
