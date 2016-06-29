@@ -134,6 +134,7 @@
     <Compile Include="PhaseManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Screens\Credits.cs" />
     <Compile Include="Screens\BackgroundScreen.cs" />
     <Compile Include="Screens\GameplayScreen.cs" />
     <Compile Include="Screens\GameScreen.cs" />

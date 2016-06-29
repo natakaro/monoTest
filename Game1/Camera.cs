@@ -201,6 +201,7 @@ namespace Game1
             accumHeadingDegrees = MathHelper.ToDegrees((float)Math.Atan2(viewMatrix.M13, viewMatrix.M33));
 
             Quaternion.CreateFromRotationMatrix(ref viewMatrix, out orientation);
+            
         }
 
         /// <summary>

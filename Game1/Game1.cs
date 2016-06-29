@@ -152,5 +152,10 @@ namespace Game1
             swGPU.Reset();
             swGPU.Start();
         }
+
+        public ScreenManager ScreenManager
+        {
+            get { return screenManager; }
+        }
     }
 }

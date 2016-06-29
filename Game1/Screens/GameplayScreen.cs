@@ -517,7 +517,16 @@ namespace Game1.Screens
                 stats.Update(gameTime);
 
                 sky.Update(gameTime);
-                timeOfDay.Update((float)gameTime.ElapsedGameTime.TotalSeconds, 100);
+                int scale=0;
+                if(phaseManager.Phase == Phase.Day)
+                {
+                    scale = 1000;
+                }
+                else
+                {
+                    scale = 200;
+                }
+                timeOfDay.Update((float)gameTime.ElapsedGameTime.TotalSeconds, scale);
                 phaseManager.Update(gameTime);
 
                 octree.Update(gameTime);
@@ -596,9 +605,7 @@ namespace Game1.Screens
                 }
                 if (input.IsNewKeyPress(Keys.P))
                 {
-                    //Spawn spawn = new Spawn(ScreenManager.Game, Matrix.CreateTranslation(camera.Position + Vector3.Normalize(core.Position - camera.Position) * 100), coreModel, octree, itemManager, Content, core.Position, phaseManager, 2);
-                    //objectManager.Add(spawn);
-                    //Octree.AddObject(spawn);
+                    ScreenManager.AddScreen(new Credits());
                 }
 
                 if (input.IsNewMouseScrollDown && mouseState.LeftButton == ButtonState.Released && mouseState.RightButton == ButtonState.Released)
@@ -674,6 +681,8 @@ namespace Game1.Screens
                 UpdateSelectedObject(mouse_ir);
             }
         }
+
+
 
         private void UpdateDepthOfFieldAdaptation(IntersectionRecord mouse_ir)
         {
