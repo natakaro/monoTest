@@ -20,10 +20,13 @@ namespace Game1.Items
 
         public override void PickUp()
         {
-            if (stats.currentEssence < stats.maxEssence)
+            if (pickedUp == false)
             {
-                stats.currentEssence = Math.Min(stats.currentEssence + 10, stats.maxEssence);
-                Destroy();
+                if (stats.currentEssence < stats.maxEssence)
+                {
+                    stats.currentEssence = Math.Min(stats.currentEssence + 10, stats.maxEssence);
+                    pickedUp = true;
+                }
             }
         }
 

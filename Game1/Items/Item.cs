@@ -24,6 +24,10 @@ namespace Game1.Items
         protected float age;
         protected const float lifespan = 30f;
         protected const float spawnLength = 0.5f;
+        protected float destructionAge;
+        protected const float destroyLength = 0.5f;
+
+        protected bool pickedUp = false;
 
         protected const float lootParticlesPerSecond = 5;
         protected float timeBetweenParticles;
@@ -79,7 +83,16 @@ namespace Game1.Items
             }
 
             if (age > lifespan)
-                Destroy();
+                pickedUp = true;
+
+            if (pickedUp)
+            {
+                destructionAge += elapsedTime;
+                dissolveAmount = MathHelper.Lerp(0, 1, destructionAge / destroyLength);
+
+                if (destructionAge > destroyLength)
+                    Destroy();
+            }
 
             timeLeftOver = timeToSpend;
 

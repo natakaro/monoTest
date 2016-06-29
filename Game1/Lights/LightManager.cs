@@ -57,8 +57,8 @@ namespace Game1.Lights
         {
             foreach (PointLight light in pointLights)
             {
-                //if (!game.camera.Frustum.Intersects(light.BoundingSphere))
-                //    continue;
+                if (GameplayScreen.camera.Frustum.Contains(light.BoundingSphere) == ContainmentType.Disjoint)
+                    continue;
                 light.Draw(game, camera, pointLightEffect, colorTarget, normalTarget, depthTarget, pointLightGeometry);
             }
         }

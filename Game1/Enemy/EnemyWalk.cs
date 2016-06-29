@@ -123,7 +123,7 @@ namespace Game1
                     }
                 }
                 else
-                    alive = false;
+                    EnterCore(gameTime);
             }
 
             
@@ -162,6 +162,14 @@ namespace Game1
             base.Die(gameTime);
         }
 
+        public override void EnterCore(GameTime gameTime)
+        {
+            //animatedModel.Update(gameTime);
+            velocity = Vector3.Zero;
+            worldMatrix = Matrix.CreateRotationY(targetRotation) * Matrix.CreateTranslation(position);
+            Orientation = worldMatrix.Rotation;
+            base.EnterCore(gameTime);
+        }
 
         public AnimatedModel AnimatedModel
         {

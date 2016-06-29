@@ -47,6 +47,8 @@ namespace Game1
             IsFixedTimeStep = false; //to ustawione na false albo vsync na true potrzebne
 
             settings = new GameSettings(this);
+            settings.ScreenResolution.X = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            settings.ScreenResolution.Y = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
 
             random = new Random();
 
@@ -61,8 +63,8 @@ namespace Game1
 
             // Setup frame buffer.
             graphics.SynchronizeWithVerticalRetrace = false; //vsync
-            graphics.PreferredBackBufferWidth = GameSettings.ScreenResolution.X;
-            graphics.PreferredBackBufferHeight = GameSettings.ScreenResolution.Y;
+            graphics.PreferredBackBufferWidth = settings.ScreenResolution.X;
+            graphics.PreferredBackBufferHeight = settings.ScreenResolution.Y;
             graphics.PreferMultiSampling = false;
             graphics.PreferredBackBufferFormat = SurfaceFormat.HdrBlendable;
             graphics.ApplyChanges();

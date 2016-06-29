@@ -158,7 +158,7 @@ namespace Game1
                     }
                 }
                 else
-                    alive = false;
+                    EnterCore(gameTime);
             }
 
             return ret;
@@ -203,6 +203,20 @@ namespace Game1
             if (deathAge > deathLength)
             {
                 itemManager.SpawnEssence(position);
+                Alive = false;
+            }
+        }
+
+        public virtual void EnterCore(GameTime gameTime)
+        {
+            float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            deathAge += elapsedTime;
+
+            dissolveAmount = MathHelper.Lerp(0, 1, deathAge / deathLength);
+
+            if (deathAge > deathLength)
+            {
+                GameplayScreen.stats.currentHealth -= 5;
                 Alive = false;
             }
         }

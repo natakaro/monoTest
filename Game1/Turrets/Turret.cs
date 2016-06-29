@@ -40,6 +40,9 @@ namespace Game1.Turrets
         public Texture2D iceboltTexture;
 
         Vector3 shootStartPosition;
+        Vector3 lightPosition;
+        float lightRadius;
+        float lightIntensity;
 
         float range;
         float projectileSpeed;
@@ -93,6 +96,9 @@ namespace Game1.Turrets
 
             boundingBox = CollisionBox.CreateBoundingBox(model, position, 1);
 
+            lightPosition = position + new Vector3(0, 20, 0);
+            lightRadius = 50;
+            lightIntensity = 1;
             shootStartPosition = position + new Vector3(0, 30, 0);
 
             fireballModel = game.Content.Load<Model>("Models/fireball");
@@ -166,7 +172,7 @@ namespace Game1.Turrets
                     rateOfFire = 1000;
                     damage = 10;
                     rangeSphere = new BoundingSphere(shootStartPosition, range);
-                    pointLight = new PointLight(shootStartPosition, Color.IndianRed, 50, 10);
+                    pointLight = new PointLight(lightPosition, Color.Red, lightRadius, lightIntensity);
                     lightManager.AddLight(pointLight);
                     OverlayColor = Color.Red.ToVector4();
                     emissive = 0.5f;
@@ -180,7 +186,7 @@ namespace Game1.Turrets
                     timeBetweenParticles = 1.0f / particlesPerSecond;
                     rangeSphere = new BoundingSphere(shootStartPosition, range);
                     projectionMatrix = Matrix.CreatePerspective(7.5f, 4.2f, 15f, range);
-                    pointLight = new PointLight(shootStartPosition, Color.Red, 50, 10);
+                    pointLight = new PointLight(lightPosition, Color.OrangeRed, lightRadius, lightIntensity);
                     lightManager.AddLight(pointLight);
                     OverlayColor = Color.OrangeRed.ToVector4();
                     emissive = 0.5f;
@@ -191,7 +197,7 @@ namespace Game1.Turrets
                     rateOfFire = 1000;
                     damage = 10;
                     rangeSphere = new BoundingSphere(shootStartPosition, range);
-                    pointLight = new PointLight(shootStartPosition, Color.DarkSeaGreen, 50, 10);
+                    pointLight = new PointLight(lightPosition, Color.DeepSkyBlue, lightRadius, lightIntensity);
                     lightManager.AddLight(pointLight);
                     OverlayColor = Color.DeepSkyBlue.ToVector4();
                     emissive = 0.5f;
@@ -205,7 +211,7 @@ namespace Game1.Turrets
                     timeBetweenParticles = 1.0f / particlesPerSecond;
                     rangeSphere = new BoundingSphere(shootStartPosition, range);
                     projectionMatrix = Matrix.CreatePerspective(7.5f, 4.2f, 15f, range);
-                    pointLight = new PointLight(shootStartPosition, Color.LightSeaGreen, 50, 10);
+                    pointLight = new PointLight(lightPosition, Color.SkyBlue, lightRadius, lightIntensity);
                     lightManager.AddLight(pointLight);
                     OverlayColor = Color.SkyBlue.ToVector4();
                     emissive = 0.5f;

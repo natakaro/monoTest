@@ -243,20 +243,30 @@ namespace Game1.Spells
                     {
                         if (dObj.Type == DrawableObject.ObjectType.Tile && (dObj as Tile).ObjectOn == null)
                         {
-                            Turret turret = new Turret(game, Matrix.CreateTranslation(dObj.Position), smallTurretModel, camera, octree, objectManager, smallTurretTexture, lightManager, particleManager);
-                            spellReady = false;
-                            (dObj as Tile).ObjectOn = turret;
-                            turret.Tile = dObj as Tile;
-
-                            if (UpdatePaths() == false)
+                            if (GameplayScreen.phaseManager.Phase == Phase.Day || (GameplayScreen.phaseManager.Phase == Phase.Night && (dObj as Tile).IsPath == false))
                             {
-                                turret.Tile.ObjectOn = null;
-                                turret.Destroy(false);
-                                stats.currentEssence += leftEssenceCost;
+                                Turret turret = new Turret(game, Matrix.CreateTranslation(dObj.Position), smallTurretModel, camera, octree, objectManager, smallTurretTexture, lightManager, particleManager);
+                                spellReady = false;
+                                (dObj as Tile).ObjectOn = turret;
+                                turret.Tile = dObj as Tile;
+
+                                if (UpdatePaths() == false)
+                                {
+                                    turret.Tile.ObjectOn = null;
+                                    turret.Destroy(false);
+                                    stats.currentEssence += leftEssenceCost;
+                                }
+                                else
+                                {
+                                    Octree.AddObject(turret);
+                                }
                             }
                             else
                             {
-                                Octree.AddObject(turret);
+                                stats.currentMana = startingMana;
+                                manaDeducted = 0;
+                                stats.currentEssence = startingEssence;
+                                essenceDeducted = 0;
                             }
                         }
                         else

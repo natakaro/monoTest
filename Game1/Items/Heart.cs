@@ -19,10 +19,13 @@ namespace Game1.Items
 
         public override void PickUp()
         {
-            if (stats.currentHealth < stats.maxHealth)
+            if (pickedUp == false)
             {
-                stats.currentHealth = Math.Min(stats.currentHealth + 10, stats.maxHealth);
-                Destroy();
+                if (stats.currentHealth < stats.maxHealth)
+                {
+                    stats.currentHealth = Math.Min(stats.currentHealth + 10, stats.maxHealth);
+                    pickedUp = true;
+                }
             }
         }
 

@@ -44,11 +44,11 @@ namespace Game1.Screens
         private Octree octree;
         public static ObjectManager objectManager;
         public static ItemManager itemManager;
-        private PhaseManager phaseManager;
+        public static PhaseManager phaseManager;
         private PathFinder pathfinder;
         public static ParticleManager particleManager;
         public static HUDManager hudManager;
-        private Stats stats;
+        public static Stats stats;
         public static AssetContentContainer assetContentContainer;
 
         public static Dictionary<AxialCoordinate, Tile> map;
@@ -115,7 +115,7 @@ namespace Game1.Screens
         private Effect fxaaEffect;
         private Effect fogEffect;
 
-        private LightManager lightManager;
+        public static LightManager lightManager;
         private ShadowRenderer shadowRenderer;
         private SSAO ssao;
         private HDRProcessor hdrProcessor;
@@ -380,7 +380,7 @@ namespace Game1.Screens
             spellFire = new SpellFire(ScreenManager.Game, camera, octree, objectManager, lightManager, particleManager, hudManager, stats);
             spellIce = new SpellIce(ScreenManager.Game, camera, octree, objectManager, lightManager, particleManager, hudManager, stats);
             spellMoveTerrain = new SpellMoveTerrain(octree, stats, phaseManager, map);
-            spellCreateTurret = new SpellCreateTurret(ScreenManager.Game, camera, octree, objectManager, lightManager, particleManager, stats);          
+            spellCreateTurret = new SpellCreateTurret(ScreenManager.Game, camera, octree, objectManager, lightManager, particleManager, stats);
 
             pathfinder = new PathFinder();
 

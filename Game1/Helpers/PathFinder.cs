@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using static Game1.Helpers.HexCoordinates;
+using Game1.Screens;
+using Game1.Lights;
 
 namespace Game1.Helpers
 {

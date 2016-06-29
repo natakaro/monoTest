@@ -1,5 +1,6 @@
 ﻿using Game1.Helpers;
 using Game1.Items;
+using Game1.Lights;
 using Game1.Screens;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -27,6 +28,8 @@ namespace Game1
         int waveNumber = 0;
         int enemyNumber = 0;
 
+        List<PointLight> pathLights;
+
         //do testów
         private Stopwatch stopwatch = new Stopwatch();
 
@@ -48,9 +51,19 @@ namespace Game1
 
             this.waves = waves;
 
+            pathLights = new List<PointLight>();
+
             Tile start = HexCoordinates.tileFromPosition(position, GameplayScreen.map);
             Tile end = HexCoordinates.tileFromPosition(corePosition, GameplayScreen.map);
             path = pathfinder.Pathfind(start, end, GameplayScreen.map, true);
+
+            foreach (Tile tile in path)
+            {
+                PointLight light = new PointLight(tile.Position + Vector3.Up, Color.White, 5, 1);
+                pathLights.Add(light);
+                GameplayScreen.lightManager.AddLight(light);
+            }
+
             pathMiddle = pathfinder.PathfindMiddle(path);
         }
 
@@ -173,10 +186,22 @@ namespace Game1
             {
                 tile.IsPath = false;
             }
+            foreach (PointLight light in pathLights)
+            {
+                GameplayScreen.lightManager.RemoveLight(light);
+            }
+            pathLights.Clear();
             var newPath = pathfinder.Pathfind(start, end, GameplayScreen.map, true);
             if (newPath != null)
             {
                 path = newPath;
+                foreach (Tile tile in path)
+                {
+                    PointLight light = new PointLight(tile.Position + Vector3.Up, Color.White, 5, 1);
+                    pathLights.Add(light);
+                    GameplayScreen.lightManager.AddLight(light);
+                }
+                pathMiddle = pathfinder.PathfindMiddle(path);
                 return true;
             }
             else
@@ -184,6 +209,9 @@ namespace Game1
                 foreach (Tile tile in path)
                 {
                     tile.IsPath = true;
+                    PointLight light = new PointLight(tile.Position + Vector3.Up, Color.White, 5, 1);
+                    pathLights.Add(light);
+                    GameplayScreen.lightManager.AddLight(light);
                 }
                 return false;
             }
