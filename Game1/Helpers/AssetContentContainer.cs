@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Content;
+﻿using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -46,6 +47,9 @@ namespace Game1.Helpers
         public Model enemyFly;
         public Texture2D enemyFlyTexture;
 
+        public SoundEffect fireball;
+
+
         public AssetContentContainer()
         {
 
@@ -87,6 +91,9 @@ namespace Game1.Helpers
             coreIcon = Content.Load<Texture2D>("Interface/Map/coreIcon");
             enemyIcon = Content.Load<Texture2D>("Interface/Map/enemyIcon");
             pathIcon = Content.Load<Texture2D>("Interface/Map/pathIcon");
+
+            fireball = Content.Load<SoundEffect>("Sounds/fireball");
+
         }
     }
 }

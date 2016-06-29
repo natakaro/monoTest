@@ -67,6 +67,7 @@
     <Compile Include="Enemy\EnemyGremlin.cs" />
     <Compile Include="Enemy\EnemyWeird.cs" />
     <Compile Include="Enemy\Wave.cs" />
+    <Compile Include="Helpers\Sound.cs" />
     <Compile Include="HUD\HUDIcon.cs" />
     <Compile Include="HUD\HUDMinimap.cs" />
     <Compile Include="Items\Essence.cs" />

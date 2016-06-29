@@ -5622,3 +5622,9 @@
 /processorParam:TextureFormat=Color
 /build:Interface/Map/pathIcon.png
 
+#begin Sounds/fireball.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/fireball.wav
+
