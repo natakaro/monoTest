@@ -17,7 +17,8 @@ namespace Game1
     public enum DamageType
     {
         Fire = 0,
-        Ice = 1
+        Ice = 1,
+        IceSlow = 2
     }
     public class Enemy : DrawableObject
     {
@@ -50,7 +51,8 @@ namespace Game1
 
         protected bool chilled = false;
         protected float chilledAge;
-        protected float chilledLength;
+        protected float chilledLength = 0;
+        protected float chilledLengthMax;
 
         public float MaxHealth
         {
@@ -85,6 +87,7 @@ namespace Game1
             currentHealth = 100;
 
             dissolveAmount = 1;
+            chilledLengthMax = 5;
         }
 
         public override bool Update(GameTime gameTime)
@@ -189,7 +192,15 @@ namespace Game1
             {
                 chilled = true;
                 chilledAge = 0;
-                chilledLength = 5;
+                chilledLength = chilledLengthMax;
+            }
+
+            if (type == DamageType.IceSlow)
+            {
+                chilled = true;
+                chilledAge = 0;
+                if (chilledLength < chilledLengthMax)
+                    chilledLength += 0.1f;
             }
         }
 

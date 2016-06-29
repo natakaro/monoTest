@@ -42,6 +42,7 @@ namespace Game1
             speed = 65;
             maxHealth = 100;
             currentHealth = 100;
+            chilledLengthMax = 8;
         }
 
         public override bool Update(GameTime gameTime)

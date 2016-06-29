@@ -276,7 +276,7 @@ namespace Game1.Spells
             this.stats = stats;
             this.viewport = game.GraphicsDevice.Viewport;
 
-            leftManaCost = 25;
+            leftManaCost = 35;
             rightManaCost = 10;
             dualManaCost = 150;
 
@@ -288,7 +288,7 @@ namespace Game1.Spells
             leftDamage = 50;
             rightDamage = 2;
             projectileSpeed = 400;
-            coneRange = 150f;
+            coneRange = 150f; //może 250
 
             particlesPerSecond = 250;
             timeBetweenParticles = 1.0f / particlesPerSecond;

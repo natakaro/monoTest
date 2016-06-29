@@ -38,6 +38,7 @@ namespace Game1
             speed = 25;
             maxHealth = 150;
             currentHealth = 150;
+            chilledLengthMax = 2;
         }
 
     }
