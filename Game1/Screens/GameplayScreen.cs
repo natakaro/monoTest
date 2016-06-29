@@ -312,12 +312,6 @@ namespace Game1.Screens
                 wavesList[i].Add(new Wave(type, time, number, stopwatch));
             }
              
-            
-
-
-
-
-
             //map
             mapTex = Content.Load<Texture2D>("Textures/map");
             mapTexAsset = Content.Load<Texture2D>("Textures/mapAssets");
@@ -644,7 +638,7 @@ namespace Game1.Screens
                     selectedSpell = SpellType.CreateTurret;
                 }
 
-                if ((currentLeftButton && prevLeftButton == false) || (currentRightButton && prevRightButton == false))
+                if ((currentLeftButton == true && prevLeftButton == false) || (currentRightButton == true && prevRightButton == false))
                     StartSpellcasting(currentLeftButton, currentRightButton);
                 if ((currentLeftButton && prevLeftButton) || (currentRightButton && prevRightButton))
                     ContinueSpellcasting(currentLeftButton, currentRightButton, gameTime);

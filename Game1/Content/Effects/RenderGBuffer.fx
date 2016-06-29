@@ -253,6 +253,15 @@ technique Technique1
 	}
 };
 
+technique Technique1Color
+{
+    pass P0
+    {
+        VertexShader = compile VS_SHADERMODEL NoInstancingVertexShader();
+        PixelShader = compile PS_SHADERMODEL PixelShaderFunctionColor();
+    }
+};
+
 technique Instancing
 {
 	pass P0

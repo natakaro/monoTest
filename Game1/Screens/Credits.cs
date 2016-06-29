@@ -38,10 +38,11 @@ namespace Game1.Screens
             TransitionOnTime = TimeSpan.FromSeconds(0.5);
             TransitionOffTime = TimeSpan.FromSeconds(0.5);
             messages = new List<string>();
-            messages.Add("Dimentional" + "    " + "Clash");
+            messages.Add("Dimensional" + "    " + "Clash");
             messages.Add("GRO-POL");
-            messages.Add("Wykonali:\nMaciej" + "    " + "Michalski\nBartlomiej" + "    " +"Paszkowski\nMarcin" + "    " + "Gniewisz");
-            messages.Add("Dziekujemy!");
+            messages.Add("Maciej" + "    " + "Michalski\nBartlomiej" + "    " +"Paszkowski\nMarcin" + "    " + "Gniewisz");
+            messages.Add("Thank you!");
+            messages.Add(" ");
         }
 
 
@@ -112,7 +113,7 @@ namespace Game1.Screens
                 done = true;
             }
             // Draw the text.
-            if(stopwatch.ElapsedMilliseconds > 3000 && done)
+            if(stopwatch.ElapsedMilliseconds > 6000 && done)
             {
                 i++;
                 done = false;

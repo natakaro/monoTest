@@ -41,6 +41,7 @@ namespace Game1.Helpers
         public Texture2D spawnIcon;
         public Texture2D coreIcon;
         public Texture2D enemyIcon;
+        public Texture2D pathIcon;
 
         public Model enemyFly;
         public Texture2D enemyFlyTexture;
@@ -85,6 +86,7 @@ namespace Game1.Helpers
             spawnIcon = Content.Load<Texture2D>("Interface/Map/spawnIcon");
             coreIcon = Content.Load<Texture2D>("Interface/Map/coreIcon");
             enemyIcon = Content.Load<Texture2D>("Interface/Map/enemyIcon");
+            pathIcon = Content.Load<Texture2D>("Interface/Map/pathIcon");
         }
     }
 }

@@ -4088,8 +4088,10 @@
 #begin Models/turret.DAE
 /importer:OpenAssetImporter
 /processor:AnimationProcessor
+/processorParam:NormalMapTexture=turret_n.png
 /processorParam:NormalMapKey=NormalMap
 /processorParam:GenerateTangentFrames=True
+/processorParam:SpecularMapTexture=turret_s.png
 /processorParam:SpecularMapKey=SpecularMap
 /processorParam:ColorKeyColor=0,0,0,0
 /processorParam:ColorKeyEnabled=True
@@ -5595,4 +5597,28 @@
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=DxtCompressed
 /build:Models/boss.fbx
+
+#begin Textures/turretLattice.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/turretLattice.png
+
+#begin Interface/Map/pathIcon.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Interface/Map/pathIcon.png
 

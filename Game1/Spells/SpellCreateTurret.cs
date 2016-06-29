@@ -2,6 +2,7 @@
 using Game1.Particles;
 using Game1.Screens;
 using Game1.Turrets;
+using Game1.Helpers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -10,6 +11,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Game1.Helpers.HexCoordinates;
 
 namespace Game1.Spells
 {
@@ -91,49 +93,76 @@ namespace Game1.Spells
                     lightManager.AddLight(latticeLight);
                 }
             }
-            if (leftButton == false && rightButton == true && stats.currentMana >= rightManaCost && stats.currentEssence >= rightEssenceCost)
+
+            if (dObj != null)
             {
-                startingMana = stats.currentMana;
-                manaDeducted = 0;
-                startingEssence = stats.currentEssence;
-                essenceDeducted = 0;
-
-                stopwatch.Start();
-                spellReady = false;
-                spellCharging = SpellCharging.Right;
-                stats.SpellStatus(spellCharging, rightCastSpeed, stopwatch);
-                lastMode = LastMode.Right;
-
-                if (lattice == null && dObj != null)
+                if (leftButton == false && rightButton == true && stats.currentMana >= rightManaCost && dObj.Type == DrawableObject.ObjectType.Turret)
                 {
-                    lattice = new TurretLattice(game, Matrix.CreateTranslation(dObj.Position), turretLatticeModel, turretLatticeTexture, octree);
-                    latticeLight = new PointLight(dObj.Position + latticeLightOffset, Color.White, 5, 1);
-                    objectManager.AddAlwaysDraw(lattice);
-                    lightManager.AddLight(latticeLight);
+                    targetedTurret = (Turret)dObj;
+
+                    startingMana = stats.currentMana;
+                    manaDeducted = 0;
+
+                    stopwatch.Start();
+                    spellReady = false;
+                    spellCharging = SpellCharging.Right;
+                    stats.SpellStatus(spellCharging, rightCastSpeed, stopwatch);
+                    lastMode = LastMode.Right;
+
+                    if (lattice != null)
+                    {
+                        objectManager.RemoveAlwaysDraw(lattice);
+                        lightManager.RemoveLight(latticeLight);
+
+                        lattice = null;
+                        latticeLight = null;
+                    }
                 }
             }
-            if (leftButton == true && rightButton == true && stats.currentMana >= dualManaCost && dObj.Type == DrawableObject.ObjectType.Turret)
-            {
-                targetedTurret = (Turret)dObj;
 
-                startingMana = stats.currentMana;
-                manaDeducted = 0;
+            //if (leftButton == false && rightButton == true && stats.currentMana >= rightManaCost && stats.currentEssence >= rightEssenceCost)
+            //{
+            //    startingMana = stats.currentMana;
+            //    manaDeducted = 0;
+            //    startingEssence = stats.currentEssence;
+            //    essenceDeducted = 0;
 
-                stopwatch.Start();
-                spellReady = false;
-                spellCharging = SpellCharging.Dual;
-                stats.SpellStatus(spellCharging, dualCastSpeed, stopwatch);
-                lastMode = LastMode.Dual;
+            //    stopwatch.Start();
+            //    spellReady = false;
+            //    spellCharging = SpellCharging.Right;
+            //    stats.SpellStatus(spellCharging, rightCastSpeed, stopwatch);
+            //    lastMode = LastMode.Right;
 
-                if (lattice != null)
-                {
-                    objectManager.RemoveAlwaysDraw(lattice);
-                    lightManager.RemoveLight(latticeLight);
+            //    if (lattice == null && dObj != null)
+            //    {
+            //        lattice = new TurretLattice(game, Matrix.CreateTranslation(dObj.Position), turretLatticeModel, turretLatticeTexture, octree);
+            //        latticeLight = new PointLight(dObj.Position + latticeLightOffset, Color.White, 5, 1);
+            //        objectManager.AddAlwaysDraw(lattice);
+            //        lightManager.AddLight(latticeLight);
+            //    }
+            //}
+            //if (leftButton == true && rightButton == true && stats.currentMana >= dualManaCost && dObj.Type == DrawableObject.ObjectType.Turret)
+            //{
+            //    targetedTurret = (Turret)dObj;
 
-                    lattice = null;
-                    latticeLight = null;
-                }
-            }
+            //    startingMana = stats.currentMana;
+            //    manaDeducted = 0;
+
+            //    stopwatch.Start();
+            //    spellReady = false;
+            //    spellCharging = SpellCharging.Dual;
+            //    stats.SpellStatus(spellCharging, dualCastSpeed, stopwatch);
+            //    lastMode = LastMode.Dual;
+
+            //    if (lattice != null)
+            //    {
+            //        objectManager.RemoveAlwaysDraw(lattice);
+            //        lightManager.RemoveLight(latticeLight);
+
+            //        lattice = null;
+            //        latticeLight = null;
+            //    }
+            //}
         }
 
         public void Continue(bool leftButton, bool rightButton, DrawableObject dObj)
@@ -174,41 +203,7 @@ namespace Game1.Spells
                     stats.currentEssence = startingEssence - essenceDeducted;
                 }
 
-                else if (leftButton == false && rightButton == true)  //?
-                {
-                    if (lattice == null && dObj != null)
-                    {
-                        lattice = new TurretLattice(game, Matrix.CreateTranslation(dObj.Position), turretLatticeModel, turretLatticeTexture, octree);
-                        latticeLight = new PointLight(dObj.Position + latticeLightOffset, Color.White, 5, 1);
-                        objectManager.AddAlwaysDraw(lattice);
-                        lightManager.AddLight(latticeLight);
-                    }
-                    else if (lattice != null && dObj != null)
-                    {
-                        lattice.Position = dObj.Position;
-                        latticeLight.Position = dObj.Position + latticeLightOffset;
-                    }
-                    else if (lattice != null && dObj == null)
-                    {
-                        objectManager.RemoveAlwaysDraw(lattice);
-                        lightManager.RemoveLight(latticeLight);
-
-                        lattice = null;
-                        latticeLight = null;
-                    }
-
-                    if (spellReady == false)
-                    {
-                        manaDeducted = Math.Min((stopwatch.ElapsedMilliseconds / rightCastSpeed) * rightManaCost, rightManaCost);
-                        essenceDeducted = Math.Min((stopwatch.ElapsedMilliseconds / rightCastSpeed) * rightEssenceCost, rightEssenceCost);
-                        if (stopwatch.ElapsedMilliseconds >= rightCastSpeed)
-                            spellReady = true;
-                    }
-                    stats.currentMana = startingMana - manaDeducted;
-                    stats.currentEssence = startingEssence - essenceDeducted;
-                }
-
-                else if (leftButton == true && rightButton == true) //usuwanie turreta
+                else if (leftButton == false && rightButton == true) //usuwanie turreta
                 {
                     if (lattice != null)
                     {
@@ -223,8 +218,8 @@ namespace Game1.Spells
                     {
                         if (spellReady == false)
                         {
-                            manaDeducted = Math.Min((stopwatch.ElapsedMilliseconds / dualCastSpeed) * dualManaCost, dualManaCost);
-                            if (stopwatch.ElapsedMilliseconds >= dualCastSpeed)
+                            manaDeducted = Math.Min((stopwatch.ElapsedMilliseconds / rightCastSpeed) * rightManaCost, rightManaCost);
+                            if (stopwatch.ElapsedMilliseconds >= rightCastSpeed)
                                 spellReady = true;
                         }
                         stats.currentMana = startingMana - manaDeducted;
@@ -246,11 +241,23 @@ namespace Game1.Spells
                 {
                     if (spellReady == true && dObj != null)
                     {
-                        if (dObj.Type == DrawableObject.ObjectType.Tile)
+                        if (dObj.Type == DrawableObject.ObjectType.Tile && (dObj as Tile).ObjectOn == null)
                         {
                             Turret turret = new Turret(game, Matrix.CreateTranslation(dObj.Position), smallTurretModel, camera, octree, objectManager, smallTurretTexture, lightManager, particleManager);
-                            Octree.AddObject(turret);
                             spellReady = false;
+                            (dObj as Tile).ObjectOn = turret;
+                            turret.Tile = dObj as Tile;
+
+                            if (UpdatePaths() == false)
+                            {
+                                turret.Tile.ObjectOn = null;
+                                turret.Destroy(false);
+                                stats.currentEssence += leftEssenceCost;
+                            }
+                            else
+                            {
+                                Octree.AddObject(turret);
+                            }
                         }
                         else
                         {
@@ -271,36 +278,8 @@ namespace Game1.Spells
                     stats.SpellStatus(spellCharging);
                     stopwatch.Reset();
                 }
-                if (lastMode == LastMode.Right)
-                {
-                    if (spellReady == true && dObj != null)
-                    {
-                        if (dObj.Type == DrawableObject.ObjectType.Tile)
-                        {
-                            Turret turret = new Turret(game, Matrix.CreateTranslation(dObj.Position), bigTurretModel, camera, octree, objectManager, bigTurretTexture, lightManager, particleManager);
-                            Octree.AddObject(turret);
-                            spellReady = false;
-                        }
-                        else
-                        {
-                            stats.currentMana = startingMana;
-                            manaDeducted = 0;
-                            stats.currentEssence = startingEssence;
-                            essenceDeducted = 0;
-                        }
-                    }
-                    else
-                    {
-                        stats.currentMana = startingMana;
-                        manaDeducted = 0;
-                        stats.currentEssence = startingEssence;
-                        essenceDeducted = 0;
-                    }
-                    spellCharging = SpellCharging.None;
-                    stats.SpellStatus(spellCharging);
-                    stopwatch.Reset();
-                }
-                if (lastMode == LastMode.Dual) //usuwanie turreta
+
+                if (lastMode == LastMode.Right) //usuwanie turreta
                 {
                     if (dObj != null && dObj.Type == DrawableObject.ObjectType.Turret)
                     {
@@ -308,8 +287,9 @@ namespace Game1.Spells
                         {
                             if (spellReady == true)
                             {
-                                targetedTurret.Destroy();
-                                stats.currentEssence += leftEssenceCost / 2;
+                                (dObj as Turret).Tile.ObjectOn = null;
+                                targetedTurret.Destroy(true);
+                                stats.currentEssence = Math.Min((stats.currentEssence + leftEssenceCost / 2), stats.maxEssence);
 
                                 spellReady = false;
                             }
@@ -325,6 +305,8 @@ namespace Game1.Spells
                     spellCharging = SpellCharging.None;
                     stats.SpellStatus(spellCharging);
                     stopwatch.Reset();
+
+                    UpdatePaths();
                 }
             }
             if (lattice != null)
@@ -335,6 +317,19 @@ namespace Game1.Spells
                 lattice = null;
                 latticeLight = null;
             }
+        }
+
+        private bool UpdatePaths()
+        {
+            foreach (Spawn spawn in GameplayScreen.spawns)
+            {
+                if (spawn.UpdatePath() == false)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public SpellCreateTurret(Game game, Camera camera, Octree octree, ObjectManager objectManager, LightManager lightManager, ParticleManager particleManager, Stats stats)
@@ -348,11 +343,11 @@ namespace Game1.Spells
             this.stats = stats;
 
             leftManaCost = 150;
-            rightManaCost = 150;
+            rightManaCost = 10;
             dualManaCost = 10;
 
             leftEssenceCost = 100;
-            rightEssenceCost = 100;
+            rightEssenceCost = 0;
 
             //in milliseconds
             leftCastSpeed = 1000;
@@ -365,7 +360,7 @@ namespace Game1.Spells
             bigTurretTexture = game.Content.Load<Texture2D>("Textures/big_turret/big_turret_FIRE");
 
             turretLatticeModel = game.Content.Load<Model>("Models/turretLattice");
-            turretLatticeTexture = game.Content.Load<Texture2D>("Textures/turret");
+            turretLatticeTexture = game.Content.Load<Texture2D>("Textures/turretLattice");
         }
     }
 }

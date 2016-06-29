@@ -191,7 +191,12 @@ namespace Game1.Helpers
                     if (current.Position.X == end.Position.X && current.Position.Z == end.Position.Z && current.Position.Y == end.Position.Y)
                     {
                         // generate the found path
-                        return ReconstructPath(cameFrom, end);
+                        var path = ReconstructPath(cameFrom, end);
+                        foreach (Tile tile in path)
+                        {
+                            tile.IsPath = true;
+                        }
+                        return path;
                     }
 
                     // move current node from open to closed
@@ -258,13 +263,14 @@ namespace Game1.Helpers
                 }
 
                 // unable to figure out a path, abort.
-                throw new Exception(
-                    string.Format(
-                        "unable to find a path between {0},{1} and {2},{3}",
-                        start.Position.X, start.Position.Z,
-                        end.Position.X, end.Position.Z
-                    )
-                );
+                //throw new Exception(
+                //    string.Format(
+                //        "unable to find a path between {0},{1} and {2},{3}",
+                //        start.Position.X, start.Position.Z,
+                //        end.Position.X, end.Position.Z
+                //    )
+                //);
+                return null;
             }
             else
                 return new List<Tile>();
@@ -419,7 +425,7 @@ namespace Game1.Helpers
             {
                 CubeCoordinate neighborcoords = coords + directions[i];
                 Tile tile = tileFromAxial(neighborcoords.ToAxial(), map);
-                if (tile == null || tile.Position.Y - node.Position.Y > 20 || tile.Position.Y < 5)
+                if (tile == null || tile.Position.Y - node.Position.Y > 20 || tile.Position.Y < 5 || tile.ObjectOn != null)
                     continue;
                 else
                     neighbors.Add(tile);

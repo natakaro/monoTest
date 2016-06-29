@@ -96,7 +96,6 @@ namespace Game1
                 stopwatch.Reset();
             }
 
-
             if (phaseManager.Phase == Phase.Night && waveNumber < waves.Count)
             {
                 for (int i = 0; i < portalParticlesPerFrame; i++)
@@ -166,11 +165,28 @@ namespace Game1
         }
         */
 
-        public void UpdatePath()
+        public bool UpdatePath()
         {
             Tile start = HexCoordinates.tileFromPosition(position, GameplayScreen.map);
             Tile end = HexCoordinates.tileFromPosition(corePosition, GameplayScreen.map);
-            path = pathfinder.Pathfind(start, end, GameplayScreen.map, true);
+            foreach (Tile tile in path)
+            {
+                tile.IsPath = false;
+            }
+            var newPath = pathfinder.Pathfind(start, end, GameplayScreen.map, true);
+            if (newPath != null)
+            {
+                path = newPath;
+                return true;
+            }
+            else
+            {
+                foreach (Tile tile in path)
+                {
+                    tile.IsPath = true;
+                }
+                return false;
+            }
         }
     }
 }

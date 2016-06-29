@@ -74,7 +74,7 @@ float refractionStrength = 0.0f;
 float4 normalModifier = { 1.0f, 2.0f, 4.0f, 8.0f };
 
 // Strength of displacement along normal.
-float displace = 0.25f;
+float displace = 0.15f;
 
 // Describes at what depth foam starts to fade out and
 // at what it is completely invisible. The third value is at
