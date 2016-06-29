@@ -52,6 +52,12 @@ namespace Game1
         private const float HEIGHT_MULTIPLIER_CROUCHING = 0.5f;
         private const int MOUSE_SMOOTHING_CACHE_SIZE = 10;
 
+        private const float CAMERA_BOUNDS_MAX_X = 3715;
+        private const float CAMERA_BOUNDS_MIN_X = 0;
+        private const float CAMERA_BOUNDS_MAX_Z = 3200;
+        private const float CAMERA_BOUNDS_MIN_Z = 0;
+
+
         private float fovx;
         private float aspectRatio;
         private float znear;
@@ -220,18 +226,59 @@ namespace Game1
             // straight up and down.
 
             Vector3 forwards = Vector3.Normalize(Vector3.Cross(WORLD_Y_AXIS, xAxis));
-
             Vector3 movement = (xAxis * dx + WORLD_Y_AXIS * dy + forwards * dz);
 
-            dx = octree.CameraIntersection(eye + new Vector3(movement.X, 0, 0)*2, 1) ? 0 : dx;
-            dy = octree.CameraIntersection(eye + new Vector3(0, movement.Y, 0)*2, 1) ? 0 : dy;
-            dz = octree.CameraIntersection(eye + new Vector3(0, 0, movement.Z)*2, 1) ? 0 : dz;
+            /*
+            if(!octree.CameraIntersection(eye + new Vector3(movement.X, 0, 0) * 3, 5))
+            {
+                //dx = -dx/10;
+                eye += xAxis * dx;
+            }
+            if (!octree.CameraIntersection(eye + new Vector3(0, movement.Y, 0) * 3, 5))
+            {
+                //dy = -dy/10;
+                eye += WORLD_Y_AXIS * dy;
+            }
+            if (!octree.CameraIntersection(eye + new Vector3(0, 0, movement.Z) * 3, 5))
+            {
+                //dz = -dz/10;
+                eye += forwards * dz;
+            }
+            */
 
+            
+            dx = octree.CameraIntersection(eye + new Vector3(movement.X, 0, 0)*3, 5) ? 0f : dx;
+            dy = octree.CameraIntersection(eye + new Vector3(0, movement.Y, 0)*3, 5) ? 0f : dy;
+            dz = octree.CameraIntersection(eye + new Vector3(0, 0, movement.Z)*3, 5) ? 0f : dz;
+            
             eye += xAxis * dx;
-            eye += WORLD_Y_AXIS * dy;
             eye += forwards * dz;
+            eye += WORLD_Y_AXIS * dy;
 
-            Position = eye;
+            Vector3 newPos = eye;
+            
+            if (eye.X > CAMERA_BOUNDS_MAX_X)
+                newPos.X = CAMERA_BOUNDS_MAX_X;
+
+            if (eye.X < CAMERA_BOUNDS_MIN_X)
+                newPos.X = CAMERA_BOUNDS_MIN_X;
+            /*
+            //blokada wysokości - nie potrzebne
+            if (eye.Y > CAMERA_BOUNDS_MAX_Y)
+                newPos.Y = CAMERA_BOUNDS_MAX_Y;
+
+            if (eye.Y < CAMERA_BOUNDS_MIN_Y)
+                newPos.Y = CAMERA_BOUNDS_MIN_Y;
+            */
+            if (eye.Z > CAMERA_BOUNDS_MAX_Z)
+                newPos.Z = CAMERA_BOUNDS_MAX_Z;
+
+            if (eye.Z < CAMERA_BOUNDS_MIN_Z)
+                newPos.Z = CAMERA_BOUNDS_MIN_Z;
+            
+            eye = newPos;
+
+        Position = eye;
         }
 
         public void Perspective(float fovx, float aspect, float znear, float zfar)

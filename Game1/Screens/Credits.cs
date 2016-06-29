@@ -98,10 +98,8 @@ namespace Game1.Screens
             SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
             Viewport viewport = ScreenManager.GraphicsDevice.Viewport;
             Rectangle fullscreen = new Rectangle(0, 0, viewport.Width, viewport.Height);
-
-
+            
             SpriteFont font = ScreenManager.Font;
-
             Vector2 viewportSize = new Vector2(viewport.Width, viewport.Height);
             Vector2 textSize = font.MeasureString(messages[i]);
             Vector2 textPosition = (viewportSize - textSize) / 2;
