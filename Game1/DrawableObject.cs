@@ -170,6 +170,7 @@ namespace Game1
             {
                 foreach (Effect effect in mesh.Effects)
                 {
+                    effect.CurrentTechnique = effect.Techniques["Technique1"];
                     effect.Parameters["World"].SetValue(Matrix.CreateScale(scale) * modelBones[mesh.ParentBone.Index] * worldMatrix);
                     effect.Parameters["View"].SetValue(viewMatrix);
                     effect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
@@ -313,6 +314,20 @@ namespace Game1
         public void UndoLastMove()
         {
             position = lastPosition;
+        }
+
+        public void UndoMoveY(float previousY)
+        {
+            lastPosition = position;
+            position.Y = previousY;
+
+            boundingSphere.Center = position;
+            boundingBox.Min -= lastPosition - position;
+            boundingBox.Max -= lastPosition - position;
+
+            worldMatrix = Matrix.CreateTranslation(position);
+            if (lastPosition != position)
+                CheckIntersections();
         }
 
         public void SetCollisionRadius(float radius)

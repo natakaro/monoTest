@@ -94,6 +94,7 @@ namespace Game1
                         effect.Parameters["FarClip"].SetValue(camera.FarZ);
                         effect.Parameters["Texture"].SetValue(texture);
                         effect.Parameters["Clipping"].SetValue(false);
+                        effect.Parameters["Emissive"].SetValue(0.0f);
 
                         // Draw all the instance copies in a single call.
                         foreach (EffectPass pass in effect.CurrentTechnique.Passes)

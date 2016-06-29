@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Game1.Helpers;
 using static Game1.Helpers.HexCoordinates;
+using Game1.Screens;
 
 namespace Game1.Spells
 {
@@ -17,6 +18,7 @@ namespace Game1.Spells
         private DrawableObject target; 
         private Octree octree;
         private float average_y;
+        private float target_starting_y;
         private Stats stats;
         private Dictionary<AxialCoordinate, Tile> map;
 
@@ -103,28 +105,32 @@ namespace Game1.Spells
                     if (dObj.Type == DrawableObject.ObjectType.Tile)
                     {
                         target = dObj;
+                        target_starting_y = target.Position.Y;
 
                         HeightLimiter();
 
-                        target.IsStatic = false;
-                        if (leftButton)
+                        if ((target as Tile).ObjectOn == null)
                         {
-                            if (tooHigh == false)
+                            target.IsStatic = false;
+                            if (leftButton)
                             {
-                                spellCharging = SpellCharging.Left;
-                                target.Acceleration = new Vector3(0, 10, 0);
+                                if (tooHigh == false)
+                                {
+                                    spellCharging = SpellCharging.Left;
+                                    target.Acceleration = new Vector3(0, 10, 0);
+                                }
                             }
-                        }
-                        else
-                        {
-                            if (tooLow == false)
+                            else
                             {
-                                spellCharging = SpellCharging.Right;
-                                target.Acceleration = new Vector3(0, -10, 0);
+                                if (tooLow == false)
+                                {
+                                    spellCharging = SpellCharging.Right;
+                                    target.Acceleration = new Vector3(0, -10, 0);
+                                }
                             }
+                            stopwatch.Start();
+                            stats.SpellStatus(spellCharging, 0, stopwatch);
                         }
-                        stopwatch.Start();
-                        stats.SpellStatus(spellCharging, 0, stopwatch);
                     }
                 }
             }
@@ -218,6 +224,7 @@ namespace Game1.Spells
         {
             if (target != null)
             {
+                UpdatePaths();
                 target.Acceleration = Vector3.Zero;
                 target.Velocity = Vector3.Zero;
                 target.IsStatic = true;
@@ -237,7 +244,7 @@ namespace Game1.Spells
                 stopwatch.Reset();
             }
             spellCharging = SpellCharging.None;
-            stats.SpellStatus(spellCharging);
+            stats.SpellStatus(spellCharging);  
         }
 
         public void HeightLimiter()
@@ -253,6 +260,17 @@ namespace Game1.Spells
                     tooHigh = true;
                 else if (target.Position.Y - neighbor.Position.Y < -95)
                     tooLow = true;
+            }
+        }
+
+        void UpdatePaths()
+        {
+            foreach (Spawn spawn in GameplayScreen.spawns)
+            {
+                if(spawn.UpdatePath() == false)
+                {
+                    target.UndoMoveY(target_starting_y);
+                }
             }
         }
 

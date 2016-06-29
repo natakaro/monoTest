@@ -103,7 +103,8 @@ namespace Game1
             {
                 //if (coord.height != 255) { throw new Exception(coord.height.ToString() + " " + coord.x.ToString() + " " + coord.y.ToString()); }
                 var axial = coord.oddQ_toCube().ToAxial();
-                var position = tileFromAxial(axial, GameplayScreen.map).Position;
+                var tile = tileFromAxial(axial, GameplayScreen.map);
+                var position = tile.Position;
                 
                 float temp = Game1.random.Next(0, 359);
                 Matrix worldm = Matrix.CreateRotationY(MathHelper.ToRadians(temp)) * Matrix.CreateTranslation(position);
@@ -111,60 +112,90 @@ namespace Game1
 
                 if (id == 10)
                 {
-                   assetDictionary.Add(axial, new Asset(game, worldm, assetContainer.pinetreeModel, octree, assetContainer.pinetreeTexture, id));
+                    Asset asset = new Asset(game, worldm, assetContainer.pinetreeModel, octree, assetContainer.pinetreeTexture, id);
+                    assetDictionary.Add(axial, asset);
+                    tile.ObjectOn = asset;
                 }
                 else if (id == 20)
                 {
-                    assetDictionary.Add(axial, new Asset(game, worldm, assetContainer.tree1Model, octree, assetContainer.tree1Texture, id));
+                    Asset asset = new Asset(game, worldm, assetContainer.tree1Model, octree, assetContainer.tree1Texture, id);
+                    assetDictionary.Add(axial, asset);
+                    tile.ObjectOn = asset;
                 }
                 else if (id == 30)
                 {
-                    assetDictionary.Add(axial, new Asset(game, worldm, assetContainer.tree2Model, octree, assetContainer.tree2Texture, id));
+                    Asset asset = new Asset(game, worldm, assetContainer.tree2Model, octree, assetContainer.tree2Texture, id);
+                    assetDictionary.Add(axial, asset);
+                    tile.ObjectOn = asset;
                 }
                 else if (id == 40)
                 {
-                    assetDictionary.Add(axial, new Asset(game, worldm, assetContainer.treetrunkModel, octree, assetContainer.treetrunkTexture, id));
+                    Asset asset = new Asset(game, worldm, assetContainer.treetrunkModel, octree, assetContainer.treetrunkTexture, id);
+                    assetDictionary.Add(axial, asset);
+                    tile.ObjectOn = asset;
                 }
                 else if (id == 50)
                 {
-                    assetDictionary.Add(axial, new Asset(game, worldm, assetContainer.rockModel, octree, assetContainer.rockTexture, id));
+                    Asset asset = new Asset(game, worldm, assetContainer.rockModel, octree, assetContainer.rockTexture, id);
+                    assetDictionary.Add(axial, asset);
+                    tile.ObjectOn = asset;
                 }
                 else if (id == 60)
                 {
-                    assetDictionary.Add(axial, new Asset(game, worldm, assetContainer.rock1Model, octree, assetContainer.rockTexture, id));
+                    Asset asset = new Asset(game, worldm, assetContainer.rock1Model, octree, assetContainer.rockTexture, id);
+                    assetDictionary.Add(axial, asset);
+                    tile.ObjectOn = asset;
                 }
                 else if (id == 70)
                 {
-                    assetDictionary.Add(axial, new Asset(game, worldm, assetContainer.rock2Model, octree, assetContainer.rockTexture, id));
+                    Asset asset = new Asset(game, worldm, assetContainer.rock2Model, octree, assetContainer.rockTexture, id);
+                    assetDictionary.Add(axial, asset);
+                    tile.ObjectOn = asset;
                 }
                 else if (id == 80)
                 {
-                    assetDictionary.Add(axial, new Asset(game, worldm, assetContainer.rock3Model, octree, assetContainer.rockTexture, id));
+                    Asset asset = new Asset(game, worldm, assetContainer.rock3Model, octree, assetContainer.rockTexture, id);
+                    assetDictionary.Add(axial, asset);
+                    tile.ObjectOn = asset;
                 }
                 else if (id == 90)
                 {
-                    assetDictionary.Add(axial, new Asset(game, worldm, assetContainer.rock4Model, octree, assetContainer.rockTexture, id));
+                    Asset asset = new Asset(game, worldm, assetContainer.rock4Model, octree, assetContainer.rockTexture, id);
+                    assetDictionary.Add(axial, asset);
+                    tile.ObjectOn = asset;
                 }
                 else if (id == 100)
                 {
-                    assetDictionary.Add(axial, new Asset(game, worldm, assetContainer.rock5Model, octree, assetContainer.rockTexture, id));
+                    Asset asset = new Asset(game, worldm, assetContainer.rock5Model, octree, assetContainer.rockTexture, id);
+                    assetDictionary.Add(axial, asset);
+                    tile.ObjectOn = asset;
                 }
                 else if (id == 110)
                 {
-                    assetDictionary.Add(axial, new Asset(game, worldm, assetContainer.rock6Model, octree, assetContainer.rockTexture, id));
+                    Asset asset = new Asset(game, worldm, assetContainer.rock6Model, octree, assetContainer.rockTexture, id);
+                    assetDictionary.Add(axial, asset);
+                    tile.ObjectOn = asset;
                 }
                 else if (id == 120)
                 {
-                    assetDictionary.Add(axial, new Asset(game, worldm, assetContainer.rock7Model, octree, assetContainer.rockTexture, id));
+                    Asset asset = new Asset(game, worldm, assetContainer.rock7Model, octree, assetContainer.rockTexture, id);
+                    assetDictionary.Add(axial, asset);
+                    tile.ObjectOn = asset;
                 }
                 else if (id == 130)
                 {
-                    assetDictionary.Add(axial, new Spawn(game, worldm, assetContainer.spawnModel, octree, itemManager, Content, corePosition, phaseManager, GameplayScreen.wavesList[i]));
+                    Spawn spawn = new Spawn(game, worldm, assetContainer.spawnModel, octree, itemManager, Content, corePosition, phaseManager, GameplayScreen.wavesList[i]);
+                    assetDictionary.Add(axial, spawn);
+                    tile.ObjectOn = spawn;
+                    GameplayScreen.spawns.Add(spawn);
                     i++;
                 }
                 else if (id == 140)
                 {
-                    assetDictionary.Add(axial, new Spawn(game, worldm, assetContainer.spawnModel, octree, itemManager, Content, corePosition, phaseManager, GameplayScreen.wavesList[i]));
+                    Spawn spawn = new Spawn(game, worldm, assetContainer.spawnModel, octree, itemManager, Content, corePosition, phaseManager, GameplayScreen.wavesList[i]);
+                    assetDictionary.Add(axial, spawn);
+                    tile.ObjectOn = spawn;
+                    GameplayScreen.spawns.Add(spawn);
                     i++;
                 }
             }
@@ -289,7 +320,9 @@ namespace Game1
                     HexOffset coord = new HexOffset(x, y);
                     var axial = coord.oddQ_toCube().ToAxial();
 
-                    var position = tileFromAxial(axial, map).Position.Y;
+                    var tile = tileFromAxial(axial, map);
+                    var position = tile.Position.Y;
+                    var isPath = tile.IsPath;
 
                     Color color = Color.White;
                     if (position < 128)
@@ -302,6 +335,10 @@ namespace Game1
                         color = Color.Lerp(Color.Yellow, Color.Red, (position - 128f) / 128f) * alpha;
 
                     spriteBatch.Draw(tileTex, new Vector2(startingPos.X + x * tileSize.X * 0.75f, startingPos.Y + y * tileSize.Y + offset), null, color, 0, origin, 1, SpriteEffects.None, 0);
+
+                    Texture2D pathIcon = GameplayScreen.assetContentContainer.pathIcon;
+                    if (isPath)
+                        spriteBatch.Draw(pathIcon, new Vector2(startingPos.X + x * tileSize.X * 0.75f, startingPos.Y + y * tileSize.Y + offset), null, Color.White * alpha, 0, origin, 1, SpriteEffects.None, 0);
                 }
             }
             HexOffset playerCoord = pixelToAxialH(GameplayScreen.camera.Position, Map.size).ToCube().to_oddQ_Offset();
@@ -335,6 +372,7 @@ namespace Game1
                 if (tile != null)
                 {
                     var position = tile.Position.Y;
+                    var isPath = tile.IsPath;
 
                     Color color = Color.White;
                     if (position < 128)
@@ -347,6 +385,10 @@ namespace Game1
                         color = Color.Lerp(Color.Yellow, Color.Red, (position - 128f) / 128f) * alpha;
 
                     spriteBatch.Draw(tileTex, new Vector2(startingPos.X + (coord.x - centerCoord.x) * tileSize.X * 0.75f, startingPos.Y + (coord.y - centerCoord.y) * tileSize.Y + offset), null, color, 0, origin, scale, SpriteEffects.None, 0);
+
+                    Texture2D pathIcon = GameplayScreen.assetContentContainer.pathIcon;
+                    if (isPath)
+                        spriteBatch.Draw(pathIcon, new Vector2(startingPos.X + (coord.x - centerCoord.x) * tileSize.X * 0.75f, startingPos.Y + (coord.y - centerCoord.y) * tileSize.Y + offset), null, Color.White * alpha, 0, origin, scale, SpriteEffects.None, 0);
                 }
                 else
                 {

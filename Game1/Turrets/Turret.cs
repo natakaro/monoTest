@@ -56,7 +56,12 @@ namespace Game1.Turrets
         float timer = 0;
 
         protected float spawnAge;
-        protected const float spawnLength = 2f;
+        protected const float spawnLength = 1f;
+
+        bool dying = false;
+
+        protected float deathAge;
+        protected const float deathLength = 1f;
 
         public Mode mode;
 
@@ -67,6 +72,13 @@ namespace Game1.Turrets
 
         Vector4 OverlayColor = Color.White.ToVector4();
         float emissive = 0;
+
+        private Tile tile;
+        public Tile Tile
+        {
+            get { return tile; }
+            set { tile = value; }
+        }
 
         public Turret(Game game, Matrix inWorldMatrix, Model inModel, Camera camera, Octree octree, ObjectManager objectManager, Texture2D inTexture, LightManager lightManager, ParticleManager particleManager) : base(game, inWorldMatrix, inModel, octree)
         {
@@ -104,6 +116,8 @@ namespace Game1.Turrets
             scale = 1;
 
             mode = Mode.Off;
+
+            tile = null;
         }
 
         public override void Draw(Camera camera)
@@ -215,6 +229,19 @@ namespace Game1.Turrets
             {
                 dissolveAmount = 0;
                 //scale = 1;
+            }
+
+            if (dying)
+            {
+                deathAge += elapsedTime;
+
+                dissolveAmount = MathHelper.Lerp(0, 1, deathAge / deathLength);
+
+                if (deathAge > deathLength)
+                {
+                    lightManager.RemoveLight(pointLight);
+                    Alive = false;
+                }
             }
 
             if (mode != Mode.Off)
@@ -414,10 +441,17 @@ namespace Game1.Turrets
             return target_position + t * target_velocity;
         }
 
-        public void Destroy()
+        public void Destroy(bool animate)
         {
-            lightManager.RemoveLight(pointLight);
-            Alive = false;
+            if (animate)
+            {
+                dying = true;
+            }
+            else
+            {
+                lightManager.RemoveLight(pointLight);
+                Alive = false;
+            }
         }
     }
 }
