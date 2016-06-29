@@ -219,7 +219,11 @@ namespace Game1
                 Vignette = !Vignette;
 
             if (state.IsNewKeyPress(Keys.T))
-                game.Window.IsBorderless = !game.Window.IsBorderless;
+            {
+                //game.Window.IsBorderless = !game.Window.IsBorderless;
+                //game.Window.BeginScreenDeviceChange(true);
+            }
+
         }
     }
     public enum FixedFilterSize

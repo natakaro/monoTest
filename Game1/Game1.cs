@@ -43,6 +43,7 @@ namespace Game1
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
+            graphics.ToggleFullScreen();
             Content.RootDirectory = "Content";
             IsFixedTimeStep = false; //to ustawione na false albo vsync na true potrzebne
 
