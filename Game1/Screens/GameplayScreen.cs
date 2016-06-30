@@ -571,7 +571,7 @@ namespace Game1.Screens
             {
                 camera.Update(gameTime, input);
 
-                settings.Update(gameTime, input);
+                //settings.Update(gameTime, input);
 
                 prevLeftButton = currentLeftButton;
                 if (mouseState.LeftButton == ButtonState.Pressed)
@@ -585,31 +585,27 @@ namespace Game1.Screens
                 else
                     currentRightButton = false;
 
-                if (input.IsNewKeyPress(Keys.H))
-                    displayHelp = !displayHelp;
+                //if (input.IsNewKeyPress(Keys.H))
+                //    displayHelp = !displayHelp;
 
                 //if (input.IsNewKeyPress(Keys.M))
                 //    camera.EnableMouseSmoothing = !camera.EnableMouseSmoothing;
 
-                if (input.IsNewKeyPress(Keys.Add))
-                {
-                    camera.RotationSpeed += 0.01f;
+                //if (input.IsNewKeyPress(Keys.Add))
+                //{
+                //    camera.RotationSpeed += 0.01f;
 
-                    if (camera.RotationSpeed > 1.0f)
-                        camera.RotationSpeed = 1.0f;
-                }
+                //    if (camera.RotationSpeed > 1.0f)
+                //        camera.RotationSpeed = 1.0f;
+                //}
 
-                if (input.IsNewKeyPress(Keys.Subtract))
-                {
-                    camera.RotationSpeed -= 0.01f;
+                //if (input.IsNewKeyPress(Keys.Subtract))
+                //{
+                //    camera.RotationSpeed -= 0.01f;
 
-                    if (camera.RotationSpeed <= 0.0f)
-                        camera.RotationSpeed = 0.01f;
-                }
-                if (input.IsNewKeyPress(Keys.P))
-                {
-                    ScreenManager.AddScreen(new Credits());
-                }
+                //    if (camera.RotationSpeed <= 0.0f)
+                //        camera.RotationSpeed = 0.01f;
+                //}
 
                 if (input.IsNewMouseScrollDown && mouseState.LeftButton == ButtonState.Released && mouseState.RightButton == ButtonState.Released)
                 {
@@ -1089,7 +1085,7 @@ namespace Game1.Screens
                 }
 
                 spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
-                DrawText();
+                //DrawText();
                 if (settings.ShowGBuffer)
                     DrawGBuffer();
                 spriteBatch.End();
