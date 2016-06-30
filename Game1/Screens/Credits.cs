@@ -40,7 +40,7 @@ namespace Game1.Screens
             messages = new List<string>();
             messages.Add("Dimensional" + "    " + "Clash");
             messages.Add("GRO-POL");
-            messages.Add("Maciej" + "    " + "Michalski\nBartlomiej" + "    " +"Paszkowski\nMarcin" + "    " + "Gniewisz");
+            messages.Add("Maciej" + "    " + "Michalski\nBartłomiej" + "    " +"Paszkowski\nMarcin" + "    " + "Gniewisz");
             messages.Add("Sounds:" + "\nFireball - Large Fireball" + "\nIcebolt - Bottle Rocket Sound" + "\nTileMove - Earthquake" + "\nby   Mike   Koenig\n"
                          + "\nIceWind - Wind Sound" + "\nBossPunch - Explosion Ultra Bass Sound" + "\nby   Mark   DiAngelo"
                 );

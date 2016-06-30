@@ -45,6 +45,8 @@ namespace Game1
         public Point ScreenResolution;
         Game1 game;
 
+        public bool Polish;
+
         public enum FogEffect
         {
             Off = 0,
@@ -111,6 +113,8 @@ namespace Game1
 
             SSAORadius = 5;
             SSAOPower = 2;
+
+            Polish = false;
         }
 
         public void Update(GameTime gameTime, InputState state)

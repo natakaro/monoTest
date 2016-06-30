@@ -401,7 +401,7 @@ namespace Game1.Screens
 
             turretList = new List<Turret>();
 
-            tutorial = new Tutorial(ScreenManager.Game, ScreenManager, hudManager, stats);
+            tutorial = new Tutorial(ScreenManager.Game, ScreenManager, hudManager, stats, settings);
         }
 
         #region GBuffer
@@ -649,25 +649,25 @@ namespace Game1.Screens
                     }
                 }
 
-                if (input.IsNewKeyPress(Keys.D1))
+                if (input.IsNewKeyPress(Keys.D1) && mouseState.LeftButton == ButtonState.Released && mouseState.RightButton == ButtonState.Released)
                 {
                     if (stats.fireEnabled)
                         selectedSpell = SpellType.Fire;
                 }
 
-                if (input.IsNewKeyPress(Keys.D2))
+                if (input.IsNewKeyPress(Keys.D2) && mouseState.LeftButton == ButtonState.Released && mouseState.RightButton == ButtonState.Released)
                 {
                     if (stats.iceEnabled)
                         selectedSpell = SpellType.Ice;
                 }
 
-                if (input.IsNewKeyPress(Keys.D3))
+                if (input.IsNewKeyPress(Keys.D3) && mouseState.LeftButton == ButtonState.Released && mouseState.RightButton == ButtonState.Released)
                 {
                     if (stats.moveTerrainEnabled)
                         selectedSpell = SpellType.MoveTerrain;
                 }
 
-                if (input.IsNewKeyPress(Keys.D4))
+                if (input.IsNewKeyPress(Keys.D4) && mouseState.LeftButton == ButtonState.Released && mouseState.RightButton == ButtonState.Released)
                 {
                     if (stats.createTurretEnabled)
                         selectedSpell = SpellType.CreateTurret;

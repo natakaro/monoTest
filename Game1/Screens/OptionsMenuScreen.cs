@@ -17,6 +17,10 @@ namespace Game1.Screens
         #region Fields
         GameSettings settings;
 
+        MenuEntry languageMenuEntry;
+
+        MenuEntry emptyMenuEntry;
+
         MenuEntry shadowsMenuEntry;
         MenuEntry shadowFilteringMenuEntry;
         MenuEntry stabilizeCascadesMenuEntry;
@@ -48,6 +52,10 @@ namespace Game1.Screens
         public OptionsMenuScreen()
             : base("Options")
         {
+            languageMenuEntry = new MenuEntry(string.Empty);
+
+            emptyMenuEntry = new MenuEntry(string.Empty);
+
             shadowsMenuEntry = new MenuEntry(string.Empty);
             shadowFilteringMenuEntry = new MenuEntry(string.Empty, true);
             stabilizeCascadesMenuEntry = new MenuEntry(string.Empty);
@@ -66,7 +74,11 @@ namespace Game1.Screens
             reflectionsMenuEntry = new MenuEntry(string.Empty);
             vignetteMenuEntry = new MenuEntry(string.Empty);
 
-            back = new MenuEntry("Back");            
+            back = new MenuEntry("Back");
+
+            languageMenuEntry.Selected += LanguageMenuEntrySelected;
+            languageMenuEntry.SelectedLeft += LanguageMenuEntrySelected;
+            languageMenuEntry.SelectedRight += LanguageMenuEntrySelected;
 
             shadowsMenuEntry.Selected += ShadowsMenuEntrySelected;
             shadowsMenuEntry.SelectedLeft += ShadowsMenuEntrySelected;
@@ -117,6 +129,10 @@ namespace Game1.Screens
             back.Selected += OnCancel;
 
             // Add entries to the menu.
+            MenuEntries.Add(languageMenuEntry);
+
+            MenuEntries.Add(emptyMenuEntry);
+
             MenuEntries.Add(shadowsMenuEntry);
             MenuEntries.Add(shadowFilteringMenuEntry);
             MenuEntries.Add(stabilizeCascadesMenuEntry);
@@ -124,9 +140,13 @@ namespace Game1.Screens
             MenuEntries.Add(shadowBiasMenuEntry);
             MenuEntries.Add(shadowOffsetMenuEntry);
 
+            MenuEntries.Add(emptyMenuEntry);
+
             MenuEntries.Add(ssaoMenuEntry);
             MenuEntries.Add(ssaoRadiusMenuEntry);
             MenuEntries.Add(ssaoPowerMenuEntry);
+
+            MenuEntries.Add(emptyMenuEntry);
 
             MenuEntries.Add(fogMenuEntry);
             MenuEntries.Add(dofMenuEntry);
@@ -134,6 +154,8 @@ namespace Game1.Screens
             MenuEntries.Add(hdrMenuEntry);
             MenuEntries.Add(reflectionsMenuEntry);
             MenuEntries.Add(vignetteMenuEntry);
+
+            MenuEntries.Add(emptyMenuEntry);
 
             MenuEntries.Add(back);
         }
@@ -151,6 +173,8 @@ namespace Game1.Screens
         /// </summary>
         void SetMenuEntryText()
         {
+            languageMenuEntry.Text = "Language: " + (settings.Polish ? "Polish" : "English");
+
             shadowsMenuEntry.Text = "Shadows: " + (settings.Shadows ? "on" : "off");
             shadowFilteringMenuEntry.Text = "Shadow filtering: " + settings.FixedFilterSize.ToString();
             stabilizeCascadesMenuEntry.Text = "Stabilize shadow cascades: " + (settings.StabilizeCascades ? "on" : "off");
@@ -172,6 +196,14 @@ namespace Game1.Screens
         #endregion
 
         #region Handle Input
+
+        void LanguageMenuEntrySelected(object sender, EventArgs e)
+        {
+            settings.Polish = !settings.Polish;
+
+            SetMenuEntryText();
+        }
+
         void ShadowsMenuEntrySelected(object sender, EventArgs e)
         {
             settings.Shadows = !settings.Shadows;
