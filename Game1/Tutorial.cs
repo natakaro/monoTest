@@ -17,7 +17,7 @@ namespace Game1
         Stats stats;
         int step;
 
-        const float delay = 1.0f;
+        const float delay = 0.1f;
         float age;
 
         Vector2 spellsOffset;

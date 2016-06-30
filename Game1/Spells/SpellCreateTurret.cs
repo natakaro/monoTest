@@ -258,6 +258,7 @@ namespace Game1.Spells
                                 }
                                 else
                                 {
+                                    GameplayScreen.turretList.Add(turret);
                                     Octree.AddObject(turret);
                                 }
                             }
@@ -298,6 +299,7 @@ namespace Game1.Spells
                             if (spellReady == true)
                             {
                                 (dObj as Turret).Tile.ObjectOn = null;
+                                GameplayScreen.turretList.Remove(targetedTurret);
                                 targetedTurret.Destroy(true);
                                 stats.currentEssence = Math.Min((stats.currentEssence + leftEssenceCost / 2), stats.maxEssence);
 

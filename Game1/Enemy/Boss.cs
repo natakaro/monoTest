@@ -130,7 +130,7 @@ namespace Game1
             Vector4 OverlayColor = Color.White.ToVector4();
             if (chilled)
                 OverlayColor = Color.SlateBlue.ToVector4();
-            animatedModel.Draw(GraphicsDevice, camera, worldMatrix, Content, GameplayScreen.assetContentContainer.enemyFlyTexture, OverlayColor, dissolveAmount);
+            animatedModel.Draw(GraphicsDevice, camera, worldMatrix, Content, GameplayScreen.assetContentContainer.enemyWalkTexture, OverlayColor, dissolveAmount);
             //boundingBox = CollisionBox.CreateBoundingBox(animatedModel, position, 1, Matrix.CreateFromQuaternion(Orientation)); // dostosowywany boundingbox
         }
 

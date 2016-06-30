@@ -8,6 +8,7 @@ using Game1.Postprocess;
 using Game1.Shadows;
 using Game1.Sky;
 using Game1.Spells;
+using Game1.Turrets;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -55,6 +56,7 @@ namespace Game1.Screens
 
         public static Dictionary<AxialCoordinate, Tile> map;
         public static Dictionary<AxialCoordinate, DrawableObject> mapAsset;
+        public static List<Turret> turretList;
 
         public static Camera camera;
         float acceleration = 100.0f; // przyspieszenie przy wspinaniu i opadaniu
@@ -396,6 +398,8 @@ namespace Game1.Screens
                 else
                     Octree.AddObject(item.Value);
             }
+
+            turretList = new List<Turret>();
 
             tutorial = new Tutorial(ScreenManager.Game, ScreenManager, hudManager, stats);
         }
