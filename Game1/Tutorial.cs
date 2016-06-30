@@ -169,7 +169,7 @@ namespace Game1
                     hudManager.Icons.CreateTurretIcon.Enable = true;
                     stats.createTurretEnabled = true;
                     hudManager.Icons.UpdateIconPositions();
-                    string message = "You have leveled up!\n\nYou can use two new spells.";
+                    string message = "You have gained a level!\n\nYou can use two new spells.";
                     MessageBoxScreen messageBox = new MessageBoxScreen(message, Vector2.Zero, true, true);
                     ScreenManager.AddScreen(messageBox);
                     age = 0;
@@ -223,7 +223,7 @@ namespace Game1
                     hudManager.Icons.ManaIcon.Position = hudManager.ManaBar.Position + iconOffset;
                     hudManager.EssenceBar.Enable = true;
                     hudManager.Icons.EssenceIcon.Enable = true;
-                    string message = "The purple bar displays your Essence, which is used to create turrets.\n\nEssence does not regenerate - you have to collect it from your fallen enemies.";
+                    string message = "The purple bar displays your Essence, which is used to create turrets.\n\nEssence does not regenerate - you have to collect it from fallen enemies.";
                     MessageBoxScreen messageBox = new MessageBoxScreen(message, barsOffset, true, true);
                     ScreenManager.AddScreen(messageBox);
                     age = 0;
@@ -237,7 +237,7 @@ namespace Game1
                 {
                     hudManager.EssenceBar.Enable = true;
                     hudManager.Icons.EssenceIcon.Enable = true;
-                    string message = "During the day, you can modify the terrain to alter your enemies' paths.\nUse the time wisely.\n\nRemember to place turrets near the highlighted paths.\nYou can create turrets after nightfall too.";
+                    string message = "You can modify the terrain to alter your enemies' paths, but only during the day.\nUse the time wisely.\n\nRemember to place turrets near the highlighted paths.\nTurrets can be created anytime.";
                     MessageBoxScreen messageBox = new MessageBoxScreen(message, Vector2.Zero, true, true);
                     ScreenManager.AddScreen(messageBox);
                     age = 0;
@@ -250,7 +250,7 @@ namespace Game1
                 if (age > delay)
                 {
                     stats.rightModeEnabled = true;
-                    string message = "You have leveled up!\n\nYou now have access to an alternate mode of Fire and Ice spells.";
+                    string message = "You have gained a level!\n\nYou now have access to an alternate mode of Fire and Ice spells.";
                     MessageBoxScreen messageBox = new MessageBoxScreen(message, Vector2.Zero, true, true);
                     ScreenManager.AddScreen(messageBox);
                     age = 0;
