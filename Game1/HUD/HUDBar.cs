@@ -71,8 +71,8 @@ namespace Game1.HUD
             if (enabled)
             {
                 Rectangle backgroundRectangle = new Rectangle();
-                backgroundRectangle.Width = (int)dimension.X + 10;
-                backgroundRectangle.Height = (int)dimension.Y + 10;
+                backgroundRectangle.Width = (int)(dimension.X + 10);
+                backgroundRectangle.Height = (int)(dimension.Y + 10);
                 backgroundRectangle.X = (int)position.X - 5;
                 backgroundRectangle.Y = (int)position.Y - 5;
 
@@ -86,7 +86,7 @@ namespace Game1.HUD
             {
                 Rectangle maskRectangle = new Rectangle();
                 maskRectangle.Width = 10;
-                maskRectangle.Height = 20;
+                maskRectangle.Height = (int)dimension.Y;
                 maskRectangle.X = (int)position.X;
                 maskRectangle.Y = (int)position.Y;
                 spriteBatch.Draw(cornerMask, maskRectangle, Color.White);

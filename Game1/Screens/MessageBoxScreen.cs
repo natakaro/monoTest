@@ -16,6 +16,8 @@ namespace Game1.Screens
         #region Fields
 
         string message;
+
+        Vector2 offset;
         Texture2D backgroundTexture;
         Texture2D horizontalBorderTexture;
         Texture2D verticalBorderTexture;
@@ -23,6 +25,8 @@ namespace Game1.Screens
 
         InputAction menuSelect;
         InputAction menuCancel;
+
+        bool tutorial;
 
         #endregion
 
@@ -42,25 +46,27 @@ namespace Game1.Screens
         /// Constructor lets the caller specify whether to include the standard
         /// "A=ok, B=cancel" usage text prompt.
         /// </summary>
-        public MessageBoxScreen(string message, bool oneOption = false) : base(message)
+        public MessageBoxScreen(string message, Vector2 offset, bool oneOption = false, bool tutorial = false) : base(message)
         {
             if (oneOption)
             {
                 MenuEntry okMenuEntry = new MenuEntry("Ok");
-                okMenuEntry.Selected += OkMenuEntry_Selected; ;
+                okMenuEntry.Selected += OkMenuEntry_Selected;
                 MenuEntries.Add(okMenuEntry);
             }
             else
             {
                 MenuEntry yesGameMenuEntry = new MenuEntry("Yes");
                 MenuEntry noMenuEntry = new MenuEntry("No");
-                yesGameMenuEntry.Selected += YesGameMenuEntry_Selected; ;
-                noMenuEntry.Selected += NoMenuEntry_Selected; ;
+                yesGameMenuEntry.Selected += YesGameMenuEntry_Selected;
+                noMenuEntry.Selected += NoMenuEntry_Selected;
                 MenuEntries.Add(yesGameMenuEntry);
                 MenuEntries.Add(noMenuEntry);
             }
 
             this.message = message;
+            this.offset = offset;
+            this.tutorial = tutorial;
 
             IsPopup = true;
 
@@ -115,7 +121,6 @@ namespace Game1.Screens
             backgroundTexture.SetData(new Color[] { Color.Black });
         }
 
-
         #endregion
 
         #region Handle Input
@@ -127,16 +132,62 @@ namespace Game1.Screens
         {
             if (menuSelect.Evaluate(input))
             {
-                //ScreenManager.Game.IsMouseVisible = false;
-                OnSelectEntry(selectedEntry);
-                
+                if (selectedEntry != null)
+                {
+                    //ScreenManager.Game.IsMouseVisible = false;
+                    if (tutorial)
+                    {
+                        ScreenManager.Game.IsMouseVisible = false;
+                        Rectangle clientBounds = ScreenManager.Game.Window.ClientBounds;
+                        Mouse.SetPosition(clientBounds.Width / 2, clientBounds.Height / 2);
+                    }
+
+                    OnSelectEntry(selectedEntry);
+                }
             }
             else if (menuCancel.Evaluate(input))
             {
                 // Raise the cancelled event, then exit the message box.
                 Cancelled?.Invoke(this, EventArgs.Empty);
 
+                if (tutorial)
+                {
+                    ScreenManager.Game.IsMouseVisible = false;
+                    Rectangle clientBounds = ScreenManager.Game.Window.ClientBounds;
+                    Mouse.SetPosition(clientBounds.Width / 2, clientBounds.Height / 2);
+                }
+
                 ExitScreen();
+            }
+
+            if (menuUp.Evaluate(input))
+            {
+                ScreenManager.Game.IsMouseVisible = false;
+
+                if (selectedEntry == null)
+                    selectedEntry = previousSelectedEntry;
+                else
+                {
+                    selectedEntry--;
+
+                    if (selectedEntry < 0)
+                        selectedEntry = menuEntries.Count - 1;
+                }
+            }
+
+            if (menuDown.Evaluate(input))
+            {
+                ScreenManager.Game.IsMouseVisible = false;
+
+                if (selectedEntry == null)
+                    selectedEntry = previousSelectedEntry;
+                else
+                {
+                    selectedEntry++;
+
+                    if (selectedEntry >= menuEntries.Count)
+                        selectedEntry = 0;
+                }
             }
 
             if (menuLeft.Evaluate(input))
@@ -177,12 +228,26 @@ namespace Game1.Screens
                                 input.LastMouseState.Y < menuEntries[(int)selectedEntry].Position.Y + menuEntries[(int)selectedEntry].GetHeight(this) / 2 &&
                                 input.LastMouseState.X > menuEntries[(int)selectedEntry].Position.X - 30 &&
                                 input.LastMouseState.X < menuEntries[(int)selectedEntry].Position.X - 10)
+                    {
+                        if (tutorial)
+                        {
+                            ScreenManager.Game.IsMouseVisible = false;
+                            Rectangle clientBounds = ScreenManager.Game.Window.ClientBounds;
+                            Mouse.SetPosition(clientBounds.Width / 2, clientBounds.Height / 2);
+                        }
                         OnSelectEntryLeft(selectedEntry);
+                    }
                     else
+                    {
+                        if (tutorial)
+                        {
+                            ScreenManager.Game.IsMouseVisible = false;
+                            Rectangle clientBounds = ScreenManager.Game.Window.ClientBounds;
+                            Mouse.SetPosition(clientBounds.Width / 2, clientBounds.Height / 2);
+                        }
                         OnSelectEntry(selectedEntry);
+                    }
                 }
-                else
-                    OnSelectEntry(selectedEntry);
             }
 
             if (input.CurrentMouseState.Position != input.LastMouseState.Position)
@@ -196,8 +261,8 @@ namespace Game1.Screens
 
                 for (int i = 0; i < menuEntries.Count; i++)
                 {
-                    if (input.LastMouseState.Y > menuEntries[i].Position.Y - menuEntries[i].GetHeight(this) &&
-                        input.LastMouseState.Y < menuEntries[i].Position.Y &&
+                    if (input.LastMouseState.Y > menuEntries[i].Position.Y - menuEntries[i].GetHeight(this) / 2 &&
+                        input.LastMouseState.Y < menuEntries[i].Position.Y + menuEntries[i].GetHeight(this) / 2 &&
                         input.LastMouseState.X > menuEntries[i].Position.X &&
                         input.LastMouseState.X < menuEntries[i].Position.X + menuEntries[i].GetWidth(this))
                     {
@@ -222,6 +287,7 @@ namespace Game1.Screens
             {
                 MenuEntry menuEntry = menuEntries[0];
 
+                position.X = ScreenManager.GraphicsDevice.Viewport.Width / 2 - menuEntry.GetWidth(this) / 2 + offset.X;
                 menuEntry.Position = position;
             }
             else if (menuEntries.Count == 2)
@@ -247,8 +313,6 @@ namespace Game1.Screens
         /// </summary>
         public override void Draw(GameTime gameTime)
         {
-            
-
             SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
             SpriteFont font = ScreenManager.Font;
 
@@ -259,7 +323,7 @@ namespace Game1.Screens
             Viewport viewport = ScreenManager.GraphicsDevice.Viewport;
             Vector2 viewportSize = new Vector2(viewport.Width, viewport.Height);
             Vector2 textSize = font.MeasureString(message) + new Vector2(0, ScreenManager.Font.LineSpacing);
-            Vector2 textPosition = (viewportSize - textSize) / 2;
+            Vector2 textPosition = (viewportSize - textSize) / 2 + offset;
 
             // make sure our entries are in the right place before we draw them
             UpdateMenuEntryLocations(textSize, textPosition);

@@ -28,7 +28,7 @@ namespace Game1.HUD
         private HUDBar healthBar;
         private HUDBar manaBar;
         private HUDBar essenceBar;
-        private HUDBar coreBar;
+        private HUDBar expBar;
         private HUDTargetBar targetHealthBar;
         private HUDCrosshair crosshair;
         private HUDPhaseMessage phaseMessage;
@@ -39,6 +39,7 @@ namespace Game1.HUD
         private AlphaTestEffect a;
         private DepthStencilState s1;
         private DepthStencilState s2;
+        private BlendState mask;
 
         public HUDManager(SpriteBatch spriteBatch, GraphicsDevice graphicsDevice, ContentManager content, Stats stats, TimeOfDay timeOfDay, Dictionary<AxialCoordinate, Tile> map)
         {
@@ -75,6 +76,17 @@ namespace Game1.HUD
                 ReferenceStencil = 0,
                 DepthBufferEnable = false,
             };
+
+            mask = new BlendState
+            {
+                AlphaBlendFunction = BlendFunction.Add,
+                AlphaDestinationBlend = Blend.InverseSourceAlpha,
+                AlphaSourceBlend = Blend.One,
+                BlendFactor = Color.White,
+                ColorBlendFunction = BlendFunction.Add,
+                ColorDestinationBlend = Blend.InverseSourceAlpha,
+                ColorWriteChannels = ColorWriteChannels.None,
+            };
         }
 
         public void LoadContent()
@@ -82,6 +94,7 @@ namespace Game1.HUD
             healthBar = new HUDBar(spriteBatch, graphicsDevice, stats.currentHealth, new Vector2(backbufferWidth / 2 - backbufferWidth / 2 + 100, backbufferHeight - 160), new Vector2(250, 20), new Color(192, 57, 43), stats.maxHealth);
             manaBar = new HUDBar(spriteBatch, graphicsDevice, stats.currentMana, new Vector2(backbufferWidth / 2 - backbufferWidth / 2 + 100, backbufferHeight - 120), new Vector2(250, 20), new Color(41, 128, 185), stats.maxMana);
             essenceBar = new HUDBar(spriteBatch, graphicsDevice, stats.currentEssence, new Vector2(backbufferWidth / 2 - backbufferWidth / 2 + 100, backbufferHeight - 80), new Vector2(250, 20), new Color(142, 68, 173), stats.maxEssence);
+            expBar = new HUDBar(spriteBatch, graphicsDevice, stats.currentExp, new Vector2(backbufferWidth - 300 - 100, backbufferHeight - 80), new Vector2(250, 20), new Color(241, 196, 15), stats.maxExp);
             targetHealthBar = new HUDTargetBar(spriteBatch, graphicsDevice, 100, new Vector2(backbufferWidth / 2 - 125, backbufferHeight / 8), new Vector2(250, 20), new Color(192, 57, 43), 100);
             crosshair = new HUDCrosshair(spriteBatch, graphicsDevice, new Vector2(backbufferWidth / 2 - 32, backbufferHeight / 2 - 32), new Vector2(64, 64), stats);
             phaseMessage = new HUDPhaseMessage(spriteBatch, graphicsDevice, new Vector2(backbufferWidth / 2 - 740 / 2, backbufferHeight / 4 - 100 / 2), new Vector2(740, 100));
@@ -91,6 +104,7 @@ namespace Game1.HUD
             elements.Add(healthBar);
             elements.Add(manaBar);
             elements.Add(essenceBar);
+            elements.Add(expBar);
             elements.Add(targetHealthBar);
             elements.Add(crosshair);
             elements.Add(phaseMessage);
@@ -108,6 +122,7 @@ namespace Game1.HUD
             healthBar.Update(stats.currentHealth, stats.maxHealth);
             manaBar.Update(stats.currentMana, stats.maxMana);
             essenceBar.Update(stats.currentEssence, stats.maxEssence);
+            expBar.Update(stats.currentExp, stats.maxExp);
             if (stats.currentTargetedEnemy != null)
                 targetHealthBar.Update(stats.currentTargetedEnemy.CurrentHealth, stats.currentTargetedEnemy.MaxHealth, true);
             else if (stats.lastTargetedEnemy != null)
@@ -156,10 +171,11 @@ namespace Game1.HUD
         {
             graphicsDevice.Clear(ClearOptions.Stencil, Color.Transparent, 0, 1);
 
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, s1, null, a);
+            spriteBatch.Begin(SpriteSortMode.Deferred, mask, null, s1, null, a);
             healthBar.DrawMask();
             manaBar.DrawMask();
             essenceBar.DrawMask();
+            expBar.DrawMask();
             targetHealthBar.DrawMask();
             minimap.DrawMask();
             spriteBatch.End();
@@ -178,6 +194,10 @@ namespace Game1.HUD
         {
             get { return essenceBar; }
         }
+        public HUDBar ExpBar
+        {
+            get { return expBar; }
+        }
         public HUDTargetBar TargetHealthBar
         {
             get { return targetHealthBar; }
@@ -189,6 +209,14 @@ namespace Game1.HUD
         public HUDPhaseMessage PhaseMessage
         {
             get { return phaseMessage; }
+        }
+        public HUDIcons Icons
+        {
+            get { return hudIcons; }
+        }
+        public HUDMinimap Minimap
+        {
+            get { return minimap; }
         }
 
         public float BackbufferWidth

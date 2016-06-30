@@ -31,6 +31,8 @@ namespace Game1.Screens
     {
         #region Fields
 
+        public static Tutorial tutorial;
+
         private GraphicsDevice GraphicsDevice;
         private ContentManager Content;
         private SpriteBatch spriteBatch;
@@ -251,11 +253,9 @@ namespace Game1.Screens
             particleManager = new ParticleManager(ScreenManager.Game, Content);
             settings = (ScreenManager.Game as Game1).settings;
 
-
             spawns = new List<Spawn>();
             wavesList = new List<List<Wave>>();
             LoadContent();
-
 
             // once the load has finished, we use ResetElapsedTime to tell the game's
             // timing mechanism that we have just finished a very long frame, and that
@@ -396,6 +396,8 @@ namespace Game1.Screens
                 else
                     Octree.AddObject(item.Value);
             }
+
+            tutorial = new Tutorial(ScreenManager.Game, ScreenManager, hudManager, stats);
         }
 
         #region GBuffer
@@ -533,6 +535,8 @@ namespace Game1.Screens
                 particleManager.Update(gameTime);
 
                 //hdrProcessor.MaxLuminance = 512.0f * timeOfDay.LogisticTime(0f, 1f, 1f);
+
+                tutorial.Update(gameTime);
             }
         }
 
@@ -604,38 +608,68 @@ namespace Game1.Screens
 
                 if (input.IsNewMouseScrollDown && mouseState.LeftButton == ButtonState.Released && mouseState.RightButton == ButtonState.Released)
                 {
-                    if (selectedSpell != SpellType.CreateTurret)
+                    if (selectedSpell == SpellType.Fire)
                     {
-                        selectedSpell++;
+                        if (stats.iceEnabled)
+                            selectedSpell = SpellType.Ice;
+                    }
+
+                    else if (selectedSpell == SpellType.Ice)
+                    {
+                        if (stats.moveTerrainEnabled)
+                            selectedSpell = SpellType.MoveTerrain;
+                    }
+
+                    else if (selectedSpell == SpellType.MoveTerrain)
+                    {
+                        if (stats.createTurretEnabled)
+                            selectedSpell = SpellType.CreateTurret;
                     }
                 }
 
                 if (input.IsNewMouseScrollUp && mouseState.LeftButton == ButtonState.Released && mouseState.RightButton == ButtonState.Released)
                 {
-                    if (selectedSpell != SpellType.Fire)
+                    if (selectedSpell == SpellType.CreateTurret)
                     {
-                        selectedSpell--;
+                        if (stats.moveTerrainEnabled)
+                            selectedSpell = SpellType.MoveTerrain;
+                    }
+
+                    else if (selectedSpell == SpellType.MoveTerrain)
+                    {
+                        if (stats.iceEnabled)
+                            selectedSpell = SpellType.Ice;
+                    }
+
+                    else if (selectedSpell == SpellType.Ice)
+                    {
+                        if (stats.fireEnabled)
+                            selectedSpell = SpellType.Fire;
                     }
                 }
 
                 if (input.IsNewKeyPress(Keys.D1))
                 {
-                    selectedSpell = SpellType.Fire;
+                    if (stats.fireEnabled)
+                        selectedSpell = SpellType.Fire;
                 }
 
                 if (input.IsNewKeyPress(Keys.D2))
                 {
-                    selectedSpell = SpellType.Ice;
+                    if (stats.iceEnabled)
+                        selectedSpell = SpellType.Ice;
                 }
 
                 if (input.IsNewKeyPress(Keys.D3))
                 {
-                    selectedSpell = SpellType.MoveTerrain;
+                    if (stats.moveTerrainEnabled)
+                        selectedSpell = SpellType.MoveTerrain;
                 }
 
                 if (input.IsNewKeyPress(Keys.D4))
                 {
-                    selectedSpell = SpellType.CreateTurret;
+                    if (stats.createTurretEnabled)
+                        selectedSpell = SpellType.CreateTurret;
                 }
 
                 if ((currentLeftButton == true && prevLeftButton == false) || (currentRightButton == true && prevRightButton == false))
@@ -1010,7 +1044,7 @@ namespace Game1.Screens
 
                 GraphicsDevice.SetRenderTarget(null);
 
-                hudManager.DrawMask();
+                
 
                 if (settings.FXAA)
                 {
@@ -1051,6 +1085,7 @@ namespace Game1.Screens
                     DrawGBuffer();
                 spriteBatch.End();
 
+                hudManager.DrawMask();
                 hudManager.Draw();
 
                 // If the game is transitioning on or off, fade it out to black.
@@ -1069,13 +1104,17 @@ namespace Game1.Screens
                 else
                     spriteBatch.Draw(postProcessTarget1, new Rectangle(0, 0, postProcessTarget1.Width, postProcessTarget1.Height), Color.White);
                 spriteBatch.End();
-            }
-            // If the game is transitioning on or off, fade it out to black.
-            if (TransitionPosition > 0 || pauseAlpha > 0)
-            {
-                float alpha = MathHelper.Lerp(1f - TransitionAlpha, 1f, pauseAlpha / 2);
 
-                ScreenManager.FadeBackBufferToBlack(alpha);
+                hudManager.DrawMask();
+                hudManager.Draw();
+
+                // If the game is transitioning on or off, fade it out to black.
+                if (TransitionPosition > 0 || pauseAlpha > 0)
+                {
+                    float alpha = MathHelper.Lerp(1f - TransitionAlpha, 1f, pauseAlpha / 2);
+
+                    ScreenManager.FadeBackBufferToBlack(alpha);
+                }
             }
         }
 

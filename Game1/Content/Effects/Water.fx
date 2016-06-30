@@ -10,6 +10,7 @@
 #endif
 // Water pixel shader
 // Copyright (C) Wojciech Toman 2009
+// http://www.gamedev.net/page/resources/_/technical/graphics-programming-and-theory/rendering-water-as-a-post-process-effect-r2642
 
 Matrix ViewProjection;
 Matrix InvertView;

@@ -11,7 +11,7 @@ using Game1.Screens;
 
 namespace Game1.HUD
 {
-    class HUDMinimap : HUDElement
+    public class HUDMinimap : HUDElement
     {
         Texture2D minimapTexture;
         Texture2D minimapMaskTexture;

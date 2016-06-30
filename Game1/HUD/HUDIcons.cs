@@ -11,7 +11,7 @@ using static Game1.Screens.GameplayScreen;
 
 namespace Game1.HUD
 {
-    class HUDIcons : HUDElement
+    public class HUDIcons : HUDElement
     {
         HUDIcon healthIcon;
         Texture2D healthIconTexture;
@@ -19,6 +19,8 @@ namespace Game1.HUD
         Texture2D manaIconTexture;
         HUDIcon essenceIcon;
         Texture2D essenceIconTexture;
+        HUDIcon levelIcon;
+        Texture2D levelIconTexture;
 
         HUDIcon moveTerrainIcon;
         Texture2D moveTerrainIconTexture;
@@ -43,6 +45,24 @@ namespace Game1.HUD
 
             icons = new List<HUDIcon>();
             spellIcons = new List<HUDIcon>();
+        }
+
+        public void UpdateIconPositions()
+        {
+            int i = 0;
+            foreach (HUDIcon icon in spellIcons)
+            {
+                if (icon.Enable)
+                    i++;
+            }
+
+            Vector2 spellPosition = CalculateSpellIconsPosition(i, 64);
+            Vector2 spellOffset = new Vector2(64, 0);
+
+            FireIcon.Position = spellPosition + spellOffset * 0;
+            IceIcon.Position = spellPosition + spellOffset * 1;
+            MoveTerrainIcon.Position = spellPosition + spellOffset * 2;
+            CreateTurretIcon.Position = spellPosition + spellOffset * 3;
         }
 
         public override void Draw()
@@ -77,6 +97,7 @@ namespace Game1.HUD
             healthIconTexture = Content.Load<Texture2D>("Interface/HUD/icons/health");
             manaIconTexture = Content.Load<Texture2D>("Interface/HUD/icons/mana");
             essenceIconTexture = Content.Load<Texture2D>("Interface/HUD/icons/essence");
+            levelIconTexture = Content.Load<Texture2D>("Interface/HUD/icons/level");
 
             moveTerrainIconTexture = Content.Load<Texture2D>("Interface/HUD/icons/moveTerrainIcon");
             fireIconTexture = Content.Load<Texture2D>("Interface/HUD/icons/fireIcon");
@@ -84,14 +105,17 @@ namespace Game1.HUD
             createTurretIconTexture = Content.Load<Texture2D>("Interface/HUD/icons/createTurretIcon");
 
             Vector2 offset = new Vector2(-34, -6);
+            Vector2 offsetRight = new Vector2(252, -6);
 
             healthIcon = new HUDIcon(spriteBatch, graphicsDevice, hudManager.HealthBar.Position + offset, dimension, healthIconTexture);
             manaIcon = new HUDIcon(spriteBatch, graphicsDevice, hudManager.ManaBar.Position + offset, dimension, manaIconTexture);
             essenceIcon = new HUDIcon(spriteBatch, graphicsDevice, hudManager.EssenceBar.Position + offset, dimension, essenceIconTexture);
+            levelIcon = new HUDIcon(spriteBatch, graphicsDevice, hudManager.ExpBar.Position + offsetRight, dimension, levelIconTexture);
 
             icons.Add(healthIcon);
             icons.Add(manaIcon);
             icons.Add(essenceIcon);
+            icons.Add(levelIcon);
 
             Vector2 spellPosition = CalculateSpellIconsPosition(4, 64);
             Vector2 spellOffset = new Vector2(64, 0);
@@ -103,7 +127,42 @@ namespace Game1.HUD
             moveTerrainIcon = new HUDIcon(spriteBatch, graphicsDevice, spellPosition + spellOffset * spellIcons.Count, dimension, moveTerrainIconTexture);
             spellIcons.Add(moveTerrainIcon);
             createTurretIcon = new HUDIcon(spriteBatch, graphicsDevice, spellPosition + spellOffset * spellIcons.Count, dimension, createTurretIconTexture);
-            spellIcons.Add(createTurretIcon);  
+            spellIcons.Add(createTurretIcon);
         }
+
+        #region accessors
+        public HUDIcon HealthIcon
+        {
+            get { return healthIcon; }
+        }
+        public HUDIcon ManaIcon
+        {
+            get { return manaIcon; }
+        }
+        public HUDIcon EssenceIcon
+        {
+            get { return essenceIcon; }
+        }
+        public HUDIcon LevelIcon
+        {
+            get { return levelIcon; }
+        }
+        public HUDIcon FireIcon
+        {
+            get { return fireIcon; }
+        }
+        public HUDIcon IceIcon
+        {
+            get { return iceIcon; }
+        }
+        public HUDIcon MoveTerrainIcon
+        {
+            get { return moveTerrainIcon; }
+        }
+        public HUDIcon CreateTurretIcon
+        {
+            get { return createTurretIcon; }
+        }
+        #endregion
     }
 }

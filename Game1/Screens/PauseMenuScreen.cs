@@ -58,7 +58,7 @@ namespace Game1.Screens
         {
             const string message = "Are you sure?";
 
-            MessageBoxScreen confirmQuitMessageBox = new MessageBoxScreen(message);
+            MessageBoxScreen confirmQuitMessageBox = new MessageBoxScreen(message, Vector2.Zero);
 
             confirmQuitMessageBox.Accepted += ConfirmQuitMessageBoxAccepted;
 
@@ -69,7 +69,7 @@ namespace Game1.Screens
         {
             const string message = "Are you sure?";
 
-            MessageBoxScreen confirmExitMessageBox = new MessageBoxScreen(message);
+            MessageBoxScreen confirmExitMessageBox = new MessageBoxScreen(message, Vector2.Zero);
 
             confirmExitMessageBox.Accepted += ConfirmExitMessageBoxAccepted;
 

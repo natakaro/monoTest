@@ -169,6 +169,7 @@
     <Compile Include="Turrets\Turret.cs" />
     <Compile Include="Postprocess\Water.cs" />
     <Compile Include="Turrets\TurretLattice.cs" />
+    <Compile Include="Tutorial.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="AnimationPipeline, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">

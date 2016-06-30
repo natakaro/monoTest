@@ -78,7 +78,7 @@ namespace Game1.Spells
                 stats.SpellStatus(spellCharging, leftCastSpeed, stopwatch);
                 lastMode = LastMode.Left;
             }
-            if (leftButton == false && rightButton == true && stats.currentMana >= rightManaCost)
+            if (leftButton == false && rightButton == true && stats.currentMana >= rightManaCost && stats.rightModeEnabled)
             {
                 startingMana = stats.currentMana;
                 manaDeducted = 0;
@@ -88,16 +88,16 @@ namespace Game1.Spells
                 stats.SpellStatus(spellCharging, rightCastSpeed, stopwatch);
                 lastMode = LastMode.Right;
             }
-            if (leftButton == true && rightButton == true && stats.currentMana >= dualManaCost)
-            {
-                startingMana = stats.currentMana;
-                manaDeducted = 0;
-                stopwatch.Start();
-                spellReady = false;
-                spellCharging = SpellCharging.Dual;
-                stats.SpellStatus(spellCharging, dualCastSpeed, stopwatch);
-                lastMode = LastMode.Dual;
-            }
+            //if (leftButton == true && rightButton == true && stats.currentMana >= dualManaCost)
+            //{
+            //    startingMana = stats.currentMana;
+            //    manaDeducted = 0;
+            //    stopwatch.Start();
+            //    spellReady = false;
+            //    spellCharging = SpellCharging.Dual;
+            //    stats.SpellStatus(spellCharging, dualCastSpeed, stopwatch);
+            //    lastMode = LastMode.Dual;
+            //}
         }
 
         public void Continue(bool leftButton, bool rightButton, GameTime gameTime)
@@ -189,16 +189,16 @@ namespace Game1.Spells
                     }
                 }
 
-                else if (leftButton == true && rightButton == true)
-                {
-                    if (spellReady == false)
-                    {
-                        manaDeducted = Math.Min((stopwatch.ElapsedMilliseconds / dualCastSpeed) * dualManaCost, dualManaCost);
-                        if (stopwatch.ElapsedMilliseconds >= dualCastSpeed)
-                            spellReady = true;
-                    }
-                    stats.currentMana = startingMana - manaDeducted;
-                }
+                //else if (leftButton == true && rightButton == true)
+                //{
+                //    if (spellReady == false)
+                //    {
+                //        manaDeducted = Math.Min((stopwatch.ElapsedMilliseconds / dualCastSpeed) * dualManaCost, dualManaCost);
+                //        if (stopwatch.ElapsedMilliseconds >= dualCastSpeed)
+                //            spellReady = true;
+                //    }
+                //    stats.currentMana = startingMana - manaDeducted;
+                //}
             }
         }
 
@@ -234,29 +234,29 @@ namespace Game1.Spells
                     stats.SpellStatus(spellCharging);
                     stopwatch.Reset();
                 }
-                if (lastMode == LastMode.Dual) //placeholder chwilowo, trzeba zrobic jakis okrag obszarowy a nie kulki wokol
-                {
-                    if (spellReady == true)
-                    {
-                        for (int i = 0; i < 16; i++)
-                        {
-                            Vector3 direction = Vector3.Transform(new Vector3(camera.ViewDirection.X, 0, camera.ViewDirection.Z), Quaternion.CreateFromAxisAngle(Vector3.Up, MathHelper.ToRadians((360 / 16) * i)));
-                            IceProjectile iceBolt = new IceProjectile(game, Matrix.CreateTranslation(camera.Position), iceboltModel, iceboltTexture, octree, objectManager, hudManager, leftDamage, particleManager.iceExplosionParticles, particleManager.iceExplosionSnowParticles, particleManager.iceProjectileTrailParticles);
-                            iceBolt.Velocity = direction * 100;
-                            objectManager.Add(iceBolt);
-                            iceBolt.hitEvent += hudManager.Crosshair.HandleHitEvent;
-                            spellReady = false;
-                        }
-                    }
-                    else if (spellReady == false)
-                    {
-                        stats.currentMana = startingMana;
-                        manaDeducted = 0;
-                    }
-                    spellCharging = SpellCharging.None;
-                    stats.SpellStatus(spellCharging);
-                    stopwatch.Reset();
-                }
+                //if (lastMode == LastMode.Dual) //placeholder chwilowo, trzeba zrobic jakis okrag obszarowy a nie kulki wokol
+                //{
+                //    if (spellReady == true)
+                //    {
+                //        for (int i = 0; i < 16; i++)
+                //        {
+                //            Vector3 direction = Vector3.Transform(new Vector3(camera.ViewDirection.X, 0, camera.ViewDirection.Z), Quaternion.CreateFromAxisAngle(Vector3.Up, MathHelper.ToRadians((360 / 16) * i)));
+                //            IceProjectile iceBolt = new IceProjectile(game, Matrix.CreateTranslation(camera.Position), iceboltModel, iceboltTexture, octree, objectManager, hudManager, leftDamage, particleManager.iceExplosionParticles, particleManager.iceExplosionSnowParticles, particleManager.iceProjectileTrailParticles);
+                //            iceBolt.Velocity = direction * 100;
+                //            objectManager.Add(iceBolt);
+                //            iceBolt.hitEvent += hudManager.Crosshair.HandleHitEvent;
+                //            spellReady = false;
+                //        }
+                //    }
+                //    else if (spellReady == false)
+                //    {
+                //        stats.currentMana = startingMana;
+                //        manaDeducted = 0;
+                //    }
+                //    spellCharging = SpellCharging.None;
+                //    stats.SpellStatus(spellCharging);
+                //    stopwatch.Reset();
+                //}
             }
         }
 

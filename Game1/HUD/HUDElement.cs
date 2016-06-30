@@ -28,22 +28,23 @@ namespace Game1.HUD
             this.enabled = false;
         }
 
-        public void Show(bool value)
-        {
-            this.enabled = value;
-        }
-
         public abstract void LoadContent(ContentManager Content);
         public abstract void Draw();
 
         public Vector2 Position
         {
             get { return position; }
+            set { position = value; }
         }
-
         public Vector2 Dimension
         {
             get { return dimension; }
+            set { dimension = value; }
+        }
+        public bool Enable
+        {
+            get { return enabled; }
+            set { enabled = value; }
         }
     }
 }

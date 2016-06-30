@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -65,7 +66,7 @@ namespace Game1.Screens
         {
             const string message = "Are you sure you want to exit?";
 
-            MessageBoxScreen confirmExitMessageBox = new MessageBoxScreen(message);
+            MessageBoxScreen confirmExitMessageBox = new MessageBoxScreen(message, Vector2.Zero);
 
             confirmExitMessageBox.Accepted += ConfirmExitMessageBoxAccepted;
 
