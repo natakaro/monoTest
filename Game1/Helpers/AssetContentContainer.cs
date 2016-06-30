@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Content;
+﻿using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -45,6 +46,13 @@ namespace Game1.Helpers
 
         public Model enemyFly;
         public Texture2D enemyFlyTexture;
+        public Texture2D enemyGremlinTexture;
+        public Texture2D enemyWiredTexture;
+        public Texture2D enemyWalkTexture;
+
+
+        public SoundEffect fireball;
+
 
         public AssetContentContainer()
         {
@@ -78,6 +86,10 @@ namespace Game1.Helpers
             enemyFly = Content.Load<Model>("Models/ship/enemy_ship");
             enemyFlyTexture = Content.Load<Texture2D>("Textures/ship/enemy_ship");
 
+            enemyGremlinTexture = Content.Load<Texture2D>("Textures/enemies/gremlin");
+            enemyWiredTexture = Content.Load<Texture2D>("Textures/enemies/wired");
+            enemyWalkTexture = Content.Load<Texture2D>("Textures/enemies/walk");
+
             pinetreeIcon = Content.Load<Texture2D>("Interface/Map/pinetreeIcon1");
             tree1Icon = Content.Load<Texture2D>("Interface/Map/treeIcon1");
             tree2Icon = Content.Load<Texture2D>("Interface/Map/treeIcon2");
@@ -87,6 +99,9 @@ namespace Game1.Helpers
             coreIcon = Content.Load<Texture2D>("Interface/Map/coreIcon");
             enemyIcon = Content.Load<Texture2D>("Interface/Map/enemyIcon");
             pathIcon = Content.Load<Texture2D>("Interface/Map/pathIcon");
+
+            fireball = Content.Load<SoundEffect>("Sounds/fireball");
+
         }
     }
 }

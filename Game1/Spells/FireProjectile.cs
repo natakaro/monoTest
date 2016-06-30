@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Audio;
 using Game1.Helpers;
 using Game1.Lights;
 using System.Diagnostics;
@@ -38,6 +39,9 @@ namespace Game1.Spells
         private const int numExplosionSmokeParticles = 40;
 
         public event EventHandler hitEvent;
+
+        Sound sound;
+
 
         public override void Draw(Camera camera)
         {
@@ -72,6 +76,8 @@ namespace Game1.Spells
             if (age > lifespan)
                 Destroy();
 
+            sound.Update(position);
+
             return ret;
         }
 
@@ -85,6 +91,9 @@ namespace Game1.Spells
             this.lightManager = lightManager;
             this.hudManager = hudManager;
             this.objectManager = objectManager;
+
+            sound = new Sound(GameplayScreen.assetContentContainer.fireball);
+            sound.Play(position);
 
             m_static = false;
             boundingSphere = new BoundingSphere(position, 2f);

@@ -166,7 +166,7 @@ namespace Game1.Spells
                                     {
                                         OnHitEvent();
                                         Enemy enemy = ir.DrawableObjectObject as Enemy;
-                                        enemy.Damage(rightDamage, DamageType.Ice);
+                                        enemy.Damage(rightDamage, DamageType.IceSlow);
                                     }
                                     else if (ir.DrawableObjectObject.Type == DrawableObject.ObjectType.Turret)
                                     {
@@ -272,8 +272,8 @@ namespace Game1.Spells
             this.stats = stats;
             this.viewport = game.GraphicsDevice.Viewport;
 
-            leftManaCost = 25;
-            rightManaCost = 10;
+            leftManaCost = 50;
+            rightManaCost = 20;
             dualManaCost = 150;
 
             //in milliseconds
@@ -281,7 +281,7 @@ namespace Game1.Spells
             rightCastSpeed = 250;
             dualCastSpeed = 1000;
 
-            leftDamage = 50;
+            leftDamage = 50; //może do zmniejszenia
             rightDamage = 1;
             projectileSpeed = 250;
             coneRange = 150f;

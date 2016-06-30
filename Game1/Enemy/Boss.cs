@@ -52,7 +52,7 @@ namespace Game1
 
         public override bool Update(GameTime gameTime)
         {
-            if (cam != null && !done)
+            if (cam != null)
             {
                 cam.Position = new Vector3(1171.50f, 110, 1906.71f);
                 cam.Rotate(-90 - cam.HeadingDegrees, 15 - cam.PitchDegrees);

@@ -29,6 +29,8 @@ namespace Game1
             AnimationPlayer player = animatedModel.PlayClip(clip);
             player.Looping = true;
 
+            texture = GameplayScreen.assetContentContainer.enemyWiredTexture;
+
             boundingBox = CollisionBox.CreateBoundingBox(animatedModel.Model, position, 1);
             a = boundingBox.Max.Y - boundingBox.Min.Y;
             b = position.Y - boundingBox.Min.Y;
@@ -38,7 +40,8 @@ namespace Game1
             speed = 55;
             maxHealth = 75;
             currentHealth = 75;
-        }
+            chilledLengthMax = 5;
+    }
 
     }
 }

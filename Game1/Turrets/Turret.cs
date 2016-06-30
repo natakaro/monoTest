@@ -170,7 +170,7 @@ namespace Game1.Turrets
                     range = 250;
                     projectileSpeed = 400;
                     rateOfFire = 1000;
-                    damage = 10;
+                    damage = 7;
                     rangeSphere = new BoundingSphere(shootStartPosition, range);
                     pointLight = new PointLight(lightPosition, Color.Red, lightRadius, lightIntensity);
                     lightManager.AddLight(pointLight);
@@ -195,7 +195,7 @@ namespace Game1.Turrets
                     range = 250;
                     projectileSpeed = 250;
                     rateOfFire = 1000;
-                    damage = 10;
+                    damage = 4; //było 5
                     rangeSphere = new BoundingSphere(shootStartPosition, range);
                     pointLight = new PointLight(lightPosition, Color.DeepSkyBlue, lightRadius, lightIntensity);
                     lightManager.AddLight(pointLight);
@@ -203,10 +203,10 @@ namespace Game1.Turrets
                     emissive = 0.5f;
                     break;
                 case Mode.IceRight:
-                    range = 100;
+                    range = 100; //może 150
                     projectileSpeed = 0;
                     rateOfFire = 50;
-                    damage = 1;
+                    damage = 0.5f;
                     particlesPerSecond = 250;
                     timeBetweenParticles = 1.0f / particlesPerSecond;
                     rangeSphere = new BoundingSphere(shootStartPosition, range);

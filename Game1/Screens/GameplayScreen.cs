@@ -239,7 +239,7 @@ namespace Game1.Screens
 
             random = new Random();
 
-            timeOfDay = new TimeOfDay(14, 30, 0);
+            timeOfDay = new TimeOfDay(3, 00, 0);
             quadRenderer = new QuadRenderComponent(ScreenManager.Game, (IGraphicsDeviceService)ScreenManager.Game.Services.GetService(typeof(IGraphicsDeviceService)));
             quadRenderer.LoadContent();
 
@@ -516,11 +516,11 @@ namespace Game1.Screens
                 int scale=0;
                 if(phaseManager.Phase == Phase.Day)
                 {
-                    scale = 1000;
+                    scale = 1100;
                 }
                 else
                 {
-                    scale = 200;
+                    scale = 250;
                 }
                 timeOfDay.Update((float)gameTime.ElapsedGameTime.TotalSeconds, scale);
                 phaseManager.Update(gameTime);
