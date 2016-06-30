@@ -1,4 +1,3 @@
-
 float4x4 WorldViewProjection;
 
 float InvOpticalDepthNLessOne = 1.0f/255.0f;

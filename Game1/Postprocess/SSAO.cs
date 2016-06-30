@@ -51,7 +51,7 @@ namespace Game1.Postprocess
             kernel = GenerateKernel(kernelSize);
             noiseTex = GenerateNoise(noiseSize);
 
-            ssao2Effect = Content.Load<Effect>("Effects/SSAO2");
+            ssao2Effect = Content.Load<Effect>("Effects/SSAO");
             ssao2Effect.Parameters["randomMap"].SetValue(noiseTex);
             ssao2Effect.Parameters["normalMap"].SetValue(normalTarget);
             ssao2Effect.Parameters["depthMap"].SetValue(depthTarget);

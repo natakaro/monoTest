@@ -43,6 +43,8 @@ namespace Game1.Helpers
         public Texture2D coreIcon;
         public Texture2D enemyIcon;
         public Texture2D pathIcon;
+        public Texture2D turretIcon;
+
 
         public Model enemyFly;
         public Texture2D enemyFlyTexture;
@@ -107,6 +109,7 @@ namespace Game1.Helpers
             coreIcon = Content.Load<Texture2D>("Interface/Map/coreIcon");
             enemyIcon = Content.Load<Texture2D>("Interface/Map/enemyIcon");
             pathIcon = Content.Load<Texture2D>("Interface/Map/pathIcon");
+            turretIcon = Content.Load<Texture2D>("Interface/Map/turretIcon");
 
             fireball = Content.Load<SoundEffect>("Sounds/fireball");
             icebolt = Content.Load<SoundEffect>("Sounds/icebolt");

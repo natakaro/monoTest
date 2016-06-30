@@ -1,21 +1,23 @@
-#if OPENGL
+﻿#if OPENGL
 #define SV_POSITION POSITION
 #define VS_SHADERMODEL vs_3_0
 #define PS_SHADERMODEL ps_3_0
 #else
-#define VS_SHADERMODEL vs_4_0_level_9_3
-#define PS_SHADERMODEL ps_4_0_level_9_3
+#define VS_SHADERMODEL vs_5_0
+#define PS_SHADERMODEL ps_5_0
 #endif
 
-int random_size;
-float g_sample_rad;
-float g_intensity;
-float g_scale;
-float g_bias;
-int g_screen_size;
+float Radius;
+float Power;
+int SampleKernelSize = 16;
+float2 NoiseScale;
+float3 SampleKernel[16];
 
 matrix InvertProjection;
 matrix View;
+matrix Projection;
+
+float3 FrustumCornersVS[4];
 
 Texture2D normalMap;
 Texture2D depthMap;
@@ -53,58 +55,31 @@ sampler randomSampler = sampler_state
 
 struct VSInput
 {
-    float4 Position : SV_POSITION;
-    float2 TexCoord : TEXCOORD0;
+    float3 Position : SV_POSITION;
+    float3 TexCoordAndRayIndex : TEXCOORD0;
 };
 
 struct VSOutput
 {
     float4 Position : SV_POSITION;
     float2 TexCoord : TEXCOORD0;
+    float3 FrustumCornerVS : TEXCOORD1;
 };
 
 VSOutput MainVS(in VSInput input)
 {
-    VSOutput output = (VSOutput) 0;
+    VSOutput output;
 
-    output.Position = input.Position;
-    output.TexCoord = input.TexCoord;
+    output.Position = float4(input.Position, 1);
+    output.TexCoord = input.TexCoordAndRayIndex.xy;
+    output.FrustumCornerVS = FrustumCornersVS[input.TexCoordAndRayIndex.z];
 
     return output;
 }
 
-float3 getPosition(in float2 uv, in float depthVal)
-{
-    float4 position;
-    position.x = uv.x * 2.0f - 1.0f;
-    position.y = (1 - uv.y) * 2.0f - 1.0f;
-    position.z = depthVal;
-    position.w = 1.0f;
-
-	//transform to view space
-    position = mul(position, InvertProjection);
-    position /= position.w;
-
-    return position;
-}
-
 float3 getNormal(in float2 uv)
 {
-    return normalize(tex2D(normalSampler, uv).xyz * 2.0f - 1.0f);
-}
-
-float2 getRandom(in float2 uv)
-{
-    return normalize(tex2D(randomSampler, g_screen_size * uv / random_size).xy * 2.0f - 1.0f);
-}
-
-float doAmbientOcclusion(in float2 tcoord, in float2 uv, in float3 p, in float3 cnorm)
-{
-    float depthVal = tex2D(depthSampler, tcoord + uv);
-    float3 diff = getPosition(tcoord + uv, depthVal) - p;
-    const float3 v = normalize(diff);
-    const float d = length(diff) * g_scale;
-    return max(0.0, dot(cnorm, v) - g_bias) * (1.0 / (1.0 + d)) * g_intensity;
+    return tex2D(normalSampler, uv).xyz * 2.0f - 1.0f;
 }
 
 float4 MainPS(VSOutput input) : COLOR
@@ -112,35 +87,54 @@ float4 MainPS(VSOutput input) : COLOR
     float4 output;
     output.rgb = 0.0f;
 
-    const float2 vec[4] = { float2(1, 0), float2(-1, 0), float2(0, 1), float2(0, -1) };
-
     float depthVal = tex2D(depthSampler, input.TexCoord);
-    clip(-0.0001f + depthVal);
-    float3 p = getPosition(input.TexCoord, depthVal);
-    float3 n = mul(getNormal(input.TexCoord), View);
-    float2 rand = getRandom(input.TexCoord);
+    clip(-0.0001f + depthVal); //skip skybox
 
-    float ao = 0.0f;
-    float rad = g_sample_rad / p.z;
+    float3 origin = input.FrustumCornerVS * depthVal;
+    float3 normal = mul(getNormal(input.TexCoord), View);
 
-	//**SSAO Calculation**//
-    int iterations = 4;
-    for (int j = 0; j < iterations; ++j)
+    float3 rvec = tex2D(randomSampler, input.TexCoord * NoiseScale).xyz * 2.0 - 1.0;
+    float3 tangent = normalize(rvec - normal * dot(rvec, normal));
+    float3 bitangent = cross(normal, tangent);
+    float3x3 tbn = float3x3(tangent, bitangent, normal);
+    
+    float occlusion = 0.0;
+    for (int i = 0; i < SampleKernelSize; ++i)
     {
-        float2 coord1 = reflect(vec[j], rand) * rad;
-        float2 coord2 = float2(coord1.x * 0.707 - coord1.y * 0.707, coord1.x * 0.707 + coord1.y * 0.707);
-  
-        ao += doAmbientOcclusion(input.TexCoord, coord1 * 0.25, p, n);
-        ao += doAmbientOcclusion(input.TexCoord, coord2 * 0.5, p, n);
-        ao += doAmbientOcclusion(input.TexCoord, coord1 * 0.75, p, n);
-        ao += doAmbientOcclusion(input.TexCoord, coord2, p, n);
+        //get sample position
+        float3 sample = mul(SampleKernel[i], tbn);
+        sample = sample * Radius + origin;
+
+        float3 sampleDir = normalize(sample - origin);
+        
+        float NdotS = max(dot(normal, sampleDir), 0);
+
+        //clip(0.966 - NdotS);
+    
+        //project sample position
+        float4 offset = float4(sample, 1.0);
+        offset = mul(offset, Projection); // to clip space
+        offset.xy /= offset.w; // to NDC
+        offset.xy = offset.xy * 0.5 + 0.5; // to texture coords
+        offset.y = 1 - offset.y;
+    
+        //get sample depth
+        float sampleDepth = tex2D(depthSampler, offset.xy);
+        sampleDepth = input.FrustumCornerVS.z * sampleDepth;
+
+        //range check & accumulate
+
+        //float rangeCheck = abs(origin.z - sampleDepth) < Radius ? 1.0 : 0.0;
+        //occlusion += (sampleDepth <= sample.z ? 0.0 : 1.0) * rangeCheck;
+
+        float rangeCheck = smoothstep(0.0, 1.0, Radius / abs(origin.z - sampleDepth));
+        occlusion += rangeCheck * step(sample.z, sampleDepth) * NdotS;
     }
 
-    ao = 1.0 - (ao / (float) iterations * 4.0);
-	//**END**//
+    occlusion = 1.0 - (occlusion / SampleKernelSize);
 
-    output = ao;
-    return output;
+    float finalOcclusion = pow(occlusion, Power);
+    return float4(finalOcclusion, finalOcclusion, finalOcclusion, 1.0);
 }
 
 technique SSAO

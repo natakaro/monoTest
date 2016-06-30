@@ -11,6 +11,7 @@ using Game1.Helpers;
 using static Game1.Helpers.HexCoordinates;
 using Game1.Items;
 using Game1.Screens;
+using Game1.Turrets;
 
 namespace Game1
 {
@@ -509,7 +510,7 @@ namespace Game1
                             enemyOffset = tileSize.Y / 2;
 
                         Texture2D enemyIcon = GameplayScreen.assetContentContainer.enemyIcon;
-                        Vector2 enemyOrigin = new Vector2(icon.Width / 2, icon.Height / 2);
+                        Vector2 enemyOrigin = new Vector2(enemyIcon.Width / 2, enemyIcon.Height / 2);
 
                         spriteBatch.Draw(enemyIcon, new Vector2(startingPos.X + enemyCoord.x * tileSize.X * 0.75f, startingPos.Y + enemyCoord.y * tileSize.Y + enemyOffset), null, color, 0, enemyOrigin, scale, SpriteEffects.None, 0);
                     }
@@ -527,6 +528,21 @@ namespace Game1
             Vector2 coreOrigin = new Vector2(coreIcon.Width / 2, coreIcon.Height / 2);
 
             spriteBatch.Draw(GameplayScreen.assetContentContainer.coreIcon, new Vector2(startingPos.X + coordCore.x * tileSize.X * 0.75f, startingPos.Y + coordCore.y * tileSize.Y + offsetCore), null, Color.DarkGray * alpha, 0, coreOrigin, scale, SpriteEffects.None, 0);
+
+            foreach (Turret turret in GameplayScreen.turretList)
+            {
+                AxialCoordinate axialTurret = pixelToAxialH(turret.Position, Map.size);
+                HexOffset turretCoord = axialTurret.ToCube().to_oddQ_Offset();
+
+                float turretOffset = 0;
+                if ((int)turretCoord.x % 2 != 0)
+                    turretOffset = tileSize.Y / 2;
+
+                Texture2D turretIcon = GameplayScreen.assetContentContainer.turretIcon;
+                Vector2 turretOrigin = new Vector2(turretIcon.Width / 2, turretIcon.Height / 2);
+
+                spriteBatch.Draw(turretIcon, new Vector2(startingPos.X + turretCoord.x * tileSize.X * 0.75f, startingPos.Y + turretCoord.y * tileSize.Y + turretOffset), null, color, 0, turretOrigin, scale, SpriteEffects.None, 0);
+            }
         }
 
         public static void DrawAssets(SpriteBatch spriteBatch, Texture2D tileTex, Vector2 startingPos, Vector2 mapTileCount, CubeCoordinate center, int radius, float scale = 1f, float alpha = 1f)
@@ -606,6 +622,24 @@ namespace Game1
                 Vector2 coreOrigin = new Vector2(coreIcon.Width / 2, coreIcon.Height / 2);
 
                 spriteBatch.Draw(coreIcon, new Vector2(startingPos.X + (coordCore.x - centerCoord.x) * tileSize.X * 0.75f, startingPos.Y + (coordCore.y - centerCoord.y) * tileSize.Y + offsetCore), null, color, 0, coreOrigin, scale, SpriteEffects.None, 0);
+            }
+
+            Texture2D turretIcon = GameplayScreen.assetContentContainer.turretIcon;
+            Vector2 turretOrigin = new Vector2(turretIcon.Width / 2, turretIcon.Height / 2);
+
+            foreach (Turret turret in GameplayScreen.turretList)
+            {
+                AxialCoordinate axialTurret = pixelToAxialH(turret.Position, Map.size);
+                HexOffset turretCoord = axialTurret.ToCube().to_oddQ_Offset();
+
+                if (Math.Abs(turretCoord.x - centerCoord.x) < 26 && Math.Abs(turretCoord.y - centerCoord.y) < 26)
+                {
+                    float turretOffset = 0;
+                    if ((int)turretCoord.x % 2 != 0)
+                        turretOffset = tileSize.Y / 2;
+
+                    spriteBatch.Draw(turretIcon, new Vector2(startingPos.X + (turretCoord.x - centerCoord.x) * tileSize.X * 0.75f, startingPos.Y + (turretCoord.y - centerCoord.y) * tileSize.Y + turretOffset), null, color, 0, turretOrigin, scale, SpriteEffects.None, 0);
+                }
             }
         }
     }

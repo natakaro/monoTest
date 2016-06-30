@@ -8,6 +8,7 @@ using Game1.Postprocess;
 using Game1.Shadows;
 using Game1.Sky;
 using Game1.Spells;
+using Game1.Turrets;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -55,6 +56,7 @@ namespace Game1.Screens
 
         public static Dictionary<AxialCoordinate, Tile> map;
         public static Dictionary<AxialCoordinate, DrawableObject> mapAsset;
+        public static List<Turret> turretList;
 
         public static Camera camera;
         float acceleration = 100.0f; // przyspieszenie przy wspinaniu i opadaniu
@@ -397,6 +399,8 @@ namespace Game1.Screens
                     Octree.AddObject(item.Value);
             }
 
+            turretList = new List<Turret>();
+
             tutorial = new Tutorial(ScreenManager.Game, ScreenManager, hudManager, stats);
         }
 
@@ -567,7 +571,7 @@ namespace Game1.Screens
             {
                 camera.Update(gameTime, input);
 
-                settings.Update(gameTime, input);
+                //settings.Update(gameTime, input);
 
                 prevLeftButton = currentLeftButton;
                 if (mouseState.LeftButton == ButtonState.Pressed)
@@ -581,31 +585,27 @@ namespace Game1.Screens
                 else
                     currentRightButton = false;
 
-                if (input.IsNewKeyPress(Keys.H))
-                    displayHelp = !displayHelp;
+                //if (input.IsNewKeyPress(Keys.H))
+                //    displayHelp = !displayHelp;
 
                 //if (input.IsNewKeyPress(Keys.M))
                 //    camera.EnableMouseSmoothing = !camera.EnableMouseSmoothing;
 
-                if (input.IsNewKeyPress(Keys.Add))
-                {
-                    camera.RotationSpeed += 0.01f;
+                //if (input.IsNewKeyPress(Keys.Add))
+                //{
+                //    camera.RotationSpeed += 0.01f;
 
-                    if (camera.RotationSpeed > 1.0f)
-                        camera.RotationSpeed = 1.0f;
-                }
+                //    if (camera.RotationSpeed > 1.0f)
+                //        camera.RotationSpeed = 1.0f;
+                //}
 
-                if (input.IsNewKeyPress(Keys.Subtract))
-                {
-                    camera.RotationSpeed -= 0.01f;
+                //if (input.IsNewKeyPress(Keys.Subtract))
+                //{
+                //    camera.RotationSpeed -= 0.01f;
 
-                    if (camera.RotationSpeed <= 0.0f)
-                        camera.RotationSpeed = 0.01f;
-                }
-                if (input.IsNewKeyPress(Keys.P))
-                {
-                    ScreenManager.AddScreen(new Credits());
-                }
+                //    if (camera.RotationSpeed <= 0.0f)
+                //        camera.RotationSpeed = 0.01f;
+                //}
 
                 if (input.IsNewMouseScrollDown && mouseState.LeftButton == ButtonState.Released && mouseState.RightButton == ButtonState.Released)
                 {
@@ -1085,7 +1085,7 @@ namespace Game1.Screens
                 }
 
                 spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
-                DrawText();
+                //DrawText();
                 if (settings.ShowGBuffer)
                     DrawGBuffer();
                 spriteBatch.End();
