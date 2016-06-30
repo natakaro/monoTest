@@ -201,7 +201,7 @@ namespace Game1
                 {
                     string message = "Your first new spell allows you to move terrain up or down.\n\nYou can only use the spell during the day.\nYou can use it to alter your enemies' path,\nbut you can't block it completely.\n\nPress [3] to select the spell,\nhold the left mouse button to raise a tile,\nor the right mouse button to lower it.";
                     if (settings.Polish)
-                        message = "Pierwszy z nich pozwala ci poruszać terenem w górę lub w dół.\n\nJest aktywny jedynie w trakcie dnia.\nMożesz modyfikować w ten sposób ścieżkę, którą obiorą wrogowie,\nale nie możesz jej zablokować całkowicie.\n\nWciśnij [3] aby wybrać czar,\nprzytrzymaj lewy przycisk myszy, by unieść teren,\nlub prawy, by go opuścić.";
+                        message = "Pierwszy z nich pozwala ci poruszać terenem w górę lub w dół.\n\nJest aktywny jedynie w trakcie dnia.\nMożesz modyfikować w ten sposób ścieżkę, którą obiorą wrogowie,\nale nie możesz jej zablokować całkowicie.\n\nWciśnij [3] aby wybrać czar,\nprzytrzymaj lewy przycisk myszy, by unieść teren\nlub prawy, by go opuścić.";
                     MessageBoxScreen messageBox = new MessageBoxScreen(message, spellsOffset, true, true);
                     ScreenManager.AddScreen(messageBox);
                     age = 0;
