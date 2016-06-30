@@ -249,7 +249,7 @@ namespace Game1
                     hudManager.Icons.EssenceIcon.Enable = true;
                     string message = "The purple bar displays your Essence, which is used to create turrets.\n\nEssence does not regenerate - you have to collect it from fallen enemies.";
                     if (settings.Polish)
-                        message = "Fioletowy pasek przedstawia twoją Esencję, która służy do tworzenia wieżyczek.\n\nEsencja się nie regeneruje - musisz zbierać ją z poległych wrogów.";
+                        message = "Fioletowy pasek przedstawia twoją Esencję, która służy do tworzenia wieżyczek.\n\nEsencja nie regeneruje się - musisz zbierać ją z poległych wrogów.";
                     MessageBoxScreen messageBox = new MessageBoxScreen(message, barsOffset, true, true);
                     ScreenManager.AddScreen(messageBox);
                     age = 0;
