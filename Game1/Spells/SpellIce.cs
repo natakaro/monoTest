@@ -281,7 +281,7 @@ namespace Game1.Spells
             rightCastSpeed = 250;
             dualCastSpeed = 1000;
 
-            leftDamage = 50; //może do zmniejszenia
+            leftDamage = 30; //może do zmniejszenia
             rightDamage = 1;
             projectileSpeed = 250;
             coneRange = 150f;

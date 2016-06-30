@@ -29,8 +29,6 @@ namespace Game1
         public float maxHealth;
         public float currentMana;
         public float maxMana;
-        public float currentCoreHealth;
-        public float maxCoreHealth;
         public float currentEssence;
         public float maxEssence;
 
@@ -48,7 +46,6 @@ namespace Game1
         int healthRegen;
         int manaRegen;
         int essenceRegen;
-        int coreRegen;
 
         public bool fireEnabled;
         public bool iceEnabled;
@@ -62,23 +59,20 @@ namespace Game1
             maxHealth = 250;
             maxMana = 250;
             maxEssence = 250;
-            maxCoreHealth = 1000;
 
             maxExp = 1000;
             
             currentHealth = maxHealth;
             currentMana = maxMana;
             currentEssence = maxEssence;
-            currentCoreHealth = maxCoreHealth;
 
-            currentExp = 800;
+            currentExp = 0;
 
             level = 1;
             
             healthRegen = 1;
-            manaRegen = 25;
+            manaRegen = 30;
             essenceRegen = 0;
-            coreRegen = 0;
 
             lastTargetedEnemy = null;
             currentTargetedEnemy = null;
@@ -99,12 +93,15 @@ namespace Game1
                 currentHealth = Math.Min(currentHealth + (float)gameTime.ElapsedGameTime.TotalSeconds * healthRegen, maxHealth);
             if (currentEssence < maxEssence)
                 currentEssence = Math.Min(currentEssence + (float)gameTime.ElapsedGameTime.TotalSeconds * essenceRegen, maxEssence);
-            if (currentCoreHealth < maxCoreHealth)
-                currentCoreHealth = Math.Min(currentCoreHealth + (float)gameTime.ElapsedGameTime.TotalSeconds * coreRegen, maxCoreHealth);
             if (currentExp >= maxExp)
             {
                 currentExp -= maxExp;
                 level++;
+                maxHealth += 50;
+                maxMana += 50;
+                maxEssence += 50;
+                manaRegen += 5;
+                healthRegen += 1;
             }
         }
 

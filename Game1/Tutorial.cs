@@ -59,6 +59,8 @@ namespace Game1
             hudManager.Icons.HealthIcon.Position = hudManager.HealthBar.Position + iconOffset;
             hudManager.ManaBar.Position = new Vector2(hudManager.BackbufferWidth / 2 - hudManager.BackbufferWidth / 2 + 100, hudManager.BackbufferHeight - 80);
             hudManager.Icons.ManaIcon.Position = hudManager.ManaBar.Position + iconOffset;
+
+            stats.currentExp = 800;
         }
 
         public void Update(GameTime gameTime)
@@ -154,7 +156,7 @@ namespace Game1
                 }
             }
 
-            if (step == 7 && stats.level > 1)
+            if (step == 7 && stats.level > 1 && GameplayScreen.phaseManager.Phase == Phase.Day)
             {
                 if (age > delay)
                 {

@@ -180,7 +180,7 @@ namespace Game1.Turrets
                 case Mode.FireRight:
                     range = 100;
                     projectileSpeed = 0;
-                    rateOfFire = 50;
+                    rateOfFire = 100;
                     damage = 1;
                     particlesPerSecond = 250;
                     timeBetweenParticles = 1.0f / particlesPerSecond;
@@ -205,7 +205,7 @@ namespace Game1.Turrets
                 case Mode.IceRight:
                     range = 100; //może 150
                     projectileSpeed = 0;
-                    rateOfFire = 50;
+                    rateOfFire = 100;
                     damage = 0.5f;
                     particlesPerSecond = 250;
                     timeBetweenParticles = 1.0f / particlesPerSecond;

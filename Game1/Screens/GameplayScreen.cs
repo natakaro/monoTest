@@ -884,6 +884,10 @@ namespace Game1.Screens
                     stats.currentHealth.ToString());
                 buffer.AppendFormat(" Mana: {0}\n\n",
                     stats.currentMana.ToString());
+                buffer.AppendFormat(" Essence: {0}\n\n",
+                    stats.currentEssence.ToString());
+                buffer.AppendFormat(" Experience: {0}\n\n",
+                    stats.currentExp.ToString());
             }
             spriteBatch.DrawString(spriteFont, buffer.ToString(), fontPos, Color.Yellow);
         }

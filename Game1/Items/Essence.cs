@@ -24,7 +24,7 @@ namespace Game1.Items
             {
                 if (stats.currentEssence < stats.maxEssence)
                 {
-                    stats.currentEssence = Math.Min(stats.currentEssence + 10, stats.maxEssence);
+                    stats.currentEssence = Math.Min(stats.currentEssence + 20, stats.maxEssence);
                     pickedUp = true;
                 }
             }

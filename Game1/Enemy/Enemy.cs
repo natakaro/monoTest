@@ -54,6 +54,8 @@ namespace Game1
         protected float chilledLength = 0;
         protected float chilledLengthMax;
 
+        protected bool died = false;
+
         public float MaxHealth
         {
             get { return maxHealth; }
@@ -213,7 +215,12 @@ namespace Game1
 
             if (deathAge > deathLength)
             {
-                itemManager.SpawnEssence(position);
+                if (died == false)
+                {
+                    GameplayScreen.stats.currentExp += 100;
+                    itemManager.SpawnEssence(position);
+                    died = true;
+                }
                 Alive = false;
             }
         }
@@ -227,7 +234,7 @@ namespace Game1
 
             if (deathAge > deathLength)
             {
-                GameplayScreen.stats.currentHealth -= 5;
+                GameplayScreen.stats.currentHealth -= 20;
                 Alive = false;
             }
         }
