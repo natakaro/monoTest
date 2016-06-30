@@ -33,6 +33,11 @@ namespace Game1.Turrets
         ObjectManager objectManager;
         ParticleManager particleManager;
 
+
+        Sound sound;
+        Sound fire;
+        Sound ice;
+
         public Model fireballModel;
         public Texture2D fireballTexture;
 
@@ -75,6 +80,7 @@ namespace Game1.Turrets
 
         Vector4 OverlayColor = Color.White.ToVector4();
         float emissive = 0;
+
 
         private Tile tile;
         public Tile Tile
@@ -124,6 +130,15 @@ namespace Game1.Turrets
             mode = Mode.Off;
 
             tile = null;
+
+            sound = new Sound(GameplayScreen.assetContentContainer.teleport);
+            sound.Play(position);
+            fire = new Sound(GameplayScreen.assetContentContainer.fire2);
+            ice = new Sound(GameplayScreen.assetContentContainer.ice2);
+            fire.soundInstance.Volume = 0.5f;
+            ice.soundInstance.Volume = 0.5f;
+            fire.soundInstance.IsLooped = true;
+            ice.soundInstance.IsLooped = true;
         }
 
         public override void Draw(Camera camera)
@@ -190,6 +205,7 @@ namespace Game1.Turrets
                     lightManager.AddLight(pointLight);
                     OverlayColor = Color.OrangeRed.ToVector4();
                     emissive = 0.5f;
+                    fire.Play(Position);
                     break;
                 case Mode.IceLeft:
                     range = 250;
@@ -215,6 +231,7 @@ namespace Game1.Turrets
                     lightManager.AddLight(pointLight);
                     OverlayColor = Color.SkyBlue.ToVector4();
                     emissive = 0.5f;
+                    ice.Play(Position);
                     break;
             }
         }
@@ -257,6 +274,9 @@ namespace Game1.Turrets
                 Shoot(gameTime);
             }
 
+            sound.Update(position);
+            fire.Update(position);
+            ice.Update(position);
             return ret;
         }
 
@@ -287,6 +307,8 @@ namespace Game1.Turrets
 
         private void Shoot(GameTime gameTime)
         {
+            ice.soundInstance.Volume = 0.0f;
+            fire.soundInstance.Volume = 0.0f;
             if (currentTarget != null && currentTarget.Alive)
             {
                 float elapsedMs = (float)gameTime.ElapsedGameTime.TotalMilliseconds;
@@ -336,6 +358,7 @@ namespace Game1.Turrets
                         break;
 
                     case Mode.FireRight:
+                        fire.soundInstance.Volume = 0.5f;
                         viewMatrix = Matrix.CreateLookAt(shootStartPosition, interception, Vector3.Up);
                         frustum.Matrix = viewMatrix * projectionMatrix;
                         Vector3 firePosition = shootStartPosition + direction * 15;
@@ -368,6 +391,7 @@ namespace Game1.Turrets
                         break;
 
                     case Mode.IceRight:
+                        ice.soundInstance.Volume = 0.5f;
                         viewMatrix = Matrix.CreateLookAt(shootStartPosition, interception, Vector3.Up);
                         frustum.Matrix = viewMatrix * projectionMatrix;
                         Vector3 icePosition = shootStartPosition + direction * 15;

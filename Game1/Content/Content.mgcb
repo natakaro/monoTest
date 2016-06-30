@@ -5658,12 +5658,6 @@
 /processorParam:TextureFormat=Color
 /build:Textures/enemies/wired.png
 
-#begin Sounds/fireball.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:Sounds/fireball.wav
-
 #begin Interface/HUD/icons/level.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -5699,4 +5693,52 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Effects/HDR/colorGradingNight.png
+
+#begin Sounds/earth.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/earth.wav
+
+#begin Sounds/fire2.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/fire2.wav
+
+#begin Sounds/fireball.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/fireball.wav
+
+#begin Sounds/ice2.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/ice2.wav
+
+#begin Sounds/icebolt.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/icebolt.wav
+
+#begin Sounds/teleport.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/teleport.wav
+
+#begin Sounds/bosspunch.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/bosspunch.wav
+
+#begin Sounds/song.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Sounds/song.mp3
 

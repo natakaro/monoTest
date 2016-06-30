@@ -21,9 +21,13 @@ namespace Game1
         protected AnimatedModel walk = null;
         AnimationPlayer player = null;
         int counter = 1;
-        bool dupy = true;
+        bool dddd = true;
         Camera cam = null;
         bool done = false;
+        bool punched = false;
+        private Sound spawn;
+        private Sound punch;
+
         public Boss(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ItemManager itemManager, ContentManager Content, List<Vector3> path) : base(game, inWorldMatrix, inModel, octree, itemManager, Content, path)
         {
             type = ObjectType.Enemy;
@@ -48,6 +52,15 @@ namespace Game1
             currentHealth = 10000;
             worldMatrix = Matrix.CreateRotationY(targetRotation) * Matrix.CreateTranslation(position);
             boundingSphere = new BoundingSphere(position, 800);
+
+            spawn = new Sound(GameplayScreen.assetContentContainer.teleport);
+            punch = new Sound(GameplayScreen.assetContentContainer.bosspunch);
+
+            spawn.soundInstance.Volume = 0.8f;
+            punch.soundInstance.Volume = 0.8f;
+
+            spawn.PlaySimple();
+            
         }
 
         public override bool Update(GameTime gameTime)
@@ -78,14 +91,18 @@ namespace Game1
                     spawnAge += elapsedTime;
                     dissolveAmount = MathHelper.Lerp(1, 0, spawnAge / spawnLength);
                 }
-                if (dupy)
+                if (dddd)
                 {
                     animatedModel.Update(gameTime);
                 }
 
 
-                if (Math.Truncate(player.Position) > counter && dupy)
+                if (Math.Truncate(player.Position) > counter && dddd)
                 {
+                    if (!punched)
+                    {
+                        punch.PlaySimple();
+                    }
                     //throw new Exception(player.Duration.ToString());
                     foreach (IntersectionRecord obj in octree.AllIntersections(boundingSphere))
                     {
@@ -93,11 +110,12 @@ namespace Game1
                         obj.DrawableObjectObject.Velocity = new Vector3(0, 70 - obj.DrawableObjectObject.Position.Y, 0);
                     }
                     counter++;
+                    punched = !punched;
                 }
 
                 if (counter > 3)
                 {
-                    dupy = false;
+                    dddd = false;
                     foreach (IntersectionRecord obj in octree.AllIntersections(boundingSphere))
                     {
                         obj.DrawableObjectObject.IsStatic = true;

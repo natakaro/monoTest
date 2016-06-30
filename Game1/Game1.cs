@@ -16,6 +16,8 @@ using static Game1.Helpers.HexCoordinates;
 using Game1.Items;
 using Game1.Particles;
 using Game1.Screens;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Media;
 
 namespace Game1
 {
@@ -25,7 +27,12 @@ namespace Game1
         private ScreenManager screenManager;
         public GameSettings settings;
         public static Random random;
-        
+
+        /*
+        Sound song;
+        SoundEffect sound;
+        */
+
         public int frames;
         public int framesPerSecond;
         private TimeSpan elapsedTime = TimeSpan.Zero;
@@ -56,6 +63,15 @@ namespace Game1
             screenManager = new ScreenManager(this);
             Components.Add(screenManager);
             AddInitialScreens();
+            /*
+            sound = Content.Load<SoundEffect>("Sounds/song");
+            song = new Sound(sound);
+            */
+            Song song = Content.Load<Song>("Sounds/song");
+            MediaPlayer.IsRepeating = true;
+            MediaPlayer.Volume = 0.09f;
+            MediaPlayer.Play(song);
+
         }
 
         protected override void Initialize()

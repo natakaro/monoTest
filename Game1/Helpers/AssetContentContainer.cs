@@ -52,11 +52,19 @@ namespace Game1.Helpers
 
 
         public SoundEffect fireball;
+        public SoundEffect icebolt;
+        public SoundEffect fire2;
+        public SoundEffect ice2;
+        public SoundEffect teleport;
+        public SoundEffect earth;
+        public SoundEffect bosspunch;
+
 
 
         public AssetContentContainer()
         {
-
+            SoundEffect.MasterVolume = 1.0f;
+            SoundEffect.DistanceScale = 25.0f;  //10 jest głośniej do 25
         }
 
         public void LoadContent(ContentManager Content)
@@ -101,7 +109,12 @@ namespace Game1.Helpers
             pathIcon = Content.Load<Texture2D>("Interface/Map/pathIcon");
 
             fireball = Content.Load<SoundEffect>("Sounds/fireball");
-
+            icebolt = Content.Load<SoundEffect>("Sounds/icebolt");
+            fire2 = Content.Load<SoundEffect>("Sounds/fire2");
+            ice2 = Content.Load<SoundEffect>("Sounds/ice2");
+            teleport = Content.Load<SoundEffect>("Sounds/teleport");
+            earth = Content.Load<SoundEffect>("Sounds/earth");
+            bosspunch = Content.Load<SoundEffect>("Sounds/bosspunch");
         }
     }
 }

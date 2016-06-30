@@ -38,6 +38,7 @@ namespace Game1.Spells
         bool tooHigh = false;
         bool tooLow = false;
         List<Tile> neighbors;
+        Sound sound;
 
         public void Start(bool leftButton, bool rightButton, DrawableObject dObj)
         {
@@ -51,7 +52,7 @@ namespace Game1.Spells
                 if (target != null && target.Type == DrawableObject.ObjectType.Tile) //fix jesli uzywajac na jednym klikniemy na drugim
                 {
                     target.Acceleration = Vector3.Zero;
-                    target.Velocity = Vector3.Zero;
+
                 }
 
                 if (leftButton && rightButton)  //wersja obszarowa, wyrownywanie terenu
@@ -111,6 +112,7 @@ namespace Game1.Spells
 
                         if ((target as Tile).ObjectOn == null)
                         {
+                            sound.Play(target.Position);
                             target.IsStatic = false;
                             if (leftButton)
                             {
@@ -138,6 +140,7 @@ namespace Game1.Spells
 
         public void Continue(bool leftButton, bool rightButton)
         {
+
             if (spellCharging > 0)
             {
                 if (leftButton == true && rightButton == true && neighbors != null) //w wersji obszarowej poruszamy kazdym tilem w odpowiednim kierunku z usredniona predkoscia
@@ -197,6 +200,8 @@ namespace Game1.Spells
                         manaDeducted = (stopwatch.ElapsedMilliseconds / castSpeed) * manaCost;
                         stats.currentMana = startingMana - manaDeducted;
 
+                        sound.Update(target.Position);
+
                         HeightLimiter();
 
                         if ((leftButton == true && tooHigh == false) || (rightButton == true && tooLow == false))
@@ -230,6 +235,7 @@ namespace Game1.Spells
                 target.IsStatic = true;
                 target = null;
                 stopwatch.Reset();
+                sound.Stop();
             }
 
             if (neighbors != null && neighbors.Count != 0)
@@ -286,6 +292,7 @@ namespace Game1.Spells
 
             castSpeed = 1000;
             dualCastSpeed = 1000;
+            sound = new Sound(GameplayScreen.assetContentContainer.earth);
         }
     }
 }

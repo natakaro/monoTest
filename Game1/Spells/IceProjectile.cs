@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Game1.Screens;
 
 namespace Game1.Spells
 {
@@ -33,6 +34,8 @@ namespace Game1.Spells
         private const int numExplosionSnowParticles = 80;
 
         public event EventHandler hitEvent;
+
+        Sound sound;
 
         public override void Draw(Camera camera)
         {
@@ -65,6 +68,8 @@ namespace Game1.Spells
             if (age > lifespan)
                 Destroy();
 
+            sound.Update(position);
+
             return ret;
         }
 
@@ -77,6 +82,10 @@ namespace Game1.Spells
             this.texture = texture;
             this.hudManager = hudManager;
             this.objectManager = objectManager;
+
+            sound = new Sound(GameplayScreen.assetContentContainer.icebolt);
+            sound.soundInstance.Volume = 0.5f;
+            sound.Play(position);
 
             m_static = false;
             boundingSphere = new BoundingSphere(position, 2f);

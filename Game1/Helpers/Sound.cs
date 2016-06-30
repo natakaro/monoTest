@@ -11,14 +11,15 @@ using Game1.Screens;
 
 namespace Game1.Helpers
 {
-    class Sound
+    public class Sound
     {
-        SoundEffectInstance soundInstance;
+        public SoundEffectInstance soundInstance;
         AudioEmitter emitter;
         AudioListener listener;
         public Sound(SoundEffect sounds)
         {
             soundInstance = sounds.CreateInstance();
+            soundInstance.Volume = 1.0f;
             listener = new AudioListener();
             emitter = new AudioEmitter();
         }
@@ -34,10 +35,15 @@ namespace Game1.Helpers
             soundInstance.Play();
         }
 
+        public void Stop()
+        {
+            soundInstance.Stop();
+        }
+
         public void Update(Vector3 position)
         {
             listener.Position = GameplayScreen.camera.Position;
-            //listener.Forward = GameplayScreen.camera.ViewDirection; //nie wiem czy to coś daje i czy działa
+            listener.Forward = -GameplayScreen.camera.ViewDirection; //nie wiem czy to coś daje i czy działa
             emitter.Position = position;
             soundInstance.Apply3D(listener, emitter);
         }

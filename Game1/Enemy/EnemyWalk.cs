@@ -20,6 +20,7 @@ namespace Game1
         protected AnimatedModel animatedModel = null;
         protected AnimatedModel walk = null;
         protected Texture2D texture = null;
+        protected Sound sound;
 
         public EnemyWalk(Game game, Matrix inWorldMatrix, Model inModel, Octree octree, ItemManager itemManager, ContentManager Content, List<Vector3> path) : base(game, inWorldMatrix, inModel, octree, itemManager, Content, path)
         {
@@ -46,6 +47,10 @@ namespace Game1
             maxHealth = 100;
             currentHealth = 100;
             chilledLengthMax = 8;
+
+            sound = new Sound(GameplayScreen.assetContentContainer.teleport);
+            sound.soundInstance.Volume = 0.1f;
+            sound.Play(position);
         }
 
         public override bool Update(GameTime gameTime)
@@ -130,7 +135,7 @@ namespace Game1
                     EnterCore(gameTime);
             }
 
-            
+            sound.Update(position);
             return ret;
         }
 

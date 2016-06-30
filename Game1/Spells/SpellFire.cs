@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Game1.Screens;
 
 namespace Game1.Spells
 {
@@ -57,6 +58,9 @@ namespace Game1.Spells
 
         public event EventHandler hitEvent;
 
+
+        Sound sound;
+
         private enum LastMode
         {
             Left = 0,
@@ -87,6 +91,7 @@ namespace Game1.Spells
                 spellCharging = SpellCharging.Right;
                 stats.SpellStatus(spellCharging, rightCastSpeed, stopwatch);
                 lastMode = LastMode.Right;
+                sound.PlaySimple();
             }
             //if (leftButton == true && rightButton == true && stats.currentMana >= dualManaCost)
             //{
@@ -262,6 +267,7 @@ namespace Game1.Spells
                 //    stopwatch.Reset();
                 //}
             }
+            sound.Stop();
         }
 
         public SpellFire(Game game, Camera camera, Octree octree, ObjectManager objectManager, LightManager lightManager, ParticleManager particleManager, HUDManager hudManager, Stats stats)
@@ -301,6 +307,9 @@ namespace Game1.Spells
             size.X /= 256f;
             size.Y /= 256f;
             projectionMatrix = Matrix.CreatePerspective(size.X, size.Y, 15f, coneRange);
+
+            sound = new Sound(GameplayScreen.assetContentContainer.fire2);
+            sound.soundInstance.Volume = 0.5f;
 
             hitEvent += hudManager.Crosshair.HandleHitEvent;
         }
