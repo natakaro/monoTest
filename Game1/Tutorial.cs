@@ -156,8 +156,12 @@ namespace Game1
                 }
             }
 
-            if (step == 7 && stats.level > 1 && GameplayScreen.phaseManager.Phase == Phase.Day)
+            if (step == 7 && GameplayScreen.phaseManager.Phase == Phase.Day)
             {
+                if (stats.level <= 1)
+                {
+                    stats.currentExp = stats.maxExp;
+                }
                 if (age > delay)
                 {
                     hudManager.Icons.MoveTerrainIcon.Enable = true;

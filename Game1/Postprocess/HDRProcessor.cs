@@ -33,11 +33,21 @@ namespace Game1.Postprocess
         protected float bloomThreshold = 0.85f;
         protected float bloomMultiplier = 1.0f;
         protected float blurSigma = 2.5f;
+        protected float lutPosition;
+
+        protected Texture3D colorGradingDay;
+        protected Texture3D colorGradingNight;
 
         public float ToneMapKey
         {
             get { return toneMapKey; }
             set { toneMapKey = value; }
+        }
+
+        public float LUTPosition
+        {
+            get { return lutPosition; }
+            set { lutPosition = value; }
         }
 
         public float MaxLuminance
@@ -58,6 +68,12 @@ namespace Game1.Postprocess
             thresholdEffect = contentManager.Load<Effect>("Effects/HDR/Threshold");
             scalingEffect = contentManager.Load<Effect>("Effects/HDR/Scale");
             HDREffect = contentManager.Load<Effect>("Effects/HDR/HDR");
+
+            colorGradingDay = ColorGradingHelper.LoadColorGrading(graphicsDevice, contentManager, "Effects/HDR/colorGradingDay");
+            colorGradingNight = ColorGradingHelper.LoadColorGrading(graphicsDevice, contentManager, "Effects/HDR/colorGradingNight");
+
+            //colorGradingDay = contentManager.Load<Texture3D>("Effects/HDR/colorGradingDay");
+            //colorGradingNight = contentManager.Load<Texture3D>("Effects/HDR/colorGradingNight");
 
             // Initialize our buffers
             int width = graphicsDevice.PresentationParameters.BackBufferWidth;
@@ -257,7 +273,7 @@ namespace Game1.Postprocess
                 HDREffect.CurrentTechnique = HDREffect.Techniques["ToneMapVignette"];
             else
                 HDREffect.CurrentTechnique = HDREffect.Techniques["ToneMap"];
-            PostProcess(sources3, result, HDREffect);
+            PostProcessGrading(sources3, result, HDREffect, colorGradingDay, colorGradingNight);
 
             // Flip the luminance textures
             Swap(ref currentFrameAdaptedLuminance, ref lastFrameAdaptedLuminance);
@@ -307,6 +323,30 @@ namespace Game1.Postprocess
                 effect.Parameters["g_vDestinationDimensions"].SetValue(new Vector2(graphicsDevice.PresentationParameters.BackBufferWidth, graphicsDevice.PresentationParameters.BackBufferHeight));
             else
                 effect.Parameters["g_vDestinationDimensions"].SetValue(new Vector2(result.Width, result.Height));
+
+            // Begin effect
+            effect.CurrentTechnique.Passes[0].Apply();
+
+            // Draw primitives
+            quadRenderer.Render();
+        }
+
+        protected void PostProcessGrading(RenderTarget2D[] sources, RenderTarget2D result, Effect effect, Texture3D colorGradingDay, Texture3D colorGradingNight)
+        {
+            graphicsDevice.SetRenderTarget(result);
+            graphicsDevice.Clear(Color.Black);
+
+            for (int i = 0; i < sources.Length; i++)
+                effect.Parameters["SourceTexture" + Convert.ToString(i)].SetValue(sources[i]);
+            effect.Parameters["g_vSourceDimensions"].SetValue(new Vector2(sources[0].Width, sources[0].Height));
+            if (result == null)
+                effect.Parameters["g_vDestinationDimensions"].SetValue(new Vector2(graphicsDevice.PresentationParameters.BackBufferWidth, graphicsDevice.PresentationParameters.BackBufferHeight));
+            else
+                effect.Parameters["g_vDestinationDimensions"].SetValue(new Vector2(result.Width, result.Height));
+
+            effect.Parameters["ColorGradingDay"].SetValue(colorGradingDay);
+            effect.Parameters["ColorGradingNight"].SetValue(colorGradingNight);
+            effect.Parameters["g_fLUTPosition"].SetValue(lutPosition);
 
             // Begin effect
             effect.CurrentTechnique.Passes[0].Apply();

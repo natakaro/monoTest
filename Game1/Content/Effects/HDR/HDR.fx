@@ -27,11 +27,43 @@
 
 float g_fDT;
 float g_fBloomMultiplier;
+float g_fLUTPosition;
 
 float VignetteAmount = 0.6;
 float VignetteCurve = 1.0;
 float VignetteRadius = 1.4;
 float3 VignetteColor = float3(0.0, 0.0, 0.0);
+
+Texture3D ColorGradingDay;
+sampler3D ColorGradingDaySampler = sampler_state
+{
+    Texture = <ColorGradingDay>;
+    MinFilter = linear;
+    MagFilter = linear;
+    MipFilter = linear;
+    AddressU = CLAMP;
+    AddressV = CLAMP;
+    AddressW = CLAMP;
+};
+Texture3D ColorGradingNight;
+sampler3D ColorGradingNightSampler = sampler_state
+{
+    Texture = <ColorGradingNight>;
+    MinFilter = linear;
+    MagFilter = linear;
+    MipFilter = linear;
+    AddressU = CLAMP;
+    AddressV = CLAMP;
+    AddressW = CLAMP;
+};
+
+float3 gradColor(float3 color)
+{
+    float3 day = tex3D(ColorGradingDaySampler, float3(color.r, color.b, color.g)).rgb;
+    float3 night = tex3D(ColorGradingNightSampler, float3(color.r, color.b, color.g)).rgb;
+
+    return lerp(night, day, g_fLUTPosition);
+}
 
 float4 LuminancePS(VertexShaderOutput input) : COLOR0
 {
@@ -64,12 +96,13 @@ float4 ToneMapPS(VertexShaderOutput input) : COLOR0
 	// Sample the original HDR image
     float4 vSample = tex2D(PointSampler0, input.TexCoord);
     float3 vHDRColor = vSample.rgb;
+    float3 vBloomSample = tex2D(LinearSampler2, input.TexCoord).rgb * g_fBloomMultiplier;
 		
 	// Do the tone-mapping
     float3 vToneMapped = fToneMap(vHDRColor);
 	
 	// Add in the bloom component
-    float3 vColor = vToneMapped + tex2D(LinearSampler2, input.TexCoord).rgb * g_fBloomMultiplier;
+    float3 vColor = vToneMapped + vBloomSample;
 	
     return float4(vColor, 1.0f);
 }
@@ -79,19 +112,20 @@ float4 ToneMapVignettePS(VertexShaderOutput input) : COLOR0
 	// Sample the original HDR image
     float4 vSample = tex2D(PointSampler0, input.TexCoord);
     float3 vHDRColor = vSample.rgb;
+    float3 vBloomSample = tex2D(LinearSampler2, input.TexCoord).rgb * g_fBloomMultiplier;
 		
 	// Do the tone-mapping
     float3 vToneMapped = fToneMap(vHDRColor);
 	
-	// Add in the bloom component
-    float3 vColor = vToneMapped + tex2D(LinearSampler2, input.TexCoord).rgb * g_fBloomMultiplier;
+	// Add in the bloom component and color grading
+    float3 vColor = gradColor(vToneMapped.rgb) + vBloomSample;
 
     float2 dist = (input.TexCoord - 0.5f) * VignetteRadius;
     float vignette = saturate(dot(dist, dist));
     vignette = pow(vignette, VignetteCurve);
 
     vColor = lerp(vColor, VignetteColor, vignette * VignetteAmount);
-	
+
     return float4(vColor, 1.0f);
 }
 

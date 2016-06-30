@@ -531,7 +531,8 @@ namespace Game1.Screens
 
                 sky.Theta = timeOfDay.TimeFloat * (float)(Math.PI) / 12.0f;
 
-                hdrProcessor.ToneMapKey = timeOfDay.LogisticTime(0.05f, 0.8f, 2.0f);
+                hdrProcessor.ToneMapKey = timeOfDay.LogisticTime(0.2f, 0.8f, 2.0f);
+                hdrProcessor.LUTPosition = timeOfDay.LogisticTime(0.0f, 1.0f, 4.0f);
                 particleManager.Update(gameTime);
 
                 //hdrProcessor.MaxLuminance = 512.0f * timeOfDay.LogisticTime(0f, 1f, 1f);
